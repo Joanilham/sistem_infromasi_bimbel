@@ -1,0 +1,67 @@
+# Log files
+*.log
+npm-debug.log
+yarn-error.log
+pnpm-debug.log*
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Environment variables
+.env
+.env.backup
+.env.production
+.env.local
+.env.*.local
+
+# Cache and framework generated files
+.phpunit.result.cache
+/.phpunit.cache
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/storage/pail
+/storage/framework/cache/data/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/logs/*
+
+# Dependencies
+/vendor
+/node_modules
+
+# Sensitive / Database files
+*.sqlite
+*.sqlite3
+*.db
+*.sql
+*.sql.gz
+/database/database.sqlite
+/database/database.sqlite-journal
+/auth.json
+Homestead.json
+Homestead.yaml
+
+# IDE & Editor files
+/.fleet
+/.idea
+/.nova
+/.vscode
+/.zed
+.phpactor.json
+
+# composer
+composer.lock
+composer.json 
+
+# package
+package-lock.json
+package.json
+
