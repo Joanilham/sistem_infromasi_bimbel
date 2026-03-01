@@ -12,3 +12,10 @@
         "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
         "Noto Color Emoji";
 }
+
+@layer base {
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: var(--color-gray-100, #f3f4f6);
+    }
+}

@@ -1,21 +1,21 @@
 @extends('layouts.admin')
 
-@section('title', 'Pengaturan Kantor')
+@section('title', 'Paket Bimbingan')
 
 @section('content')
 <div class="bg-white dark:bg-slate-900/80 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] dark:shadow-none sm:rounded-2xl mb-8 border border-slate-100 dark:border-transparent overflow-hidden">
     <div class="px-6 py-6 sm:px-8 flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
         <div>
             <h3 class="text-xl leading-6 font-bold text-slate-800 dark:text-white">
-                Daftar Kantor
+                Daftar Paket Bimbingan
             </h3>
-            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Kelola data kantor cabang Genius Education.</p>
+            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Kelola data paket bimbingan belajar dan nominal harga.</p>
         </div>
         <button onclick="document.getElementById('modal-create').classList.remove('hidden')" class="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 border border-transparent text-sm font-semibold rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-md shadow-indigo-500/30 transition-all hover:-translate-y-0.5">
             <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
-            Tambah Kantor
+            Tambah Paket
         </button>
     </div>
 
@@ -24,23 +24,25 @@
             <thead class="bg-slate-50 dark:bg-slate-800/80">
                 <tr>
                     <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">No</th>
-                    <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Nama Kantor</th>
-                    <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Alamat</th>
-                    <th scope="col" class="px-6 py-4 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Aksi</th>
+                    <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Nama Paket</th>
+                    <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Nominal</th>
+                    <th scope="col" class="px-6 py-4 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Opsi</th>
                 </tr>
             </thead>
             <tbody class="bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800/50">
-                @foreach($kantors as $kantor)
+                @foreach($paketBimbingans as $paket)
                 <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors duration-200">
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">{{ $loop->iteration }}</td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm font-semibold text-slate-900 dark:text-slate-100">{{ $kantor->nama_kantor }}</div>
+                        <div class="text-sm font-semibold text-slate-900 dark:text-slate-100">{{ $paket->nama_paket }}</div>
                     </td>
-                    <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-300 max-w-xs truncate">{{ $kantor->alamat ?? '-' }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-emerald-600 dark:text-emerald-400 font-semibold">
+                        Rp {{ number_format($paket->nominal, 0, ',', '.') }}
+                    </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div class="flex items-center justify-end space-x-3">
-                            <button type="button" onclick="editKantor(this)" data-id="{{ $kantor->id }}" data-nama="{{ $kantor->nama_kantor }}" data-alamat="{{ $kantor->alamat }}" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1 rounded-lg transition-colors">Edit</button>
-                            @include('admin.kantor.delete')
+                            <button type="button" onclick="editPaket(this)" data-id="{{ $paket->id }}" data-nama="{{ $paket->nama_paket }}" data-nominal="{{ $paket->nominal }}" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1 rounded-lg transition-colors">Edit</button>
+                            @include('admin.paket_bimbingan.delete')
                         </div>
                     </td>
                 </tr>
@@ -50,9 +52,9 @@
     </div>
 </div>
 
-@include('admin.kantor.create')
-@include('admin.kantor.edit')
-@include('admin.kantor.script')
+@include('admin.paket_bimbingan.create')
+@include('admin.paket_bimbingan.edit')
+@include('admin.paket_bimbingan.script')
 
 @section('scripts')
 <script>

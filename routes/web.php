@@ -23,11 +23,16 @@ Route::middleware('auth')->group(function () {
         return view('dashboard');
     })->name('dashboard');
 
-    Route::resource('kantor', \App\Http\Controllers\KantorController::class);
-    Route::resource('periode', \App\Http\Controllers\PeriodeController::class);
+    Route::middleware('role:administrator')->group(function () {
+        Route::resource('kantor', \App\Http\Controllers\KantorController::class);
+        Route::resource('periode', \App\Http\Controllers\PeriodeController::class);
+        Route::resource('pengguna', \App\Http\Controllers\PenggunaController::class);
+        Route::resource('paket-bimbingan', \App\Http\Controllers\PaketBimbinganController::class)->except(['create', 'edit', 'show']);
+        Route::resource('peserta-didik', \App\Http\Controllers\PesertaDidikController::class)->except(['create', 'edit', 'show']);
 
-    Route::get('/master', [\App\Http\Controllers\MasterController::class, 'index'])->name('master.index');
-    Route::put('/master', [\App\Http\Controllers\MasterController::class, 'update'])->name('master.update');
+        Route::get('/master', [\App\Http\Controllers\MasterController::class, 'index'])->name('master.index');
+        Route::put('/master', [\App\Http\Controllers\MasterController::class, 'update'])->name('master.update');
+    });
 
     Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
