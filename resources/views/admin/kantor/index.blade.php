@@ -3,43 +3,51 @@
 @section('title', 'Pengaturan Kantor')
 
 @section('content')
-<div class="bg-white dark:bg-slate-900/80 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] dark:shadow-none sm:rounded-2xl mb-8 border border-slate-100 dark:border-transparent overflow-hidden">
-    <div class="px-6 py-6 sm:px-8 flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+<div class="admin-table-card">
+    {{-- Header --}}
+    <div class="admin-table-header">
         <div>
-            <h3 class="text-xl leading-6 font-bold text-slate-800 dark:text-white">
-                Daftar Kantor
-            </h3>
-            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Kelola data kantor cabang Genius Education.</p>
+            <div class="admin-table-title">Daftar Kantor</div>
+            <div class="admin-table-subtitle">Kelola data kantor cabang Genius Education.</div>
         </div>
-        <button onclick="document.getElementById('modal-create').classList.remove('hidden')" class="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 border border-transparent text-sm font-semibold rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-md shadow-indigo-500/30 transition-all hover:-translate-y-0.5">
-            <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        <button onclick="document.getElementById('modal-create').classList.remove('hidden')" class="btn-add">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
             </svg>
             Tambah Kantor
         </button>
     </div>
 
-    <div class="overflow-x-auto p-4 sm:p-6">
-        <table id="dataTable" class="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
-            <thead class="bg-slate-50 dark:bg-slate-800/80">
+    {{-- Table --}}
+    <div class="admin-table-body">
+        <table id="dataTable" class="admin-datatable">
+            <thead>
                 <tr>
-                    <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">No</th>
-                    <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Nama Kantor</th>
-                    <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Alamat</th>
-                    <th scope="col" class="px-6 py-4 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Aksi</th>
+                    <th style="width:50px">No</th>
+                    <th>Nama Kantor</th>
+                    <th>Alamat</th>
+                    <th class="text-right" style="width:100px">Aksi</th>
                 </tr>
             </thead>
-            <tbody class="bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800/50">
+            <tbody>
                 @foreach($kantors as $kantor)
-                <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors duration-200">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">{{ $loop->iteration }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm font-semibold text-slate-900 dark:text-slate-100">{{ $kantor->nama_kantor }}</div>
+                <tr>
+                    <td><span class="cell-no">{{ $loop->iteration }}</span></td>
+                    <td><span class="cell-label">{{ $kantor->nama_kantor }}</span></td>
+                    <td style="max-width:260px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                        {{ $kantor->alamat ?? '-' }}
                     </td>
-                    <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-300 max-w-xs truncate">{{ $kantor->alamat ?? '-' }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div class="flex items-center justify-end space-x-3">
-                            <button type="button" onclick="editKantor(this)" data-id="{{ $kantor->id }}" data-nama="{{ $kantor->nama_kantor }}" data-alamat="{{ $kantor->alamat }}" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1 rounded-lg transition-colors">Edit</button>
+                    <td style="text-align:right">
+                        <div class="action-group">
+                            <button type="button" onclick="editKantor(this)"
+                                data-id="{{ $kantor->id }}"
+                                data-nama="{{ $kantor->nama_kantor }}"
+                                data-alamat="{{ $kantor->alamat }}"
+                                class="btn-icon btn-icon-edit" title="Edit">
+                                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                            </button>
                             @include('admin.kantor.delete')
                         </div>
                     </td>
