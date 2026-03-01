@@ -31,8 +31,8 @@
                 </svg>
                 Paket Bimbingan
             </a>
-            <a href="#" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 text-slate-300 hover:bg-white/5 hover:text-white group">
-                <svg class="mr-3 h-5 w-5 text-slate-400 group-hover:text-slate-200 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <a href="{{ route('kelompok-belajar.index') }}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 {{ request()->routeIs('kelompok-belajar.*') ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' }} group">
+                <svg class="mr-3 h-5 w-5 transition-colors {{ request()->routeIs('kelompok-belajar.*') ? 'text-white' : 'text-slate-400 group-hover:text-slate-200' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354l-8.646 6.484a.5.5 0 00.316.892h16.66a.5.5 0 00.316-.892L12 4.354z" />
                 </svg>
                 Kelompok Belajar

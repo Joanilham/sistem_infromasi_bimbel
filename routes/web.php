@@ -28,7 +28,9 @@ Route::middleware('auth')->group(function () {
         Route::resource('periode', \App\Http\Controllers\PeriodeController::class);
         Route::resource('pengguna', \App\Http\Controllers\PenggunaController::class);
         Route::resource('paket-bimbingan', \App\Http\Controllers\PaketBimbinganController::class)->except(['create', 'edit', 'show']);
-        Route::resource('peserta-didik', \App\Http\Controllers\PesertaDidikController::class)->except(['create', 'edit', 'show']);
+        Route::get('/peserta-didik/export', [\App\Http\Controllers\PesertaDidikController::class, 'export'])->name('peserta-didik.export');
+        Route::resource('peserta-didik', \App\Http\Controllers\PesertaDidikController::class)->except(['edit', 'show']);
+        Route::resource('kelompok-belajar', \App\Http\Controllers\KelompokBelajarController::class)->except(['create', 'edit', 'show']);
 
         Route::get('/master', [\App\Http\Controllers\MasterController::class, 'index'])->name('master.index');
         Route::put('/master', [\App\Http\Controllers\MasterController::class, 'update'])->name('master.update');
