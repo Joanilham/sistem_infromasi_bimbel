@@ -72,33 +72,12 @@
                     </td>
                     <td style="text-align:right">
                         <div class="action-group">
-                            <button type="button" onclick="editPeserta(this)"
-                                data-id="{{ $peserta->id }}"
-                                data-nama="{{ $peserta->nama_lengkap }}"
-                                data-nomor="{{ $peserta->nomor_induk }}"
-                                data-jk="{{ $peserta->jenis_kelamin }}"
-                                data-tempat="{{ $peserta->tempat_lahir }}"
-                                data-tgl="{{ $peserta->tanggal_lahir }}"
-                                data-agama="{{ $peserta->agama }}"
-                                data-alamat="{{ $peserta->alamat_lengkap }}"
-                                data-sekolah="{{ $peserta->asal_sekolah }}"
-                                data-telp="{{ $peserta->no_telepon }}"
-                                data-ayah="{{ $peserta->nama_ayah }}"
-                                data-ibu="{{ $peserta->nama_ibu }}"
-                                data-pkayah="{{ $peserta->pekerjaan_ayah }}"
-                                data-pkibu="{{ $peserta->pekerjaan_ibu }}"
-                                data-telpayah="{{ $peserta->no_telepon_ayah }}"
-                                data-telpibu="{{ $peserta->no_telepon_ibu }}"
-                                data-info="{{ $peserta->informasi_dari }}"
-                                data-paket="{{ $peserta->paket_bimbingan_id }}"
-                                data-kelompok="{{ $peserta->kelompok_belajar }}"
-                                data-status="{{ $peserta->status }}"
+                            <a href="{{ route('peserta-didik.edit', $peserta->id) }}"
                                 class="btn-icon btn-icon-edit" title="Edit">
                                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                 </svg>
-                            </button>
-                            @include('admin.peserta_didik.delete')
+                            </a>
                         </div>
                     </td>
                 </tr>
@@ -108,8 +87,7 @@
     </div>
 </div>
 
-@include('admin.peserta_didik.edit')
-@include('admin.peserta_didik.script')
+
 
 @section('scripts')
 <script>

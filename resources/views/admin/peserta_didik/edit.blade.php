@@ -1,152 +1,198 @@
-{{-- Modal Edit Peserta Didik --}}
-<div id="modal-edit" class="fixed inset-0 z-[60] overflow-y-auto hidden" role="dialog" aria-modal="true">
-    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[60]" onclick="document.getElementById('modal-edit').classList.add('hidden')"></div>
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
-        <div class="relative z-[70] inline-block align-bottom bg-white dark:bg-slate-900 rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:w-full border border-slate-100 dark:border-slate-700" style="max-width:680px">
-            <form method="POST" id="form-edit-peserta">
-                @csrf
-                @method('PUT')
-                {{-- Header modal --}}
-                <div class="px-6 pt-5 pb-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
-                    <h3 class="text-lg font-bold text-slate-800 dark:text-white">Edit Peserta Didik</h3>
-                    <button type="button" onclick="document.getElementById('modal-edit').classList.add('hidden')" class="text-slate-400 hover:text-slate-600">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
+@extends('layouts.admin')
 
-                <div class="px-6 py-5 space-y-5 max-h-[70vh] overflow-y-auto custom-scrollbar">
-                    {{-- Section: Data Pribadi --}}
-                    <div>
-                        <p class="text-xs font-bold uppercase tracking-wider text-indigo-600 mb-3">Data Pribadi</p>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div class="sm:col-span-2">
-                                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Nama Lengkap <span class="text-red-500">*</span></label>
-                                <input type="text" name="nama_lengkap" id="edit_nama_lengkap" required class="block w-full border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">No. Induk <span class="text-red-500">*</span></label>
-                                <input type="text" name="nomor_induk" id="edit_nomor_induk" required class="block w-full border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Jenis Kelamin <span class="text-red-500">*</span></label>
-                                <select name="jenis_kelamin" id="edit_jenis_kelamin" required class="block w-full border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                                    <option value="L">Laki-laki</option>
-                                    <option value="P">Perempuan</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Tempat Lahir</label>
-                                <input type="text" name="tempat_lahir" id="edit_tempat_lahir" class="block w-full border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Tanggal Lahir</label>
-                                <input type="date" name="tanggal_lahir" id="edit_tanggal_lahir" class="block w-full border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Agama</label>
-                                <select name="agama" id="edit_agama" class="block w-full border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                                    <option value="">-- Pilih --</option>
-                                    <option>Islam</option>
-                                    <option>Kristen</option>
-                                    <option>Katolik</option>
-                                    <option>Hindu</option>
-                                    <option>Buddha</option>
-                                    <option>Konghucu</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">No. Telepon</label>
-                                <input type="text" name="no_telepon" id="edit_no_telepon" class="block w-full border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            </div>
-                            <div class="sm:col-span-2">
-                                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Alamat Lengkap</label>
-                                <textarea name="alamat_lengkap" id="edit_alamat_lengkap" rows="2" class="block w-full border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
-                            </div>
-                        </div>
-                    </div>
+@section('title', 'Edit Peserta Didik')
 
-                    {{-- Section: Data Akademik --}}
-                    <div>
-                        <p class="text-xs font-bold uppercase tracking-wider text-indigo-600 mb-3">Data Akademik</p>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div class="sm:col-span-2">
-                                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Asal Sekolah <span class="text-red-500">*</span></label>
-                                <input type="text" name="asal_sekolah" id="edit_asal_sekolah" required class="block w-full border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Paket Bimbingan <span class="text-red-500">*</span></label>
-                                <select name="paket_bimbingan_id" id="edit_paket_bimbingan_id" required class="block w-full border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                                    <option value="">-- Pilih Paket --</option>
-                                    @foreach($paketBimbingans as $paket)
-                                    <option value="{{ $paket->id }}">{{ $paket->nama_paket }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Kelompok Belajar <span class="text-red-500">*</span></label>
-                                <select name="kelompok_belajar" id="edit_kelompok_belajar" required class="block w-full border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                                    <option value="">-- Pilih Kelompok --</option>
-                                    @foreach($kelompokBelajars as $kb)
-                                    <option value="{{ $kb->nama_kelompok }}">{{ $kb->nama_kelompok }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Status</label>
-                                <select name="status" id="edit_status" class="block w-full border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                                    <option value="Aktif">Aktif</option>
-                                    <option value="Tidak Aktif">Tidak Aktif</option>
-                                    <option value="Keluar">Keluar</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Informasi Dari</label>
-                                <input type="text" name="informasi_dari" id="edit_informasi_dari" class="block w-full border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            </div>
-                        </div>
-                    </div>
+@section('content')
+<div class="pd-form-wrap" x-data="{ statusKeluar: '{{ old('status', $pesertaDidik->status) }}' }">
+    <h2 style="font-size:1.05rem;font-weight:700;color:#111827;margin-bottom:4px;">Edit Peserta Didik Aktif</h2>
+    <p style="font-size:.78rem;color:#6b7280;margin-bottom:0;">Perbarui data peserta didik dengan lengkap dan benar.</p>
 
-                    {{-- Section: Data Orang Tua --}}
-                    <div>
-                        <p class="text-xs font-bold uppercase tracking-wider text-indigo-600 mb-3">Data Orang Tua</p>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Nama Ayah</label>
-                                <input type="text" name="nama_ayah" id="edit_nama_ayah" class="block w-full border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Pekerjaan Ayah</label>
-                                <input type="text" name="pekerjaan_ayah" id="edit_pekerjaan_ayah" class="block w-full border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">No. Telepon Ayah</label>
-                                <input type="text" name="no_telepon_ayah" id="edit_no_telepon_ayah" class="block w-full border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Nama Ibu</label>
-                                <input type="text" name="nama_ibu" id="edit_nama_ibu" class="block w-full border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Pekerjaan Ibu</label>
-                                <input type="text" name="pekerjaan_ibu" id="edit_pekerjaan_ibu" class="block w-full border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">No. Telepon Ibu</label>
-                                <input type="text" name="no_telepon_ibu" id="edit_no_telepon_ibu" class="block w-full border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <form action="{{ route('peserta-didik.update', $pesertaDidik->id) }}" method="POST">
+        @csrf
+        @method('PUT')
 
-                {{-- Footer --}}
-                <div class="px-6 py-4 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 flex justify-end gap-3">
-                    <button type="button" onclick="document.getElementById('modal-edit').classList.add('hidden')" class="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl hover:bg-slate-50 transition-colors">Batal</button>
-                    <button type="submit" class="px-5 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-sm transition-colors">Simpan</button>
-                </div>
-            </form>
+        {{-- ── SECTION 1: Data Pribadi ────────────────── --}}
+        <div class="pd-section-title">Data Pribadi</div>
+        <div class="pd-grid">
+            <div class="pd-field full">
+                <label>Nama Lengkap <span>*</span></label>
+                <input type="text" name="nama_lengkap" required
+                    value="{{ old('nama_lengkap', $pesertaDidik->nama_lengkap) }}"
+                    placeholder="Nama lengkap peserta didik">
+            </div>
+            <div class="pd-field">
+                <label>No. Induk <span>*</span></label>
+                <input type="text" name="nomor_induk" required
+                    value="{{ old('nomor_induk', $pesertaDidik->nomor_induk) }}"
+                    placeholder="Nomor induk unik">
+            </div>
+            <div class="pd-field">
+                <label>Jenis Kelamin <span>*</span></label>
+                <select name="jenis_kelamin" required>
+                    <option value="">— Pilih Jenis Kelamin —</option>
+                    <option value="L" {{ old('jenis_kelamin', $pesertaDidik->jenis_kelamin) === 'L' ? 'selected' : '' }}>Laki-laki</option>
+                    <option value="P" {{ old('jenis_kelamin', $pesertaDidik->jenis_kelamin) === 'P' ? 'selected' : '' }}>Perempuan</option>
+                </select>
+            </div>
+            <div class="pd-field">
+                <label>Tempat Lahir</label>
+                <input type="text" name="tempat_lahir"
+                    value="{{ old('tempat_lahir', $pesertaDidik->tempat_lahir) }}"
+                    placeholder="Kota tempat lahir">
+            </div>
+            <div class="pd-field">
+                <label>Tanggal Lahir</label>
+                <input type="date" name="tanggal_lahir"
+                    value="{{ old('tanggal_lahir', $pesertaDidik->tanggal_lahir) }}">
+            </div>
+            <div class="pd-field">
+                <label>Agama</label>
+                <select name="agama">
+                    <option value="">— Pilih Agama —</option>
+                    @foreach(['Islam','Kristen','Katolik','Hindu','Buddha','Konghucu'] as $agama)
+                    <option value="{{ $agama }}" {{ old('agama', $pesertaDidik->agama) === $agama ? 'selected' : '' }}>{{ $agama }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="pd-field">
+                <label>No. Telepon</label>
+                <input type="text" name="no_telepon"
+                    value="{{ old('no_telepon', $pesertaDidik->no_telepon) }}"
+                    placeholder="08xxxxxxxxxx">
+            </div>
+            <div class="pd-field full">
+                <label>Alamat Lengkap</label>
+                <textarea name="alamat_lengkap" placeholder="Alamat rumah lengkap">{{ old('alamat_lengkap', $pesertaDidik->alamat_lengkap) }}</textarea>
+            </div>
         </div>
-    </div>
+
+        {{-- ── SECTION 2: Data Akademik ───────────────── --}}
+        <div class="pd-section-title">Data Akademik</div>
+        <div class="pd-grid">
+            <div class="pd-field full">
+                <label>Asal Sekolah <span>*</span></label>
+                <input type="text" name="asal_sekolah" required
+                    value="{{ old('asal_sekolah', $pesertaDidik->asal_sekolah) }}"
+                    placeholder="Nama sekolah asal">
+            </div>
+            <div class="pd-field">
+                <label>Paket Bimbingan Belajar <span>*</span></label>
+                <select name="paket_bimbingan_id" required>
+                    <option value="">— Pilih Paket —</option>
+                    @foreach($paketBimbingans as $paket)
+                    <option value="{{ $paket->id }}" {{ old('paket_bimbingan_id', $pesertaDidik->paket_bimbingan_id) == $paket->id ? 'selected' : '' }}>
+                        {{ $paket->nama_paket }}
+                    </option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="pd-field">
+                <label>Kelompok Belajar <span>*</span></label>
+                <select name="kelompok_belajar" required>
+                    <option value="">— Pilih Kelompok —</option>
+                    @foreach($kelompokBelajars as $kb)
+                    <option value="{{ $kb->nama_kelompok }}" {{ old('kelompok_belajar', $pesertaDidik->kelompok_belajar) === $kb->nama_kelompok ? 'selected' : '' }}>
+                        {{ $kb->nama_kelompok }}
+                    </option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="pd-field">
+                <label>Status Registrasi: <span>*</span></label>
+                <select name="status" x-model="statusKeluar">
+                    <option value="Aktif" {{ old('status', $pesertaDidik->status) === 'Aktif' ? 'selected' : '' }}>Aktif</option>
+                    <option value="Keluar" {{ old('status', $pesertaDidik->status) === 'Keluar' ? 'selected' : '' }}>Keluar</option>
+                </select>
+            </div>
+            <div class="pd-field full">
+                <label>Memperoleh Informasi Dari</label>
+                <input type="text" name="informasi_dari"
+                    value="{{ old('informasi_dari', $pesertaDidik->informasi_dari) }}"
+                    placeholder="Misal: media sosial, teman, brosur, dll">
+            </div>
+        </div>
+
+        {{-- Conditional: fields Keluar --}}
+        <div x-show="statusKeluar === 'Keluar'" x-transition
+            style="margin-top:1.2rem; padding:1.2rem; background:#fef2f2; border:1px solid #fecaca; border-radius:8px;">
+            <div style="font-size:.78rem; font-weight:700; color:#dc2626; text-transform:uppercase; margin-bottom:1rem; letter-spacing:0.05em">Informasi Keluar</div>
+            <div class="pd-grid">
+                <div class="pd-field">
+                    <label>Tanggal Keluar: <span style="color:#ef4444">*</span></label>
+                    <input type="date" name="tanggal_keluar"
+                        value="{{ old('tanggal_keluar', $pesertaDidik->tanggal_keluar) }}"
+                        :required="statusKeluar === 'Keluar'"
+                        style="border-color:#fca5a5">
+                </div>
+                <div class="pd-field full">
+                    <label>Keterangan Keluar: <span style="color:#ef4444">*</span></label>
+                    <textarea name="alasan_keluar" rows="2"
+                        :required="statusKeluar === 'Keluar'"
+                        placeholder="Tuliskan keterangan peserta keluar..."
+                        style="border-color:#fca5a5">{{ old('alasan_keluar', $pesertaDidik->alasan_keluar) }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        {{-- ── SECTION 3: Data Orang Tua ──────────────── --}}
+        <div class="pd-section-title" style="margin-top:2rem">Data Orang Tua / Wali</div>
+        <div class="pd-grid">
+            <div class="pd-field">
+                <label>Nama Ayah</label>
+                <input type="text" name="nama_ayah" value="{{ old('nama_ayah', $pesertaDidik->nama_ayah) }}">
+            </div>
+            <div class="pd-field">
+                <label>Pekerjaan Ayah</label>
+                <input type="text" name="pekerjaan_ayah" value="{{ old('pekerjaan_ayah', $pesertaDidik->pekerjaan_ayah) }}">
+            </div>
+            <div class="pd-field">
+                <label>No. Telepon Ayah</label>
+                <input type="text" name="no_telepon_ayah"
+                    value="{{ old('no_telepon_ayah', $pesertaDidik->no_telepon_ayah) }}"
+                    placeholder="08xxxxxxxxxx">
+            </div>
+            <div class="pd-field">
+                <label>Nama Ibu</label>
+                <input type="text" name="nama_ibu" value="{{ old('nama_ibu', $pesertaDidik->nama_ibu) }}">
+            </div>
+            <div class="pd-field">
+                <label>Pekerjaan Ibu</label>
+                <input type="text" name="pekerjaan_ibu" value="{{ old('pekerjaan_ibu', $pesertaDidik->pekerjaan_ibu) }}">
+            </div>
+            <div class="pd-field">
+                <label>No. Telepon Ibu</label>
+                <input type="text" name="no_telepon_ibu"
+                    value="{{ old('no_telepon_ibu', $pesertaDidik->no_telepon_ibu) }}"
+                    placeholder="08xxxxxxxxxx">
+            </div>
+        </div>
+
+        {{-- Error messages --}}
+        @if($errors->any())
+        <div class="pd-error">
+            <ul>
+                @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
+
+        {{-- Buttons --}}
+        <div class="pd-btns">
+            <a href="{{ route('peserta-didik.index') }}" class="pd-btn-back">
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+                </svg>
+                Kembali
+            </a>
+            <button type="submit" class="pd-btn-save">
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                </svg>
+                Simpan
+            </button>
+        </div>
+    </form>
 </div>
+@endsection

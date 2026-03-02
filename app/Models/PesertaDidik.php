@@ -26,6 +26,8 @@ class PesertaDidik extends Model
         'paket_bimbingan_id',
         'kelompok_belajar',
         'status',
+        'tanggal_keluar',
+        'alasan_keluar',
     ];
 
     public function paketBimbingan()

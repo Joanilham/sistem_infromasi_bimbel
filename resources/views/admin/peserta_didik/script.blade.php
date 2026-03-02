@@ -21,7 +21,19 @@
         document.getElementById('edit_informasi_dari').value = btn.dataset.info || '';
         document.getElementById('edit_paket_bimbingan_id').value = btn.dataset.paket || '';
         document.getElementById('edit_kelompok_belajar').value = btn.dataset.kelompok || '';
-        document.getElementById('edit_status').value = btn.dataset.status || 'Aktif';
+
+        const statusVal = btn.dataset.status || 'Aktif';
+        document.getElementById('edit_status').value = statusVal;
+
+        // Populate keluar fields
+        document.getElementById('edit_tanggal_keluar').value = btn.dataset.tglkeluar || '';
+        document.getElementById('edit_alasan_keluar').value = btn.dataset.alasankeluar || '';
+
+        // Sync Alpine.js state so conditional section shows/hides immediately
+        const formEl = document.getElementById('form-edit-peserta');
+        if (formEl._x_dataStack) {
+            formEl._x_dataStack[0].statusKeluar = statusVal;
+        }
 
         document.getElementById('modal-edit').classList.remove('hidden');
     }
