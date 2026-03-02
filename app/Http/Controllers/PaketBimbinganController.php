@@ -28,12 +28,12 @@ class PaketBimbinganController extends Controller
             ]);
         }
 
-        $request->validate([
+        $validated = $request->validate([
             'nama_paket' => 'required|string|max:255',
-            'nominal' => 'required|numeric|min:0',
+            'nominal'    => 'required|numeric|min:0',
         ]);
 
-        PaketBimbingan::create($request->all());
+        PaketBimbingan::create($validated);
 
         return redirect()->route('paket-bimbingan.index')
             ->with('success', 'Data Paket Bimbingan berhasil ditambahkan.');
@@ -51,12 +51,12 @@ class PaketBimbinganController extends Controller
             ]);
         }
 
-        $request->validate([
+        $validated = $request->validate([
             'nama_paket' => 'required|string|max:255',
-            'nominal' => 'required|numeric|min:0',
+            'nominal'    => 'required|numeric|min:0',
         ]);
 
-        $paketBimbingan->update($request->all());
+        $paketBimbingan->update($validated);
 
         return redirect()->route('paket-bimbingan.index')
             ->with('success', 'Data Paket Bimbingan berhasil diperbarui.');

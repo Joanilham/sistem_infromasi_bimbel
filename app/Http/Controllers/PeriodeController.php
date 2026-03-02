@@ -22,7 +22,7 @@ class PeriodeController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'tahun_periode' => 'required|string|max:255',
+            'tahun_periode' => ['required', 'string', 'max:20', 'regex:/^\d{4}\/\d{4}$/'],
         ]);
 
         $validated['is_active'] = $request->has('is_active');

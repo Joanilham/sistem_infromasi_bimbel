@@ -15,7 +15,7 @@ class PesertaDidikController extends Controller
    */
   public function index()
   {
-    $pesertaDidiks   = PesertaDidik::with('paketBimbingan')->where('status', 'Aktif')->latest()->get();
+    $pesertaDidiks   = PesertaDidik::aktif()->with('paketBimbingan')->latest()->get();
     $paketBimbingans = PaketBimbingan::all();
     $kelompokBelajars = KelompokBelajar::orderBy('nama_kelompok')->get();
     return view('admin.peserta_didik.aktif', compact('pesertaDidiks', 'paketBimbingans', 'kelompokBelajars'));
@@ -26,8 +26,8 @@ class PesertaDidikController extends Controller
    */
   public function keluar()
   {
-    $pesertaDidiks = PesertaDidik::with('paketBimbingan')
-      ->where('status', 'Keluar')
+    $pesertaDidiks = PesertaDidik::keluar()
+      ->with('paketBimbingan')
       ->orderBy('tanggal_keluar', 'desc')
       ->get();
     return view('admin.peserta_didik.keluar', compact('pesertaDidiks'));
@@ -143,8 +143,8 @@ class PesertaDidikController extends Controller
    */
   public function exportKeluar()
   {
-    $rows = PesertaDidik::with('paketBimbingan')
-      ->where('status', 'Keluar')
+    $rows = PesertaDidik::keluar()
+      ->with('paketBimbingan')
       ->orderBy('tanggal_keluar', 'desc')
       ->get();
 
@@ -295,8 +295,8 @@ class PesertaDidikController extends Controller
    */
   public function export()
   {
-    $rows = PesertaDidik::with('paketBimbingan')
-      ->where('status', 'Aktif')
+    $rows = PesertaDidik::aktif()
+      ->with('paketBimbingan')
       ->orderBy('nama_lengkap')
       ->get();
 
