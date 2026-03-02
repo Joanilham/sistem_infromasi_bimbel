@@ -46,7 +46,7 @@
         <div class="flex justify-between items-start mb-4">
             <div>
                 <p class="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Peserta Didik</p>
-                <h3 class="text-4xl font-black text-slate-800 dark:text-white">110</h3>
+                <h3 class="text-4xl font-black text-slate-800 dark:text-white">{{ $totalPesertaAktif }}</h3>
             </div>
             <div class="p-3.5 rounded-2xl bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform">
                 <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -54,11 +54,15 @@
                 </svg>
             </div>
         </div>
-        <div class="flex items-center text-sm font-medium text-emerald-600 dark:text-emerald-400">
+        <div class="flex items-center text-sm font-medium {{ $pesertaBaru7Hari > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-400' }}">
+            @if($pesertaBaru7Hari > 0)
             <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>
-            <span>Bertambah 12 minggu ini</span>
+            <span>+{{ $pesertaBaru7Hari }} peserta baru minggu ini</span>
+            @else
+            <span>Tidak ada penambahan minggu ini</span>
+            @endif
         </div>
     </div>
 
@@ -85,7 +89,7 @@
         <div class="flex justify-between items-start mb-4">
             <div>
                 <p class="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Paket Aktif</p>
-                <h3 class="text-4xl font-black text-slate-800 dark:text-white">8</h3>
+                <h3 class="text-4xl font-black text-slate-800 dark:text-white">{{ $totalPaketAktif }}</h3>
             </div>
             <div class="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400 group-hover:scale-110 transition-transform">
                 <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -94,7 +98,10 @@
             </div>
         </div>
         <div class="flex items-center text-sm font-medium text-slate-500 dark:text-slate-400">
-            <span>Program Bimbingan</span>
+            <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>Program Bimbingan tersinkron</span>
         </div>
     </div>
 

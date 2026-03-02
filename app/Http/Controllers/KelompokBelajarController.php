@@ -21,11 +21,11 @@ class KelompokBelajarController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'nama_kelompok' => 'required|string|max:255',
         ]);
 
-        KelompokBelajar::create($request->all());
+        KelompokBelajar::create($validated);
 
         return redirect()->route('kelompok-belajar.index')
             ->with('success', 'Data Kelompok Belajar berhasil ditambahkan.');
@@ -36,11 +36,11 @@ class KelompokBelajarController extends Controller
      */
     public function update(Request $request, KelompokBelajar $kelompokBelajar)
     {
-        $request->validate([
+        $validated = $request->validate([
             'nama_kelompok' => 'required|string|max:255',
         ]);
 
-        $kelompokBelajar->update($request->all());
+        $kelompokBelajar->update($validated);
 
         return redirect()->route('kelompok-belajar.index')
             ->with('success', 'Data Kelompok Belajar berhasil diperbarui.');

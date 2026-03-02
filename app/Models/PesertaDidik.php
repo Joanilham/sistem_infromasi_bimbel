@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 
 class PesertaDidik extends Model
 {
@@ -30,6 +31,29 @@ class PesertaDidik extends Model
         'alasan_keluar',
     ];
 
+    protected $casts = [
+        'tanggal_lahir'  => 'date',
+        'tanggal_keluar' => 'date',
+    ];
+
+    // ─── Scopes ────────────────────────────────────────────────────
+    /**
+     * Hanya peserta dengan status Aktif.
+     */
+    public function scopeAktif(Builder $query): Builder
+    {
+        return $query->where('status', 'Aktif');
+    }
+
+    /**
+     * Hanya peserta yang sudah Keluar.
+     */
+    public function scopeKeluar(Builder $query): Builder
+    {
+        return $query->where('status', 'Keluar');
+    }
+
+    // ─── Relationships ─────────────────────────────────────────────
     public function paketBimbingan()
     {
         return $this->belongsTo(PaketBimbingan::class, 'paket_bimbingan_id');
