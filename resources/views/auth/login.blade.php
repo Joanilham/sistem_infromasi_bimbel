@@ -80,27 +80,53 @@
                 <!-- Select Inputs -->
                 <div class="space-y-4 pt-2">
                     <div>
-                        <label for="kantor" class="block text-sm font-medium text-gray-700 mb-1">Kantor:</label>
+                        <label for="kantor" class="block text-sm font-medium text-gray-700 mb-1">
+                            Kantor: <span class="text-red-500">*</span>
+                        </label>
                         <select id="kantor" name="kantor"
-                            class="mt-1 block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md transition-colors duration-200 cursor-pointer shadow-sm border">
-                            <option value="">Pilih Kantor...</option>
+                            class="mt-1 block w-full pl-3 pr-10 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md transition-colors duration-200 cursor-pointer shadow-sm border {{ $errors->has('kantor') ? 'border-red-500 bg-red-50' : 'border-gray-300' }}">
                             @foreach($kantors as $kantor)
-                            <option value="{{ $kantor->id }}">{{ $kantor->nama_kantor }} {{ $kantor->alamat ? '(' . $kantor->alamat . ')' : '' }}</option>
+                            <option value="{{ $kantor->id }}" {{ old('kantor', $kantors->first()?->id) == $kantor->id ? 'selected' : '' }}>
+                                {{ $kantor->nama_kantor }}{{ $kantor->alamat ? ' (' . $kantor->alamat . ')' : '' }}
+                            </option>
                             @endforeach
                         </select>
+                        @error('kantor')
+                        <p class="mt-1.5 text-sm text-red-600 flex items-center gap-1">
+                            <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            {{ $message }}
+                        </p>
+                        @enderror
                     </div>
 
                     <div>
-                        <label for="periode" class="block text-sm font-medium text-gray-700 mb-1">Periode:</label>
+                        <label for="periode" class="block text-sm font-medium text-gray-700 mb-1">
+                            Periode: <span class="text-red-500">*</span>
+                        </label>
+                        @php
+                        $defaultPeriode = old('periode', $periodes->firstWhere('is_active', true)?->id ?? $periodes->first()?->id);
+                        @endphp
                         <select id="periode" name="periode"
-                            class="mt-1 block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md transition-colors duration-200 cursor-pointer shadow-sm border">
-                            <option value="">Pilih Periode...</option>
+                            class="mt-1 block w-full pl-3 pr-10 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md transition-colors duration-200 cursor-pointer shadow-sm border {{ $errors->has('periode') ? 'border-red-500 bg-red-50' : 'border-gray-300' }}">
                             @foreach($periodes as $periode)
-                            <option value="{{ $periode->id }}" {{ $periode->is_active ? 'selected' : '' }}>{{ $periode->tahun_periode }}</option>
+                            <option value="{{ $periode->id }}" {{ $defaultPeriode == $periode->id ? 'selected' : '' }}>
+                                {{ $periode->tahun_periode }}{{ $periode->is_active ? ' (Aktif)' : '' }}
+                            </option>
                             @endforeach
                         </select>
+                        @error('periode')
+                        <p class="mt-1.5 text-sm text-red-600 flex items-center gap-1">
+                            <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            {{ $message }}
+                        </p>
+                        @enderror
                     </div>
                 </div>
+
 
                 <!-- Submit Button -->
                 <div class="pt-4">

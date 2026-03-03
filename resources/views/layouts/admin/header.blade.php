@@ -1,14 +1,59 @@
 <header class="bg-white dark:bg-slate-900/80 backdrop-blur-sm border-b border-slate-200 dark:border-slate-900/50 sticky top-0 z-20 transition-colors duration-200">
     <div class="px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-20">
-            <div class="flex items-center">
+            <div class="flex items-center gap-3 flex-wrap">
                 <button @click="sidebarOpen = true" class="text-slate-500 hover:text-slate-700 focus:outline-none lg:hidden mr-4 transition-colors">
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
                     </svg>
                 </button>
                 <h2 class="text-[22px] font-bold text-slate-800 dark:text-white tracking-tight">@yield('title', 'Dashboard')</h2>
+
+                {{-- Selector Kantor & Periode --}}
+                @if(isset($kantors) && $kantors->count() > 0)
+                <form action="{{ route('session.konteks') }}" method="POST" class="hidden lg:flex items-center gap-2 ml-4">
+                    @csrf
+                    {{-- Kantor Selector --}}
+                    <div class="relative">
+                        <select name="kantor_id" onchange="this.form.submit()"
+                            class="appearance-none text-xs font-semibold pl-3 pr-7 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-400 cursor-pointer transition-colors">
+                            <option value="">— Pilih Kantor —</option>
+                            @foreach($kantors as $k)
+                            <option value="{{ $k->id }}" {{ session('kantor_id') == $k->id ? 'selected' : '' }}>
+                                🏢 {{ $k->nama_kantor }}
+                            </option>
+                            @endforeach
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 text-slate-400">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div>
+
+                    {{-- Periode Selector --}}
+                    @if(isset($periodes) && $periodes->count() > 0)
+                    <div class="relative">
+                        <select name="periode_id" onchange="this.form.submit()"
+                            class="appearance-none text-xs font-semibold pl-3 pr-7 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-400 cursor-pointer transition-colors">
+                            <option value="">— Pilih Periode —</option>
+                            @foreach($periodes as $p)
+                            <option value="{{ $p->id }}" {{ session('periode_id') == $p->id ? 'selected' : '' }}>
+                                📅 {{ $p->tahun_periode }}{{ $p->is_active ? ' ✓' : '' }}
+                            </option>
+                            @endforeach
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 text-slate-400">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div>
+                    @endif
+                </form>
+                @endif
             </div>
+
             <div class="flex items-center gap-2 sm:gap-4">
                 <!-- Dark Mode Toggle -->
                 <button @click="darkMode = !darkMode" type="button" class="p-2 rounded-full text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-200 transition-colors focus:outline-none" aria-label="Toggle Dark Mode">

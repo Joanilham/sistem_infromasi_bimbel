@@ -4,6 +4,61 @@
 
 @section('content')
 
+{{-- Konteks Aktif: Kantor & Periode --}}
+<div class="mb-6 flex flex-wrap items-center gap-3">
+    {{-- Kantor --}}
+    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+        <svg class="w-4 h-4 text-indigo-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+        </svg>
+        <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Kantor</span>
+        <span class="text-sm font-bold text-slate-800 dark:text-white">
+            @if($selectedKantor)
+            {{ $selectedKantor->nama_kantor }}
+            @else
+            <span class="text-amber-500">Belum dipilih</span>
+            @endif
+        </span>
+    </div>
+
+    {{-- Periode --}}
+    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+        <svg class="w-4 h-4 text-indigo-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Periode</span>
+        <span class="text-sm font-bold text-slate-800 dark:text-white">
+            @if($selectedPeriode)
+            {{ $selectedPeriode->tahun_periode }}
+            @else
+            <span class="text-amber-500">Belum dipilih</span>
+            @endif
+        </span>
+    </div>
+
+    {{-- Badge Status Periode --}}
+    @if($selectedPeriode)
+    @if($selectedPeriode->is_active)
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 text-xs font-bold border border-emerald-200 dark:border-emerald-800">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block"></span>
+        Periode Aktif
+    </span>
+    @else
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-xs font-bold border border-slate-200 dark:border-slate-700">
+        <span class="w-1.5 h-1.5 rounded-full bg-slate-400 inline-block"></span>
+        Periode Tidak Aktif
+    </span>
+    @endif
+    @else
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 text-xs font-bold border border-amber-200 dark:border-amber-800">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        Pilih kantor &amp; periode di atas
+    </span>
+    @endif
+</div>
+
 <!-- Welcome & Real-Time Clock Banner -->
 <div class="mb-8 bg-gradient-to-br from-indigo-700 via-blue-800 to-indigo-900 rounded-[1.5rem] p-8 md:p-10 text-white shadow-2xl shadow-indigo-900/30 overflow-hidden relative" x-data="dashboardClock">
     <!-- Decorative Elements -->
