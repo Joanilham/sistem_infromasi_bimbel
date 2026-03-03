@@ -53,9 +53,26 @@ class KantorController extends Controller
      */
     public function destroy(string $id)
     {
-        $kantor = Kantor::findOrFail($id);
-        $kantor->delete();
+        // Proteksi: jangan hapus jika ini kantor terakhir
+        if (Kantor::count() <= 1) {
+            return redirect()->route('kantor.index')
+                ->with('error', 'Tidak dapat menghapus kantor terakhir. Minimal harus ada 1 kantor aktif di sistem.');
+        }
 
-        return redirect()->route('kantor.index')->with('success', 'Kantor berhasil dihapus.');
+        $kantor = Kantor::findOrFail($id);
+        $kantor->delete(); // Soft delete — bisa dipulihkan
+
+        return redirect()->route('kantor.index')->with('success', 'Kantor berhasil dihapus (dapat dipulihkan).');
+    }
+
+    /**
+     * Pulihkan kantor yang terhapus (soft delete).
+     */
+    public function restore(string $id)
+    {
+        $kantor = Kantor::withTrashed()->findOrFail($id);
+        $kantor->restore();
+
+        return redirect()->route('kantor.index')->with('success', 'Kantor berhasil dipulihkan.');
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\KonteksController;
 use Illuminate\Support\Facades\Route;
 
 use App\Models\Kantor;
@@ -26,12 +27,27 @@ Route::middleware('auth')->group(function () {
             ->count();
         $totalPaketAktif   = \App\Models\PaketBimbingan::count();
 
-        return view('dashboard', compact('totalPesertaAktif', 'pesertaBaru7Hari', 'totalPaketAktif'));
+        // Ambil konteks kantor & periode dari session
+        $selectedKantor  = session('kantor_id')  ? Kantor::find(session('kantor_id'))  : null;
+        $selectedPeriode = session('periode_id') ? Periode::find(session('periode_id')) : null;
+
+        return view('dashboard', compact(
+            'totalPesertaAktif',
+            'pesertaBaru7Hari',
+            'totalPaketAktif',
+            'selectedKantor',
+            'selectedPeriode'
+        ));
     })->name('dashboard');
+
+    // Ganti konteks kantor & periode aktif
+    Route::post('/session/konteks', [KonteksController::class, 'update'])->name('session.konteks');
 
     Route::middleware('role:administrator')->group(function () {
         Route::resource('kantor', \App\Http\Controllers\KantorController::class);
+        Route::patch('/kantor/{id}/restore', [\App\Http\Controllers\KantorController::class, 'restore'])->name('kantor.restore');
         Route::resource('periode', \App\Http\Controllers\PeriodeController::class);
+        Route::patch('/periode/{id}/restore', [\App\Http\Controllers\PeriodeController::class, 'restore'])->name('periode.restore');
         Route::resource('pengguna', \App\Http\Controllers\PenggunaController::class);
         Route::patch('/pengguna/{id}/toggle-active', [\App\Http\Controllers\PenggunaController::class, 'toggleActive'])->name('pengguna.toggle-active');
         Route::resource('paket-bimbingan', \App\Http\Controllers\PaketBimbinganController::class)->except(['create', 'edit', 'show']);

@@ -15,9 +15,17 @@ class AuthController extends Controller
         $credentials = $request->validate([
             'email'    => ['required', 'email'],
             'password' => ['required'],
+            'kantor'   => ['required', 'integer', 'exists:kantors,id'],
+            'periode'  => ['required', 'integer', 'exists:periodes,id'],
+        ], [
+            'kantor.required'  => 'Pilih kantor terlebih dahulu sebelum login.',
+            'kantor.exists'    => 'Kantor yang dipilih tidak valid.',
+            'periode.required' => 'Pilih periode terlebih dahulu sebelum login.',
+            'periode.exists'   => 'Periode yang dipilih tidak valid.',
         ]);
 
-        if (Auth::attempt($credentials)) {
+        // Ambil hanya email + password untuk Auth::attempt
+        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             // Cek apakah akun aktif
             if (!Auth::user()->is_active) {
                 Auth::logout();
@@ -30,6 +38,14 @@ class AuthController extends Controller
             }
 
             $request->session()->regenerate();
+
+            // Simpan pilihan kantor & periode ke session
+            if ($request->filled('kantor')) {
+                $request->session()->put('kantor_id', $request->kantor);
+            }
+            if ($request->filled('periode')) {
+                $request->session()->put('periode_id', $request->periode);
+            }
 
             return redirect()->intended('dashboard');
         }
