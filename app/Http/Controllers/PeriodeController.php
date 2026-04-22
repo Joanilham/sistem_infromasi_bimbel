@@ -22,7 +22,9 @@ class PeriodeController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'tahun_periode' => 'required|string|max:255',
+            'tahun_periode' => ['required', 'string', 'max:20', 'regex:/^\d{4}\/\d{4}$/'],
+        ], [
+            'tahun_periode.regex' => 'Format tahun periode tidak valid. Gunakan format YYYY/YYYY, contoh: 2025/2026.',
         ]);
 
         $validated['is_active'] = $request->has('is_active');
@@ -40,7 +42,9 @@ class PeriodeController extends Controller
         $periode = Periode::findOrFail($id);
 
         $validated = $request->validate([
-            'tahun_periode' => 'required|string|max:255',
+            'tahun_periode' => ['required', 'string', 'max:20', 'regex:/^\d{4}\/\d{4}$/'],
+        ], [
+            'tahun_periode.regex' => 'Format tahun periode tidak valid. Gunakan format YYYY/YYYY, contoh: 2025/2026.',
         ]);
 
         $validated['is_active'] = $request->has('is_active');
@@ -55,9 +59,26 @@ class PeriodeController extends Controller
      */
     public function destroy(string $id)
     {
-        $periode = Periode::findOrFail($id);
-        $periode->delete();
+        // Proteksi: jangan hapus jika ini periode terakhir
+        if (Periode::count() <= 1) {
+            return redirect()->route('periode.index')
+                ->with('error', 'Tidak dapat menghapus periode terakhir. Minimal harus ada 1 periode aktif di sistem.');
+        }
 
-        return redirect()->route('periode.index')->with('success', 'Periode berhasil dihapus.');
+        $periode = Periode::findOrFail($id);
+        $periode->delete(); // Soft delete — bisa dipulihkan
+
+        return redirect()->route('periode.index')->with('success', 'Periode berhasil dihapus (dapat dipulihkan).');
+    }
+
+    /**
+     * Pulihkan periode yang terhapus (soft delete).
+     */
+    public function restore(string $id)
+    {
+        $periode = Periode::withTrashed()->findOrFail($id);
+        $periode->restore();
+
+        return redirect()->route('periode.index')->with('success', 'Periode berhasil dipulihkan.');
     }
 }
