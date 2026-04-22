@@ -4,133 +4,291 @@
 
 @section('content')
 
-<!-- Stat Cards: Ultra Clean & Minimalist -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-    <!-- Card 1: Peserta Didik -->
-    <div class="relative overflow-hidden bg-white dark:bg-slate-900/80 rounded-[1.25rem] p-6 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.04)] dark:shadow-none border border-slate-100 dark:border-transparent transition-all hover:shadow-md flex flex-col justify-between min-h-[140px] group cursor-default">
-        <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Total Peserta Didik</p>
 
-        <div class="flex items-end justify-between mt-4">
-            <p class="text-4xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">110</p>
-            <div class="w-12 h-12 rounded-full bg-blue-50 dark:bg-blue-900/30 flex flex-shrink-0 items-center justify-center text-blue-500 dark:text-blue-400">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                </svg>
-            </div>
-        </div>
+
+<div class="relative mb-8 rounded-[1.75rem] overflow-hidden shadow-2xl" x-data="dashboardClock">
+
+    {{-- Animated gradient background --}}
+    <div class="absolute inset-0 bg-gradient-to-br from-rose-600 via-orange-600 to-amber-500 animate-gradient-xy"></div>
+
+    {{-- Decorative circles --}}
+    <div class="absolute -top-20 -right-20 w-96 h-96 rounded-full bg-white/5 blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-32 -left-16 w-80 h-80 rounded-full bg-blue-400/10 blur-3xl pointer-events-none"></div>
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+
+    {{-- Dot grid overlay --}}
+    <div class="absolute inset-0 opacity-[0.04]"
+        style="background-image: radial-gradient(circle, #fff 1px, transparent 1px); background-size: 28px 28px;">
     </div>
 
-    <!-- Card 2: Guru -->
-    <div class="relative overflow-hidden bg-white dark:bg-slate-900/80 rounded-[1.25rem] p-6 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.04)] dark:shadow-none border border-slate-100 dark:border-transparent transition-all hover:shadow-md flex flex-col justify-between min-h-[140px] group cursor-default">
-        <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Total Guru</p>
+    <div class="relative z-10 p-8 md:p-10 flex flex-col xl:flex-row xl:items-center justify-between gap-8">
 
-        <div class="flex items-end justify-between mt-4">
-            <p class="text-4xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">0</p>
-            <div class="w-12 h-12 rounded-full bg-amber-50 dark:bg-amber-900/30 flex flex-shrink-0 items-center justify-center text-amber-500 dark:text-amber-400">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+        {{-- Greeting --}}
+        <div class="flex-1">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 mb-5">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="text-xs font-semibold tracking-widest text-indigo-100 uppercase">Sistem Aktif</span>
+            </div>
+
+            <h1 class="text-3xl md:text-5xl font-extrabold text-white leading-tight mb-3 tracking-tight">
+                Selamat Datang,<br>
+                <span class="">
+                    {{ auth()->user()->name ?? 'Administrator' }}! 👋
+                </span>
+            </h1>
+            <p class="text-indigo-200/80 text-base md:text-lg max-w-xl leading-relaxed">
+            </p>
+        </div>
+
+        {{-- Real-Time Clock --}}
+        <div class="shrink-0 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/15 p-6 lg:p-8 min-w-[260px] shadow-[inset_0_1px_1px_rgba(255,255,255,0.12)] hover:bg-white/15 transition-colors duration-300 text-center">
+            <div class="flex items-center justify-center gap-2 mb-2">
+                <svg class="w-4 h-4 text-white-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
+                <span class="text-xs font-semibold text-white-200 uppercase tracking-widest" x-text="date">Memuat...</span>
             </div>
+            <div class="text-5xl lg:text-6xl font-black tabular-nums tracking-tight text-black drop-shadow" x-text="time">00:00:00</div>
+            <div class="mt-3 text-xs font-medium text-white-300/80 bg-white/5 rounded-lg py-1.5 px-3" x-text="zonaWaktu">Waktu Lokal</div>
         </div>
-    </div>
-
-    <!-- Card 3: Income -->
-    <div class="relative overflow-hidden bg-white dark:bg-slate-900/80 rounded-[1.25rem] p-6 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.04)] dark:shadow-none border border-slate-100 dark:border-transparent transition-all hover:shadow-md flex flex-col justify-between min-h-[140px] group cursor-default">
-        <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Income {{ now()->translatedFormat('F Y') }}</p>
-
-        <div class="flex items-end justify-between mt-4">
-            <p class="text-4xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">Rp. 0</p>
-            <div class="w-12 h-12 rounded-full bg-emerald-50 dark:bg-emerald-900/30 flex flex-shrink-0 items-center justify-center text-emerald-500 dark:text-emerald-400 border border-emerald-500/20 dark:border-emerald-400/20">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Welcome List Panel: Minimalist Rows -->
-<div class="bg-white dark:bg-slate-900/80 rounded-[1.25rem] shadow-[0_2px_12px_-4px_rgba(0,0,0,0.04)] border border-slate-100 dark:border-transparent overflow-hidden mb-8">
-    <div class="p-4 sm:p-6 lg:p-8 space-y-1">
-
-        <!-- User Info Row -->
-        <div class="flex items-center px-4 py-3.5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/60 transition duration-200">
-            <div class="w-12 h-12 rounded-full bg-indigo-50/80 dark:bg-indigo-900/50 flex flex-shrink-0 items-center justify-center mr-5">
-                <svg class="w-5 h-5 text-indigo-500 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                </svg>
-            </div>
-            <div class="flex-1">
-                <p class="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400">Nama Pengguna</p>
-                <p class="text-[15px] font-semibold text-slate-800 dark:text-white mt-0.5">{{ auth()->user()->name ?? 'AHMAD RIFAN FAUZI' }}</p>
-            </div>
-        </div>
-
-        <!-- User Info Row (Selected Style Example) -->
-        <div class="flex items-center px-4 py-3.5 rounded-2xl bg-emerald-50/40 dark:bg-emerald-900/30 hover:bg-emerald-50 dark:hover:bg-emerald-900/40 transition duration-200">
-            <div class="w-12 h-12 rounded-full bg-emerald-100/60 dark:bg-emerald-800/50 flex flex-shrink-0 items-center justify-center mr-5">
-                <span class="text-xl font-bold text-emerald-500 dark:text-emerald-400">@</span>
-            </div>
-            <div class="flex-1">
-                <p class="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400">Alamat Surel (Username)</p>
-                <p class="text-[15px] font-semibold text-emerald-800 dark:text-emerald-300 mt-0.5">{{ auth()->user()->email ?? 'ADMINISTRASI PUSAT' }}</p>
-            </div>
-        </div>
-
-        <!-- User Info Row -->
-        <div class="flex items-center px-4 py-3.5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/60 transition duration-200">
-            <div class="w-12 h-12 rounded-full flex flex-shrink-0 items-center justify-center mr-5 bg-slate-50 dark:bg-slate-800/80">
-                <svg class="w-5 h-5 text-slate-600 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-                </svg>
-            </div>
-            <div class="flex-1">
-                <p class="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400">Jabatan Hak Akses</p>
-                <p class="text-[15px] font-semibold text-slate-800 dark:text-white mt-0.5">Administrator</p>
-            </div>
-        </div>
-
-        <!-- User Info Row -->
-        <div class="flex items-center px-4 py-3.5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/60 transition duration-200">
-            <div class="w-12 h-12 rounded-full flex flex-shrink-0 items-center justify-center mr-5 bg-slate-50 dark:bg-slate-800/80">
-                <svg class="w-5 h-5 text-slate-600 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                </svg>
-            </div>
-            <div class="flex-1">
-                <p class="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400">Nama Kantor Utama</p>
-                <p class="text-[15px] font-semibold text-slate-800 dark:text-white mt-0.5">{{ \App\Models\Kantor::first()->nama_kantor ?? 'Genius Education' }}</p>
-            </div>
-        </div>
-
-        <!-- User Info Row -->
-        <div class="flex items-center px-4 py-3.5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/60 transition duration-200">
-            <div class="w-12 h-12 rounded-full flex flex-shrink-0 items-center justify-center mr-5 bg-slate-50 dark:bg-slate-800/80">
-                <svg class="w-5 h-5 text-slate-600 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                </svg>
-            </div>
-            <div class="flex-1">
-                <p class="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400">Alamat Kantor</p>
-                <p class="text-[15px] font-semibold text-slate-800 dark:text-white mt-0.5">{{ \App\Models\Kantor::first()->alamat ?? 'Cluring - Banyuwangi' }}</p>
-            </div>
-        </div>
-
-        <!-- User Info Row -->
-        <div class="flex items-center px-4 py-3.5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/60 transition duration-200">
-            <div class="w-12 h-12 rounded-full flex flex-shrink-0 items-center justify-center mr-5 bg-slate-50 dark:bg-slate-800/80">
-                <svg class="w-5 h-5 text-slate-600 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                </svg>
-            </div>
-            <div class="flex-1">
-                <p class="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400">Periode Aktif</p>
-                <p class="text-[15px] font-semibold text-slate-800 dark:text-white mt-0.5">{{ \App\Models\Periode::first()->nama_periode ?? '2024-2025' }}</p>
-            </div>
-        </div>
-
     </div>
 </div>
 
+{{-- ─── Stat Cards ──────────────────────────────────────────────────────────── --}}
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-10">
+
+    {{-- Card: Peserta Didik --}}
+    <div class="relative bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden group">
+        <div class="absolute inset-0 bg-gradient-to-br from-indigo-50 to-transparent dark:from-indigo-950/40 dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <div class="relative z-10">
+            <div class="flex items-center justify-between mb-5">
+                <span class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Peserta Didik</span>
+                <div class="p-2.5 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                </div>
+            </div>
+            <p class="text-4xl font-black text-slate-800 dark:text-white mb-2">{{ $totalPesertaAktif }}</p>
+            <div class="flex items-center gap-3 mt-1">
+                <span class="text-xs font-semibold px-2 py-1 rounded-md flex items-center gap-1 {{ $pesertaBaru7Hari > 0 ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-slate-50 text-slate-400 dark:bg-slate-800 dark:text-slate-500' }}">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                    </svg>
+                    {{ $pesertaBaru7Hari }} Masuk
+                </span>
+                <span class="text-xs font-semibold px-2 py-1 rounded-md flex items-center gap-1 {{ $pesertaKeluar > 0 ? 'bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400' : 'bg-slate-50 text-slate-400 dark:bg-slate-800 dark:text-slate-500' }}">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                    </svg>
+                    {{ $pesertaKeluar }} Keluar
+                </span>
+            </div>
+        </div>
+        <div class="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-indigo-400 to-violet-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500 rounded-b-2xl"></div>
+    </div>
+
+    {{-- Card: Tenaga Pengajar --}}
+    <div class="relative bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden group">
+        <div class="absolute inset-0 bg-gradient-to-br from-amber-50 to-transparent dark:from-amber-950/40 dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <div class="relative z-10">
+            <div class="flex items-center justify-between mb-5">
+                <span class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Tenaga Pengajar</span>
+                <div class="p-2.5 rounded-xl bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 group-hover:scale-110 transition-transform">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                </div>
+            </div>
+            <p class="text-4xl font-black text-slate-800 dark:text-white mb-2">{{ $totalTenagaPengajar }}</p>
+            <p class="text-sm font-medium text-slate-400 flex items-center gap-1">
+                @if($totalTenagaPengajar > 0)
+                <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Semua aktif bertugas
+                @else
+                Belum ada data pengajar
+                @endif
+            </p>
+        </div>
+        <div class="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-amber-400 to-orange-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500 rounded-b-2xl"></div>
+    </div>
+
+    {{-- Card: Paket Aktif --}}
+    <div class="relative bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden group">
+        <div class="absolute inset-0 bg-gradient-to-br from-emerald-50 to-transparent dark:from-emerald-950/40 dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <div class="relative z-10">
+            <div class="flex items-center justify-between mb-5">
+                <span class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Paket Aktif</span>
+                <div class="p-2.5 rounded-xl bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                </div>
+            </div>
+            <p class="text-4xl font-black text-slate-800 dark:text-white mb-2">{{ $totalPaketAktif }}</p>
+            <p class="text-sm font-medium text-slate-400 flex items-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                </svg>
+                Program bimbingan tersinkron
+            </p>
+        </div>
+        <div class="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-emerald-400 to-teal-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500 rounded-b-2xl"></div>
+    </div>
+
+    {{-- Card: Pemasukan --}}
+    <div class="relative bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden group">
+        <div class="absolute inset-0 bg-gradient-to-br from-rose-50 to-transparent dark:from-rose-950/40 dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <div class="relative z-10">
+            <div class="flex items-center justify-between mb-5">
+                <span class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Pemasukan Bulan Ini</span>
+                <div class="p-2.5 rounded-xl bg-rose-100 dark:bg-rose-900/50 text-rose-600 dark:text-rose-400 group-hover:scale-110 transition-transform">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+            </div>
+            <p class="text-3xl font-black text-slate-800 dark:text-white mb-2">Rp 0</p>
+            <p class="text-sm font-medium text-slate-400">Belum ada transaksi</p>
+        </div>
+        <div class="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-rose-400 to-pink-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500 rounded-b-2xl"></div>
+    </div>
+
+</div>
+
+{{-- ─── Akses Cepat ─────────────────────────────────────────────────────────── --}}
+<div class="mb-3 flex items-end justify-between">
+    <div>
+        <h2 class="text-xl font-extrabold text-slate-800 dark:text-white tracking-tight">Akses Cepat</h2>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Navigasi ke fitur utama sistem</p>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+
+    {{-- Pengguna --}}
+    <a href="{{ route('pengguna.index') }}"
+        class="group relative flex flex-col gap-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-6 hover:border-blue-400 dark:hover:border-blue-600 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-blue-50/80 to-transparent dark:from-blue-950/40 dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        <div class="relative z-10 p-3 w-fit rounded-xl bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+        </div>
+        <div class="relative z-10">
+            <h3 class="font-bold text-slate-800 dark:text-white text-base mb-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Pengaturan Pengguna</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 leading-snug">Kelola role administrator &amp; staff sistem.</p>
+        </div>
+        <div class="absolute bottom-4 right-4 text-blue-500 opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-300">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+        </div>
+    </a>
+
+    {{-- Data Instansi --}}
+    <a href="{{ route('master.index') }}"
+        class="group relative flex flex-col gap-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-6 hover:border-violet-400 dark:hover:border-violet-600 hover:shadow-xl hover:shadow-violet-500/10 transition-all duration-300 overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-violet-50/80 to-transparent dark:from-violet-950/40 dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        <div class="relative z-10 p-3 w-fit rounded-xl bg-violet-100 dark:bg-violet-900/50 text-violet-600 dark:text-violet-400 group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+            </svg>
+        </div>
+        <div class="relative z-10">
+            <h3 class="font-bold text-slate-800 dark:text-white text-base mb-1 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">Data Instansi</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 leading-snug">Profil, logo instansi &amp; integrasi Gateway.</p>
+        </div>
+        <div class="absolute bottom-4 right-4 text-violet-500 opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-300">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+        </div>
+    </a>
+
+    {{-- Paket Bimbingan --}}
+    <a href="{{ route('paket-bimbingan.index') }}"
+        class="group relative flex flex-col gap-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-6 hover:border-emerald-400 dark:hover:border-emerald-600 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-emerald-50/80 to-transparent dark:from-emerald-950/40 dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        <div class="relative z-10 p-3 w-fit rounded-xl bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+            </svg>
+        </div>
+        <div class="relative z-10">
+            <h3 class="font-bold text-slate-800 dark:text-white text-base mb-1 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">Paket Bimbingan</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 leading-snug">Jenis paket kursus, harga &amp; layanan tersedia.</p>
+        </div>
+        <div class="absolute bottom-4 right-4 text-emerald-500 opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-300">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+        </div>
+    </a>
+
+    {{-- Peserta Didik --}}
+    <a href="{{ route('peserta-didik.index') }}"
+        class="group relative flex flex-col gap-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-6 hover:border-rose-400 dark:hover:border-rose-600 hover:shadow-xl hover:shadow-rose-500/10 transition-all duration-300 overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-rose-50/80 to-transparent dark:from-rose-950/40 dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        <div class="relative z-10 p-3 w-fit rounded-xl bg-rose-100 dark:bg-rose-900/50 text-rose-600 dark:text-rose-400 group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />
+            </svg>
+        </div>
+        <div class="relative z-10">
+            <h3 class="font-bold text-slate-800 dark:text-white text-base mb-1 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors">Peserta Didik</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 leading-snug">Database murid, biodata &amp; pendaftaran siswa.</p>
+        </div>
+        <div class="absolute bottom-4 right-4 text-rose-500 opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-300">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+        </div>
+    </a>
+
+</div>
+
+@endsection
+
+@section('scripts')
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('dashboardClock', () => ({
+            time: '00:00:00',
+            date: 'Memuat...',
+            zonaWaktu: 'WIB',
+
+            init() {
+                this.updateClock();
+                setInterval(() => this.updateClock(), 1000);
+            },
+
+            updateClock() {
+                const now = new Date();
+
+                this.time = now.toLocaleTimeString('id-ID', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false
+                }).replace(/\./g, ':');
+
+                this.date = now.toLocaleDateString('id-ID', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+
+                const offset = -now.getTimezoneOffset() / 60;
+                if (offset === 7) this.zonaWaktu = 'Waktu Indonesia Barat (WIB)';
+                else if (offset === 8) this.zonaWaktu = 'Waktu Indonesia Tengah (WITA)';
+                else if (offset === 9) this.zonaWaktu = 'Waktu Indonesia Timur (WIT)';
+                else this.zonaWaktu = 'Waktu Lokal: GMT' + (offset > 0 ? '+' : '') + offset;
+            }
+        }));
+    });
+</script>
 @endsection

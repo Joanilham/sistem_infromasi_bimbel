@@ -15,9 +15,22 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Seed kantor & periode terlebih dahulu
+        $this->call([
+            KantorSeeder::class,
+            PeriodeSeeder::class,
+        ]);
+
         User::factory()->create([
-            'name' => 'Admin User',
-            'email' => 'admin@admin.com',
+            'name'     => 'Admin User',
+            'email'    => 'admin@admin.com',
+            'level'    => 'administrator',
+            'password' => bcrypt('password'),
+        ]);
+        User::factory()->create([
+            'name'     => 'Staff User',
+            'email'    => 'staff@staff.com',
+            'level'    => 'staff',
             'password' => bcrypt('password'),
         ]);
     }

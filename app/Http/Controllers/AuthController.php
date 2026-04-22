@@ -13,18 +13,38 @@ class AuthController extends Controller
     public function authenticate(Request $request)
     {
         $credentials = $request->validate([
-            'email' => ['required', 'email'],
+            'email'    => ['required', 'email'],
             'password' => ['required'],
         ]);
 
-        if (Auth::attempt($credentials)) {
+        // Ambil hanya email + password untuk Auth::attempt
+        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+            // Cek apakah akun aktif
+            if (!Auth::user()->is_active) {
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                return back()->withErrors([
+                    'email' => 'Akun Anda tidak aktif. Hubungi administrator.',
+                ])->onlyInput('email');
+            }
+
             $request->session()->regenerate();
+
+            // Redirect ke halaman pilih konteks khusus untuk admin / staff jika belum memilih
+            $user = Auth::user();
+            if (in_array($user->level, ['administrator', 'staff'])) {
+                if (!$request->session()->has('kantor_id') || !$request->session()->has('periode_id')) {
+                    return redirect()->route('konteks.select');
+                }
+            }
 
             return redirect()->intended('dashboard');
         }
 
         return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
+            'email' => 'Email atau kata sandi yang Anda masukkan salah.',
         ])->onlyInput('email');
     }
 
@@ -39,6 +59,6 @@ class AuthController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect('/login');
+        return redirect()->route('login');
     }
 }
