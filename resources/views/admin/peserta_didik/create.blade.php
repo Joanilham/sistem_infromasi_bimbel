@@ -19,7 +19,7 @@
             </div>
             <div class="pd-field">
                 <label>No. Induk <span>*</span></label>
-                <input type="text" name="nomor_induk" required value="{{ old('nomor_induk') }}" placeholder="Nomor induk unik">
+                <input type="text" name="nomor_induk" required value="{{ old('nomor_induk') }}" placeholder="NISN">
             </div>
             <div class="pd-field">
                 <label>Jenis Kelamin <span>*</span></label>
@@ -48,7 +48,9 @@
             </div>
             <div class="pd-field">
                 <label>No. Telepon</label>
-                <input type="text" name="no_telepon" value="{{ old('no_telepon') }}" placeholder="08xxxxxxxxxx">
+                <input type="tel" name="no_telepon" value="{{ old('no_telepon') }}" placeholder="08xxxxxxxxxx"
+                    inputmode="numeric" pattern="[0-9]*"
+                    oninput="this.value=this.value.replace(/[^0-9]/g,'')">
             </div>
             <div class="pd-field full">
                 <label>Alamat Lengkap</label>
@@ -75,11 +77,11 @@
                 </select>
             </div>
             <div class="pd-field">
-                <label>Kelompok Belajar <span>*</span></label>
-                <select name="kelompok_belajar" required>
+                <label>Kelompok Belajar</label>
+                <select name="kelompok_belajar_id">
                     <option value="">— Pilih Kelompok —</option>
                     @foreach($kelompokBelajars as $kb)
-                    <option value="{{ $kb->nama_kelompok }}" {{ old('kelompok_belajar') === $kb->nama_kelompok ? 'selected' : '' }}>
+                    <option value="{{ $kb->id }}" {{ old('kelompok_belajar_id') == $kb->id ? 'selected' : '' }}>
                         {{ $kb->nama_kelompok }}
                     </option>
                     @endforeach
@@ -104,7 +106,9 @@
             </div>
             <div class="pd-field">
                 <label>No. Telepon Ayah</label>
-                <input type="text" name="no_telepon_ayah" value="{{ old('no_telepon_ayah') }}" placeholder="08xxxxxxxxxx">
+                <input type="tel" name="no_telepon_ayah" value="{{ old('no_telepon_ayah') }}" placeholder="08xxxxxxxxxx"
+                    inputmode="numeric" pattern="[0-9]*"
+                    oninput="this.value=this.value.replace(/[^0-9]/g,'')">
             </div>
             <div class="pd-field">
                 <label>Nama Ibu</label>
@@ -116,7 +120,9 @@
             </div>
             <div class="pd-field">
                 <label>No. Telepon Ibu</label>
-                <input type="text" name="no_telepon_ibu" value="{{ old('no_telepon_ibu') }}" placeholder="08xxxxxxxxxx">
+                <input type="tel" name="no_telepon_ibu" value="{{ old('no_telepon_ibu') }}" placeholder="08xxxxxxxxxx"
+                    inputmode="numeric" pattern="[0-9]*"
+                    oninput="this.value=this.value.replace(/[^0-9]/g,'')">
             </div>
         </div>
 
