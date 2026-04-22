@@ -14,13 +14,21 @@ class RoleMiddleware
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next, string $role): Response
+    public function handle(Request $request, Closure $next, string ...$roles): Response
     {
         if (!Auth::check()) {
             return redirect('login');
         }
 
-        if (Auth::user()->level !== $role) {
+        // Dukung multiple roles: role:administrator,staff
+        $allowedRoles = [];
+        foreach ($roles as $r) {
+            foreach (explode(',', $r) as $single) {
+                $allowedRoles[] = trim($single);
+            }
+        }
+
+        if (!in_array(Auth::user()->level, $allowedRoles)) {
             return redirect()->route('dashboard')->withErrors(['error' => 'Anda tidak memiliki akses ke halaman ini.']);
         }
 

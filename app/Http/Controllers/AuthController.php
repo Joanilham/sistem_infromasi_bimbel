@@ -38,6 +38,12 @@ class AuthController extends Controller
                 if (!$request->session()->has('kantor_id') || !$request->session()->has('periode_id')) {
                     return redirect()->route('konteks.select');
                 }
+                return redirect()->intended('dashboard');
+            }
+
+            // Redirect khusus untuk guru
+            if ($user->level === 'guru') {
+                return redirect()->route('guru.dashboard');
             }
 
             return redirect()->intended('dashboard');
