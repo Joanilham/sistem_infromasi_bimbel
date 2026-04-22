@@ -24,6 +24,13 @@ class User extends Authenticatable
         'level',
         'is_active',
         'password',
+        'alamat',
+        'matapelajaran',
+        'nip',
+        'no_telp',
+        'status',
+        'tanggal_keluar',
+        'alasan_keluar',
     ];
 
     /**
