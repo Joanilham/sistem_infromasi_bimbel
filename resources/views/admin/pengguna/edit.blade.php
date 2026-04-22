@@ -19,7 +19,7 @@
         <label for="edit_level" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Level / Role</label>
         <select name="level" id="edit_level" required class="focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 border text-slate-900 dark:text-white bg-white dark:bg-slate-800">
             <option value="admin">Admin</option>
-            <option value="master">Master</option>
+            <option value="staff">Staff</option>
         </select>
     </div>
     <div class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">

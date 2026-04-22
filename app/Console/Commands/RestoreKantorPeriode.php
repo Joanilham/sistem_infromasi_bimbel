@@ -21,20 +21,20 @@ class RestoreKantorPeriode extends Command
         Periode::onlyTrashed()->restore();
 
         if ($kantorRestored > 0 || $periodeRestored > 0) {
-            $this->info("✅ Dipulihkan: {$kantorRestored} kantor, {$periodeRestored} periode dari tempat sampah.");
+            $this->info("Dipulihkan: {$kantorRestored} kantor, {$periodeRestored} periode dari tempat sampah.");
         }
 
         // ─── 2. Jika tabel masih kosong, isi ulang dari data bawaan ──────────
         if (Kantor::count() === 0) {
-            $this->warn('⚠️  Tidak ada kantor sama sekali. Mengisi ulang data bawaan...');
+            $this->warn('Tidak ada kantor sama sekali. Mengisi ulang data bawaan...');
             $this->call('db:seed', ['--class' => 'KantorSeeder']);
-            $this->info('✅ Data bawaan kantor berhasil diisi ulang.');
+            $this->info('Data bawaan kantor berhasil diisi ulang.');
         }
 
         if (Periode::count() === 0) {
-            $this->warn('⚠️  Tidak ada periode sama sekali. Mengisi ulang data bawaan...');
+            $this->warn('Tidak ada periode sama sekali. Mengisi ulang data bawaan...');
             $this->call('db:seed', ['--class' => 'PeriodeSeeder']);
-            $this->info('✅ Data bawaan periode berhasil diisi ulang.');
+            $this->info('Data bawaan periode berhasil diisi ulang.');
         }
 
         // ─── 3. Ringkasan akhir ───────────────────────────────────────────────

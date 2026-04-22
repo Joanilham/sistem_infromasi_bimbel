@@ -15,9 +15,18 @@ class PesertaDidikController extends Controller
    */
   public function index()
   {
-    $pesertaDidiks   = PesertaDidik::aktif()->with('paketBimbingan')->latest()->get();
-    $paketBimbingans = PaketBimbingan::all();
-    $kelompokBelajars = KelompokBelajar::orderBy('nama_kelompok')->get();
+    $kantorId = session('kantor_id');
+    $periodeId = session('periode_id');
+
+    $pesertaDidiks = \Illuminate\Support\Facades\Cache::rememberForever("data_peserta_didiks_aktif_{$kantorId}_{$periodeId}", function () {
+      return PesertaDidik::aktif()->inContext()->with('paketBimbingan', 'kelompokBelajar')->latest()->get();
+    });
+    $paketBimbingans = \Illuminate\Support\Facades\Cache::rememberForever("data_paket_bimbingans_{$kantorId}_{$periodeId}", function () {
+      return PaketBimbingan::inContext()->get();
+    });
+    $kelompokBelajars = \Illuminate\Support\Facades\Cache::rememberForever("data_kelompok_belajars_{$kantorId}_{$periodeId}", function () {
+      return KelompokBelajar::inContext()->orderBy('nama_kelompok')->get();
+    });
     return view('admin.peserta_didik.aktif', compact('pesertaDidiks', 'paketBimbingans', 'kelompokBelajars'));
   }
 
@@ -26,10 +35,16 @@ class PesertaDidikController extends Controller
    */
   public function keluar()
   {
-    $pesertaDidiks = PesertaDidik::keluar()
-      ->with('paketBimbingan')
-      ->orderBy('tanggal_keluar', 'desc')
-      ->get();
+    $kantorId = session('kantor_id');
+    $periodeId = session('periode_id');
+
+    $pesertaDidiks = \Illuminate\Support\Facades\Cache::rememberForever("data_peserta_didiks_keluar_{$kantorId}_{$periodeId}", function() {
+      return PesertaDidik::keluar()
+        ->inContext()
+        ->with('paketBimbingan')
+        ->orderBy('tanggal_keluar', 'desc')
+        ->get();
+    });
     return view('admin.peserta_didik.keluar', compact('pesertaDidiks'));
   }
 
@@ -38,8 +53,8 @@ class PesertaDidikController extends Controller
    */
   public function create()
   {
-    $paketBimbingans  = PaketBimbingan::all();
-    $kelompokBelajars = KelompokBelajar::orderBy('nama_kelompok')->get();
+    $paketBimbingans  = PaketBimbingan::inContext()->get();
+    $kelompokBelajars = KelompokBelajar::inContext()->orderBy('nama_kelompok')->get();
     return view('admin.peserta_didik.create', compact('paketBimbingans', 'kelompokBelajars'));
   }
 
@@ -50,7 +65,7 @@ class PesertaDidikController extends Controller
   {
     $validated = $request->validate([
       'nama_lengkap'      => 'required|string|max:255',
-      'nomor_induk'       => 'required|string|max:50|unique:peserta_didiks,nomor_induk',
+      'nisn'              => 'required|digits:10|unique:peserta_didiks,nisn',
       'jenis_kelamin'     => 'required|in:L,P',
       'tempat_lahir'      => 'nullable|string|max:255',
       'tanggal_lahir'     => 'nullable|date',
@@ -66,10 +81,16 @@ class PesertaDidikController extends Controller
       'no_telepon_ibu'    => 'nullable|string|max:20',
       'informasi_dari'    => 'nullable|string|max:255',
       'paket_bimbingan_id' => 'required|exists:paket_bimbingans,id',
-      'kelompok_belajar'  => 'required|string|max:255',
+      'kelompok_belajar_id' => 'nullable|exists:kelompok_belajars,id',
     ]);
 
-    PesertaDidik::create($validated + ['status' => 'Aktif']);
+    PesertaDidik::create($validated + [
+        'status' => 'Aktif',
+        'kantor_id' => session('kantor_id'),
+        'periode_id' => session('periode_id')
+    ]);
+
+    $this->clearPesertaCache();
 
     return redirect()->route('peserta-didik.index')->with('success', 'Data Peserta Didik berhasil ditambahkan!');
   }
@@ -80,8 +101,8 @@ class PesertaDidikController extends Controller
   public function edit(string $id)
   {
     $pesertaDidik     = PesertaDidik::findOrFail($id);
-    $paketBimbingans  = PaketBimbingan::all();
-    $kelompokBelajars = KelompokBelajar::orderBy('nama_kelompok')->get();
+    $paketBimbingans  = PaketBimbingan::inContext()->get();
+    $kelompokBelajars = KelompokBelajar::inContext()->orderBy('nama_kelompok')->get();
     return view('admin.peserta_didik.edit', compact('pesertaDidik', 'paketBimbingans', 'kelompokBelajars'));
   }
 
@@ -94,7 +115,7 @@ class PesertaDidikController extends Controller
 
     $validated = $request->validate([
       'nama_lengkap'      => 'required|string|max:255',
-      'nomor_induk'       => 'required|string|max:50|unique:peserta_didiks,nomor_induk,' . $id,
+      'nisn'              => 'required|digits:10|unique:peserta_didiks,nisn,' . $id,
       'jenis_kelamin'     => 'required|in:L,P',
       'tempat_lahir'      => 'nullable|string|max:255',
       'tanggal_lahir'     => 'nullable|date',
@@ -110,7 +131,7 @@ class PesertaDidikController extends Controller
       'no_telepon_ibu'    => 'nullable|string|max:20',
       'informasi_dari'    => 'nullable|string|max:255',
       'paket_bimbingan_id' => 'required|exists:paket_bimbingans,id',
-      'kelompok_belajar'  => 'required|string|max:255',
+      'kelompok_belajar_id' => 'nullable|exists:kelompok_belajars,id',
       'status'            => 'required|in:Aktif,Keluar',
       'tanggal_keluar'    => 'required_if:status,Keluar|nullable|date',
       'alasan_keluar'     => 'required_if:status,Keluar|nullable|string',
@@ -124,6 +145,8 @@ class PesertaDidikController extends Controller
 
     $pesertaDidik->update($validated);
 
+    $this->clearPesertaCache();
+
     return redirect()->route('peserta-didik.index')->with('success', 'Data Peserta Didik berhasil diperbarui!');
   }
 
@@ -135,7 +158,24 @@ class PesertaDidikController extends Controller
     $pesertaDidik = PesertaDidik::findOrFail($id);
     $pesertaDidik->delete();
 
+    $this->clearPesertaCache();
+
     return redirect()->back()->with('success', 'Data Peserta Didik berhasil dihapus!');
+  }
+
+  /**
+   * Hapus semua cache terkait data peserta didik untuk context aktif.
+   */
+  private function clearPesertaCache(): void
+  {
+    $kantorId  = session('kantor_id');
+    $periodeId = session('periode_id');
+
+    \Illuminate\Support\Facades\Cache::forget("data_peserta_didiks_aktif_{$kantorId}_{$periodeId}");
+    \Illuminate\Support\Facades\Cache::forget("data_peserta_didiks_keluar_{$kantorId}_{$periodeId}");
+    \Illuminate\Support\Facades\Cache::forget("dash_total_peserta_{$kantorId}_{$periodeId}");
+    \Illuminate\Support\Facades\Cache::forget("dash_peserta_baru_{$kantorId}_{$periodeId}");
+    \Illuminate\Support\Facades\Cache::forget("dash_peserta_keluar_{$kantorId}_{$periodeId}");
   }
 
   /**
@@ -144,7 +184,7 @@ class PesertaDidikController extends Controller
   public function exportKeluar()
   {
     $rows = PesertaDidik::keluar()
-      ->with('paketBimbingan')
+      ->with('paketBimbingan', 'kelompokBelajar')
       ->orderBy('tanggal_keluar', 'desc')
       ->get();
 
@@ -222,7 +262,7 @@ class PesertaDidikController extends Controller
   </Style>
 </Styles>' . "\n";
 
-    $headers = ['No', 'Nama Lengkap', 'No. Induk', 'Jenis Kelamin', 'Asal Sekolah', 'Paket Bimbingan', 'Kelompok', 'No. Telepon', 'Tanggal Keluar', 'Nama Ayah', 'Nama Ibu', 'Keterangan Keluar'];
+    $headers = ['No', 'Nama Lengkap', 'NISN', 'Jenis Kelamin', 'Asal Sekolah', 'Paket Bimbingan', 'Kelompok', 'No. Telepon', 'Tanggal Keluar', 'Nama Ayah', 'Nama Ibu', 'Keterangan Keluar'];
     $cols    = count($headers);
 
     $xml .= '<Worksheet ss:Name="Peserta Didik Keluar">' . "\n";
@@ -266,11 +306,11 @@ class PesertaDidikController extends Controller
       $xml .= '<Row ss:Height="18">';
       $xml .= $no($i + 1);
       $xml .= $cell($p->nama_lengkap);
-      $xml .= $telp($p->nomor_induk);
+      $xml .= $telp($p->nisn);
       $xml .= $cell($p->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan');
       $xml .= $cell($p->asal_sekolah);
       $xml .= $cell(optional($p->paketBimbingan)->nama_paket ?? '');
-      $xml .= $cell($p->kelompok_belajar);
+      $xml .= $cell(optional($p->kelompokBelajar)->nama_kelompok ?? '');
       $xml .= $telp($p->no_telepon);
       $xml .= $cell($p->tanggal_keluar ?? '');
       $xml .= $cell($p->nama_ayah ?? '');
@@ -296,7 +336,7 @@ class PesertaDidikController extends Controller
   public function export()
   {
     $rows = PesertaDidik::aktif()
-      ->with('paketBimbingan')
+      ->with('paketBimbingan', 'kelompokBelajar')
       ->orderBy('nama_lengkap')
       ->get();
 
@@ -405,7 +445,7 @@ class PesertaDidikController extends Controller
       . '</Cell></Row>' . "\n";
 
     // Row 3: Headers
-    $headers = ['No', 'Nama Lengkap', 'No. Induk', 'Jenis Kelamin', 'Tempat Lahir', 'Tanggal Lahir', 'Agama', 'Alamat', 'Asal Sekolah', 'No. Telepon', 'Paket Bimbingan', 'Kelompok', 'Nama Ayah', 'No. Telp Ayah', 'Nama Ibu', 'No. Telp Ibu'];
+    $headers = ['No', 'Nama Lengkap', 'NISN', 'Jenis Kelamin', 'Tempat Lahir', 'Tanggal Lahir', 'Agama', 'Alamat', 'Asal Sekolah', 'No. Telepon', 'Paket Bimbingan', 'Kelompok', 'Nama Ayah', 'No. Telp Ayah', 'Nama Ibu', 'No. Telp Ibu'];
     $xml .= '<Row ss:Height="24">';
     foreach ($headers as $h) {
       $xml .= $bold($h);
@@ -425,7 +465,7 @@ class PesertaDidikController extends Controller
       $xml .= '<Row ss:Height="18">';
       $xml .= $no($i + 1);
       $xml .= $cell($p->nama_lengkap);
-      $xml .= $telp($p->nomor_induk);
+      $xml .= $telp($p->nisn);
       $xml .= $cell($p->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan');
       $xml .= $cell($p->tempat_lahir ?? '');
       $xml .= $cell($p->tanggal_lahir ?? '');
@@ -434,7 +474,7 @@ class PesertaDidikController extends Controller
       $xml .= $cell($p->asal_sekolah);
       $xml .= $telp($p->no_telepon);
       $xml .= $cell(optional($p->paketBimbingan)->nama_paket ?? '');
-      $xml .= $cell($p->kelompok_belajar);
+      $xml .= $cell(optional($p->kelompokBelajar)->nama_kelompok ?? '');
       $xml .= $cell($p->nama_ayah ?? '');
       $xml .= $telp($p->no_telepon_ayah);
       $xml .= $cell($p->nama_ibu ?? '');

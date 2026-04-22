@@ -20,15 +20,6 @@
         </div>
     </div>
 
-    {{-- Alert --}}
-    @if(session('success'))
-    <div style="padding:.85rem 1.75rem;background:#dcfce7;color:#166534;border-bottom:1px solid #bbf7d0;font-size:.82rem;display:flex;align-items:center;gap:.5rem;">
-        <svg style="width:1rem;height:1rem;flex-shrink:0;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-        </svg>
-        {{ session('success') }}
-    </div>
-    @endif
 
     {{-- Table --}}
     <div class="admin-table-body">
@@ -57,7 +48,7 @@
                         <div class="cell-sub">{{ $peserta->no_telepon }}</div>
                         @endif
                     </td>
-                    <td><span style="font-family:monospace;font-size:.8rem;color:#6366f1;font-weight:600;">{{ $peserta->nomor_induk }}</span></td>
+                    <td><span style="font-family:monospace;font-size:.8rem;color:#6366f1;font-weight:600;">{{ $peserta->nisn ?? '-' }}</span></td>
                     <td>
                         @if($peserta->jenis_kelamin === 'L')
                         <span class="badge badge-primary"><span class="badge-dot" style="background:#7c3aed"></span>Laki-laki</span>
@@ -74,7 +65,7 @@
                         @endif
                     </td>
                     <td>
-                        <span class="badge badge-secondary">{{ $peserta->kelompok_belajar }}</span>
+                        <span class="badge badge-secondary">{{ optional($peserta->kelompokBelajar)->nama_kelompok ?? '-' }}</span>
                     </td>
                     <td>
                         @if($peserta->tanggal_keluar)
@@ -115,17 +106,7 @@
                                 </button>
                             </form>
 
-                            {{-- Hapus --}}
-                            <form action="{{ route('peserta-didik.destroy', $peserta->id) }}" method="POST" style="margin:0;"
-                                onsubmit="return confirm('Hapus permanen peserta ini? Tindakan ini tidak dapat dibatalkan.')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn-icon btn-icon-delete" title="Hapus permanen">
-                                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                </button>
-                            </form>
+
                         </div>
                     </td>
                 </tr>
