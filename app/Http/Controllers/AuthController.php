@@ -15,13 +15,6 @@ class AuthController extends Controller
         $credentials = $request->validate([
             'email'    => ['required', 'email'],
             'password' => ['required'],
-            'kantor'   => ['required', 'integer', 'exists:kantors,id'],
-            'periode'  => ['required', 'integer', 'exists:periodes,id'],
-        ], [
-            'kantor.required'  => 'Pilih kantor terlebih dahulu sebelum login.',
-            'kantor.exists'    => 'Kantor yang dipilih tidak valid.',
-            'periode.required' => 'Pilih periode terlebih dahulu sebelum login.',
-            'periode.exists'   => 'Periode yang dipilih tidak valid.',
         ]);
 
         // Ambil hanya email + password untuk Auth::attempt
@@ -39,12 +32,12 @@ class AuthController extends Controller
 
             $request->session()->regenerate();
 
-            // Simpan pilihan kantor & periode ke session
-            if ($request->filled('kantor')) {
-                $request->session()->put('kantor_id', $request->kantor);
-            }
-            if ($request->filled('periode')) {
-                $request->session()->put('periode_id', $request->periode);
+            // Redirect ke halaman pilih konteks khusus untuk admin / staff jika belum memilih
+            $user = Auth::user();
+            if (in_array($user->level, ['administrator', 'staff'])) {
+                if (!$request->session()->has('kantor_id') || !$request->session()->has('periode_id')) {
+                    return redirect()->route('konteks.select');
+                }
             }
 
             return redirect()->intended('dashboard');

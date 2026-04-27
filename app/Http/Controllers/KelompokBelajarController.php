@@ -12,7 +12,7 @@ class KelompokBelajarController extends Controller
      */
     public function index()
     {
-        $kelompokBelajars = KelompokBelajar::latest()->get();
+        $kelompokBelajars = KelompokBelajar::inContext()->latest()->get();
         return view('admin.kelompok_belajar.index', compact('kelompokBelajars'));
     }
 
@@ -24,6 +24,9 @@ class KelompokBelajarController extends Controller
         $validated = $request->validate([
             'nama_kelompok' => 'required|string|max:255',
         ]);
+
+        $validated['kantor_id'] = session('kantor_id');
+        $validated['periode_id'] = session('periode_id');
 
         KelompokBelajar::create($validated);
 

@@ -1,149 +1,74 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Genius Education - Sign In</title>
+    <title>Masuk - Genius Education</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
+    <style>body { font-family: 'Inter', sans-serif; }</style>
 </head>
 
-<body class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+<body class="min-h-screen bg-slate-50 flex items-center justify-center px-4">
 
-    <div class="max-w-sm w-full space-y-8 bg-white rounded-xl shadow-2xl overflow-hidden">
-        <!-- Top border accent -->
-        <div class="h-2 w-full bg-blue-600"></div>
+    <div class="w-full max-w-sm">
 
-        <div class="px-8 pt-8 pb-10">
-            <!-- Header -->
-            <div class="text-center mb-8">
-                <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">
-                    Genius Education
-                </h1>
-                <p class="mt-3 text-sm text-gray-600">
-                    Sign in to start your session
-                </p>
-                <div class="mt-4 border-b border-gray-200"></div>
+        {{-- Logo --}}
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-12 h-12 bg-blue-600 rounded-xl mb-4">
+                <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+            </div>
+            <h1 class="text-xl font-bold text-slate-800">Genius Education</h1>
+            <p class="text-sm text-slate-500 mt-1">Masuk untuk melanjutkan</p>
+        </div>
+
+        {{-- Error --}}
+        @if ($errors->any())
+            <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
+                @foreach ($errors->all() as $error)
+                    <p>{{ $error }}</p>
+                @endforeach
+            </div>
+        @endif
+
+        {{-- Form --}}
+        <form action="{{ route('login') }}" method="POST" class="space-y-4">
+            @csrf
+
+            <div>
+                <label for="email" class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                <input id="email" name="email" type="email" value="{{ old('email') }}" required autofocus
+                    class="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('email') border-red-400 @enderror"
+                    placeholder="email@example.com">
             </div>
 
-            <!-- Form -->
-            <form class="space-y-6" action="{{ route('login') }}" method="POST">
-                @csrf
-                <div class="space-y-4">
-                    <!-- Email Input -->
-                    <div>
-                        <div class="relative rounded-md shadow-sm">
-                            <input id="email" name="email" type="email" value="{{ old('email') }}" autocomplete="email" required
-                                class="appearance-none block w-full px-4 py-3 border @error('email') border-red-500 @else border-gray-300 @enderror rounded-md placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 sm:text-sm text-gray-900"
-                                placeholder="Email">
-                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none border-l border-gray-200 bg-gray-50 rounded-r-md px-3">
-                                <svg class="h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                                </svg>
-                            </div>
-                        </div>
-                        @error('email')
-                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
+            <div>
+                <label for="password" class="block text-sm font-medium text-slate-700 mb-1">Password</label>
+                <input id="password" name="password" type="password" required
+                    class="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    placeholder="••••••••">
+            </div>
 
-                    <!-- Password Input -->
-                    <div>
-                        <div class="relative rounded-md shadow-sm">
-                            <input id="password" name="password" type="password" autocomplete="current-password" required
-                                class="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 sm:text-sm text-gray-900"
-                                placeholder="Password">
-                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none border-l border-gray-200 bg-gray-50 rounded-r-md px-3">
-                                <svg class="h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                    <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="flex items-center gap-2">
+                <input id="show_password" type="checkbox"
+                    class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                    onclick="document.getElementById('password').type = this.checked ? 'text' : 'password'">
+                <label for="show_password" class="text-sm text-slate-500 cursor-pointer select-none">Tampilkan Password</label>
+            </div>
 
-                <!-- Show Password Checkbox -->
-                <div class="flex items-center">
-                    <input id="show_password" name="show_password" type="checkbox"
-                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded cursor-pointer transition duration-150 ease-in-out"
-                        onclick="document.getElementById('password').type = this.checked ? 'text' : 'password'">
-                    <label for="show_password" class="ml-2 block text-sm text-gray-700 cursor-pointer select-none">
-                        Tampilkan Password
-                    </label>
-                </div>
+            <button type="submit"
+                class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors">
+                Masuk
+            </button>
+        </form>
 
-                <!-- Select Inputs -->
-                <div class="space-y-4 pt-2">
-                    <div>
-                        <label for="kantor" class="block text-sm font-medium text-gray-700 mb-1">
-                            Kantor: <span class="text-red-500">*</span>
-                        </label>
-                        <select id="kantor" name="kantor"
-                            class="mt-1 block w-full pl-3 pr-10 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md transition-colors duration-200 cursor-pointer shadow-sm border {{ $errors->has('kantor') ? 'border-red-500 bg-red-50' : 'border-gray-300' }}">
-                            @foreach($kantors as $kantor)
-                            <option value="{{ $kantor->id }}" {{ old('kantor', $kantors->first()?->id) == $kantor->id ? 'selected' : '' }}>
-                                {{ $kantor->nama_kantor }}{{ $kantor->alamat ? ' (' . $kantor->alamat . ')' : '' }}
-                            </option>
-                            @endforeach
-                        </select>
-                        @error('kantor')
-                        <p class="mt-1.5 text-sm text-red-600 flex items-center gap-1">
-                            <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            {{ $message }}
-                        </p>
-                        @enderror
-                    </div>
+        <p class="text-center text-xs text-slate-400 mt-6">
+            Hubungi administrator jika tidak bisa masuk.
+        </p>
 
-                    <div>
-                        <label for="periode" class="block text-sm font-medium text-gray-700 mb-1">
-                            Periode: <span class="text-red-500">*</span>
-                        </label>
-                        @php
-                        $defaultPeriode = old('periode', $periodes->firstWhere('is_active', true)?->id ?? $periodes->first()?->id);
-                        @endphp
-                        <select id="periode" name="periode"
-                            class="mt-1 block w-full pl-3 pr-10 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md transition-colors duration-200 cursor-pointer shadow-sm border {{ $errors->has('periode') ? 'border-red-500 bg-red-50' : 'border-gray-300' }}">
-                            @foreach($periodes as $periode)
-                            <option value="{{ $periode->id }}" {{ $defaultPeriode == $periode->id ? 'selected' : '' }}>
-                                {{ $periode->tahun_periode }}{{ $periode->is_active ? ' (Aktif)' : '' }}
-                            </option>
-                            @endforeach
-                        </select>
-                        @error('periode')
-                        <p class="mt-1.5 text-sm text-red-600 flex items-center gap-1">
-                            <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            {{ $message }}
-                        </p>
-                        @enderror
-                    </div>
-                </div>
-
-
-                <!-- Submit Button -->
-                <div class="pt-4">
-                    <button type="submit"
-                        class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-semibold rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
-                        <span class="absolute left-0 inset-y-0 flex items-center pl-3">
-                            <!-- Heroicon name: solid/login -->
-                            <svg class="h-5 w-5 text-blue-500 group-hover:text-blue-400 transition ease-in-out duration-150" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd" />
-                            </svg>
-                        </span>
-                        Sign In
-                    </button>
-                </div>
-            </form>
-        </div>
     </div>
-</body>
 
+</body>
 </html>

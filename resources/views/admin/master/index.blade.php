@@ -4,28 +4,13 @@
 
 @section('content')
 <div class="mb-6">
-    <h3 class="text-2xl font-bold leading-7 text-slate-900 dark:text-white sm:truncate sm:text-3xl sm:tracking-tight">
+    <h3 class="text-2xl font-bold leading-7 text-slate-900 dark:text-white sm:truncate sm:text-3x1 sm:tracking-tight">
         Pengaturan Data Master
     </h3>
     <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Kelola informasi lembaga, koneksi WhatsApp Gateway, dan logo resmi.</p>
 </div>
 
-@if (session('success'))
-<div class="rounded-xl bg-emerald-50 dark:bg-emerald-900/30 p-4 mb-6 border border-emerald-200 dark:border-emerald-800/50">
-    <div class="flex">
-        <div class="flex-shrink-0">
-            <svg class="h-5 w-5 text-emerald-400 dark:text-emerald-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-            </svg>
-        </div>
-        <div class="ml-3">
-            <p class="text-sm font-medium text-emerald-800 dark:text-emerald-400">
-                {{ session('success') }}
-            </p>
-        </div>
-    </div>
-</div>
-@endif
+
 
 <form action="{{ route('master.update') }}" method="POST" enctype="multipart/form-data">
     @csrf
@@ -58,6 +43,13 @@
 
                     <div class="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800">
                         <h4 class="text-sm font-semibold text-slate-900 dark:text-white mb-4">Pengaturan WhatsApp Gateway</h4>
+
+                        <!-- WA URL -->
+                        <div class="mb-4">
+                            <label for="wa_url" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">URL Gateway / Endpoint (Opsional, Default Fonnte)</label>
+                            <input type="text" name="wa_url" id="wa_url" value="{{ old('wa_url', $master->wa_url) }}" class="mt-2 block w-full border border-slate-300 dark:border-slate-700 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm px-4 py-2.5 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white transition-colors" placeholder="Contoh: https://api.fonnte.com/send">
+                            <p class="mt-1 text-xs text-slate-500">Bisa dikosongkan jika menggunakan standar (Fonnte API).</p>
+                        </div>
 
                         <!-- Instance ID -->
                         <div class="mb-4">
@@ -101,9 +93,10 @@
                         </div>
                         @endif
                     </div>
-                    <p class="mt-4 text-xs text-center text-slate-500 dark:text-slate-400">Scan QR Code ini menggunakan aplikasi WhatsApp di handphone Anda untuk menghubungkan notifikasi.</p>
+                    <p class="mt-4 text-xs text-center text-slate-500 dark:text-slate-400">Integrasi WhatsApp Aktif. Untuk QR biasanya di-generate oleh aplikasi Gateway terpisah.</p>
                 </div>
             </div>
+
 
             <!-- Box 3: Logo Master -->
             <div class="bg-white dark:bg-slate-900 shadow-md shadow-slate-200/50 dark:shadow-none sm:rounded-xl border border-slate-100 dark:border-slate-800 relative overflow-hidden">
@@ -140,5 +133,48 @@
         </button>
     </div>
 </form>
+
+<div class="mt-8 border-t border-slate-200 dark:border-slate-700 pt-8">
+    <div class="max-w-3xl mx-auto">
+        <!-- Box Test Pengiriman -->
+        <div class="bg-white dark:bg-slate-900 shadow-md shadow-slate-200/50 dark:shadow-none sm:rounded-xl border border-slate-100 dark:border-slate-800 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 to-indigo-600"></div>
+            <div class="px-4 py-5 sm:px-6 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex justify-between items-center">
+                <div>
+                    <h3 class="text-lg leading-6 font-semibold text-slate-900 dark:text-white">Uji Coba Pengiriman WhatsApp</h3>
+                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Pastikan Pengaturan Gateway sudah disimpan sebelum melakukan uji coba.</p>
+                </div>
+                <svg class="h-8 w-8 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
+            </div>
+            <div class="p-6 bg-slate-50/30 dark:bg-slate-900/30">
+                <form action="{{ route('master.test.wa') }}" method="POST">
+                    @csrf
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Nomor Handphone (Awalan 08 / 62)</label>
+                            <input type="text" name="phone" required class="mt-2 block w-full border border-slate-300 dark:border-slate-700 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm px-4 py-2.5 bg-white dark:bg-slate-800 text-slate-900 dark:text-white transition-colors" placeholder="08123456789">
+                            
+                            <div class="mt-4">
+                                <button type="submit" class="w-full inline-flex items-center justify-center py-2.5 px-4 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                    </svg>
+                                    Kirim Pesan Uji Coba
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Pesan Uji Coba</label>
+                            <textarea name="message" required rows="4" class="mt-2 block w-full border border-slate-300 dark:border-slate-700 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm px-4 py-2.5 bg-white dark:bg-slate-800 text-slate-900 dark:text-white transition-colors">Halo, ini pesan percobaan dari SI Bimbel. 
+Integrasi WhatsApp Gateway berhasil!</textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
 @endsection
