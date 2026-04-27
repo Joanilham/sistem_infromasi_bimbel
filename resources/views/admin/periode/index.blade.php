@@ -25,7 +25,6 @@
                 <tr>
                     <th style="width:50px">No</th>
                     <th>Tahun Periode</th>
-                    <th>Status</th>
                     <th class="text-right" style="width:100px">Aksi</th>
                 </tr>
             </thead>
@@ -34,19 +33,6 @@
                 <tr>
                     <td><span class="cell-no">{{ $loop->iteration }}</span></td>
                     <td><span class="cell-label">{{ $periode->tahun_periode }}</span></td>
-                    <td>
-                        @if($periode->is_active)
-                        <span class="badge badge-success">
-                            <span class="badge-dot" style="background:#059669"></span>
-                            Aktif
-                        </span>
-                        @else
-                        <span class="badge badge-secondary">
-                            <span class="badge-dot" style="background:#94a3b8"></span>
-                            Tidak Aktif
-                        </span>
-                        @endif
-                    </td>
                     <td style="text-align:right">
                         <div class="action-group">
                             <button type="button" onclick="editPeriode(this)"

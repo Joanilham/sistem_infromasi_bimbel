@@ -33,7 +33,7 @@
                 <tr>
                     <th style="width:50px">No</th>
                     <th>Nama Lengkap</th>
-                    <th>No. Induk</th>
+                    <th>NISN</th>
                     <th>L/P</th>
                     <th>Asal Sekolah</th>
                     <th>Paket Bimbel</th>
@@ -51,7 +51,7 @@
                         <div class="cell-sub">{{ $peserta->no_telepon }}</div>
                         @endif
                     </td>
-                    <td><span style="font-family:monospace;font-size:.8rem;color:#6366f1;font-weight:600;">{{ $peserta->nomor_induk }}</span></td>
+                    <td><span style="font-family:monospace;font-size:.8rem;color:#6366f1;font-weight:600;">{{ $peserta->nisn ?? '-' }}</span></td>
                     <td>
                         @if($peserta->jenis_kelamin === 'L')
                         <span class="badge badge-primary"><span class="badge-dot" style="background:#7c3aed"></span>Laki-laki</span>
@@ -68,7 +68,7 @@
                         @endif
                     </td>
                     <td>
-                        <span class="badge badge-secondary">{{ $peserta->kelompok_belajar }}</span>
+                        <span class="badge badge-secondary">{{ optional($peserta->kelompokBelajar)->nama_kelompok ?? '-' }}</span>
                     </td>
                     <td style="text-align:right">
                         <div class="action-group">

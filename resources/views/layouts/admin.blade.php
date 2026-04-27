@@ -21,7 +21,7 @@
     <div x-show="sidebarOpen" x-transition.opacity class="fixed inset-0 z-20 bg-gray-900 bg-opacity-50 lg:hidden" @click="sidebarOpen = false" x-cloak></div>
 
     <!-- Sidebar -->
-    <div :class="sidebarOpen ? 'translate-x-0 ease-out' : '-translate-x-full ease-in'" class="fixed z-30 inset-y-0 left-0 w-64 transition duration-300 transform bg-slate-900 shadow-2xl lg:translate-x-0 lg:static lg:inset-auto flex flex-col">
+    <div :class="sidebarOpen ? 'translate-x-0 ease-out' : '-translate-x-full ease-in'" class="fixed z-30 inset-y-0 left-0 w-64 transition duration-300 transform bg-white shadow-2xl lg:translate-x-0 lg:static lg:inset-auto flex flex-col">
         @include('layouts.admin.sidebar')
     </div>
 

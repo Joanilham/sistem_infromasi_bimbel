@@ -12,7 +12,7 @@ class PaketBimbinganController extends Controller
      */
     public function index()
     {
-        $paketBimbingans = PaketBimbingan::latest()->get();
+        $paketBimbingans = PaketBimbingan::inContext()->latest()->get();
         return view('admin.paket_bimbingan.index', compact('paketBimbingans'));
     }
 
@@ -32,6 +32,9 @@ class PaketBimbinganController extends Controller
             'nama_paket' => 'required|string|max:255',
             'nominal'    => 'required|numeric|min:0',
         ]);
+
+        $validated['kantor_id'] = session('kantor_id');
+        $validated['periode_id'] = session('periode_id');
 
         PaketBimbingan::create($validated);
 

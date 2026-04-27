@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('peserta_didiks', function (Blueprint $table) {
             $table->id();
             $table->string('nama_lengkap');
-            $table->string('nomor_induk')->unique();
+            $table->string('nisn')->unique();
             $table->enum('jenis_kelamin', ['L', 'P']);
             $table->string('asal_sekolah');
             $table->foreignId('paket_bimbingan_id')->constrained('paket_bimbingans')->onDelete('cascade');
