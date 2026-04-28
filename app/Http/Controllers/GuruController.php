@@ -63,9 +63,11 @@ class GuruController extends Controller
             'nip'             => 'nullable|string|max:20',
             'alamat'          => 'nullable|string|max:500',
             'matapelajaran'   => 'required|string|max:255',
-            'no_telp'         => 'nullable|string|max:20',
+            'no_telp'         => ['nullable', 'regex:/^[0-9]{8,15}$/', 'max:15'],
             'email'           => 'required|string|email|max:255|unique:users',
             'password'        => 'required|string|min:8|confirmed',
+        ], [
+            'no_telp.regex' => 'Nomor telepon hanya boleh berisi angka (8-15 digit).',
         ]);
 
         $validated['password']  = Hash::make($validated['password']);
@@ -111,12 +113,14 @@ class GuruController extends Controller
             'nip'           => 'nullable|string|max:20',
             'alamat'        => 'nullable|string|max:500',
             'matapelajaran' => 'required|string|max:255',
-            'no_telp'       => 'nullable|string|max:20',
+            'no_telp'       => ['nullable', 'regex:/^[0-9]{8,15}$/', 'max:15'],
             'email'         => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($guru->id)],
             'password'      => 'nullable|string|min:8|confirmed',
             'status'        => 'required|in:Aktif,Keluar',
             'tanggal_keluar' => 'nullable|date',
             'alasan_keluar' => 'nullable|string',
+        ], [
+            'no_telp.regex' => 'Nomor telepon hanya boleh berisi angka (8-15 digit).',
         ]);
 
         // Hapus field keluar jika status bukan Keluar

@@ -72,16 +72,21 @@ class PesertaDidikController extends Controller
       'agama'             => 'nullable|string|max:50',
       'alamat_lengkap'    => 'nullable|string',
       'asal_sekolah'      => 'required|string|max:255',
-      'no_telepon'        => 'nullable|string|max:20',
+      'no_telepon'        => ['nullable', 'regex:/^[0-9]{8,15}$/', 'max:15'],
       'nama_ayah'         => 'nullable|string|max:255',
       'nama_ibu'          => 'nullable|string|max:255',
       'pekerjaan_ayah'    => 'nullable|string|max:255',
       'pekerjaan_ibu'     => 'nullable|string|max:255',
-      'no_telepon_ayah'   => 'nullable|string|max:20',
-      'no_telepon_ibu'    => 'nullable|string|max:20',
+      'no_telepon_ayah'   => ['nullable', 'regex:/^[0-9]{8,15}$/', 'max:15'],
+      'no_telepon_ibu'    => ['nullable', 'regex:/^[0-9]{8,15}$/', 'max:15'],
       'informasi_dari'    => 'nullable|string|max:255',
       'paket_bimbingan_id' => 'required|exists:paket_bimbingans,id',
       'kelompok_belajar_id' => 'nullable|exists:kelompok_belajars,id',
+    ], [
+      'no_telepon.regex'      => 'Nomor telepon hanya boleh berisi angka (8-15 digit).',
+      'no_telepon_ayah.regex' => 'Nomor telepon ayah hanya boleh berisi angka (8-15 digit).',
+      'no_telepon_ibu.regex'  => 'Nomor telepon ibu hanya boleh berisi angka (8-15 digit).',
+      'nisn.digits'           => 'NISN harus tepat 10 digit angka.',
     ]);
 
     PesertaDidik::create($validated + [
@@ -122,19 +127,24 @@ class PesertaDidikController extends Controller
       'agama'             => 'nullable|string|max:50',
       'alamat_lengkap'    => 'nullable|string',
       'asal_sekolah'      => 'required|string|max:255',
-      'no_telepon'        => 'nullable|string|max:20',
+      'no_telepon'        => ['nullable', 'regex:/^[0-9]{8,15}$/', 'max:15'],
       'nama_ayah'         => 'nullable|string|max:255',
       'nama_ibu'          => 'nullable|string|max:255',
       'pekerjaan_ayah'    => 'nullable|string|max:255',
       'pekerjaan_ibu'     => 'nullable|string|max:255',
-      'no_telepon_ayah'   => 'nullable|string|max:20',
-      'no_telepon_ibu'    => 'nullable|string|max:20',
+      'no_telepon_ayah'   => ['nullable', 'regex:/^[0-9]{8,15}$/', 'max:15'],
+      'no_telepon_ibu'    => ['nullable', 'regex:/^[0-9]{8,15}$/', 'max:15'],
       'informasi_dari'    => 'nullable|string|max:255',
       'paket_bimbingan_id' => 'required|exists:paket_bimbingans,id',
       'kelompok_belajar_id' => 'nullable|exists:kelompok_belajars,id',
       'status'            => 'required|in:Aktif,Keluar',
       'tanggal_keluar'    => 'required_if:status,Keluar|nullable|date',
       'alasan_keluar'     => 'required_if:status,Keluar|nullable|string',
+    ], [
+      'no_telepon.regex'      => 'Nomor telepon hanya boleh berisi angka (8-15 digit).',
+      'no_telepon_ayah.regex' => 'Nomor telepon ayah hanya boleh berisi angka (8-15 digit).',
+      'no_telepon_ibu.regex'  => 'Nomor telepon ibu hanya boleh berisi angka (8-15 digit).',
+      'nisn.digits'           => 'NISN harus tepat 10 digit angka.',
     ]);
 
     // Hapus field keluar jika status bukan Keluar

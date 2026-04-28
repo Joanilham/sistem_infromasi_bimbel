@@ -1,3 +1,23 @@
+# ──────────────────────────────────────────────
+# Security: Sembunyikan informasi teknologi
+# ──────────────────────────────────────────────
+<IfModule mod_headers.c>
+    # Hapus header yang mengungkap teknologi
+    Header always unset X-Powered-By
+    Header always unset Server
+    Header always unset X-AspNet-Version
+    Header always unset X-AspNetMvc-Version
+
+    # Tambahkan security headers
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Matikan signature Apache
+ServerSignature Off
+
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes

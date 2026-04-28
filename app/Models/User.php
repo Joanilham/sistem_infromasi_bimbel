@@ -31,7 +31,13 @@ class User extends Authenticatable
         'status',
         'tanggal_keluar',
         'alasan_keluar',
+        'peserta_didik_id',
     ];
+
+    public function pesertaDidik()
+    {
+        return $this->belongsTo(\App\Models\PesertaDidik::class, 'peserta_didik_id');
+    }
 
     /**
      * The attributes that should be hidden for serialization.

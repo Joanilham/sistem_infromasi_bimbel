@@ -17,6 +17,39 @@ class AuthController extends Controller
             'password' => ['required'],
         ]);
 
+        // Cek apakah email ini ada di tabel pendaftaran
+        $pendaftaran = \App\Models\PendaftaranSiswa::where('email', $request->email)->first();
+
+        if ($pendaftaran) {
+            // Jika admin sudah menerima (status = diverifikasi), akun User sudah dibuat
+            // → lewati semua pengecekan pendaftaran, biarkan Auth::attempt yang menangani
+            if ($pendaftaran->status === 'diverifikasi') {
+                // Lanjut ke Auth::attempt di bawah
+            }
+            // Jika belum diverifikasi email (status masih menunggu & email belum diklik)
+            elseif (!$pendaftaran->isEmailVerified()) {
+                return back()->withErrors([
+                    'email' => '⚠️ Email Anda belum diverifikasi. Silakan cek kotak masuk email dan klik link verifikasi.',
+                ])->with('warning_type', 'email_not_verified')
+                  ->onlyInput('email');
+            }
+            // Email sudah diverifikasi siswa tapi admin belum memproses
+            elseif ($pendaftaran->status === 'menunggu') {
+                return back()->withErrors([
+                    'email' => '⏳ Pendaftaran Anda sedang dalam proses verifikasi oleh admin. Mohon tunggu konfirmasi.',
+                ])->onlyInput('email');
+            }
+            // Ditolak admin
+            elseif ($pendaftaran->status === 'ditolak') {
+                $catatan = $pendaftaran->catatan_admin
+                    ? ' Catatan admin: ' . $pendaftaran->catatan_admin
+                    : ' Hubungi administrator untuk informasi lebih lanjut.';
+                return back()->withErrors([
+                    'email' => '❌ Pendaftaran Anda ditolak.' . $catatan,
+                ])->onlyInput('email');
+            }
+        }
+
         // Ambil hanya email + password untuk Auth::attempt
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             // Cek apakah akun aktif
@@ -46,6 +79,11 @@ class AuthController extends Controller
                 return redirect()->route('guru.dashboard');
             }
 
+            // Redirect khusus untuk siswa
+            if ($user->level === 'siswa') {
+                return redirect()->route('siswa.dashboard');
+            }
+
             return redirect()->intended('dashboard');
         }
 
@@ -65,6 +103,6 @@ class AuthController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect()->route('login');
+        return redirect()->route('welcome');
     }
 }
