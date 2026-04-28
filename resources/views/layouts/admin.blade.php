@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.tailwindcss.min.css">
 
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    @stack('head')
 </head>
 
 <body class="bg-slate-50 dark:bg-slate-900 flex h-screen overflow-hidden text-slate-800 dark:text-slate-100 transition-colors duration-200" x-data="{ sidebarOpen: false }">
@@ -68,7 +69,9 @@
                 </div>
                 @endif
 
+                @include('layouts.admin.pesan-panel')
                 @yield('content')
+
             </div>
         </main>
     </div>

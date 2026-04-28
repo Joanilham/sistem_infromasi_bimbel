@@ -38,11 +38,19 @@
             </div>
             <div class="pd-field">
                 <label>NIP</label>
-                <input type="text" name="nip" value="{{ old('nip', $guru->nip) }}" placeholder="Nomor Induk Pegawai">
+                <input type="text" name="nip" value="{{ old('nip', $guru->nip) }}" placeholder="Nomor Induk Pegawai"
+                    inputmode="numeric"
+                    oninput="this.value=this.value.replace(/[^0-9]/g,'')"
+                    maxlength="20">
             </div>
             <div class="pd-field">
                 <label>No. Telp</label>
-                <input type="text" name="no_telp" value="{{ old('no_telp', $guru->no_telp) }}" placeholder="Nomor telepon">
+                <input type="tel" name="no_telp" value="{{ old('no_telp', $guru->no_telp) }}" placeholder="08xxxxxxxxxx"
+                    inputmode="numeric"
+                    pattern="[0-9]{8,15}"
+                    maxlength="15"
+                    oninput="this.value=this.value.replace(/[^0-9]/g,'')"
+                    title="Hanya boleh angka (8-15 digit)">
             </div>
             <div class="pd-field full">
                 <label>Alamat</label>
