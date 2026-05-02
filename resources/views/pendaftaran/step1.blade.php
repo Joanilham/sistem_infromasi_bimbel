@@ -47,18 +47,29 @@
         <div class="form-grid full">
             <div class="form-group">
                 <label>Email <span class="req">*</span></label>
-                <input type="email" name="email" class="form-control" value="{{ old('email') }}" placeholder="contoh@email.com" required>
+                <input type="email" name="email" class="form-control" value="{{ old('email') }}" placeholder="contoh: genius@gmail.com" required>
                 @error('email')<span class="invalid-feedback">{{ $message }}</span>@enderror
             </div>
             <div class="form-group">
                 <label>Password <span class="req">*</span></label>
-                <input type="password" name="password" class="form-control" placeholder="Minimal 8 karakter" required>
+                <input type="password" name="password" id="reg-password" class="form-control" placeholder="Minimal 8 karakter (Huruf besar, kecil, angka, simbol)" required>
+                <div class="pw-strength-bar" style="height: 6px; background: #E2E8F0; border-radius: 4px; margin-top: 8px; overflow: hidden;">
+                    <div id="pw-fill" style="height: 100%; width: 0%; transition: all 0.3s ease;"></div>
+                </div>
+                <div style="font-size: 0.75rem; font-weight: 600; margin-top: 4px; display: flex; justify-content: space-between;">
+                    <span id="pw-text" style="color: #94A3B8;">Kekuatan Sandi</span>
+                </div>
                 @error('password')<span class="invalid-feedback">{{ $message }}</span>@enderror
             </div>
             <div class="form-group">
                 <label>Konfirmasi Password <span class="req">*</span></label>
-                <input type="password" name="password_confirmation" class="form-control" placeholder="Ulangi password" required>
+                <input type="password" name="password_confirmation" id="reg-password-confirm" class="form-control" placeholder="Ulangi password" required>
             </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 8px; margin-top: 16px; margin-bottom: 8px;">
+            <input type="checkbox" id="show-passwords" style="cursor: pointer; width: 16px; height: 16px;" onclick="document.getElementById('reg-password').type = this.checked ? 'text' : 'password'; document.getElementById('reg-password-confirm').type = this.checked ? 'text' : 'password';">
+            <label for="show-passwords" style="font-size: 0.85rem; color: #64748B; cursor: pointer; user-select: none;">Tampilkan kata sandi</label>
         </div>
 
         <div class="btn-row">
@@ -67,4 +78,42 @@
         </div>
     </form>
 </div>
+
+<script>
+    const pwInput = document.getElementById('reg-password');
+    const pwFill = document.getElementById('pw-fill');
+    const pwText = document.getElementById('pw-text');
+
+    pwInput.addEventListener('input', function() {
+        const val = this.value;
+        let score = 0;
+        
+        if (val.length >= 8) score += 1;
+        if (/[A-Z]/.test(val)) score += 1;
+        if (/[a-z]/.test(val)) score += 1;
+        if (/[0-9]/.test(val)) score += 1;
+        if (/[^A-Za-z0-9]/.test(val)) score += 1;
+
+        let pct = (score / 5) * 100;
+        pwFill.style.width = pct + '%';
+
+        if (val.length === 0) {
+            pwFill.style.background = 'transparent';
+            pwText.textContent = 'Kekuatan Sandi';
+            pwText.style.color = '#94A3B8';
+        } else if (score <= 2) {
+            pwFill.style.background = '#EF4444';
+            pwText.textContent = 'Lemah (Gunakan huruf, angka & simbol)';
+            pwText.style.color = '#EF4444';
+        } else if (score <= 4) {
+            pwFill.style.background = '#F59E0B';
+            pwText.textContent = 'Sedang (Tambahkan simbol/angka)';
+            pwText.style.color = '#F59E0B';
+        } else {
+            pwFill.style.background = '#10B981';
+            pwText.textContent = 'Sangat Kuat';
+            pwText.style.color = '#10B981';
+        }
+    });
+</script>
 @endsection

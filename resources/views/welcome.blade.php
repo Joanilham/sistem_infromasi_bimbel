@@ -5,6 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $masterData->nama_lembaga ?? 'Genius Education' }} - Platform Bimbel Terbaik</title>
     <meta name="description" content="Platform sistem informasi bimbingan belajar terpadu. Kelola peserta didik, guru, dan jadwal dengan mudah.">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
+    
+    <!-- Open Graph / Facebook / WhatsApp -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:title" content="{{ $masterData->nama_lembaga ?? 'Genius Education' }} - Platform Bimbel Terbaik">
+    <meta property="og:description" content="Kelola Bimbel Lebih Cerdas & Efisien dengan GeniusEdu.">
+    <meta property="og:image" content="{{ asset('images/logo.png') }}">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">

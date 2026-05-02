@@ -17,8 +17,14 @@ class AuthController extends Controller
             'password' => ['required'],
         ]);
 
-        // Cek apakah email ini ada di tabel pendaftaran
+        $userExists = \App\Models\User::where('email', $request->email)->exists();
         $pendaftaran = \App\Models\PendaftaranSiswa::where('email', $request->email)->first();
+
+        if (!$userExists && !$pendaftaran) {
+            return back()->withErrors([
+                'email' => 'Email Anda belum terdaftar. Silakan mendaftar terlebih dahulu melalui menu Pendaftaran.',
+            ])->onlyInput('email');
+        }
 
         if ($pendaftaran) {
             // Jika admin sudah menerima (status = diverifikasi), akun User sudah dibuat

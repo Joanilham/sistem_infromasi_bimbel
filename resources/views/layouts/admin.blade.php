@@ -69,7 +69,6 @@
                 </div>
                 @endif
 
-                @include('layouts.admin.pesan-panel')
                 @yield('content')
 
             </div>

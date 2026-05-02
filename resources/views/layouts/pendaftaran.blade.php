@@ -4,10 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Pendaftaran Siswa') - Genius Education</title>
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        [x-cloak] { display: none !important; }
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -15,6 +19,19 @@
             min-height: 100vh;
             display: flex; flex-direction: column;
         }
+        
+        /* Modern Select Reset */
+        select.form-control {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748B'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1.2em;
+            padding-right: 2.5rem !important;
+        }
+
         .top-bar {
             background: white; border-bottom: 1px solid #E2E8F0;
             padding: 14px 5%; display: flex; align-items: center; justify-content: space-between;
@@ -62,12 +79,12 @@
         .form-group label { font-size: 0.82rem; font-weight: 600; color: #374151; }
         .form-group label .req { color: #EF4444; }
         .form-control {
-            border: 1.5px solid #E2E8F0; border-radius: 10px; padding: 10px 14px;
-            font-size: 0.9rem; font-family: inherit; color: #0F172A;
-            transition: border-color 0.2s, box-shadow 0.2s; outline: none;
+            border: 1.5px solid #E2E8F0; border-radius: 12px; padding: 12px 16px;
+            font-size: 0.95rem; font-family: inherit; color: #0F172A;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); outline: none;
             background: #FAFBFC; width: 100%;
         }
-        .form-control:focus { border-color: #4F46E5; box-shadow: 0 0 0 3px rgba(79,70,229,0.1); background: white; }
+        .form-control:focus { border-color: #4F46E5; box-shadow: 0 0 0 4px rgba(79,70,229,0.1); background: white; transform: translateY(-1px); }
         select.form-control { cursor: pointer; }
         textarea.form-control { resize: vertical; min-height: 90px; }
         .invalid-feedback { font-size: 0.78rem; color: #EF4444; margin-top: 2px; }
@@ -77,11 +94,11 @@
         }
         .alert-danger ul { margin: 8px 0 0 16px; }
         .btn-row { display: flex; justify-content: flex-end; gap: 12px; margin-top: 28px; padding-top: 20px; border-top: 1px solid #F1F5F9; }
-        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 24px; border-radius: 10px; font-weight: 700; font-size: 0.9rem; cursor: pointer; border: none; text-decoration: none; transition: all 0.2s; }
-        .btn-primary { background: linear-gradient(135deg, #4F46E5, #3730A3); color: white; box-shadow: 0 4px 12px rgba(79,70,229,0.3); }
-        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(79,70,229,0.4); }
-        .btn-secondary { background: #F8FAFC; color: #64748B; border: 1.5px solid #E2E8F0; }
-        .btn-secondary:hover { border-color: #94A3B8; color: #374151; }
+        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 28px; border-radius: 12px; font-weight: 700; font-size: 0.95rem; cursor: pointer; border: none; text-decoration: none; transition: all 0.3s; }
+        .btn-primary { background: linear-gradient(135deg, #4F46E5, #3730A3); color: white; box-shadow: 0 8px 20px rgba(79,70,229,0.3); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(79,70,229,0.45); }
+        .btn-secondary { background: white; color: #64748B; border: 2px solid #E2E8F0; }
+        .btn-secondary:hover { border-color: #4F46E5; color: #4F46E5; background: #F8FAFC; }
         @media (max-width: 600px) {
             .form-grid { grid-template-columns: 1fr; }
             .card { padding: 22px 16px; }

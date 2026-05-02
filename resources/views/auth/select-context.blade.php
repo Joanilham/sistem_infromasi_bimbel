@@ -4,88 +4,216 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pilih Ruang Kerja - Genius Education</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>body { font-family: 'Inter', sans-serif; }</style>
+    
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        [x-cloak] { display: none !important; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .bg-pattern {
+            background-color: #f8fafc;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23e2e8f0' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+        
+        .dropdown-glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+    </style>
 </head>
-
-<body class="min-h-screen bg-slate-50 flex items-center justify-center px-4">
-
-    <div class="w-full max-w-sm">
-
-        {{-- Header --}}
-        <div class="text-center mb-8">
-            <div class="inline-flex items-center justify-center w-12 h-12 bg-blue-600 rounded-xl mb-4">
-                <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
+<body class="min-h-screen bg-pattern flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 text-slate-900 antialiased selection:bg-blue-200 selection:text-blue-900">
+    
+    <div class="w-full max-w-md relative z-10">
+        
+        <!-- Logo -->
+        <div class="flex justify-center mb-8">
+            <div class="flex items-center gap-3">
+                <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-600/20">
+                    <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                </div>
+                <span class="text-2xl font-extrabold tracking-tight text-slate-900">Genius<span class="text-blue-600">Edu</span></span>
             </div>
-            <h1 class="text-xl font-bold text-slate-800">Pilih Ruang Kerja</h1>
-            <p class="text-sm text-slate-500 mt-1">
-                Halo, <span class="font-semibold text-slate-700">{{ explode(' ', Auth::user()->name)[0] }}</span>. Pilih kantor dan periode terlebih dahulu.
-            </p>
         </div>
 
-        {{-- Error --}}
-        @if (session('error'))
-            <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
-                {{ session('error') }}
-            </div>
-        @endif
-
-        @if ($errors->any())
-            <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
-                @foreach ($errors->all() as $error)
-                    <p>{{ $error }}</p>
-                @endforeach
-            </div>
-        @endif
-
-        {{-- Form --}}
-        <form action="{{ route('session.konteks') }}" method="POST" class="space-y-4">
-            @csrf
-            <input type="hidden" name="redirect" value="/dashboard">
-
-            <div>
-                <label for="kantor_id" class="block text-sm font-medium text-slate-700 mb-1">Kantor Cabang</label>
-                <select id="kantor_id" name="kantor_id" required
-                    class="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                    <option value="" disabled selected>— Pilih Kantor —</option>
-                    @foreach($kantors as $kantor)
-                        <option value="{{ $kantor->id }}">{{ $kantor->nama_kantor }}</option>
-                    @endforeach
-                </select>
+        <!-- Card -->
+        <div class="bg-white rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-100 p-8 sm:p-10">
+            <div class="mb-8 text-center">
+                <h2 class="text-2xl font-extrabold tracking-tight text-slate-900">Pilih Konteks</h2>
+                <p class="mt-2 text-sm text-slate-500 font-medium leading-relaxed">
+                    Masuk sebagai <span class="font-bold text-slate-800">{{ Auth::user()->name ?? 'User' }}</span>. Silakan pilih ruang kerja.
+                </p>
             </div>
 
-            <div>
-                <label for="periode_id" class="block text-sm font-medium text-slate-700 mb-1">Tahun Ajaran / Periode</label>
-                <select id="periode_id" name="periode_id" required
-                    class="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                    <option value="" disabled selected>— Pilih Periode —</option>
-                    @foreach($periodes as $periode)
-                        <option value="{{ $periode->id }}">{{ $periode->tahun_periode }} - {{ ucfirst($periode->semester) }}</option>
-                    @endforeach
-                </select>
-            </div>
+            {{-- Flash Messages --}}
+            @if (session('error'))
+                <div class="mb-6 rounded-xl bg-red-50 p-4 border border-red-100 shadow-sm">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 mt-0.5">
+                            <svg class="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-semibold text-red-800">{{ session('error') }}</p>
+                        </div>
+                    </div>
+                </div>
+            @endif
 
-            <button type="submit"
-                class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors">
-                Masuk ke Dashboard
-            </button>
-        </form>
-
-        {{-- Logout --}}
-        <div class="mt-6 pt-5 border-t border-slate-200 flex items-center justify-between">
-            <p class="text-xs text-slate-400">Bukan akun Anda?</p>
-            <form method="POST" action="{{ route('logout') }}">
+            <form action="{{ route('session.konteks') }}" method="POST" class="space-y-6">
                 @csrf
-                <button type="submit" class="text-xs font-semibold text-red-500 hover:text-red-700 transition-colors">
-                    Log Out
+                <input type="hidden" name="redirect" value="/dashboard">
+
+                <div class="space-y-1.5" x-data="{ open: false, selected: '', selectedLabel: 'Pilih kantor cabang' }">
+                    <label class="block text-sm font-bold text-slate-700">Kantor Cabang</label>
+                    <div class="relative">
+                        <button type="button" @click="open = !open" @click.away="open = false"
+                            class="relative w-full rounded-xl border border-slate-200 bg-slate-50 pl-11 pr-10 py-3 text-left text-sm text-slate-900 shadow-sm focus:border-blue-600 focus:bg-white focus:ring-1 focus:ring-blue-600 transition-all duration-200">
+                            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+                                <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                </svg>
+                            </span>
+                            <span x-text="selectedLabel" :class="selected === '' ? 'text-slate-400' : 'text-slate-900 font-semibold'">Pilih kantor cabang</span>
+                            <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4">
+                                <svg class="h-4 w-4 text-slate-400 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                            </span>
+                        </button>
+
+                        <input type="hidden" name="kantor_id" :value="selected" required>
+
+                        <div x-show="open" 
+                             x-transition:enter="transition ease-out duration-100"
+                             x-transition:enter-start="opacity-0 scale-95"
+                             x-transition:enter-end="opacity-100 scale-100"
+                             x-transition:leave="transition ease-in duration-75"
+                             x-transition:leave-start="opacity-100 scale-100"
+                             x-transition:leave-end="opacity-0 scale-95"
+                             class="absolute z-50 mt-3 w-full rounded-3xl dropdown-glass p-2 shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-white/20 ring-1 ring-black ring-opacity-5 overflow-hidden focus:outline-none" style="display: none;">
+                            <div class="max-h-60 overflow-y-auto custom-scrollbar space-y-1">
+                                @foreach($kantors as $kantor)
+                                    <div @click="selected = '{{ $kantor->id }}'; selectedLabel = '{{ $kantor->nama_kantor }}'; open = false"
+                                         class="group flex items-center gap-4 px-4 py-3.5 text-sm rounded-2xl cursor-pointer transition-all duration-200"
+                                         :class="selected == '{{ $kantor->id }}' ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'text-slate-600 hover:bg-blue-50 hover:text-blue-700'">
+                                         <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-100 bg-white/50 shadow-sm group-hover:border-blue-200 group-hover:bg-white transition-all duration-200"
+                                              :class="selected == '{{ $kantor->id }}' ? 'bg-white/20 border-white/20' : ''">
+                                             <svg class="h-5 w-5" :class="selected == '{{ $kantor->id }}' ? 'text-white' : 'text-slate-400 group-hover:text-blue-600'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                             </svg>
+                                         </div>
+                                         <div class="flex flex-col">
+                                             <span class="font-bold">{{ $kantor->nama_kantor }}</span>
+                                             <span class="text-[10px] opacity-70" :class="selected == '{{ $kantor->id }}' ? 'text-white' : 'text-slate-400'">Klik untuk memilih unit ini</span>
+                                         </div>
+                                         <span x-show="selected == '{{ $kantor->id }}'" class="ml-auto" x-transition>
+                                             <div class="bg-white rounded-full p-1">
+                                                 <svg class="h-3 w-3 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4">
+                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                                 </svg>
+                                             </div>
+                                         </span>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-2" x-data="{ open: false, selected: '', selectedLabel: 'Pilih tahun ajaran' }">
+                    <label class="block text-sm font-bold text-slate-700 ml-1">Tahun Ajaran</label>
+                    <div class="relative">
+                        <button type="button" @click="open = !open" @click.away="open = false"
+                            class="relative w-full rounded-2xl border-2 border-slate-100 bg-slate-50 pl-11 pr-10 py-4 text-left text-sm text-slate-900 shadow-sm focus:border-blue-600 focus:bg-white focus:ring-0 transition-all duration-300">
+                            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+                                <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </span>
+                            <span x-text="selectedLabel" :class="selected === '' ? 'text-slate-400' : 'text-slate-900 font-bold'">Pilih tahun ajaran</span>
+                            <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4">
+                                <svg class="h-4 w-4 text-slate-400 transition-transform duration-300" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                            </span>
+                        </button>
+
+                        <input type="hidden" name="periode_id" :value="selected" required>
+
+                        <div x-show="open" 
+                             x-transition:enter="transition cubic-bezier(0.4, 0, 0.2, 1) duration-300"
+                             x-transition:enter-start="opacity-0 translate-y-4 scale-95"
+                             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                             x-transition:leave="transition ease-in duration-200"
+                             x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                             x-transition:leave-end="opacity-0 translate-y-4 scale-95"
+                             class="absolute z-50 mt-3 w-full rounded-3xl dropdown-glass p-2 shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-white/20 ring-1 ring-black ring-opacity-5 overflow-hidden focus:outline-none" style="display: none;">
+                            <div class="max-h-60 overflow-y-auto custom-scrollbar space-y-1">
+                                @foreach($periodes as $periode)
+                                    <div @click="selected = '{{ $periode->id }}'; selectedLabel = '{{ $periode->tahun_periode }} - {{ ucfirst($periode->semester ?? '') }}'; open = false"
+                                         class="group flex items-center gap-4 px-4 py-3.5 text-sm rounded-2xl cursor-pointer transition-all duration-200"
+                                         :class="selected == '{{ $periode->id }}' ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'text-slate-600 hover:bg-blue-50 hover:text-blue-700'">
+                                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-100 bg-white/50 shadow-sm group-hover:border-blue-200 group-hover:bg-white transition-all duration-200"
+                                             :class="selected == '{{ $periode->id }}' ? 'bg-white/20 border-white/20' : ''">
+                                            <svg class="h-5 w-5" :class="selected == '{{ $periode->id }}' ? 'text-white' : 'text-slate-400 group-hover:text-blue-600'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                        </div>
+                                        <div class="flex flex-col">
+                                            <span class="font-bold">{{ $periode->tahun_periode }}</span>
+                                            <span class="text-[10px] opacity-70" :class="selected == '{{ $periode->id }}' ? 'text-white' : 'text-slate-400'">Semester {{ ucfirst($periode->semester ?? '') }}</span>
+                                        </div>
+                                        <span x-show="selected == '{{ $periode->id }}'" class="ml-auto" x-transition>
+                                            <div class="bg-white rounded-full p-1">
+                                                <svg class="h-3 w-3 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                                </svg>
+                                            </div>
+                                        </span>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <button type="submit"
+                    class="flex w-full justify-center rounded-xl bg-slate-900 px-4 py-3.5 text-sm font-bold text-white shadow-lg shadow-slate-900/20 hover:bg-slate-800 hover:shadow-xl hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 transition-all duration-200 mt-2">
+                    Lanjutkan ke Dashboard
                 </button>
             </form>
+            
+            <div class="mt-8 pt-6 border-t border-slate-100 flex items-center justify-center">
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        Masuk dengan akun lain
+                    </button>
+                </form>
+            </div>
         </div>
 
-    </div>
+        <p class="mt-8 text-center text-sm font-medium text-slate-500">
+            &copy; {{ date('Y') }} Genius Education.
+        </p>
 
+    </div>
 </body>
 </html>

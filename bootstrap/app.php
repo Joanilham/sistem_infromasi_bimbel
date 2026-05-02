@@ -21,14 +21,20 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->trustProxies(at: '*');
 
         // Global middleware — berjalan di SEMUA request
-        $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
-        $middleware->append(\App\Http\Middleware\CameraPermissionHeaders::class);
+        // $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
+        // $middleware->append(\App\Http\Middleware\CameraPermissionHeaders::class);
 
         // Alias middleware
         $middleware->alias([
             'role'        => \App\Http\Middleware\RoleMiddleware::class,
             'ensure_role' => \App\Http\Middleware\EnsureCorrectRole::class,
             'konteks'     => \App\Http\Middleware\CekKonteks::class,
+        ]);
+
+        // Pengecualian CSRF untuk endpoint scanner QR (menghindari error 419 via Ngrok/AJAX)
+        $middleware->validateCsrfTokens(except: [
+            'absensi/scan-masuk',
+            'absensi/scan-pulang',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

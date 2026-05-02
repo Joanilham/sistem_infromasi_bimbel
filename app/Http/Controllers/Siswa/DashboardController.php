@@ -31,10 +31,11 @@ class DashboardController extends Controller
             ->where('tanggal', '>=', $bulanIni)
             ->where('status_masuk', 'hadir')
             ->count();
-        $totalAbsen = Absensi::where('peserta_didik_id', $peserta->id)
+        $totalAlpha = Absensi::where('peserta_didik_id', $peserta->id)
             ->where('tanggal', '>=', $bulanIni)
+            ->where('status_masuk', 'alpha')
             ->count();
 
-        return view('siswa.dashboard', compact('user', 'peserta', 'absensis', 'totalHadir', 'totalAbsen'));
+        return view('siswa.dashboard', compact('user', 'peserta', 'absensis', 'totalHadir', 'totalAlpha'));
     }
 }
