@@ -113,9 +113,9 @@
             </div>
         </div>
 
-        <div class="pd-action">
-            <a href="{{ route('guru.index') }}" class="btn-batal">Batal</a>
-            <button type="submit" class="btn-simpan">Simpan</button>
+        <div class="pd-btns">
+            <a href="{{ route('guru.index') }}" class="pd-btn-back">Batal</a>
+            <button type="submit" class="pd-btn-save">Simpan</button>
         </div>
     </form>
 </div>

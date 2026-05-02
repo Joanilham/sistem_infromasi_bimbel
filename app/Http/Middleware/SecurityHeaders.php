@@ -40,13 +40,9 @@ class SecurityHeaders
         $response->headers->set('X-XSS-Protection', '1; mode=block');
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
         // Izinkan kamera & mikrofon untuk fitur absensi QR
-        // camera=() = BLOKIR | camera=* = IZINKAN semua | camera=(self) = izinkan dari origin sendiri
         $response->headers->set('Permissions-Policy', 'camera=*, microphone=*, geolocation=()');
 
 
-        // CATATAN: Content-Security-Policy TIDAK dipasang di sini
-        // karena Vite dev server (localhost:5173) butuh akses ws:// dan http://
-        // untuk hot module replacement. CSP dapat diaktifkan setelah build production.
 
         return $response;
     }

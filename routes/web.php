@@ -14,9 +14,17 @@ Route::get('/', function () {
 
 Route::get('/login', function () {
     return view('auth.login');
-})->name('login');
+})->name('login')->middleware('guest');
 
 Route::post('/login', [AuthController::class, 'authenticate'])->middleware('throttle:5,1');
+
+// Lupa Password
+Route::middleware('guest')->group(function () {
+    Route::get('/forgot-password', [\App\Http\Controllers\PasswordResetController::class, 'create'])->name('password.request');
+    Route::post('/forgot-password', [\App\Http\Controllers\PasswordResetController::class, 'store'])->name('password.email');
+    Route::get('/reset-password/{token}', [\App\Http\Controllers\PasswordResetController::class, 'edit'])->name('password.reset');
+    Route::post('/reset-password', [\App\Http\Controllers\PasswordResetController::class, 'update'])->name('password.store');
+});
 
 // Pendaftaran Siswa (publik, tanpa auth)
 Route::prefix('daftar')->name('daftar.')->group(function () {
@@ -48,6 +56,9 @@ Route::middleware('auth')->group(function () {
 
         // Rute pemilihan konteks (wajib sebelum pakai fitur)
         Route::get('/select-context', [KonteksController::class, 'selectContext'])->name('konteks.select');
+
+        // Pusat Notifikasi
+        Route::get('/notifikasi', [\App\Http\Controllers\NotifikasiController::class, 'index'])->name('notifikasi.index');
 
         // Dashboard Admin/Staff
         Route::get('/dashboard', function () {
@@ -139,13 +150,15 @@ Route::middleware('auth')->group(function () {
             Route::get('/guru/{id}/edit', [\App\Http\Controllers\GuruController::class, 'edit'])->name('guru.edit');
             Route::resource('guru', \App\Http\Controllers\GuruController::class)->except(['edit', 'show']);
 
-            // Absensi
-            Route::get('/absensi', [\App\Http\Controllers\AbsensiController::class, 'index'])->name('absensi.index');
-            Route::post('/absensi/{peserta}/masuk', [\App\Http\Controllers\AbsensiController::class, 'masuk'])->name('absensi.masuk');
-            Route::post('/absensi/{peserta}/pulang', [\App\Http\Controllers\AbsensiController::class, 'pulang'])->name('absensi.pulang');
-            Route::post('/absensi/scan-masuk', [\App\Http\Controllers\AbsensiController::class, 'scanMasuk'])->name('absensi.scan.masuk');
+            // Absensi — Halaman Scan
+            Route::get('/absensi/masuk',  [\App\Http\Controllers\AbsensiController::class, 'scanMasukPage'])->name('absensi.scan.masuk.page');
+            Route::get('/absensi/pulang', [\App\Http\Controllers\AbsensiController::class, 'scanPulangPage'])->name('absensi.scan.pulang.page');
+            Route::get('/absensi/rekap',  [\App\Http\Controllers\AbsensiController::class, 'rekap'])->name('absensi.rekap');
+            // Absensi — API Scan (JSON)
+            Route::post('/absensi/scan-masuk',  [\App\Http\Controllers\AbsensiController::class, 'scanMasuk'])->name('absensi.scan.masuk');
             Route::post('/absensi/scan-pulang', [\App\Http\Controllers\AbsensiController::class, 'scanPulang'])->name('absensi.scan.pulang');
-            Route::get('/absensi/rekap', [\App\Http\Controllers\AbsensiController::class, 'rekap'])->name('absensi.rekap');
+            // Absensi — Export
+            Route::get('/absensi/export/rekap', [\App\Http\Controllers\AbsensiController::class, 'exportRekap'])->name('absensi.export.rekap');
         });
     });
 
@@ -197,5 +210,10 @@ Route::middleware('auth')->group(function () {
         // Profil Siswa
         Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'editSiswa'])->name('profile.edit');
         Route::patch('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+
+        // QR Absensi Dinamis
+        Route::get('/qr', [\App\Http\Controllers\Siswa\QrController::class, 'show'])->name('qr.show');
+        Route::get('/qr/token', [\App\Http\Controllers\Siswa\QrController::class, 'token'])->name('qr.token');
+        Route::get('/qr/status', [\App\Http\Controllers\Siswa\QrController::class, 'status'])->name('qr.status');
     });
 });

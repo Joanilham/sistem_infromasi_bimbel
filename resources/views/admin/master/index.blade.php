@@ -65,6 +65,19 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800">
+                        <h4 class="text-sm font-semibold text-slate-900 dark:text-white mb-4">Pengaturan Email Gateway</h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Digunakan untuk mengirimkan tautan reset kata sandi ke email pengguna.</p>
+
+                        <!--API Key Email -->
+                        <div>
+                            <label for="api_key" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">API Key</label>
+                            <div class="relative mt-2">
+                                <input type="password" name="api_key" id="api_key" value="{{ old('api_key', $master->api_key) }}" class="block w-full border border-slate-300 dark:border-slate-700 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm px-4 py-2.5 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white transition-colors">
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

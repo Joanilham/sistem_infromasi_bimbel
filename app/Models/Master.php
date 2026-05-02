@@ -12,6 +12,7 @@ class Master extends Model
         'wa_url',
         'instance_id',
         'wa_token',
+        'api_key',
         'logo',
     ];
 }

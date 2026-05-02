@@ -1,9 +1,3 @@
-# Log files
-*.log
-npm-debug.log
-yarn-error.log
-pnpm-debug.log*
-
 # OS generated files
 .DS_Store
 .DS_Store?
@@ -15,10 +9,8 @@ Thumbs.db
 
 # Environment variables
 .env
-.env.backup
-.env.production
-.env.local
-.env.*.local
+.env.*
+!.env.example
 
 # Cache and framework generated files
 .phpunit.result.cache
@@ -28,10 +20,21 @@ Thumbs.db
 /public/storage
 /storage/*.key
 /storage/pail
+/storage/debugbar
 /storage/framework/cache/data/*
 /storage/framework/sessions/*
 /storage/framework/views/*
 /storage/logs/*
+/bootstrap/cache/*
+!/bootstrap/cache/.gitignore
+
+# User uploads
+/storage/app/public/*
+
+# Docker
+docker-compose.override.yml
+docker-compose.yml
+Dockerfile
 
 # Dependencies
 /vendor
@@ -43,11 +46,22 @@ Thumbs.db
 *.db
 *.sql
 *.sql.gz
+*.bak
+*.backup
 /database/database.sqlite
 /database/database.sqlite-journal
 /auth.json
 Homestead.json
 Homestead.yaml
+
+# Certificates and Keys
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+*.pub
+/storage/*.key
 
 # IDE & Editor files
 /.fleet
@@ -56,12 +70,21 @@ Homestead.yaml
 /.vscode
 /.zed
 .phpactor.json
+.history/
+*.swp
+*~
 
-# composer
-composer.lock
-composer.json 
-
-# package
-package-lock.json
-package.json
+# Logs and temporary files
+*.log
+log.txt
+logs.txt
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.temp/
+.tmp/
+peserta.html
+temp.html
+test.php
 

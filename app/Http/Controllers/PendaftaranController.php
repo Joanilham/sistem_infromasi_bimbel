@@ -29,12 +29,21 @@ class PendaftaranController extends Controller
     {
         $request->validate([
             'email'      => 'required|email|unique:pendaftaran_siswas,email',
-            'password'   => 'required|min:8|confirmed',
+            'password'   => [
+                'required', 
+                'confirmed', 
+                \Illuminate\Validation\Rules\Password::min(8)
+                    ->letters()
+                    ->mixedCase()
+                    ->numbers()
+                    ->symbols()
+            ],
             'kantor_id'  => 'required|exists:kantors,id',
         ], [
             'email.unique'      => 'Email ini sudah terdaftar. Gunakan email lain.',
             'kantor_id.required'=> 'Silakan pilih kantor/cabang tujuan.',
             'kantor_id.exists'  => 'Kantor yang dipilih tidak valid.',
+            'password.min'      => 'Password minimal harus 8 karakter.',
         ]);
 
         Session::put('daftar_email', $request->email);
@@ -281,6 +290,15 @@ class PendaftaranController extends Controller
             }
         }
 
+        if ($request->aksi === 'ditolak') {
+            if ($pendaftaran->pembayaran) {
+                $pendaftaran->pembayaran->delete();
+            }
+            $pendaftaran->delete();
+            
+            return back()->with('success', '❌ Pendaftaran ditolak dan data telah dihapus agar email dapat digunakan kembali.');
+        }
+
         $pendaftaran->update([
             'status'             => $request->aksi,
             'catatan_admin'      => $request->catatan_admin,
@@ -297,8 +315,6 @@ class PendaftaranController extends Controller
             \Illuminate\Support\Facades\Cache::forget("data_peserta_didiks_aktif_{$kantorId}_{$periodeId}");
         } catch (\Throwable $e) {}
 
-        return back()->with('success', $request->aksi === 'diverifikasi'
-            ? '✅ Pendaftaran diverifikasi! Akun siswa berhasil dibuat.'
-            : '❌ Pendaftaran ditolak.');
+        return back()->with('success', '✅ Pendaftaran diverifikasi! Akun siswa berhasil dibuat.');
     }
 }

@@ -22,6 +22,7 @@ class MasterController extends Controller
             'wa_url'         => 'nullable|url|max:255',
             'instance_id'    => 'nullable|string|max:255',
             'wa_token'       => 'nullable|string|max:255',
+            'api_key'  => 'nullable|string|max:255',
             'logo'           => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
@@ -32,6 +33,7 @@ class MasterController extends Controller
         $master->wa_url         = array_key_exists('wa_url', $validated) ? $validated['wa_url'] : $master->wa_url;
         $master->instance_id    = array_key_exists('instance_id', $validated) ? $validated['instance_id'] : $master->instance_id;
         $master->wa_token       = array_key_exists('wa_token', $validated) ? $validated['wa_token'] : $master->wa_token;
+        $master->api_key  = array_key_exists('api_key', $validated) ? $validated['api_key'] : $master->_api_key;
 
         if ($request->hasFile('logo')) {
             // Hapus logo lama jika ada
