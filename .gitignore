@@ -33,8 +33,8 @@ Thumbs.db
 
 # Docker
 docker-compose.override.yml
-docker-compose.yml
-Dockerfile
+# docker-compose.yml
+# Dockerfile
 
 # Dependencies
 /vendor
