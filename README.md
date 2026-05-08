@@ -91,14 +91,3 @@ Pastikan Anda sudah menginstal **Docker Desktop** dan **Git** di mesin Anda.
 | `docker-compose exec app php artisan ...` | Menjalankan perintah artisan |
 | `docker-compose exec app npm run dev` | Menjalankan Vite dev server |
 | `docker-compose logs -f app` | Melihat log aplikasi secara real-time |
-
----
-
-## 📝 Roadmap & Sprint
-Informasi detail mengenai progres pengembangan dapat dilihat pada file berikut:
-*   [Sprint Selesai](./Sprint_selesai.md)
-*   [Sprint 4 (Ongoing)](./Sprint_4.md)
-*   [Spesifikasi Fitur](./sprint-spec.md)
-
----
-Developed with ❤️ by **Antigravity AI** for **Genius Education**.
