@@ -1,30 +1,20 @@
 <header class="bg-white dark:bg-zinc-900 backdrop-blur-sm border-b border-slate-200 dark:border-zinc-800 sticky top-0 z-20 transition-colors duration-200">
     <div class="px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-20">
-            <div class="flex items-center gap-3 flex-wrap">
-                <button @click="sidebarOpen = true" class="text-slate-500 hover:text-slate-700 focus:outline-none lg:hidden mr-4 transition-colors">
-                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+                <!-- Sidebar Toggle -->
+                <button @click="sidebarOpen = !sidebarOpen" class="shrink-0 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 focus:outline-none transition-colors p-2 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-xl">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" x-show="sidebarOpen">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
                     </svg>
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" x-show="!sidebarOpen" x-cloak>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
                 </button>
-                <h2 class="text-[22px] font-bold text-slate-800 dark:text-white tracking-tight">@yield('title', 'Dashboard')</h2>
+                <h2 class="text-base sm:text-lg lg:text-[22px] font-bold text-slate-800 dark:text-white tracking-tight truncate">@yield('title', 'Dashboard')</h2>
             </div>
 
             <div class="flex items-center gap-2 sm:gap-4">
-
-                
-                <!-- Dark Mode Toggle -->
-                <button @click="darkMode = !darkMode" type="button" class="p-2 rounded-full text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-200 transition-colors focus:outline-none" aria-label="Toggle Dark Mode">
-                    <!-- Moon Icon -->
-                    <svg x-show="!darkMode" class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
-                    </svg>
-                    <!-- Sun Icon -->
-                    <svg x-show="darkMode" x-cloak class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                    </svg>
-                </button>
-
                 <!-- Notification / Email Link -->
                 @php
                     $kId = session('kantor_id');
@@ -50,9 +40,13 @@
                 <!-- User Dropdown -->
                 <div class="relative" x-data="{ open: false }">
                     <button @click="open = !open" @click.away="open = false" class="flex items-center gap-2 sm:gap-2.5 bg-slate-50 dark:bg-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-700/80 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-full border border-slate-200 dark:border-zinc-700 focus:outline-none transition-colors cursor-pointer">
-                        <div class="w-[26px] h-[26px] rounded-full bg-emerald-100 dark:bg-emerald-600 flex items-center justify-center text-emerald-700 dark:text-white font-bold text-xs">
-                            {{ substr(auth()->user()->name ?? 'U', 0, 1) }}
-                        </div>
+                        @if(auth()->user() && auth()->user()->photo)
+                            <img src="{{ asset('storage/' . auth()->user()->photo) }}" alt="Profile" class="w-[26px] h-[26px] rounded-full object-cover">
+                        @else
+                            <div class="w-[26px] h-[26px] rounded-full bg-emerald-100 dark:bg-emerald-600 flex items-center justify-center text-emerald-700 dark:text-white font-bold text-xs">
+                                {{ substr(auth()->user()->name ?? 'U', 0, 1) }}
+                            </div>
+                        @endif
                         <span class="hidden sm:block text-sm font-medium text-slate-700 dark:text-white">{{ auth()->user()->name ?? 'Admin' }}</span>
                         <svg class="hidden sm:block w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>

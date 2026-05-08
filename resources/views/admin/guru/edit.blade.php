@@ -7,7 +7,7 @@
     <h2 style="font-size:1.05rem;font-weight:700;color:#111827;margin-bottom:4px;">Edit Data Guru</h2>
     <p style="font-size:.78rem;color:#6b7280;margin-bottom:0;">Perbarui data guru dengan lengkap dan benar.</p>
 
-    <form action="{{ route('guru.update', $guru->id) }}" method="POST" id="guruForm">
+    <form action="{{ route('manajemen-guru.update', $guru->id) }}" method="POST" id="guruForm">
         @csrf
         @method('PUT')
 
@@ -114,7 +114,7 @@
         </div>
 
         <div class="pd-btns">
-            <a href="{{ route('guru.index') }}" class="pd-btn-back">Batal</a>
+            <a href="{{ route('manajemen-guru.index') }}" class="pd-btn-back">Batal</a>
             <button type="submit" class="pd-btn-save">Simpan</button>
         </div>
     </form>

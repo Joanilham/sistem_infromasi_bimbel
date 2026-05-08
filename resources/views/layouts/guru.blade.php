@@ -1,8 +1,11 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" x-data="{ 
+    sidebarOpen: window.innerWidth >= 1024
+}" @resize.window="if(window.innerWidth < 1024) { sidebarOpen = false; }">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Dashboard Guru') - Genius Education</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,88 +15,77 @@
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
+    <script>
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
 </head>
-<body class="bg-slate-50 min-h-screen">
-    <!-- Top Navigation -->
-    <header class="bg-white shadow-sm border-b border-slate-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <h1 class="text-lg font-bold text-slate-800">Dashboard Guru</h1>
-                        <p class="text-xs text-slate-500">Genius Education</p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-4">
-                    <div class="relative" x-data="{ open: false }">
-                        <button @click="open = !open" @click.away="open = false" class="flex items-center gap-3 bg-slate-50 hover:bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200 focus:outline-none transition-colors cursor-pointer">
-                            <div class="text-right hidden sm:block">
-                                <p class="text-sm font-medium text-slate-800">{{ Auth::user()->name }}</p>
-                                <p class="text-xs text-slate-500">Guru</p>
-                            </div>
-                            <div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
-                                <span class="text-indigo-600 font-semibold">{{ substr(Auth::user()->name, 0, 1) }}</span>
-                            </div>
-                            <svg class="w-4 h-4 text-slate-400 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </button>
+<body class="bg-slate-50 dark:bg-slate-900 flex h-screen overflow-hidden text-slate-800 dark:text-slate-100 transition-colors duration-200">
 
-                        <div x-show="open"
-                            x-transition:enter="transition ease-out duration-100"
-                            x-transition:enter-start="transform opacity-0 scale-95"
-                            x-transition:enter-end="transform opacity-100 scale-100"
-                            x-transition:leave="transition ease-in duration-75"
-                            x-transition:leave-start="transform opacity-100 scale-100"
-                            x-transition:leave-end="transform opacity-0 scale-95"
-                            class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-100 py-1 z-50"
-                            x-cloak>
-                            
-                            <a href="{{ route('guru.profile.edit') }}" class="flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-indigo-600">
-                                <svg class="mr-3 w-4 h-4 text-slate-400 group-hover:text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                                </svg>
-                                Edit Profile
-                            </a>
-                            
-                            <div class="border-t border-slate-50 my-1"></div>
-                            
-                            <form method="POST" action="{{ route('logout') }}" class="block">
-                                @csrf
-                                <button type="submit" class="flex w-full items-center px-4 py-2 text-sm text-red-600 hover:bg-slate-50 hover:text-red-700">
-                                    <svg class="mr-3 w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-                                    </svg>
-                                    Log Out
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
+    <!-- Mobile sidebar backdrop -->
+    <div x-show="sidebarOpen" x-transition.opacity class="fixed inset-0 z-20 bg-gray-900 bg-opacity-50 lg:hidden" @click="sidebarOpen = false" x-cloak></div>
 
-    <!-- Navigation Menu -->
-    <nav class="bg-white border-b border-slate-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-x-auto whitespace-nowrap" style="scrollbar-width: none;">
-            <div class="flex gap-6 sm:gap-8 h-12 items-center">
-                <a href="{{ route('guru.dashboard') }}" class="text-sm font-medium hover:text-indigo-600 h-12 flex items-center {{ request()->routeIs('guru.dashboard') ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-600' }}">Dashboard</a>
-                <a href="{{ route('guru.jadwal.index') }}" class="text-sm font-medium hover:text-indigo-600 h-12 flex items-center {{ request()->routeIs('guru.jadwal.*') ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-600' }}">Jadwal Mengajar</a>
-                <a href="{{ route('guru.bank-soal.index') }}" class="text-sm font-medium hover:text-indigo-600 h-12 flex items-center {{ request()->routeIs('guru.bank-soal.*') ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-600' }}">Bank Soal</a>
-                <a href="{{ route('guru.ujian.index') }}" class="text-sm font-medium hover:text-indigo-600 h-12 flex items-center {{ request()->routeIs('guru.ujian.*') ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-600' }}">Ujian</a>
-            </div>
+    <!-- Sidebar -->
+    <aside 
+        :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" 
+        class="fixed z-40 inset-y-0 left-0 w-64 transition-transform duration-300 transform bg-white dark:bg-zinc-900 shadow-2xl lg:shadow-none border-r border-slate-200 dark:border-zinc-800 flex flex-col">
+        <div class="flex flex-col h-full overflow-y-auto custom-scrollbar">
+            @include('layouts.guru.sidebar')
         </div>
-    </nav>
+    </aside>
 
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        @yield('content')
-    </main>
+    <div :class="sidebarOpen ? 'sidebar-open' : ''" class="main-content-wrapper flex-1 flex flex-col min-w-0 overflow-hidden">
+        <!-- Top Navigation -->
+        @include('layouts.guru.header')
+
+        <!-- Main Body Area -->
+        <main class="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950 p-4 sm:p-6 lg:p-8 custom-scrollbar transition-colors duration-200">
+            <div class="max-w-7xl mx-auto">
+                @if(session('success'))
+                <div class="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-4 rounded-xl flex items-center shadow-sm" role="alert">
+                    <svg class="w-5 h-5 mr-3 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span class="block sm:inline font-medium">{{ session('success') }}</span>
+                </div>
+                @endif
+
+                @if(session('error'))
+                <div class="mb-6 bg-red-50 border border-red-300 text-red-700 px-4 py-4 rounded-xl flex items-center shadow-sm" role="alert">
+                    <svg class="w-5 h-5 mr-3 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span class="block sm:inline font-medium">{{ session('error') }}</span>
+                </div>
+                @endif
+
+
+                @if($errors->any())
+                <div class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-4 rounded-xl shadow-sm" role="alert">
+                    <div class="flex items-center mb-2">
+                        <svg class="w-5 h-5 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span class="font-semibold">Mohon perbaiki kesalahan berikut:</span>
+                    </div>
+                    <ul class="list-disc list-inside">
+                        @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+                @endif
+
+                @yield('content')
+
+            </div>
+        </main>
+    </div>
+
+    @stack('scripts')
 </body>
 </html>

@@ -10,6 +10,69 @@
     <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Kelola informasi profil dan kata sandi Anda.</p>
 </div>
 
+{{-- Foto Profil --}}
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+    <div class="md:col-span-1">
+        <div class="px-4 sm:px-0">
+            <h3 class="text-lg font-medium leading-6 text-slate-900 dark:text-white">Foto Profil</h3>
+            <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Upload foto profil Anda. Maksimal 2MB (JPG, PNG, WebP).</p>
+        </div>
+    </div>
+
+    <div class="md:col-span-2">
+        <div class="bg-white dark:bg-slate-900 shadow-md shadow-slate-200/50 dark:shadow-none sm:rounded-xl border border-slate-100 dark:border-slate-800 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-teal-500"></div>
+
+            <div class="px-4 py-6 sm:p-6" x-data="{ preview: null }">
+                <div class="flex items-center gap-6">
+                    {{-- Avatar Preview --}}
+                    <div class="relative group">
+                        <div class="w-24 h-24 rounded-2xl overflow-hidden border-2 border-slate-200 dark:border-slate-700 shadow-lg">
+                            @if($user->photo)
+                                <img src="{{ asset('storage/' . $user->photo) }}" alt="Foto Profil" class="w-full h-full object-cover" x-show="!preview">
+                            @else
+                                <div class="w-full h-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-3xl font-bold" x-show="!preview">
+                                    {{ strtoupper(substr($user->name, 0, 1)) }}
+                                </div>
+                            @endif
+                            <img :src="preview" alt="Preview" class="w-full h-full object-cover" x-show="preview" x-cloak>
+                        </div>
+                    </div>
+
+                    <div class="flex-1">
+                        <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            @method('PATCH')
+                            <div class="flex flex-wrap items-center gap-3">
+                                <label class="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl cursor-pointer transition-all hover:-translate-y-0.5 shadow-sm shadow-indigo-500/30">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                    Pilih Foto
+                                    <input type="file" name="photo" accept="image/*" class="hidden" @change="const file = $event.target.files[0]; if(file) { preview = URL.createObjectURL(file); $el.closest('form').submit(); }">
+                                </label>
+                            </div>
+                        </form>
+
+                        @if($user->photo)
+                        <form action="{{ route('profile.update') }}" method="POST" class="mt-2">
+                            @csrf
+                            @method('PATCH')
+                            <input type="hidden" name="remove_photo" value="1">
+                            <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                Hapus Foto
+                            </button>
+                        </form>
+                        @endif
+
+                        @error('photo') <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
+                        <p class="mt-2 text-xs text-slate-400">JPG, PNG atau WebP. Maks 2MB.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
     <!-- Informasi Profil -->
     <div class="md:col-span-1">

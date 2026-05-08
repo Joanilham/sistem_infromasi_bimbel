@@ -40,6 +40,10 @@ services:
     container_name: geniusedu-mysql
     restart: unless-stopped
     environment:
+      MYSQL_DATABASE: sistem_informasi
+      MYSQL_ROOT_PASSWORD: Joanilham21.
+      MYSQL_PASSWORD: Joanilham21.
+      MYSQL_ALLOW_EMPTY_PASSWORD: "no"
     ports:
       - "3307:3306"
     volumes:

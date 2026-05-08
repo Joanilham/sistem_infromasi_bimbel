@@ -144,11 +144,17 @@ Route::middleware('auth')->group(function () {
             Route::get('/peserta-didik/{id}/edit', [\App\Http\Controllers\PesertaDidikController::class, 'edit'])->name('peserta-didik.edit');
             Route::resource('peserta-didik', \App\Http\Controllers\PesertaDidikController::class)->except(['edit', 'show']);
             Route::resource('kelompok-belajar', \App\Http\Controllers\KelompokBelajarController::class)->except(['create', 'edit', 'show']);
-            Route::get('/guru/export', [\App\Http\Controllers\GuruController::class, 'export'])->name('guru.export');
-            Route::get('/guru/keluar', [\App\Http\Controllers\GuruController::class, 'keluar'])->name('guru.keluar');
-            Route::get('/guru/keluar/export', [\App\Http\Controllers\GuruController::class, 'exportKeluar'])->name('guru.keluar.export');
-            Route::get('/guru/{id}/edit', [\App\Http\Controllers\GuruController::class, 'edit'])->name('guru.edit');
-            Route::resource('guru', \App\Http\Controllers\GuruController::class)->except(['edit', 'show']);
+            Route::get('/guru/export', [\App\Http\Controllers\GuruController::class, 'export'])->name('manajemen-guru.export');
+            Route::get('/guru/keluar', [\App\Http\Controllers\GuruController::class, 'keluar'])->name('manajemen-guru.keluar');
+            Route::get('/guru/keluar/export', [\App\Http\Controllers\GuruController::class, 'exportKeluar'])->name('manajemen-guru.keluar.export');
+            Route::get('/guru/{id}/edit', [\App\Http\Controllers\GuruController::class, 'edit'])->name('manajemen-guru.edit');
+            Route::resource('guru', \App\Http\Controllers\GuruController::class)->except(['edit', 'show'])->names([
+                'index'   => 'manajemen-guru.index',
+                'create'  => 'manajemen-guru.create',
+                'store'   => 'manajemen-guru.store',
+                'update'  => 'manajemen-guru.update',
+                'destroy' => 'manajemen-guru.destroy',
+            ]);
 
             // Absensi — Halaman Scan
             Route::get('/absensi/masuk',  [\App\Http\Controllers\AbsensiController::class, 'scanMasukPage'])->name('absensi.scan.masuk.page');
@@ -159,6 +165,14 @@ Route::middleware('auth')->group(function () {
             Route::post('/absensi/scan-pulang', [\App\Http\Controllers\AbsensiController::class, 'scanPulang'])->name('absensi.scan.pulang');
             // Absensi — Export
             Route::get('/absensi/export/rekap', [\App\Http\Controllers\AbsensiController::class, 'exportRekap'])->name('absensi.export.rekap');
+
+            // ── Manajemen Jadwal (Admin) ──
+            Route::get('/admin/jadwal', [\App\Http\Controllers\Admin\JadwalController::class, 'index'])->name('admin.jadwal.index');
+            Route::post('/admin/jadwal', [\App\Http\Controllers\Admin\JadwalController::class, 'store'])->name('admin.jadwal.store');
+            Route::put('/admin/jadwal/{id}', [\App\Http\Controllers\Admin\JadwalController::class, 'update'])->name('admin.jadwal.update');
+            Route::delete('/admin/jadwal/{id}', [\App\Http\Controllers\Admin\JadwalController::class, 'destroy'])->name('admin.jadwal.destroy');
+            Route::get('/admin/jadwal/konflik', [\App\Http\Controllers\Admin\JadwalController::class, 'konflik'])->name('admin.jadwal.konflik');
+            Route::post('/admin/jadwal/duplikasi', [\App\Http\Controllers\Admin\JadwalController::class, 'duplikasi'])->name('admin.jadwal.duplikasi');
         });
     });
 
@@ -179,25 +193,26 @@ Route::middleware('auth')->group(function () {
         Route::put('/jadwal/{id}', [\App\Http\Controllers\Guru\JadwalController::class, 'update'])->name('jadwal.update');
         Route::delete('/jadwal/{id}', [\App\Http\Controllers\Guru\JadwalController::class, 'destroy'])->name('jadwal.destroy');
 
-        // Bank Soal
-        Route::get('/bank-soal', [\App\Http\Controllers\Guru\BankSoalController::class, 'index'])->name('bank-soal.index');
-        Route::post('/bank-soal', [\App\Http\Controllers\Guru\BankSoalController::class, 'store'])->name('bank-soal.store');
-        Route::get('/bank-soal/{id}', [\App\Http\Controllers\Guru\BankSoalController::class, 'show'])->name('bank-soal.show');
-        Route::put('/bank-soal/{id}', [\App\Http\Controllers\Guru\BankSoalController::class, 'update'])->name('bank-soal.update');
-        Route::delete('/bank-soal/{id}', [\App\Http\Controllers\Guru\BankSoalController::class, 'destroy'])->name('bank-soal.destroy');
-        Route::post('/bank-soal/{id}/soal', [\App\Http\Controllers\Guru\BankSoalController::class, 'storeSoal'])->name('bank-soal.soal.store');
-        Route::delete('/bank-soal/{bankSoalId}/soal/{soalId}', [\App\Http\Controllers\Guru\BankSoalController::class, 'destroySoal'])->name('bank-soal.soal.destroy');
+        // ── Bank Soal ──
+        Route::get('/bank-soal/template', [\App\Http\Controllers\Guru\BankSoalController::class, 'template'])->name('bank-soal.template');
+        Route::post('/bank-soal/import', [\App\Http\Controllers\Guru\BankSoalController::class, 'import'])->name('bank-soal.import');
+        Route::resource('bank-soal', \App\Http\Controllers\Guru\BankSoalController::class);
+        Route::get('/bank-soal-bab', [\App\Http\Controllers\Guru\BankSoalController::class, 'getBabByMapel'])->name('bank-soal.bab');
+        Route::post('/bank-soal-mapel', [\App\Http\Controllers\Guru\BankSoalController::class, 'storeMapel'])->name('bank-soal.mapel.store');
+        Route::post('/bank-soal-bab', [\App\Http\Controllers\Guru\BankSoalController::class, 'storeBab'])->name('bank-soal.bab.store');
 
-        // Ujian
-        Route::get('/ujian', [\App\Http\Controllers\Guru\UjianController::class, 'index'])->name('ujian.index');
-        Route::get('/ujian/create', [\App\Http\Controllers\Guru\UjianController::class, 'create'])->name('ujian.create');
-        Route::post('/ujian', [\App\Http\Controllers\Guru\UjianController::class, 'store'])->name('ujian.store');
-        Route::get('/ujian/{id}', [\App\Http\Controllers\Guru\UjianController::class, 'show'])->name('ujian.show');
-        Route::get('/ujian/{id}/edit', [\App\Http\Controllers\Guru\UjianController::class, 'edit'])->name('ujian.edit');
-        Route::put('/ujian/{id}', [\App\Http\Controllers\Guru\UjianController::class, 'update'])->name('ujian.update');
-        Route::delete('/ujian/{id}', [\App\Http\Controllers\Guru\UjianController::class, 'destroy'])->name('ujian.destroy');
-        Route::post('/ujian/{id}/publish', [\App\Http\Controllers\Guru\UjianController::class, 'publish'])->name('ujian.publish');
-        Route::post('/ujian/{id}/close', [\App\Http\Controllers\Guru\UjianController::class, 'close'])->name('ujian.close');
+        // ── Manajemen Ujian ──
+        Route::resource('ujian', \App\Http\Controllers\Guru\UjianController::class);
+        Route::get('/ujian/{id}/soal', [\App\Http\Controllers\Guru\UjianController::class, 'kelolaSoal'])->name('ujian.soal');
+        Route::post('/ujian/{id}/soal', [\App\Http\Controllers\Guru\UjianController::class, 'tambahSoal'])->name('ujian.soal.store');
+        Route::delete('/ujian/{id}/soal/{soalId}', [\App\Http\Controllers\Guru\UjianController::class, 'hapusSoal'])->name('ujian.soal.destroy');
+        Route::post('/ujian/{id}/soal/reorder', [\App\Http\Controllers\Guru\UjianController::class, 'reorderSoal'])->name('ujian.soal.reorder');
+        Route::get('/ujian/{id}/peserta', [\App\Http\Controllers\Guru\UjianController::class, 'kelolaPeserta'])->name('ujian.peserta');
+        Route::post('/ujian/{id}/peserta', [\App\Http\Controllers\Guru\UjianController::class, 'setPeserta'])->name('ujian.peserta.store');
+        Route::patch('/ujian/{id}/publish', [\App\Http\Controllers\Guru\UjianController::class, 'publish'])->name('ujian.publish');
+        Route::patch('/ujian/{id}/arsipkan', [\App\Http\Controllers\Guru\UjianController::class, 'arsipkan'])->name('ujian.arsipkan');
+        Route::get('/ujian/{id}/monitoring', [\App\Http\Controllers\Guru\UjianController::class, 'monitoring'])->name('ujian.monitoring');
+
     });
 
     // ----------------------------------------------------------
@@ -215,5 +230,21 @@ Route::middleware('auth')->group(function () {
         Route::get('/qr', [\App\Http\Controllers\Siswa\QrController::class, 'show'])->name('qr.show');
         Route::get('/qr/token', [\App\Http\Controllers\Siswa\QrController::class, 'token'])->name('qr.token');
         Route::get('/qr/status', [\App\Http\Controllers\Siswa\QrController::class, 'status'])->name('qr.status');
+
+        // ── CBT Ujian Siswa ──
+        Route::get('/ujian', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'index'])->name('ujian.index');
+        Route::get('/ujian/riwayat', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'riwayat'])->name('ujian.riwayat');
+        Route::get('/ujian/{id}', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'show'])->name('ujian.show');
+        Route::post('/ujian/{id}/mulai', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'mulai'])->name('ujian.mulai');
+        Route::get('/ujian/{id}/soal/{no}', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'soal'])->name('ujian.soal');
+        Route::post('/ujian/{id}/jawab', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'simpanJawaban'])->name('ujian.jawab');
+        Route::post('/ujian/{id}/log-blur', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'logBlur'])->name('ujian.log-blur');
+        Route::post('/ujian/{id}/submit', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'submit'])->name('ujian.submit');
+        Route::get('/ujian/{id}/hasil', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'hasil'])->name('ujian.hasil');
+        // ── Nilai / Hasil ──
+        Route::get('/hasil', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'riwayat'])->name('hasil.index');
+
+        // ── Jadwal Siswa ──
+        Route::get('/jadwal', [\App\Http\Controllers\Siswa\JadwalController::class, 'index'])->name('jadwal.index');
     });
 });
