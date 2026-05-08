@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html lang="id" x-data="{ darkMode: localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches) }" x-init="$watch('darkMode', val => { localStorage.setItem('theme', val ? 'dark' : 'light'); if(val) { document.documentElement.classList.add('dark'); } else { document.documentElement.classList.remove('dark'); }}); if(darkMode){ document.documentElement.classList.add('dark'); }">
+<html lang="id" x-data="{ 
+    sidebarOpen: window.innerWidth >= 1024
+}" @resize.window="if(window.innerWidth < 1024) { sidebarOpen = false; }">
 
 <head>
     <meta charset="UTF-8">
@@ -13,27 +15,39 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.tailwindcss.min.css">
 
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
     @stack('head')
 </head>
 
-<body class="bg-slate-50 dark:bg-slate-900 flex h-screen overflow-hidden text-slate-800 dark:text-slate-100 transition-colors duration-200" x-data="{ sidebarOpen: false }">
+<body class="bg-slate-50 dark:bg-slate-900 flex h-screen overflow-hidden text-slate-800 dark:text-slate-100 transition-colors duration-200">
 
     <!-- Mobile sidebar backdrop -->
     <div x-show="sidebarOpen" x-transition.opacity class="fixed inset-0 z-20 bg-gray-900 bg-opacity-50 lg:hidden" @click="sidebarOpen = false" x-cloak></div>
 
     <!-- Sidebar -->
-    <div :class="sidebarOpen ? 'translate-x-0 ease-out' : '-translate-x-full ease-in'" class="fixed z-30 inset-y-0 left-0 w-64 transition duration-300 transform bg-white shadow-2xl lg:translate-x-0 lg:static lg:inset-auto flex flex-col">
-        @include('layouts.admin.sidebar')
-    </div>
+    <aside 
+        :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" 
+        class="fixed z-40 inset-y-0 left-0 w-64 transition-transform duration-300 transform bg-white dark:bg-zinc-900 shadow-2xl lg:shadow-none border-r border-slate-200 dark:border-zinc-800 flex flex-col">
+        <div class="flex flex-col h-full overflow-y-auto custom-scrollbar">
+            @include('layouts.admin.sidebar')
+        </div>
+    </aside>
 
     <!-- Main Content -->
-    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+    <div :class="sidebarOpen ? 'sidebar-open' : ''" class="main-content-wrapper flex-1 flex flex-col min-w-0 overflow-hidden animate-reveal">
         <!-- Top Navigation -->
         @include('layouts.admin.header')
 
         <!-- Main Body Area -->
         <main class="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950 p-4 sm:p-6 lg:p-8 custom-scrollbar transition-colors duration-200">
-            <div class="max-w-7xl mx-auto">
+            <div class="max-w-7xl mx-auto animate-reveal">
                 @if(session('success'))
                 <div class="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-4 rounded-xl flex items-center shadow-sm" role="alert">
                     <svg class="w-5 h-5 mr-3 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

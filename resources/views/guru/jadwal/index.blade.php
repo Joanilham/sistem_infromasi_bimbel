@@ -1,168 +1,118 @@
 @extends('layouts.guru')
-
-@section('title', 'Jadwal Mata Pelajaran')
-
+@section('title', 'Jadwal Mengajar')
 @section('content')
-<div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
-    <div class="flex justify-between items-center mb-6">
+
+<div class="space-y-6">
+    {{-- HEADER --}}
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-            <h2 class="text-lg font-semibold text-slate-800">Jadwal Mata Pelajaran</h2>
-            <p class="text-sm text-slate-500">Kelola jadwal mengajar Anda</p>
+            <h1 class="text-2xl font-extrabold text-slate-800 dark:text-white">Jadwal Mengajar</h1>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Jadwal pelajaran yang ditugaskan kepada Anda</p>
         </div>
-        <button onclick="document.getElementById('tambahJadwalModal').showModal()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 flex items-center gap-2">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-            </svg>
-            Tambah Jadwal
-        </button>
     </div>
 
     @if(session('success'))
-    <div class="mb-4 bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-lg">
+    <div class="bg-[#A2D5CB]/30 dark:bg-[#388782]/30 border border-[#78BBB0] dark:border-[#388782]/50 text-[#206D6C] dark:text-[#A2D5CB] px-4 py-3 rounded-xl text-sm font-medium">
         {{ session('success') }}
     </div>
     @endif
 
-    <div class="overflow-x-auto">
-        <table class="w-full">
-            <thead>
-                <tr class="border-b border-slate-200">
-                    <th class="text-left py-3 px-4 text-sm font-medium text-slate-600">Hari</th>
-                    <th class="text-left py-3 px-4 text-sm font-medium text-slate-600">Jam</th>
-                    <th class="text-left py-3 px-4 text-sm font-medium text-slate-600">Kelas</th>
-                    <th class="text-left py-3 px-4 text-sm font-medium text-slate-600">Mata Pelajaran</th>
-                    <th class="text-right py-3 px-4 text-sm font-medium text-slate-600">Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($jadwal as $item)
-                <tr class="border-b border-slate-100 hover:bg-slate-50">
-                    <td class="py-3 px-4">{{ $item->hari }}</td>
-                    <td class="py-3 px-4">{{ \Carbon\Carbon::parse($item->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($item->jam_selesai)->format('H:i') }}</td>
-                    <td class="py-3 px-4">{{ $item->kelas }}</td>
-                    <td class="py-3 px-4">{{ $item->mapel }}</td>
-                    <td class="py-3 px-4 text-right">
-                        <button onclick="editJadwal({{ $item }})" class="text-indigo-600 hover:text-indigo-800 mr-3">Edit</button>
-                        <form action="{{ route('guru.jadwal.destroy', $item->id) }}" method="POST" class="inline">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="text-red-600 hover:text-red-800" onclick="return confirm('Yakin hapus?')">Hapus</button>
-                        </form>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="5" class="py-8 text-center text-slate-400">Belum ada jadwal</td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
+    {{-- JADWAL HARI INI (Quick Widget) --}}
+    @php
+        $hariIni = now()->locale('id')->isoFormat('dddd');
+        $jadwalHariIni = $jadwal->filter(fn($j) => $j->hari === $hariIni)->sortBy('jam_mulai');
+    @endphp
+    <div class="bg-gradient-to-br from-[#388782] to-[#0F5253] rounded-2xl p-6 text-white shadow-xl shadow-[#388782]/20 dark:shadow-none">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            </div>
+            <div>
+                <h2 class="font-bold text-lg">Jadwal Hari Ini — {{ $hariIni }}</h2>
+                <p class="text-[#A2D5CB] text-sm">{{ now()->locale('id')->isoFormat('D MMMM YYYY') }}</p>
+            </div>
+        </div>
+        @if($jadwalHariIni->isEmpty())
+            <div class="bg-white/10 rounded-xl p-4 text-center">
+                <p class="text-[#A2D5CB] font-medium">Tidak ada jadwal mengajar hari ini 🎉</p>
+            </div>
+        @else
+            <div class="space-y-2">
+                @foreach($jadwalHariIni as $j)
+                    <div class="bg-white/10 backdrop-blur-sm rounded-xl p-3 flex items-center gap-4 hover:bg-white/15 transition-colors">
+                    <div class="text-center min-w-[70px]">
+                        <div class="text-sm font-bold">{{ \Carbon\Carbon::parse($j->jam_mulai)->format('H:i') }}</div>
+                        <div class="text-xs text-[#A2D5CB]">{{ \Carbon\Carbon::parse($j->jam_selesai)->format('H:i') }}</div>
+                    </div>
+                    <div class="h-10 w-px bg-white/20"></div>
+                    <div class="flex-1 min-w-0">
+                        <div class="font-bold truncate">{{ $j->mataPelajaran?->nama ?? '-' }}</div>
+                        <div class="text-xs text-[#A2D5CB] truncate">{{ $j->rombel?->nama_kelompok ?? '-' }} {{ $j->ruangan ? '· '.$j->ruangan : '' }}</div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        @endif
+    </div>
+
+    {{-- KALENDER MINGGUAN --}}
+    <div class="bg-gradient-to-br from-white to-[#78BBB0]/20 dark:from-zinc-900 dark:to-[#388782]/30 rounded-xl border border-slate-100 dark:border-[#388782]/30 shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-100 dark:border-[#388782]/20 bg-gradient-to-r from-[#A2D5CB]/40 to-transparent dark:from-[#388782]/20 dark:to-transparent">
+            <h2 class="text-lg font-bold text-slate-800 dark:text-white">Jadwal Mingguan</h2>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full min-w-[800px]">
+                <thead>
+                    <tr class="bg-slate-50 dark:bg-zinc-800/50">
+                        <th class="py-3 px-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider w-20">Jam</th>
+                        @foreach(\App\Models\Jadwal::HARI_LIST as $hari)
+                        <th class="py-3 px-3 text-center text-xs font-bold uppercase tracking-wider {{ $hariIni === $hari ? 'text-[#388782] dark:text-[#A2D5CB] bg-[#A2D5CB]/30 dark:bg-[#388782]/20' : 'text-slate-500 dark:text-slate-400' }}">
+                            {{ $hari }}
+                            @if($hariIni === $hari)
+                            <span class="block text-[10px] text-[#388782] font-medium">Hari Ini</span>
+                            @endif
+                        </th>
+                        @endforeach
+                    </tr>
+                </thead>
+                <tbody>
+                    @php
+                        $timeSlots = [];
+                        for ($h = 7; $h <= 20; $h++) { $timeSlots[] = sprintf('%02d:00', $h); }
+                    @endphp
+                    @foreach($timeSlots as $slot)
+                    <tr class="border-t border-slate-100 dark:border-zinc-800">
+                        <td class="py-2 px-4 text-xs font-mono text-slate-400 dark:text-slate-500 align-top">{{ $slot }}</td>
+                        @foreach(\App\Models\Jadwal::HARI_LIST as $hari)
+                        <td class="py-1 px-1 align-top {{ $hariIni === $hari ? 'bg-[#A2D5CB]/30 dark:bg-[#388782]/10' : '' }}">
+                            @php
+                                $slotItems = $jadwal->filter(function($j) use ($hari, $slot) {
+                                    return $j->hari === $hari && \Carbon\Carbon::parse($j->jam_mulai)->format('H:00') === $slot;
+                                });
+                            @endphp
+                            @foreach($slotItems as $j)
+                            <div class="mb-1 rounded-lg p-2 text-xs {{ ['bg-[#A2D5CB] dark:bg-[#388782]/40 border-l-4 border-[#388782] text-[#206D6C] dark:text-[#A2D5CB]','bg-emerald-100 dark:bg-emerald-900/40 border-l-4 border-emerald-500 text-emerald-800 dark:text-emerald-200','bg-amber-100 dark:bg-amber-900/40 border-l-4 border-amber-500 text-amber-800 dark:text-amber-200','bg-rose-100 dark:bg-rose-900/40 border-l-4 border-rose-500 text-rose-800 dark:text-rose-200','bg-purple-100 dark:bg-purple-900/40 border-l-4 border-purple-500 text-purple-800 dark:text-purple-200'][$j->id % 5] }}">
+                                <div class="font-bold truncate">{{ $j->mataPelajaran?->nama ?? '-' }}</div>
+                                <div class="text-[10px] opacity-75 mt-0.5">{{ \Carbon\Carbon::parse($j->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($j->jam_selesai)->format('H:i') }}</div>
+                                <div class="text-[10px] opacity-75 truncate">{{ $j->rombel?->nama_kelompok ?? '-' }} {{ $j->ruangan ? '· '.$j->ruangan : '' }}</div>
+                            </div>
+                            @endforeach
+                        </td>
+                        @endforeach
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+
+        @if($jadwal->isEmpty())
+        <div class="p-12 text-center">
+            <svg class="w-16 h-16 mx-auto text-slate-300 dark:text-slate-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <p class="text-slate-400 dark:text-slate-500 font-medium">Belum ada jadwal yang ditugaskan</p>
+            <p class="text-slate-400 dark:text-slate-500 text-sm mt-1">Hubungi admin untuk pengelolaan jadwal</p>
+        </div>
+        @endif
     </div>
 </div>
 
-<!-- Modal Tambah Jadwal -->
-<dialog id="tambahJadwalModal" class="modal">
-    <div class="modal-box">
-        <h3 class="font-bold text-lg mb-4">Tambah Jadwal</h3>
-        <form action="{{ route('guru.jadwal.store') }}" method="POST">
-            @csrf
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Hari</label>
-                    <select name="hari" required class="w-full border border-slate-300 rounded-lg px-3 py-2">
-                        <option value="">Pilih Hari</option>
-                        <option value="Senin">Senin</option>
-                        <option value="Selasa">Selasa</option>
-                        <option value="Rabu">Rabu</option>
-                        <option value="Kamis">Kamis</option>
-                        <option value="Jumat">Jumat</option>
-                        <option value="Sabtu">Sabtu</option>
-                    </select>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Jam Mulai</label>
-                        <input type="time" name="jam_mulai" required class="w-full border border-slate-300 rounded-lg px-3 py-2">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Jam Selesai</label>
-                        <input type="time" name="jam_selesai" required class="w-full border border-slate-300 rounded-lg px-3 py-2">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Kelas</label>
-                    <input type="text" name="kelas" required placeholder="Contoh: Kelas 10" class="w-full border border-slate-300 rounded-lg px-3 py-2">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Mata Pelajaran</label>
-                    <input type="text" name="mapel" required class="w-full border border-slate-300 rounded-lg px-3 py-2">
-                </div>
-            </div>
-            <div class="modal-action">
-                <button type="button" onclick="document.getElementById('tambahJadwalModal').close()" class="btn btn-ghost">Batal</button>
-                <button type="submit" class="btn btn-primary">Simpan</button>
-            </div>
-        </form>
-    </div>
-    <form method="dialog" class="modal-backdrop"><button>close</button></form>
-</dialog>
-
-<!-- Modal Edit Jadwal -->
-<dialog id="editJadwalModal" class="modal">
-    <div class="modal-box">
-        <h3 class="font-bold text-lg mb-4">Edit Jadwal</h3>
-        <form id="editJadwalForm" method="POST">
-            @csrf
-            @method('PUT')
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Hari</label>
-                    <select name="hari" id="edit_hari" required class="w-full border border-slate-300 rounded-lg px-3 py-2">
-                        <option value="Senin">Senin</option>
-                        <option value="Selasa">Selasa</option>
-                        <option value="Rabu">Rabu</option>
-                        <option value="Kamis">Kamis</option>
-                        <option value="Jumat">Jumat</option>
-                        <option value="Sabtu">Sabtu</option>
-                    </select>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Jam Mulai</label>
-                        <input type="time" name="jam_mulai" id="edit_jam_mulai" required class="w-full border border-slate-300 rounded-lg px-3 py-2">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Jam Selesai</label>
-                        <input type="time" name="jam_selesai" id="edit_jam_selesai" required class="w-full border border-slate-300 rounded-lg px-3 py-2">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Kelas</label>
-                    <input type="text" name="kelas" id="edit_kelas" required class="w-full border border-slate-300 rounded-lg px-3 py-2">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Mata Pelajaran</label>
-                    <input type="text" name="mapel" id="edit_mapel" required class="w-full border border-slate-300 rounded-lg px-3 py-2">
-                </div>
-            </div>
-            <div class="modal-action">
-                <button type="button" onclick="document.getElementById('editJadwalModal').close()" class="btn btn-ghost">Batal</button>
-                <button type="submit" class="btn btn-primary">Simpan</button>
-            </div>
-        </form>
-    </div>
-    <form method="dialog" class="modal-backdrop"><button>close</button></form>
-</dialog>
-
-<script>
-function editJadwal(jadwal) {
-    document.getElementById('edit_hari').value = jadwal.hari;
-    document.getElementById('edit_jam_mulai').value = jadwal.jam_mulai;
-    document.getElementById('edit_jam_selesai').value = jadwal.jam_selesai;
-    document.getElementById('edit_kelas').value = jadwal.kelas;
-    document.getElementById('edit_mapel').value = jadwal.mapel;
-    document.getElementById('editJadwalForm').action = '/guru/jadwal/' + jadwal.id;
-    document.getElementById('editJadwalModal').showModal();
-}
-</script>
 @endsection

@@ -34,7 +34,7 @@
                 <tr>
                     <td><span class="cell-no">{{ $loop->iteration }}</span></td>
                     <td><span class="cell-label">{{ $kantor->nama_kantor }}</span></td>
-                    <td style="max-width:260px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                    <td class="dark:text-slate-300">
                         {{ $kantor->alamat ?? '-' }}
                     </td>
                     <td style="text-align:right">

@@ -1,71 +1,93 @@
-# GeniusEdu System
+# 🎓 GeniusEdu - Sistem Informasi Manajemen Bimbel
 
-Sistem Informasi Manajemen Bimbingan Belajar (Genius Education) menggunakan Laravel 12 & Docker.
-
-## Persyaratan Sistem
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-- Git
-
-## Cara Install (Setup Awal)
-
-Jika Anda baru melakukan `git clone`, ikuti langkah berikut:
-
-1. **Clone Repositori**
-   ```bash
-   git clone [URL_REPO_ANDA]
-   cd sistem_informasi
-   ```
-
-2. **Siapkan File Environment**
-   Salin file `.env.example` menjadi `.env`:
-   ```bash
-   cp .env.example .env
-   ```
-
-3. **Build & Jalankan Docker Container**
-   Pastikan Docker Desktop sudah berjalan, lalu jalankan:
-   ```bash
-   docker-compose up -d --build
-   ```
-
-4. **Install Dependencies (Composer)**
-   Jalankan composer install di dalam container `app`:
-   ```bash
-   docker-compose exec app composer install
-   ```
-
-5. **Generate App Key**
-   ```bash
-   docker-compose exec app php artisan key:generate
-   ```
-
-6. **Migrate & Seed Database**
-   Lakukan migrasi database dan isi data awal (seed):
-   ```bash
-   docker-compose exec app php artisan migrate --seed
-   ```
-
-7. **Install Node Modules & Build Assets**
-   ```bash
-   docker-compose exec app npm install
-   docker-compose exec app npm run build
-   ```
-
-8. **Akses Aplikasi**
-   Buka browser dan akses: `http://localhost:8080`
+GeniusEdu adalah platform manajemen Bimbingan Belajar modern yang dirancang untuk mengelola operasional akademik, administrasi, dan pelaksanaan ujian secara terintegrasi. Dibangun dengan **Laravel 11**, sistem ini mengedepankan performa, kemudahan penggunaan, dan arsitektur yang bersih.
 
 ---
 
-## Perintah Penting Lainnya
+## 🚀 Fitur Utama
 
-- **Menghentikan Container**: `docker-compose down`
-- **Menjalankan Container**: `docker-compose up -d`
-- **Melihat Log Nginx**: `docker-compose logs -f nginx`
-- **Masuk ke Terminal Container**: `docker-compose exec app sh`
-- **Clear Cache (jika ada error tampilan)**:
-  ```bash
-  docker-compose exec app php artisan optimize:clear
-  ```
+### 1. 🛡️ Manajemen Administrator & Konteks
+*   **Multi-Konteks**: Mendukung pengelolaan data berdasarkan **Kantor** dan **Periode** aktif.
+*   **Role Based Access Control**: Pemisahan hak akses yang ketat antara Administrator, Staff, Guru, dan Siswa.
 
-## Catatan untuk Developer
-Jika Anda melakukan perubahan pada file `.blade.php` atau `.php` dan tidak langsung muncul, pastikan OpCache sudah di-restart atau diclear (sudah dikonfigurasi otomatis di `docker/php/opcache.ini` untuk mendeteksi perubahan).
+### 2. 📚 Akademik & Penjadwalan
+*   **Manajemen Jadwal (S3-F4)**: Pengaturan slot jadwal (Hari, Jam, Guru, Mapel, Rombel) dengan deteksi konflik guru.
+*   **Kelompok Belajar**: Pengelolaan rombel/kelas secara dinamis.
+*   **Paket Bimbingan**: Konfigurasi paket belajar siswa.
+
+### 3. 📝 Computer Based Test (CBT)
+*   **Bank Soal**: Pengelolaan soal berdasarkan mata pelajaran dan bab.
+*   **Pelaksanaan Ujian**: Antarmuka ujian yang intuitif untuk siswa dengan fitur anti-cheat (log blur detection).
+*   **Monitoring Real-time**: Guru dapat memantau progres siswa saat ujian berlangsung.
+
+### 4. 👤 Dashboard Siswa & Guru
+*   **Siswa**: Lihat jadwal, riwayat nilai, dan pelaksanaan ujian online.
+*   **Guru**: Kelola bank soal, jadwal mengajar, dan monitoring ujian.
+
+### 5. 🕒 Absensi & Operasional
+*   **QR Code Attendance**: Absensi siswa menggunakan QR Code dinamis.
+*   **Laporan Absensi**: Rekapitulasi kehadiran harian dan bulanan.
+
+---
+
+## 🛠️ Tech Stack
+
+*   **Framework**: [Laravel 11](https://laravel.com/)
+*   **Frontend**: [Blade Templates](https://laravel.com/docs/11.x/blade), [Tailwind CSS](https://tailwindcss.com/), [Alpine.js](https://alpinejs.dev/)
+*   **Database**: MySQL 8.0
+*   **Infrastructure**: Docker (Nginx, PHP-FPM, MySQL, Redis)
+
+---
+
+## 📦 Instalasi (Docker)
+
+Pastikan Anda sudah menginstal **Docker Desktop** dan **Git** di mesin Anda.
+
+1.  **Clone Repositori**
+    ```bash
+    git clone https://github.com/Joanilham/sistem_infromasi_bimbel.git
+    cd sistem_informasi
+    ```
+
+2.  **Siapkan Environment**
+    ```bash
+    cp .env.example .env
+    ```
+
+3.  **Jalankan Container**
+    ```bash
+    docker-compose up -d --build
+    ```
+
+4.  **Setup Aplikasi**
+    ```bash
+    docker-compose exec app composer install
+    docker-compose exec app php artisan key:generate
+    docker-compose exec app php artisan migrate --seed
+    docker-compose exec app npm install
+    docker-compose exec app npm run build
+    ```
+
+5.  **Akses Aplikasi**
+    Buka [http://localhost:8080](http://localhost:8080) di browser Anda.
+
+---
+
+## 🔑 Akun Default (Seeder)
+
+| Role | Username / Email | Password |
+| :--- | :--- | :--- |
+| **Administrator** | `admin@admin.com` | `password` |
+| **Staff** | `staff@staff.com` | `password` |
+
+---
+
+## 💻 Perintah Pengembangan
+
+| Perintah | Deskripsi |
+| :--- | :--- |
+| `docker-compose up -d` | Menjalankan sistem di background |
+| `docker-compose down` | Menghentikan semua container |
+| `docker-compose exec app php artisan ...` | Menjalankan perintah artisan |
+| `docker-compose exec app npm run dev` | Menjalankan Vite dev server |
+| `docker-compose logs -f app` | Melihat log aplikasi secara real-time |

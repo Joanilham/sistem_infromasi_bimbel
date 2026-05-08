@@ -65,6 +65,23 @@
 .stat-num  { font-size: 1.5rem; font-weight: 800; line-height: 1; }
 .stat-lbl  { font-size: 0.7rem; color: #94a3b8; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
 
+/* ── Dark Mode Overrides ─────────────────────────── */
+.dark .ab-card { background: #111827; border-color: #1f2937; }
+.dark .ab-card-head { border-bottom-color: #1f2937; }
+.dark .ab-card-head span { color: #f1f5f9 !important; }
+.dark .ab-input { background: #1f2937; border-color: #374151; color: #f1f5f9; }
+.dark .ab-input:focus { border-color: #f59e0b; }
+.dark .stat-item { background: #1f2937; border-color: #374151; }
+.dark .stat-num { color: #f1f5f9 !important; }
+.dark .log-name { color: #f1f5f9; }
+.dark .log-sub { color: #94a3b8; }
+.dark .log-time { color: #cbd5e1; }
+.dark .log-item.ok { background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.2); }
+.dark .log-item.err { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.2); }
+.dark .log-item.dup { background: rgba(99, 102, 241, 0.1); border-color: rgba(99, 102, 241, 0.2); }
+.dark h1 { color: #f1f5f9 !important; }
+.dark .btn-close { background: #1f2937; color: #94a3b8; }
+
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 @endpush
@@ -78,15 +95,15 @@
             <div style="width:8px; height:8px; border-radius:50%; background:#f59e0b; animation: pulse 2s infinite;"></div>
             <span style="font-size:0.75rem; font-weight:600; color:#d97706; text-transform:uppercase; letter-spacing:0.06em;">Absensi Pulang</span>
         </div>
-        <h1 style="font-size:1.5rem; font-weight:700; color:#0f172a; margin:0;">Scan Absen Pulang</h1>
-        <p style="font-size:0.875rem; color:#64748b; margin:0.25rem 0 0;">{{ now()->translatedFormat('l, d F Y') }}</p>
+        <h1 style="font-size:1.5rem; font-weight:700; color:var(--text-primary); margin:0;">Scan Absen Pulang</h1>
+        <p style="font-size:0.875rem; color:var(--text-muted); margin:0.25rem 0 0;">{{ now()->translatedFormat('l, d F Y') }}</p>
     </div>
     <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-        <a href="{{ route('absensi.scan.masuk.page') }}" class="btn-add" style="background:#f8fafc; color:#475569; border:1px solid #e2e8f0; box-shadow:none;">
+        <a href="{{ route('absensi.scan.masuk.page') }}" class="btn-secondary">
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h14"/></svg>
             Absen Masuk
         </a>
-        <a href="{{ route('absensi.rekap') }}" class="btn-add" style="background:#f8fafc; color:#475569; border:1px solid #e2e8f0; box-shadow:none;">
+        <a href="{{ route('absensi.rekap') }}" class="btn-secondary">
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
             Rekap
         </a>
