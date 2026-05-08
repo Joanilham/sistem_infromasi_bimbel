@@ -73,6 +73,11 @@ Homestead.yaml
 .history/
 *.swp
 *~
+.DS_Store
+Thumbs.db
+.phpunit.result.cache
+/.vscode
+/.idea
 
 # Logs and temporary files
 *.log
@@ -93,3 +98,12 @@ Sprint_4.md
 Sprint_selesai.md
 sprint-spec.md
 pembayaran.md
+
+# Deployment
+/public/storage
+/public/hot
+/storage/*.key
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+auth.json
