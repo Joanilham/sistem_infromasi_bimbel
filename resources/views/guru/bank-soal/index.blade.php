@@ -6,7 +6,7 @@
 <div class="space-y-6">
 
     {{-- Header --}}
-    <div class="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-slate-200 dark:border-zinc-800 p-6">
+    <div class="bg-gradient-to-br from-white to-[#78BBB0]/20 dark:from-zinc-900 dark:to-[#388782]/30 rounded-xl shadow-sm border border-slate-100 dark:border-[#388782]/30 p-6">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
                 <h2 class="text-xl font-bold text-slate-800 dark:text-white">Bank Soal</h2>
@@ -19,7 +19,7 @@
                     Import Excel
                 </button>
                 <a href="{{ route('guru.bank-soal.create') }}"
-                    class="bg-gradient-to-r from-emerald-500 to-green-600 text-white px-5 py-2.5 rounded-xl hover:from-emerald-600 hover:to-green-700 flex items-center gap-2 text-sm font-semibold shadow-md shadow-emerald-500/25 transition-all duration-200 hover:shadow-lg hover:shadow-emerald-500/30">
+                    class="bg-gradient-to-r from-[#388782] to-[#206D6C] text-white px-5 py-2.5 rounded-xl hover:from-[#206D6C] hover:to-[#0F5253] flex items-center gap-2 text-sm font-semibold shadow-md shadow-[#388782]/25 transition-all duration-200 hover:shadow-lg hover:shadow-[#388782]/30">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                     </svg>
@@ -28,12 +28,12 @@
 
                 {{-- Modal Import --}}
                 <div x-show="showImportModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" @click.self="showImportModal = false" style="display:none;">
-                    <div class="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-zinc-700 p-6 w-full max-w-md" @click.stop>
+                    <div class="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-[#388782]/30 p-6 w-full max-w-md" @click.stop>
                         <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-2">Import Soal (Excel/CSV)</h3>
                         <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">Upload file CSV menggunakan template yang disediakan.</p>
                         
                         <div class="mb-6">
-                            <a href="{{ route('guru.bank-soal.template') }}" class="inline-flex items-center gap-2 text-sm text-indigo-600 dark:text-indigo-400 hover:underline font-medium">
+                            <a href="{{ route('guru.bank-soal.template') }}" class="inline-flex items-center gap-2 text-sm text-[#388782] dark:text-[#A2D5CB] hover:underline font-medium">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                                 Download Template CSV
                             </a>
@@ -42,11 +42,11 @@
                         <form action="{{ route('guru.bank-soal.import') }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Pilih File CSV/TXT</label>
-                            <input type="file" name="file" accept=".csv,.txt" required class="w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-indigo-900/30 dark:file:text-indigo-400 border border-slate-200 dark:border-zinc-700 rounded-xl mb-6">
+                            <input type="file" name="file" accept=".csv,.txt" required class="w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-[#A2D5CB] file:text-[#388782] hover:file:bg-[#78BBB0] dark:file:bg-[#388782]/40 dark:file:text-[#A2D5CB] border border-slate-200 dark:border-zinc-700 rounded-xl mb-6">
                             
                             <div class="flex justify-end gap-3">
                                 <button type="button" @click="showImportModal = false" class="px-5 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-zinc-800 rounded-xl transition-colors">Batal</button>
-                                <button type="submit" class="px-5 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-colors">Import Data</button>
+                                <button type="submit" class="px-5 py-2.5 bg-[#388782] text-white rounded-xl text-sm font-semibold hover:bg-[#206D6C] transition-colors">Import Data</button>
                             </div>
                         </form>
                     </div>
@@ -57,34 +57,34 @@
 
     {{-- Stats Cards --}}
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        <div class="bg-white dark:bg-zinc-900 rounded-xl border border-slate-200 dark:border-zinc-800 p-4 text-center group hover:shadow-md transition-all duration-200">
-            <div class="text-2xl font-extrabold text-indigo-600 dark:text-indigo-400">{{ $stats['total'] }}</div>
+        <div class="bg-gradient-to-br from-white to-[#78BBB0]/20 dark:from-zinc-900 dark:to-[#388782]/30 rounded-xl border border-slate-100 dark:border-[#388782]/30 p-4 text-center group hover:shadow-md transition-all duration-200">
+            <div class="text-2xl font-extrabold text-[#388782] dark:text-[#A2D5CB]">{{ $stats['total'] }}</div>
             <div class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">Total Soal</div>
         </div>
-        <div class="bg-white dark:bg-zinc-900 rounded-xl border border-slate-200 dark:border-zinc-800 p-4 text-center group hover:shadow-md transition-all duration-200">
-            <div class="text-2xl font-extrabold text-blue-600 dark:text-blue-400">{{ $stats['pg'] }}</div>
+        <div class="bg-gradient-to-br from-white to-[#78BBB0]/20 dark:from-zinc-900 dark:to-[#388782]/30 rounded-xl border border-slate-100 dark:border-[#388782]/30 p-4 text-center group hover:shadow-md transition-all duration-200">
+            <div class="text-2xl font-extrabold text-[#388782] dark:text-[#A2D5CB]">{{ $stats['pg'] }}</div>
             <div class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">Pilihan Ganda</div>
         </div>
-        <div class="bg-white dark:bg-zinc-900 rounded-xl border border-slate-200 dark:border-zinc-800 p-4 text-center group hover:shadow-md transition-all duration-200">
-            <div class="text-2xl font-extrabold text-purple-600 dark:text-purple-400">{{ $stats['essay'] }}</div>
+        <div class="bg-gradient-to-br from-white to-[#78BBB0]/20 dark:from-zinc-900 dark:to-[#388782]/30 rounded-xl border border-slate-100 dark:border-[#388782]/30 p-4 text-center group hover:shadow-md transition-all duration-200">
+            <div class="text-2xl font-extrabold text-[#388782] dark:text-[#A2D5CB]">{{ $stats['essay'] }}</div>
             <div class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">Essay</div>
         </div>
-        <div class="bg-white dark:bg-zinc-900 rounded-xl border border-slate-200 dark:border-zinc-800 p-4 text-center group hover:shadow-md transition-all duration-200">
+        <div class="bg-gradient-to-br from-white to-[#78BBB0]/20 dark:from-zinc-900 dark:to-[#388782]/30 rounded-xl border border-slate-100 dark:border-[#388782]/30 p-4 text-center group hover:shadow-md transition-all duration-200">
             <div class="text-2xl font-extrabold text-green-600 dark:text-green-400">{{ $stats['mudah'] }}</div>
             <div class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">Mudah</div>
         </div>
-        <div class="bg-white dark:bg-zinc-900 rounded-xl border border-slate-200 dark:border-zinc-800 p-4 text-center group hover:shadow-md transition-all duration-200">
+        <div class="bg-gradient-to-br from-white to-[#78BBB0]/20 dark:from-zinc-900 dark:to-[#388782]/30 rounded-xl border border-slate-100 dark:border-[#388782]/30 p-4 text-center group hover:shadow-md transition-all duration-200">
             <div class="text-2xl font-extrabold text-yellow-600 dark:text-yellow-400">{{ $stats['sedang'] }}</div>
             <div class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">Sedang</div>
         </div>
-        <div class="bg-white dark:bg-zinc-900 rounded-xl border border-slate-200 dark:border-zinc-800 p-4 text-center group hover:shadow-md transition-all duration-200">
+        <div class="bg-gradient-to-br from-white to-[#78BBB0]/20 dark:from-zinc-900 dark:to-[#388782]/30 rounded-xl border border-slate-100 dark:border-[#388782]/30 p-4 text-center group hover:shadow-md transition-all duration-200">
             <div class="text-2xl font-extrabold text-red-600 dark:text-red-400">{{ $stats['sulit'] }}</div>
             <div class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">Sulit</div>
         </div>
     </div>
 
     {{-- Filter & Search --}}
-    <div class="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-slate-200 dark:border-zinc-800 p-5"
+    <div class="bg-gradient-to-br from-white to-[#78BBB0]/20 dark:from-zinc-900 dark:to-[#388782]/30 rounded-xl shadow-sm border border-slate-100 dark:border-[#388782]/30 p-5"
          x-data="{ showFilters: {{ request()->hasAny(['mapel','bab','tipe','kesulitan']) ? 'true' : 'false' }} }">
         <form method="GET" action="{{ route('guru.bank-soal.index') }}">
             <div class="flex flex-col sm:flex-row gap-3">
@@ -104,7 +104,7 @@
                     Filter
                 </button>
                 <button type="submit"
-                    class="px-5 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-colors shadow-sm">
+                    class="px-5 py-2.5 bg-[#388782] text-white rounded-xl text-sm font-semibold hover:bg-[#206D6C] transition-colors shadow-sm">
                     Cari
                 </button>
             </div>
@@ -150,7 +150,7 @@
 
             @if(request()->hasAny(['search','mapel','bab','tipe','kesulitan']))
             <div class="mt-3">
-                <a href="{{ route('guru.bank-soal.index') }}" class="text-xs text-indigo-600 dark:text-indigo-400 hover:underline font-medium">
+                <a href="{{ route('guru.bank-soal.index') }}" class="text-xs text-[#388782] dark:text-[#A2D5CB] hover:underline font-medium">
                     ✕ Reset semua filter
                 </a>
             </div>
@@ -160,7 +160,7 @@
 
     {{-- Daftar Soal --}}
     @if($soals->isEmpty())
-    <div class="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-slate-200 dark:border-zinc-800 p-16 text-center">
+    <div class="bg-gradient-to-br from-white to-[#78BBB0]/20 dark:from-zinc-900 dark:to-[#388782]/30 rounded-xl shadow-sm border border-slate-100 dark:border-[#388782]/30 p-16 text-center">
         <div class="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-emerald-100 to-green-50 dark:from-emerald-900/30 dark:to-green-900/20 flex items-center justify-center">
             <svg class="w-10 h-10 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
@@ -168,15 +168,15 @@
         </div>
         <p class="text-slate-600 dark:text-slate-300 font-semibold text-lg">Belum ada soal</p>
         <p class="text-slate-400 dark:text-slate-500 text-sm mt-2 max-w-sm mx-auto">Mulai buat soal pertama Anda untuk membangun bank soal yang dapat digunakan pada ujian CBT</p>
-        <a href="{{ route('guru.bank-soal.create') }}" class="mt-6 inline-flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-green-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-md shadow-emerald-500/25 hover:shadow-lg transition-all duration-200">
+        <a href="{{ route('guru.bank-soal.create') }}" class="mt-6 inline-flex items-center gap-2 bg-gradient-to-r from-[#388782] to-[#206D6C] text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-md shadow-[#388782]/25 hover:shadow-lg transition-all duration-200">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             Buat Soal Pertama
         </a>
     </div>
     @else
-    <div class="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-slate-200 dark:border-zinc-800 overflow-hidden">
+    <div class="bg-gradient-to-br from-white to-[#78BBB0]/20 dark:from-zinc-900 dark:to-[#388782]/30 rounded-xl shadow-sm border border-slate-100 dark:border-[#388782]/30 overflow-hidden">
         {{-- Table Header --}}
-        <div class="hidden lg:grid grid-cols-12 gap-4 px-6 py-3 bg-slate-50 dark:bg-zinc-800/50 border-b border-slate-100 dark:border-zinc-800 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+        <div class="hidden lg:grid grid-cols-12 gap-4 px-6 py-3 bg-gradient-to-r from-[#A2D5CB]/40 to-transparent dark:from-[#388782]/20 dark:to-transparent border-b border-slate-100 dark:border-[#388782]/20 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
             <div class="col-span-1">No</div>
             <div class="col-span-4">Pertanyaan</div>
             <div class="col-span-2">Mata Pelajaran</div>
@@ -191,7 +191,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 lg:gap-4 px-5 lg:px-6 py-4 border-b border-slate-50 dark:border-zinc-800/50 hover:bg-slate-50/50 dark:hover:bg-zinc-800/30 transition-colors group items-center">
             {{-- No --}}
             <div class="col-span-1 hidden lg:flex">
-                <span class="w-8 h-8 bg-indigo-100 dark:bg-indigo-900/40 rounded-lg flex items-center justify-center text-indigo-700 dark:text-indigo-300 text-xs font-bold">
+                <span class="w-8 h-8 bg-[#A2D5CB] dark:bg-[#388782]/40 rounded-lg flex items-center justify-center text-[#388782] dark:text-[#A2D5CB] text-xs font-bold">
                     {{ $soals->firstItem() + $index }}
                 </span>
             </div>
@@ -254,11 +254,11 @@
             {{-- Aksi --}}
             <div class="col-span-2 flex items-center justify-end gap-2">
                 <a href="{{ route('guru.bank-soal.show', $soal->id) }}"
-                    class="text-xs text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium border border-slate-200 dark:border-zinc-700 px-3 py-1.5 rounded-lg hover:border-indigo-300 dark:hover:border-indigo-600 transition-colors" title="Detail">
+                    class="text-xs text-slate-500 dark:text-slate-400 hover:text-[#388782] dark:hover:text-[#A2D5CB] font-medium border border-slate-200 dark:border-zinc-700 px-3 py-1.5 rounded-lg hover:border-[#388782] dark:hover:border-[#388782] transition-colors" title="Detail">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                 </a>
                 <a href="{{ route('guru.bank-soal.edit', $soal->id) }}"
-                    class="text-xs text-slate-500 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 font-medium border border-slate-200 dark:border-zinc-700 px-3 py-1.5 rounded-lg hover:border-amber-300 dark:hover:border-amber-600 transition-colors" title="Edit">
+                    class="text-xs text-slate-500 dark:text-slate-400 hover:text-[#388782] dark:hover:text-[#A2D5CB] font-medium border border-slate-200 dark:border-zinc-700 px-3 py-1.5 rounded-lg hover:border-[#388782] dark:hover:border-[#388782] transition-colors" title="Edit">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                 </a>
                 <form action="{{ route('guru.bank-soal.destroy', $soal->id) }}" method="POST" class="inline"
