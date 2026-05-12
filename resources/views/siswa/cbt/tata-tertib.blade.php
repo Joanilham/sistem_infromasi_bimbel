@@ -3,6 +3,11 @@
 @section('title', $ujian->judul)
 
 @section('content')
+@php
+    $sudahSelesai = $sudahSelesai ?? false;
+    $sedangMengerjakan = $sedangMengerjakan ?? false;
+    $attempt = $attempt ?? null;
+@endphp
 <div class="space-y-5 max-w-2xl mx-auto">
 
     {{-- Back --}}
@@ -101,7 +106,7 @@
                         </p>
                         <p class="text-sm text-emerald-600">Diselesaikan {{ $attempt->waktu_selesai?->format('d M Y, H:i') }}</p>
                     </div>
-                    <a href="{{ route('siswa.ujian.hasil', $ujian->id) }}" class="px-4 py-2 rounded-xl text-sm font-semibold bg-emerald-600 text-white hover:bg-emerald-700 transition-colors">
+                    <a href="{{ route('siswa.ujian.hasil', $attempt->id) }}" class="px-4 py-2 rounded-xl text-sm font-semibold bg-emerald-600 text-white hover:bg-emerald-700 transition-colors">
                         Lihat Detail
                     </a>
                 </div>
@@ -110,7 +115,7 @@
 
             {{-- CTA --}}
             @if($sedangMengerjakan)
-                <a href="{{ route('siswa.ujian.soal', [$ujian->id, 1]) }}"
+                <a href="{{ route('siswa.ujian.soal', [$attempt->id, 1]) }}"
                     class="block w-full text-center py-3.5 rounded-xl text-base font-bold text-white transition-all hover:opacity-90"
                     style="background: linear-gradient(135deg, #F59E0B, #EF4444);">
                     ▶ Lanjutkan Ujian (Masih Berlangsung)

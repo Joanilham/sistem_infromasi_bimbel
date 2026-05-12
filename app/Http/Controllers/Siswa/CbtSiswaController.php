@@ -82,13 +82,13 @@ class CbtSiswaController extends Controller
      */
     public function riwayat()
     {
-        $sesis = CbtPeserta::where('user_id', Auth::id())
+        $pesertas = CbtPeserta::where('user_id', Auth::id())
             ->with(['ujian'])
             ->whereIn('status', ['selesai', 'timeout'])
             ->orderBy('waktu_selesai', 'desc')
             ->get();
 
-        return view('siswa.cbt.riwayat', compact('sesis'));
+        return view('siswa.cbt.riwayat', compact('pesertas'));
     }
 
     /**
@@ -96,22 +96,34 @@ class CbtSiswaController extends Controller
      */
     public function show($id)
     {
-        $ujian = CbtUjian::findOrFail($id);
+        $ujian = CbtUjian::withCount('ujianSoals as soals_count')->findOrFail($id);
         
         // Cek apakah sudah pernah mulai
         $sesi = CbtPeserta::where('cbt_ujian_id', $ujian->id)
             ->where('user_id', Auth::id())
+            ->latest()
             ->first();
+
+        $sudahSelesai = false;
+        $sedangMengerjakan = false;
+        $attempt = $sesi;
 
         if ($sesi) {
             if (in_array($sesi->status, ['selesai', 'timeout'])) {
-                return redirect()->route('siswa.ujian.hasil', $sesi->id);
+                $sudahSelesai = true;
+            } else {
+                $sedangMengerjakan = true;
+                // Jika sedang mengerjakan, langsung arahkan ke soal
+                return redirect()->route('siswa.ujian.soal', [$sesi->id, 1]);
             }
-            // Sedang mengerjakan
-            return redirect()->route('siswa.ujian.soal', [$sesi->id, 1]);
         }
 
-        return view('siswa.cbt.tata-tertib', compact('ujian'));
+        return view('siswa.cbt.tata-tertib', [
+            'ujian' => $ujian,
+            'sudahSelesai' => $sudahSelesai,
+            'sedangMengerjakan' => $sedangMengerjakan,
+            'attempt' => $attempt
+        ]);
     }
 
     /**

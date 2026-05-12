@@ -11,6 +11,7 @@ class CbtPesertaJawaban extends Model
 
     protected $casts = [
         'jawaban_multi' => 'array',
+        'opsi_order'    => 'array',
         'ragu_ragu'     => 'boolean',
         'is_benar'      => 'boolean',
         'skor'          => 'decimal:2',

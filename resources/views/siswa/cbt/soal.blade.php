@@ -228,7 +228,7 @@
                         </span>
                     </span>
                 </div>
-                <div class="soal-text">{!! $jawabanSaatIni->bankSoal->pertanyaan !!}
+                <div class="soal-text">{!! nl2br(e($jawabanSaatIni->bankSoal->pertanyaan)) !!}
                     @if($jawabanSaatIni->bankSoal->file_media)
                         <img src="{{ asset('storage/' . $jawabanSaatIni->bankSoal->file_media) }}" alt="Media Soal" class="mt-3 max-w-full rounded-lg">
                     @endif
@@ -257,7 +257,7 @@
                     <label class="option-label {{ $savedOpsi == $opsi->id ? 'selected' : '' }}" onclick="selectOption(this)">
                         <input type="radio" name="cbt_opsi_jawaban_id" value="{{ $opsi->id }}" {{ $savedOpsi == $opsi->id ? 'checked' : '' }} onchange="autoSave()">
                         <div class="option-mark">{{ $letters[$i] ?? ($i+1) }}</div>
-                        <div class="option-text">{!! $opsi->teks_opsi !!}</div>
+                        <div class="option-text">{!! nl2br(e($opsi->teks_opsi)) !!}</div>
                     </label>
                     @endforeach
                 </div>

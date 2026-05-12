@@ -26,6 +26,9 @@
             --text-muted: #A3AED0;
             --bg-body: #F4F7FE;
             --white: #FFFFFF;
+            --sidebar-bg: #0B1437;
+            --sidebar-text: #A3AED0;
+            --sidebar-active-bg: #4318FF;
             --danger: #EE5D50;
             --border-color: #E2E8F0;
         }
@@ -34,8 +37,9 @@
                 --primary-light: rgba(67, 24, 255, 0.15);
                 --text-main: #FFFFFF;
                 --text-muted: #A3AED0;
-                --bg-body: #0B1437;
+                --bg-body: #080E29;
                 --white: #111C44;
+                --sidebar-bg: #111C44;
                 --danger: #EE5D50;
                 --border-color: rgba(255, 255, 255, 0.1);
             }
@@ -53,24 +57,25 @@
 
         /* Sidebar Desktop */
         .sidebar {
-            width: 260px; background: var(--white); flex-shrink: 0;
+            width: 260px; background: var(--sidebar-bg); flex-shrink: 0;
             display: flex; flex-direction: column; padding: 28px 18px;
             border-right: 1px solid var(--border-color); position: fixed; top: 0; left: 0; height: 100vh;
             z-index: 40; transition: transform 0.3s; overflow-y: auto;
         }
         .sidebar.closed { transform: translateX(-100%); }
-        .sidebar-brand { display: flex; align-items: center; gap: 10px; font-size: 1.3rem; font-weight: 800; color: var(--text-main); margin-bottom: 40px; padding: 0 8px; text-decoration: none; }
+        .sidebar-brand { display: flex; align-items: center; gap: 10px; font-size: 1.3rem; font-weight: 800; color: #FFF; margin-bottom: 40px; padding: 0 8px; text-decoration: none; }
         .sidebar-brand svg { width: 28px; height: 28px; color: var(--primary); }
         .sidebar-menu { list-style: none; display: flex; flex-direction: column; gap: 6px; flex: 1; }
         .sidebar-link {
             display: flex; align-items: center; gap: 12px; padding: 12px 14px;
-            border-radius: 10px; color: var(--text-muted); font-weight: 600; text-decoration: none; font-size: 0.9rem;
+            border-radius: 12px; color: var(--sidebar-text); font-weight: 600; text-decoration: none; font-size: 0.9rem;
             transition: all 0.2s;
         }
-        .sidebar-link svg { width: 20px; height: 20px; }
-        .sidebar-link.active { background: var(--primary); color: #FFF; box-shadow: 0 6px 16px rgba(67,24,255,0.2); }
-        .sidebar-link:hover:not(.active) { background: var(--primary-light); color: var(--primary); }
-        .sidebar-footer { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border-color); }
+        .sidebar-link svg { width: 20px; height: 20px; opacity: 0.8; }
+        .sidebar-link.active { background: var(--sidebar-active-bg); color: #FFF; box-shadow: 0 4px 12px rgba(67,24,255,0.3); }
+        .sidebar-link.active svg { opacity: 1; }
+        .sidebar-link:hover:not(.active) { background: rgba(255,255,255,0.05); color: #FFF; }
+        .sidebar-footer { margin-top: auto; padding-top: 16px; }
 
         /* Main Content */
         .main-content { flex: 1; display: flex; flex-direction: column; min-width: 0; max-width: 100vw; padding-bottom: 70px; transition: margin-left 0.3s; margin-left: 0; }
@@ -164,7 +169,7 @@
         <div class="sidebar-footer">
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit" style="width:100%;display:flex;align-items:center;gap:12px;padding:12px 14px;background:#FDE8E8;color:var(--danger);border:none;border-radius:10px;font-weight:700;font-family:inherit;cursor:pointer;font-size:0.9rem;">
+                <button type="submit" style="width:100%;display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(238, 93, 80, 0.1);color:var(--danger);border:none;border-radius:12px;font-weight:700;font-family:inherit;cursor:pointer;font-size:0.9rem;transition: background 0.2s;">
                     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
                     Logout
                 </button>
@@ -191,7 +196,11 @@
                 </a>
             </div>
             
-            <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <div class="hidden lg:flex flex-col items-end mr-2">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Status Siswa</span>
+                    <span class="text-xs font-bold text-slate-700 dark:text-slate-200">Aktif • {{ Auth::user()->pesertaDidik->kelompokBelajar->nama ?? 'Umum' }}</span>
+                </div>
                 @if(Auth::user() && Auth::user()->photo)
                     <img src="{{ asset('storage/' . Auth::user()->photo) }}" alt="Avatar" class="header-avatar" style="object-fit: cover;">
                 @else
