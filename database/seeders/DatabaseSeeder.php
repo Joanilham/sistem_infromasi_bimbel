@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             KantorSeeder::class,
             PeriodeSeeder::class,
+            DummyUserSeeder::class,
         ]);
 
         User::factory()->create([

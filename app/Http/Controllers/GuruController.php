@@ -81,7 +81,7 @@ class GuruController extends Controller
 
         $this->clearGuruCache();
 
-        return redirect()->route('guru.index')->with('success', 'Guru berhasil ditambahkan.');
+        return redirect()->route('manajemen-guru.index')->with('success', 'Guru berhasil ditambahkan.');
     }
 
     /**
@@ -144,7 +144,7 @@ class GuruController extends Controller
 
         $this->clearGuruCache();
 
-        return redirect()->route('guru.index')->with('success', 'Data guru berhasil diperbarui.');
+        return redirect()->route('manajemen-guru.index')->with('success', 'Data guru berhasil diperbarui.');
     }
 
     /**

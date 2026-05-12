@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class ProfileController extends Controller
@@ -45,6 +46,35 @@ class ProfileController extends Controller
     public function update(Request $request)
     {
         $user = $request->user();
+
+        // Handle photo upload
+        if ($request->hasFile('photo')) {
+            $request->validate([
+                'photo' => ['image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
+            ]);
+
+            // Delete old photo if exists
+            if ($user->photo && Storage::disk('public')->exists($user->photo)) {
+                Storage::disk('public')->delete($user->photo);
+            }
+
+            $path = $request->file('photo')->store('profile-photos', 'public');
+            $user->photo = $path;
+            $user->save();
+
+            return back()->with('success', 'Foto profil berhasil diperbarui!');
+        }
+
+        // Handle photo removal
+        if ($request->has('remove_photo')) {
+            if ($user->photo && Storage::disk('public')->exists($user->photo)) {
+                Storage::disk('public')->delete($user->photo);
+            }
+            $user->photo = null;
+            $user->save();
+
+            return back()->with('success', 'Foto profil berhasil dihapus!');
+        }
 
         // Cek form mana yang dikirim berdasarkan input yang ada
         if ($request->has('current_password')) {

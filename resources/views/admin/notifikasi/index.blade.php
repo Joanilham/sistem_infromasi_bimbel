@@ -1,11 +1,10 @@
 @extends('layouts.admin')
-@section('title', 'Pusat Notifikasi')
-
 @section('content')
+
 <div x-data="{ tab: 'siswa' }" class="mb-8">
     <div class="sm:flex sm:items-center sm:justify-between mb-6">
         <div>
-            <h2 class="text-2xl font-bold text-slate-800 dark:text-white">Pusat Notifikasi</h2>
+            <h2 class="text-2xl font-bold text-slate-800 dark:text-white">Pemberitahuan</h2>
             <p class="mt-1 text-sm text-slate-500 dark:text-zinc-400">Pemberitahuan terkait pendaftaran siswa dan verifikasi keuangan.</p>
         </div>
     </div>

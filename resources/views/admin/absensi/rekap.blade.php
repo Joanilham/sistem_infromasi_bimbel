@@ -3,10 +3,8 @@
 
 @push('head')
 <style>
-    .custom-input { width: 100%; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.75rem 1rem; font-size: 0.875rem; background: #f8fafc; color: #1e293b; outline: none; transition: all 0.2s; }
-    .custom-input:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); }
-    .dark .custom-input { background: #1e293b; border-color: #334155; color: #f8fafc; }
-    .dark .custom-input:focus { border-color: #6366f1; }
+    .custom-input { width: 100%; border: 1px solid var(--border-color); border-radius: 12px; padding: 0.75rem 1rem; font-size: 0.875rem; background: var(--bg-main); color: var(--text-primary); outline: none; transition: all 0.2s; }
+    .custom-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); }
 </style>
 @endpush
 
@@ -19,17 +17,17 @@
             <div class="admin-table-subtitle">Rekapitulasi kehadiran siswa per bulan.</div>
         </div>
         <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;">
-            <a href="{{ route('absensi.export.rekap', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn-add" style="background:linear-gradient(135deg,#6366f1,#4f46e5);box-shadow:0 4px 12px rgba(99,102,241,.35);">
+            <a href="{{ route('absensi.export.rekap', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn-add">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
                 Export Excel
             </a>
-            <a href="{{ route('absensi.scan.masuk.page') }}" class="btn-add" style="background:linear-gradient(135deg,#10b981,#059669);box-shadow:0 4px 12px rgba(16,185,129,.35);">
+            <a href="{{ route('absensi.scan.masuk.page') }}" class="btn-add" style="background:var(--success);box-shadow:0 4px 12px rgba(16,185,129,.25);">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 Absen Masuk
             </a>
-            <a href="{{ route('absensi.scan.pulang.page') }}" class="btn-add" style="background:linear-gradient(135deg,#d97706,#b45309);box-shadow:0 4px 12px rgba(217,119,6,.35);">
+            <a href="{{ route('absensi.scan.pulang.page') }}" class="btn-add" style="background:var(--warning);box-shadow:0 4px 12px rgba(217,119,6,.25);">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
                 Absen Pulang
             </a>
@@ -38,12 +36,12 @@
 </div>
 
 <div class="admin-table-card">
-    <div class="admin-table-header" style="flex-direction: column; align-items: stretch; gap: 1rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 1rem;">
+    <div class="admin-table-header" style="flex-direction: column; align-items: stretch; gap: 1rem; padding-bottom: 1rem;">
         <div style="display:flex; align-items:center; gap: 0.75rem; flex-wrap: wrap;">
-            <h3 style="font-size:0.875rem; font-weight:700; color:#334155;">
+            <h3 style="font-size:0.875rem; font-weight:700; color:var(--text-primary);">
                 Rekap Bulan {{ \Carbon\Carbon::create()->month($bulan)->translatedFormat('F') }} {{ $tahun }}
             </h3>
-            <span class="badge" style="background:#f1f5f9; color:#475569; font-weight:700;">{{ $pesertaDidiks->count() }} siswa</span>
+            <span class="badge badge-secondary">{{ $pesertaDidiks->count() }} siswa</span>
         </div>
         
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap: wrap; gap: 1rem;">
@@ -94,12 +92,12 @@
                     <td><span class="cell-label">{{ $p->nama_lengkap }}</span></td>
                     <td><span style="font-family:monospace;font-size:.8rem;color:#6366f1;font-weight:600;">{{ $p->nisn }}</span></td>
                     <td style="text-align:center"><span class="badge badge-success">{{ $p->total_hadir }}</span></td>
-                    <td style="text-align:center"><span class="badge" style="background:#e0f2fe;color:#0369a1;">{{ $p->total_izin }}</span></td>
-                    <td style="text-align:center"><span class="badge" style="background:#fef9c3;color:#854d0e;">{{ $p->total_sakit }}</span></td>
-                    <td style="text-align:center"><span class="badge" style="background:#fee2e2;color:#dc2626;">{{ $p->total_alpha }}</span></td>
+                    <td style="text-align:center"><span class="badge" style="background:rgba(3, 105, 161, 0.1); color:#0369a1; border: 1px solid rgba(3, 105, 161, 0.2);">{{ $p->total_izin }}</span></td>
+                    <td style="text-align:center"><span class="badge" style="background:rgba(133, 77, 14, 0.1); color:#854d0e; border: 1px solid rgba(133, 77, 14, 0.2);">{{ $p->total_sakit }}</span></td>
+                    <td style="text-align:center"><span class="badge" style="background:rgba(220, 38, 38, 0.1); color:#dc2626; border: 1px solid rgba(220, 38, 38, 0.2);">{{ $p->total_alpha }}</span></td>
                     <td style="text-align:center">
                         @php $total = $p->total_hadir + $p->total_izin + $p->total_sakit + $p->total_alpha; @endphp
-                        <span style="font-weight:700; color:#334155;">{{ $total }}</span>
+                        <span style="font-weight:700; color:var(--text-secondary);">{{ $total }}</span>
                     </td>
                 </tr>
                 @empty
