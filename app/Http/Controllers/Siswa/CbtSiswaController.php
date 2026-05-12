@@ -18,6 +18,7 @@ class CbtSiswaController extends Controller
      */
     public function index()
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
         $pesertaDidik = $user->pesertaDidik;
         $kelompokId = $pesertaDidik ? $pesertaDidik->kelompok_belajar_id : null;
@@ -98,31 +99,30 @@ class CbtSiswaController extends Controller
     {
         $ujian = CbtUjian::withCount('ujianSoals as soals_count')->findOrFail($id);
         
-        // Cek apakah sudah pernah mulai
-        $sesi = CbtPeserta::where('cbt_ujian_id', $ujian->id)
+        // Cari sesi yang sedang aktif
+        $sesiAktif = CbtPeserta::where('cbt_ujian_id', $ujian->id)
             ->where('user_id', Auth::id())
-            ->latest()
+            ->where('status', 'mengerjakan')
             ->first();
 
-        $sudahSelesai = false;
-        $sedangMengerjakan = false;
-        $attempt = $sesi;
-
-        if ($sesi) {
-            if (in_array($sesi->status, ['selesai', 'timeout'])) {
-                $sudahSelesai = true;
-            } else {
-                $sedangMengerjakan = true;
-                // Jika sedang mengerjakan, langsung arahkan ke soal
-                return redirect()->route('siswa.ujian.soal', [$sesi->id, 1]);
-            }
+        if ($sesiAktif) {
+            return redirect()->route('siswa.ujian.soal', [$sesiAktif->id, 1]);
         }
+
+        // Cek riwayat untuk info di tata tertib
+        $riwayat = CbtPeserta::where('cbt_ujian_id', $ujian->id)
+            ->where('user_id', Auth::id())
+            ->orderBy('attempt_ke', 'desc')
+            ->get();
+
+        $canAttempt = $ujian->canAttempt(Auth::id());
+        $attemptKe = $riwayat->count() + 1;
 
         return view('siswa.cbt.tata-tertib', [
             'ujian' => $ujian,
-            'sudahSelesai' => $sudahSelesai,
-            'sedangMengerjakan' => $sedangMengerjakan,
-            'attempt' => $attempt
+            'riwayat' => $riwayat,
+            'canAttempt' => $canAttempt,
+            'attemptKe' => $attemptKe
         ]);
     }
 
@@ -144,14 +144,22 @@ class CbtSiswaController extends Controller
             }
         }
 
-        // Pastikan belum ada sesi
-        $sesi = CbtPeserta::where('cbt_ujian_id', $ujian->id)
+        // 1. Cek Sesi Aktif
+        $sesiAktif = CbtPeserta::where('cbt_ujian_id', $ujian->id)
             ->where('user_id', Auth::id())
+            ->where('status', 'mengerjakan')
             ->first();
 
-        if ($sesi) {
-            return redirect()->route('siswa.ujian.soal', [$sesi->id, 1]);
+        if ($sesiAktif) {
+            return redirect()->route('siswa.ujian.soal', [$sesiAktif->id, 1]);
         }
+
+        // 2. Cek Limit Attempt
+        if (!$ujian->canAttempt(Auth::id())) {
+            return redirect()->route('siswa.ujian.index')->with('error', 'Anda telah mencapai batas maksimal percobaan untuk ujian ini.');
+        }
+
+        $attemptKe = CbtPeserta::where('cbt_ujian_id', $ujian->id)->where('user_id', Auth::id())->count() + 1;
 
         DB::beginTransaction();
         try {
@@ -161,8 +169,9 @@ class CbtSiswaController extends Controller
                 'user_id'      => Auth::id(),
                 'waktu_mulai'  => now(),
                 'status'       => 'mengerjakan',
-                'ip_address'   => $request->ip(),
+                'attempt_ke'   => $attemptKe,
                 'session_token'=> session()->getId(),
+                'ip_address'   => $request->ip(),
             ]);
 
             // Siapkan Soal (Randomisasi jika diset)
@@ -173,6 +182,7 @@ class CbtSiswaController extends Controller
 
             $urutan = 1;
             foreach ($ujianSoals as $us) {
+                /** @var \App\Models\CbtUjianSoal $us */
                 $opsi = $us->bankSoal->opsiJawabans;
                 $urutanOpsi = null;
                 
@@ -204,6 +214,7 @@ class CbtSiswaController extends Controller
      */
     public function soal($id, $no)
     {
+        /** @var \App\Models\CbtPeserta $sesi */
         $sesi = CbtPeserta::with(['ujian'])->findOrFail($id);
 
         if ($sesi->user_id !== Auth::id()) {
@@ -222,7 +233,7 @@ class CbtSiswaController extends Controller
         // Load semua jawaban untuk navigasi grid
         $semuaJawaban = CbtPesertaJawaban::where('cbt_peserta_id', $sesi->id)
             ->orderBy('urutan')
-            ->get(['id', 'urutan', 'cbt_opsi_jawaban_id', 'jawaban_essay', 'ragu_ragu']);
+            ->get(['id', 'urutan', 'cbt_opsi_jawaban_id', 'jawaban_teks', 'ragu_ragu']);
 
         $totalSoal = $semuaJawaban->count();
         if ($no < 1 || $no > $totalSoal) {
@@ -263,8 +274,8 @@ class CbtSiswaController extends Controller
 
         if ($request->has('cbt_opsi_jawaban_id')) {
             $jawaban->cbt_opsi_jawaban_id = $request->cbt_opsi_jawaban_id;
-        } elseif ($request->has('jawaban_essay')) {
-            $jawaban->jawaban_essay = $request->jawaban_essay;
+        } elseif ($request->has('jawaban_teks')) {
+            $jawaban->jawaban_teks = $request->jawaban_teks;
         }
 
         if ($request->has('ragu_ragu')) {
@@ -334,6 +345,7 @@ class CbtSiswaController extends Controller
         $totalBobot = 0;
 
         foreach ($jawabans as $j) {
+            /** @var \App\Models\CbtPesertaJawaban $j */
             $soal = $j->bankSoal;
             // Ambil bobot dari tabel pivot ujian_soal
             $ujianSoal = \App\Models\CbtUjianSoal::where('cbt_ujian_id', $sesi->cbt_ujian_id)

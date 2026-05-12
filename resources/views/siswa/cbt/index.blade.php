@@ -1,4 +1,4 @@
-@extends('layouts.siswa_cbt')
+@extends('layouts.siswa')
 
 @section('title', 'Ujian Online')
 

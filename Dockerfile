@@ -40,11 +40,15 @@ COPY . .
 RUN composer dump-autoload --optimize
 
 # Build frontend assets
-RUN npm run build
+RUN npm run build \
+    && rm -rf node_modules
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
+# Switch to non-root user
+USER www-data
 
 EXPOSE 9000
 CMD ["php-fpm"]

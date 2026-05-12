@@ -4,6 +4,23 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property int $cbt_peserta_id
+ * @property int $cbt_bank_soal_id
+ * @property string|null $jawaban_teks
+ * @property int|null $cbt_opsi_jawaban_id
+ * @property array|null $jawaban_multi
+ * @property bool $ragu_ragu
+ * @property bool|null $is_benar
+ * @property float|null $skor
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * 
+ * @property-read \App\Models\CbtPeserta $peserta
+ * @property-read \App\Models\CbtBankSoal $bankSoal
+ * @property-read \App\Models\CbtOpsiJawaban|null $opsiJawaban
+ */
 class CbtPesertaJawaban extends Model
 {
     protected $table = 'cbt_peserta_jawabans';
@@ -17,17 +34,17 @@ class CbtPesertaJawaban extends Model
         'skor'          => 'decimal:2',
     ];
 
-    public function peserta()
+    public function peserta(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(CbtPeserta::class, 'cbt_peserta_id');
     }
 
-    public function bankSoal()
+    public function bankSoal(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(CbtBankSoal::class, 'cbt_bank_soal_id');
     }
 
-    public function opsiJawaban()
+    public function opsiJawaban(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(CbtOpsiJawaban::class, 'cbt_opsi_jawaban_id');
     }

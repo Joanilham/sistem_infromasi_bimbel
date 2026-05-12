@@ -165,7 +165,7 @@ class PesertaDidikController extends Controller
    */
   public function destroy(string $id)
   {
-    $pesertaDidik = PesertaDidik::findOrFail($id);
+    $pesertaDidik = PesertaDidik::inContext()->findOrFail($id);
     $pesertaDidik->delete();
 
     $this->clearPesertaCache();
@@ -194,6 +194,7 @@ class PesertaDidikController extends Controller
   public function exportKeluar()
   {
     $rows = PesertaDidik::keluar()
+      ->inContext()
       ->with('paketBimbingan', 'kelompokBelajar')
       ->orderBy('tanggal_keluar', 'desc')
       ->get();
@@ -346,6 +347,7 @@ class PesertaDidikController extends Controller
   public function export()
   {
     $rows = PesertaDidik::aktif()
+      ->inContext()
       ->with('paketBimbingan', 'kelompokBelajar')
       ->orderBy('nama_lengkap')
       ->get();

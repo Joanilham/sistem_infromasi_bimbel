@@ -20,6 +20,7 @@ class GuruController extends Controller
         $gurus = \Illuminate\Support\Facades\Cache::rememberForever("data_gurus_aktif_{$kantorId}_{$periodeId}", function () {
             return User::where('level', 'guru')
                 ->where('status', 'Aktif')
+                ->inContext()
                 ->latest()
                 ->get();
         });
@@ -38,6 +39,7 @@ class GuruController extends Controller
         $gurus = \Illuminate\Support\Facades\Cache::rememberForever("data_gurus_keluar_{$kantorId}_{$periodeId}", function () {
             return User::where('level', 'guru')
                 ->where('status', 'Keluar')
+                ->inContext()
                 ->orderBy('tanggal_keluar', 'desc')
                 ->get();
         });
@@ -77,7 +79,10 @@ class GuruController extends Controller
         $validated['username']  = $request->email;
 
         unset($validated['password_confirmation']);
-        User::create($validated);
+        User::create($validated + [
+            'kantor_id' => session('kantor_id'),
+            'periode_id' => session('periode_id'),
+        ]);
 
         $this->clearGuruCache();
 
@@ -152,7 +157,7 @@ class GuruController extends Controller
      */
     public function destroy(string $id)
     {
-        $guru = User::where('level', 'guru')->findOrFail($id);
+        $guru = User::where('level', 'guru')->inContext()->findOrFail($id);
         $guru->delete();
 
         $this->clearGuruCache();
@@ -167,6 +172,7 @@ class GuruController extends Controller
     {
         $gurus = User::where('level', 'guru')
             ->where('status', 'Aktif')
+            ->inContext()
             ->latest()
             ->get();
 
@@ -307,6 +313,7 @@ class GuruController extends Controller
     {
         $gurus = User::where('level', 'guru')
             ->where('status', 'Keluar')
+            ->inContext()
             ->orderBy('tanggal_keluar', 'desc')
             ->get();
 

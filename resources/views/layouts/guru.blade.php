@@ -23,7 +23,7 @@
         }
     </script>
 </head>
-<body class="bg-slate-50 dark:bg-slate-900 flex h-screen overflow-hidden text-slate-800 dark:text-slate-100 transition-colors duration-200">
+<body class="bg-slate-50 dark:bg-slate-900 flex h-screen overflow-hidden text-slate-800 dark:text-slate-100">
 
     <!-- Mobile sidebar backdrop -->
     <div x-show="sidebarOpen" x-transition.opacity class="fixed inset-0 z-20 bg-gray-900 bg-opacity-50 lg:hidden" @click="sidebarOpen = false" x-cloak></div>
@@ -31,22 +31,29 @@
     <!-- Sidebar -->
     <aside 
         :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" 
-        class="fixed z-40 inset-y-0 left-0 w-64 transition-transform duration-300 transform bg-white dark:bg-zinc-900 shadow-2xl lg:shadow-none border-r border-slate-200 dark:border-zinc-800 flex flex-col">
+        class="fixed z-40 inset-y-0 left-0 w-64 transition-transform duration-300 transform bg-white dark:bg-zinc-900 shadow-2xl lg:shadow-none border-r border-slate-200 dark:border-zinc-800 flex flex-col"
+        style="will-change: transform;">
         <div class="flex flex-col h-full overflow-y-auto custom-scrollbar">
             @include('layouts.guru.sidebar')
         </div>
     </aside>
 
     <!-- Main Content -->
-    <div :class="sidebarOpen ? 'sidebar-open' : ''" class="main-content-wrapper flex-1 flex flex-col min-w-0 overflow-hidden">
+    <div :class="!sidebarOpen ? 'sidebar-closed' : ''" class="main-content-wrapper flex-1 flex flex-col min-w-0 overflow-hidden">
         <!-- Top Navigation -->
         @include('layouts.guru.header')
 
         <!-- Main Body Area -->
-        <main class="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950 p-4 sm:p-6 lg:p-8 custom-scrollbar transition-colors duration-200">
+        <main class="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950 p-4 sm:p-6 lg:p-8 custom-scrollbar">
             <div class="max-w-7xl mx-auto">
                 @if(session('success'))
-                <div class="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-4 rounded-xl flex items-center shadow-sm" role="alert">
+                <div x-data="{ show: true }" 
+                     x-init="setTimeout(() => show = false, 4000)" 
+                     x-show="show" 
+                     x-transition:leave="transition ease-in duration-500" 
+                     x-transition:leave-start="opacity-100 transform scale-100" 
+                     x-transition:leave-end="opacity-0 transform scale-95"
+                     class="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-4 rounded-xl flex items-center shadow-sm" role="alert">
                     <svg class="w-5 h-5 mr-3 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
@@ -55,7 +62,13 @@
                 @endif
 
                 @if(session('error'))
-                <div class="mb-6 bg-red-50 border border-red-300 text-red-700 px-4 py-4 rounded-xl flex items-center shadow-sm" role="alert">
+                <div x-data="{ show: true }" 
+                     x-init="setTimeout(() => show = false, 5000)" 
+                     x-show="show" 
+                     x-transition:leave="transition ease-in duration-500" 
+                     x-transition:leave-start="opacity-100 transform scale-100" 
+                     x-transition:leave-end="opacity-0 transform scale-95"
+                     class="mb-6 bg-red-50 border border-red-300 text-red-700 px-4 py-4 rounded-xl flex items-center shadow-sm" role="alert">
                     <svg class="w-5 h-5 mr-3 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>

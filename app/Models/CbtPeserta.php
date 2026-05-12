@@ -4,6 +4,21 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property int $cbt_ujian_id
+ * @property int $user_id
+ * @property string $status
+ * @property \Illuminate\Support\Carbon $waktu_mulai
+ * @property \Illuminate\Support\Carbon|null $waktu_selesai
+ * @property float|null $skor
+ * @property int $attempt_ke
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * 
+ * @property-read \App\Models\CbtUjian $ujian
+ * @property-read \App\Models\User $user
+ */
 class CbtPeserta extends Model
 {
     protected $table = 'cbt_pesertas';
@@ -15,17 +30,17 @@ class CbtPeserta extends Model
         'skor'          => 'decimal:2',
     ];
 
-    public function ujian()
+    public function ujian(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(CbtUjian::class, 'cbt_ujian_id');
     }
 
-    public function user()
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function jawabans()
+    public function jawabans(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(CbtPesertaJawaban::class, 'cbt_peserta_id');
     }
