@@ -88,6 +88,8 @@
                     <span class="font-bold text-slate-700 dark:text-slate-200">{{ $peserta->kelompokBelajar?->nama_kelompok ?? '-' }}</span>
                 </div>
             </div>
+            <p class="text-3xl font-black text-slate-800 dark:text-white mb-1">{{ $peserta->paketBimbingan ? 'Aktif' : 'Tidak' }}</p>
+            <p class="text-xs font-medium text-slate-400">Status bimbingan</p>
         </div>
 
         {{-- TABEL ABSENSI --}}
