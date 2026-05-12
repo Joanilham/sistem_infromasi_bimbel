@@ -20,21 +20,21 @@
     </script>
     <style>
         :root {
-            --primary: #4318FF;
-            --primary-light: #F4F7FE;
+            --primary: #388782;
+            --primary-light: #F0F7F6;
             --text-main: #2B3674;
             --text-muted: #A3AED0;
             --bg-body: #F4F7FE;
             --white: #FFFFFF;
             --sidebar-bg: #0B1437;
             --sidebar-text: #A3AED0;
-            --sidebar-active-bg: #4318FF;
+            --sidebar-active-bg: #388782;
             --danger: #EE5D50;
             --border-color: #E2E8F0;
         }
         @media (prefers-color-scheme: dark) {
             :root {
-                --primary-light: rgba(67, 24, 255, 0.15);
+                --primary-light: rgba(56, 135, 130, 0.15);
                 --text-main: #FFFFFF;
                 --text-muted: #A3AED0;
                 --bg-body: #080E29;
@@ -72,7 +72,7 @@
             transition: all 0.2s;
         }
         .sidebar-link svg { width: 20px; height: 20px; opacity: 0.8; }
-        .sidebar-link.active { background: var(--sidebar-active-bg); color: #FFF; box-shadow: 0 4px 12px rgba(67,24,255,0.3); }
+        .sidebar-link.active { background: var(--sidebar-active-bg); color: #FFF; box-shadow: 0 4px 12px rgba(56, 135, 130, 0.3); }
         .sidebar-link.active svg { opacity: 1; }
         .sidebar-link:hover:not(.active) { background: rgba(255,255,255,0.05); color: #FFF; }
         .sidebar-footer { margin-top: auto; padding-top: 16px; }
@@ -91,7 +91,7 @@
         .header-mobile-brand svg { width: 22px; height: 22px; color: var(--primary); }
         .header-avatar {
             width: 36px; height: 36px; border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), #8F9BFA);
+            background: linear-gradient(135deg, #388782, #206D6C);
             color: white; display: flex; align-items: center; justify-content: center;
             font-weight: 700; font-size: 0.85rem;
         }
@@ -167,13 +167,6 @@
             </li>
         </ul>
         <div class="sidebar-footer">
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit" style="width:100%;display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(238, 93, 80, 0.1);color:var(--danger);border:none;border-radius:12px;font-weight:700;font-family:inherit;cursor:pointer;font-size:0.9rem;transition: background 0.2s;">
-                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-                    Logout
-                </button>
-            </form>
         </div>
     </aside>
 
@@ -201,10 +194,61 @@
                     <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Status Siswa</span>
                     <span class="text-xs font-bold text-slate-700 dark:text-slate-200">Aktif • {{ Auth::user()->pesertaDidik->kelompokBelajar->nama ?? 'Umum' }}</span>
                 </div>
+                <!-- User Dropdown -->
+                <div class="relative" x-data="{ open: false }">
+                    <button @click="open = !open" @click.away="open = false" class="flex items-center gap-2 sm:gap-2.5 bg-slate-50 dark:bg-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-700/80 px-2.5 py-1.5 rounded-full border border-slate-200 dark:border-zinc-700 focus:outline-none transition-colors cursor-pointer">
+                        @if(Auth::user() && Auth::user()->photo)
+                            <img src="{{ asset('storage/' . Auth::user()->photo) }}" alt="Profile" class="w-[26px] h-[26px] rounded-full object-cover">
+                        @else
+                            <div class="w-[26px] h-[26px] rounded-full bg-[#388782] dark:bg-[#388782] flex items-center justify-center text-white font-bold text-xs">
+                                {{ strtoupper(substr(Auth::user()->name ?? 'S', 0, 1)) }}
+                            </div>
+                        @endif
+                        <span class="hidden sm:block text-sm font-medium text-slate-700 dark:text-white">{{ explode(' ', Auth::user()->name)[0] ?? 'Siswa' }}</span>
+                        <svg class="hidden sm:block w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+
+                    <!-- Dropdown Menu -->
+                    <div x-show="open"
+                        x-transition:enter="transition ease-out duration-100"
+                        x-transition:enter-start="transform opacity-0 scale-95"
+                        x-transition:enter-end="transform opacity-100 scale-100"
+                        x-transition:leave="transition ease-in duration-75"
+                        x-transition:leave-start="transform opacity-100 scale-100"
+                        x-transition:leave-end="transform opacity-0 scale-95"
+                        class="absolute right-0 mt-2 w-48 bg-white dark:bg-zinc-800 rounded-xl shadow-lg shadow-slate-200/50 dark:shadow-zinc-900/80 py-1 border border-slate-100 dark:border-zinc-700 ring-1 ring-black ring-opacity-5 focus:outline-none z-50 py-2"
+                        x-cloak>
+
+                        <div class="px-4 py-2 border-b border-slate-50 mb-1">
+                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Akun Saya</p>
+                        </div>
+
+                        <a href="{{ route('siswa.profile.edit') }}" class="flex items-center px-4 py-2.5 text-sm text-slate-700 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-700 hover:text-[#388782] transition-colors">
+                            <svg class="mr-3 w-4 h-4 text-slate-400 group-hover:text-[#388782]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                            Edit Profile
+                        </a>
+
+                        <div class="border-t border-slate-50 my-1"></div>
+
+                        <form method="POST" action="{{ route('logout') }}" class="block">
+                            @csrf
+                            <button type="submit" class="flex w-full items-center px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-slate-50 dark:hover:bg-zinc-700 hover:text-red-700 dark:hover:text-red-300 transition-colors">
+                                <svg class="mr-3 w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                                </svg>
+                                Log Out
+                            </button>
+                        </form>
+                    </div>
+                </div>
                 @if(Auth::user() && Auth::user()->photo)
-                    <img src="{{ asset('storage/' . Auth::user()->photo) }}" alt="Avatar" class="header-avatar" style="object-fit: cover;">
+                    <img src="{{ asset('storage/' . Auth::user()->photo) }}" alt="Avatar" class="header-avatar lg:hidden" style="object-fit: cover;">
                 @else
-                    <div class="header-avatar">{{ strtoupper(substr(Auth::user()->name ?? 'S', 0, 2)) }}</div>
+                    <div class="header-avatar lg:hidden">{{ strtoupper(substr(Auth::user()->name ?? 'S', 0, 2)) }}</div>
                 @endif
             </div>
         </header>
