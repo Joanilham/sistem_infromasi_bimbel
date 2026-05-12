@@ -47,14 +47,13 @@
                         <!-- WA URL -->
                         <div class="mb-4">
                             <label for="wa_url" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">URL Gateway / Endpoint (Opsional, Default Fonnte)</label>
-                            <input type="text" name="wa_url" id="wa_url" value="{{ old('wa_url', $master->wa_url) }}" class="mt-2 block w-full border border-slate-300 dark:border-slate-700 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm px-4 py-2.5 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white transition-colors" placeholder="Contoh: https://api.fonnte.com/send">
-                            <p class="mt-1 text-xs text-slate-500">Bisa dikosongkan jika menggunakan standar (Fonnte API).</p>
+                            <input type="text" name="wa_url" id="wa_url" value="{{ old('wa_url', $master->wa_url) }}" class="mt-2 block w-full border border-slate-300 dark:border-slate-700 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm px-4 py-2.5 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white transition-colors">
                         </div>
 
                         <!-- Instance ID -->
                         <div class="mb-4">
                             <label for="instance_id" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Instance ID</label>
-                            <input type="text" name="instance_id" id="instance_id" value="{{ old('instance_id', $master->instance_id) }}" class="mt-2 block w-full border border-slate-300 dark:border-slate-700 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm px-4 py-2.5 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white transition-colors" placeholder="Contoh: INSTANCE_XXXX">
+                            <input type="text" name="instance_id" id="instance_id" value="{{ old('instance_id', $master->instance_id) }}" class="mt-2 block w-full border border-slate-300 dark:border-slate-700 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm px-4 py-2.5 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white transition-colors">
                         </div>
 
                         <!-- WA Token -->
@@ -167,7 +166,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Nomor Handphone (Awalan 08 / 62)</label>
-                            <input type="text" name="phone" required class="mt-2 block w-full border border-slate-300 dark:border-slate-700 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm px-4 py-2.5 bg-white dark:bg-slate-800 text-slate-900 dark:text-white transition-colors" placeholder="08123456789">
+                            <input type="text" name="phone" required class="mt-2 block w-full border border-slate-300 dark:border-slate-700 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm px-4 py-2.5 bg-white dark:bg-slate-800 text-slate-900 dark:text-white transition-colors">
                             
                             <div class="mt-4">
                                 <button type="submit" class="w-full inline-flex items-center justify-center py-2.5 px-4 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">

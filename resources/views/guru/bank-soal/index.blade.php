@@ -29,20 +29,20 @@
                 {{-- Modal Import --}}
                 <div x-show="showImportModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" @click.self="showImportModal = false" style="display:none;">
                     <div class="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-[#388782]/30 p-6 w-full max-w-md" @click.stop>
-                        <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-2">Import Soal (Excel/CSV)</h3>
-                        <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">Upload file CSV menggunakan template yang disediakan.</p>
+                        <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-2">Import Soal (Excel)</h3>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">Upload file Excel menggunakan template yang disediakan.</p>
                         
                         <div class="mb-6">
                             <a href="{{ route('guru.bank-soal.template') }}" class="inline-flex items-center gap-2 text-sm text-[#388782] dark:text-[#A2D5CB] hover:underline font-medium">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                                Download Template CSV
+                                Download Template Excel (.xls)
                             </a>
                         </div>
 
                         <form action="{{ route('guru.bank-soal.import') }}" method="POST" enctype="multipart/form-data">
                             @csrf
-                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Pilih File CSV/TXT</label>
-                            <input type="file" name="file" accept=".csv,.txt" required class="w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-[#A2D5CB] file:text-[#388782] hover:file:bg-[#78BBB0] dark:file:bg-[#388782]/40 dark:file:text-[#A2D5CB] border border-slate-200 dark:border-zinc-700 rounded-xl mb-6">
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Pilih File Excel (.xls) atau CSV</label>
+                            <input type="file" name="file" accept=".xls,.csv,.txt" required class="w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-[#A2D5CB] file:text-[#388782] hover:file:bg-[#78BBB0] dark:file:bg-[#388782]/40 dark:file:text-[#A2D5CB] border border-slate-200 dark:border-zinc-700 rounded-xl mb-6">
                             
                             <div class="flex justify-end gap-3">
                                 <button type="button" @click="showImportModal = false" class="px-5 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-zinc-800 rounded-xl transition-colors">Batal</button>

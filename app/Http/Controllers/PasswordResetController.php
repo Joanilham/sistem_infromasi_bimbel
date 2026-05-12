@@ -41,6 +41,7 @@ class PasswordResetController extends Controller
      */
     public function edit(Request $request, $token)
     {
+        /** @phpstan-ignore-next-line */
         return view('auth.reset-password', ['request' => $request]);
     }
 

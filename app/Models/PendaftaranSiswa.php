@@ -31,27 +31,27 @@ class PendaftaranSiswa extends Model
     }
 
 
-    public function paketBimbingan()
+    public function paketBimbingan(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(PaketBimbingan::class, 'paket_bimbingan_id');
     }
 
-    public function kelompokBelajar()
+    public function kelompokBelajar(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(KelompokBelajar::class, 'kelompok_belajar_id');
     }
 
-    public function kantor()
+    public function kantor(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Kantor::class);
     }
 
-    public function periode()
+    public function periode(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Periode::class);
     }
 
-    public function pembayaran()
+    public function pembayaran(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(PembayaranPendaftaran::class);
     }

@@ -10,13 +10,15 @@ class PaketBimbingan extends Model
 
     public function scopeInContext($query)
     {
-        if (session('kantor_id')) {
-            $query->where('kantor_id', session('kantor_id'));
+        $kantorId = session('kantor_id');
+        $periodeId = session('periode_id');
+
+        if (!$kantorId || !$periodeId) {
+            return $query->whereRaw('1 = 0');
         }
-        if (session('periode_id')) {
-            $query->where('periode_id', session('periode_id'));
-        }
-        return $query;
+
+        return $query->where('kantor_id', $kantorId)
+                     ->where('periode_id', $periodeId);
     }
 
     public function kantor()

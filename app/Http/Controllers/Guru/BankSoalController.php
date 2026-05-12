@@ -319,73 +319,237 @@ class BankSoalController extends Controller
     /**
      * Download template CSV untuk import soal
      */
+    /**
+     * Download template Excel untuk import soal
+     */
     public function template()
     {
-        $headers = [
-            'Content-type'        => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="template_import_soal.csv"',
+        $filename = 'Template_Import_Soal_Genius.xls';
+        
+        $columns = ['Mapel_ID', 'Bab_ID', 'Tipe_Soal', 'Kesulitan', 'Pertanyaan', 'Opsi_A', 'Opsi_B', 'Opsi_C', 'Opsi_D', 'Opsi_E', 'Kunci_Jawaban', 'Pembahasan'];
+        
+        // Helper escape XML
+        $x = fn($v) => htmlspecialchars((string) ($v ?? ''), ENT_XML1, 'UTF-8');
+        
+        $xml  = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+        $xml .= '<?mso-application progid="Excel.Sheet"?>' . "\n";
+        $xml .= '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"'
+              . ' xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"'
+              . ' xmlns:o="urn:schemas-microsoft-com:office:office">'  . "\n";
+
+        // Styles
+        $xml .= '<Styles>
+            <Style ss:ID="Default">
+                <Alignment ss:Vertical="Center"/>
+                <Font ss:FontName="Calibri" ss:Size="11"/>
+            </Style>
+            <Style ss:ID="s_head">
+                <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/>
+                <Font ss:FontName="Calibri" ss:Size="10" ss:Bold="1" ss:Color="#FFFFFF"/>
+                <Interior ss:Color="#4F46E5" ss:Pattern="Solid"/>
+                <Borders>
+                    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#3730A3"/>
+                    <Border ss:Position="Right"  ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#3730A3"/>
+                </Borders>
+            </Style>
+            <Style ss:ID="s_info">
+                <Font ss:FontName="Calibri" ss:Size="10" ss:Italic="1" ss:Color="#4B5563"/>
+                <Interior ss:Color="#F3F4F6" ss:Pattern="Solid"/>
+            </Style>
+            <Style ss:ID="s_data">
+                <Alignment ss:Vertical="Top" ss:WrapText="1"/>
+                <Font ss:FontName="Calibri" ss:Size="10"/>
+                <Borders>
+                    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E5E7EB"/>
+                    <Border ss:Position="Right"  ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E5E7EB"/>
+                </Borders>
+            </Style>
+        </Styles>' . "\n";
+
+        $xml .= '<Worksheet ss:Name="Template Import">' . "\n";
+        $xml .= '<Table ss:DefaultRowHeight="18">' . "\n";
+        
+        // Column Widths
+        $widths = [60, 60, 80, 80, 250, 120, 120, 120, 120, 120, 100, 200];
+        foreach ($widths as $w) {
+            $xml .= '<Column ss:Width="' . $w . '"/>' . "\n";
+        }
+
+        // Row 1: Header
+        $xml .= '<Row ss:Height="25">';
+        foreach ($columns as $h) {
+            $xml .= '<Cell ss:StyleID="s_head"><Data ss:Type="String">' . $x($h) . '</Data></Cell>';
+        }
+        $xml .= '</Row>' . "\n";
+
+        // Row 2: Info/Hint
+        $hints = [
+            'Isi ID Mapel', 'Isi ID Bab', 'pg / essay', 'easy/medium/hard', 
+            'Tulis soal di sini', 'Opsi A', 'Opsi B', 'Opsi C', 'Opsi D', 'Opsi E', 
+            'A/B/C/D/E', 'Tulis pembahasan'
+        ];
+        $xml .= '<Row ss:Height="18">';
+        foreach ($hints as $h) {
+            $xml .= '<Cell ss:StyleID="s_info"><Data ss:Type="String">' . $x($h) . '</Data></Cell>';
+        }
+        $xml .= '</Row>' . "\n";
+
+        // Row 3: Example Data
+        $xml .= '<Row ss:Height="40">';
+        $xml .= '<Cell ss:StyleID="s_data"><Data ss:Type="String"></Data></Cell>';
+        $xml .= '<Cell ss:StyleID="s_data"><Data ss:Type="String"></Data></Cell>';
+        $xml .= '<Cell ss:StyleID="s_data"><Data ss:Type="String">pg</Data></Cell>';
+        $xml .= '<Cell ss:StyleID="s_data"><Data ss:Type="String">medium</Data></Cell>';
+        $xml .= '<Cell ss:StyleID="s_data"><Data ss:Type="String">Berapa hasil dari 1 + 1?</Data></Cell>';
+        $xml .= '<Cell ss:StyleID="s_data"><Data ss:Type="String">1</Data></Cell>';
+        $xml .= '<Cell ss:StyleID="s_data"><Data ss:Type="String">2</Data></Cell>';
+        $xml .= '<Cell ss:StyleID="s_data"><Data ss:Type="String">3</Data></Cell>';
+        $xml .= '<Cell ss:StyleID="s_data"><Data ss:Type="String">4</Data></Cell>';
+        $xml .= '<Cell ss:StyleID="s_data"><Data ss:Type="String">5</Data></Cell>';
+        $xml .= '<Cell ss:StyleID="s_data"><Data ss:Type="String">B</Data></Cell>';
+        $xml .= '<Cell ss:StyleID="s_data"><Data ss:Type="String">Karena penjumlahan 1 dengan 1 hasilnya adalah 2.</Data></Cell>';
+        $xml .= '</Row>' . "\n";
+
+        $xml .= '</Table></Worksheet></Workbook>';
+
+        return response($xml, 200, [
+            'Content-Type'        => 'application/vnd.ms-excel; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
             'Pragma'              => 'no-cache',
             'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
-            'Expires'             => '0'
-        ];
-
-        $columns = ['Mapel_ID', 'Bab_ID', 'Tipe_Soal(pg/essay)', 'Kesulitan(easy/medium/hard)', 'Pertanyaan', 'Opsi_A', 'Opsi_B', 'Opsi_C', 'Opsi_D', 'Opsi_E', 'Kunci_Jawaban(A/B/C/D/E)', 'Pembahasan'];
-
-        $callback = function() use($columns) {
-            $file = fopen('php://output', 'w');
-            fputcsv($file, $columns);
-            
-            // Contoh data
-            fputcsv($file, ['1', '', 'pg', 'medium', 'Berapa 1+1?', '1', '2', '3', '4', '5', 'B', 'Karena 1+1=2']);
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+            'Expires'             => '0',
+        ]);
     }
 
     /**
      * Import soal dari file CSV
      */
+    /**
+     * Import soal dari file CSV atau XML Excel
+     */
     public function import(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|mimes:csv,txt|max:2048'
+            'file' => 'required|file|max:2048'
         ]);
 
         $file = $request->file('file');
-        $handle = fopen($file->getPathname(), "r");
-        $header = true;
+        $content = file_get_contents($file->getRealPath());
+        $dataRows = [];
 
-        DB::beginTransaction();
-        try {
+        // Deteksi apakah ini XML (Template Baru) atau CSV (Lama)
+        if (str_contains($content, '<?xml') && str_contains($content, 'Workbook')) {
+            // Parsing XML Spreadsheet 2003
+            try {
+                // Gunakan DOMDocument untuk parsing yang lebih stabil terhadap namespace
+                $dom = new \DOMDocument();
+                $dom->loadXML($content);
+                $xpath = new \DOMXPath($dom);
+                $xpath->registerNamespace('ss', 'urn:schemas-microsoft-com:office:spreadsheet');
+                $xpath->registerNamespace('main', 'urn:schemas-microsoft-com:office:spreadsheet');
+
+                // Cari semua baris (Row), coba dengan namespace main atau tanpa namespace
+                $rows = $xpath->query('//ss:Row | //main:Row | //Row');
+                
+                foreach ($rows as $index => $row) {
+                    // Skip header (Baris 1) dan Hint (Baris 2)
+                    if ($index < 2) continue;
+
+                    // Ambil semua Cell dalam Row ini
+                    $cells = $xpath->query('.//ss:Cell | .//main:Cell | .//Cell', $row);
+                    $rowData = array_fill(0, 12, '');
+                    $currentIdx = 0;
+
+                    foreach ($cells as $cell) {
+                        // Cek ss:Index
+                        if ($cell->hasAttributeNS('urn:schemas-microsoft-com:office:spreadsheet', 'Index')) {
+                            $currentIdx = (int)$cell->getAttributeNS('urn:schemas-microsoft-com:office:spreadsheet', 'Index') - 1;
+                        } elseif ($cell->hasAttribute('ss:Index')) {
+                            $currentIdx = (int)$cell->getAttribute('ss:Index') - 1;
+                        }
+
+                        // Ambil isi Data
+                        $dataNodes = $xpath->query('.//ss:Data | .//main:Data | .//Data', $cell);
+                        if ($dataNodes->length > 0) {
+                            $rowData[$currentIdx] = $dataNodes->item(0)->nodeValue;
+                        }
+                        $currentIdx++;
+                    }
+
+                    // Validasi: Harus ada pertanyaan di kolom index 4
+                    if (!empty(trim($rowData[4] ?? ''))) {
+                        $dataRows[] = $rowData;
+                    }
+                }
+            } catch (\Exception $e) {
+                return back()->with('error', 'Gagal membaca format XML: ' . $e->getMessage());
+            }
+        } else {
+            // Parsing CSV
+            $handle = fopen($file->getRealPath(), "r");
+            $header = true;
             while (($row = fgetcsv($handle, 10000, ",")) !== FALSE) {
                 if ($header) {
                     $header = false;
                     continue;
                 }
+                if (count($row) >= 5) {
+                    $dataRows[] = $row;
+                }
+            }
+            fclose($handle);
+        }
 
-                // Pastikan baris memiliki cukup kolom
-                if (count($row) < 5) continue;
+        if (empty($dataRows)) {
+            return back()->with('error', 'Tidak ada data valid yang ditemukan di dalam file.');
+        }
 
-                $mapel_id = $row[0];
-                $bab_id = $row[1] ?: null;
-                $tipe_soal = strtolower($row[2]);
-                $kesulitan = strtolower($row[3]);
-                $pertanyaan = $row[4];
-                $opsi = [$row[5] ?? '', $row[6] ?? '', $row[7] ?? '', $row[8] ?? '', $row[9] ?? ''];
-                $kunci = strtoupper($row[10] ?? 'A');
+        DB::beginTransaction();
+        try {
+            foreach ($dataRows as $row) {
+                $mapel_id   = $row[0] ?? null;
+                $bab_id     = $row[1] ?? null;
+                $tipe_soal  = strtolower($row[2] ?? 'pg');
+                $kesulitan  = strtolower($row[3] ?? 'medium');
+                $pertanyaan = $row[4] ?? '';
+                $opsi       = [
+                    $row[5] ?? '', 
+                    $row[6] ?? '', 
+                    $row[7] ?? '', 
+                    $row[8] ?? '', 
+                    $row[9] ?? ''
+                ];
+                $kunci      = strtoupper($row[10] ?? 'A');
                 $pembahasan = $row[11] ?? null;
 
                 if (empty(trim($pertanyaan))) continue;
 
+                // Validasi Mapel_ID dan Bab_ID agar tidak terjadi Foreign Key error
+                $finalMapelId = null;
+                if (!empty($mapel_id) && is_numeric($mapel_id)) {
+                    // Cek langsung ke database untuk menghindari masalah scope
+                    $exists = \Illuminate\Support\Facades\DB::table('cbt_mapels')->where('id', $mapel_id)->exists();
+                    if ($exists) {
+                        $finalMapelId = $mapel_id;
+                    }
+                }
+
+                $finalBabId = null;
+                if (!empty($bab_id) && is_numeric($bab_id)) {
+                    $exists = \Illuminate\Support\Facades\DB::table('cbt_babs')->where('id', $bab_id)->exists();
+                    if ($exists) {
+                        $finalBabId = $bab_id;
+                    }
+                }
+
                 $soal = CbtBankSoal::create([
-                    'cbt_mapel_id' => $mapel_id ?: null,
-                    'cbt_bab_id' => $bab_id ?: null,
-                    'tipe_soal' => in_array($tipe_soal, ['pg', 'essay']) ? $tipe_soal : 'pg',
+                    'cbt_mapel_id'      => $finalMapelId,
+                    'cbt_bab_id'        => $finalBabId,
+                    'tipe_soal'         => in_array($tipe_soal, ['pg', 'essay']) ? $tipe_soal : 'pg',
                     'tingkat_kesulitan' => in_array($kesulitan, ['easy', 'medium', 'hard']) ? $kesulitan : 'medium',
-                    'pertanyaan' => $pertanyaan,
-                    'status' => 'published',
-                    'created_by' => Auth::id()
+                    'pertanyaan'        => $pertanyaan,
+                    'status'            => 'published',
+                    'created_by'        => Auth::id()
                 ]);
 
                 if ($soal->tipe_soal === 'pg') {
@@ -396,8 +560,8 @@ class BankSoalController extends Controller
                         if (empty(trim($teks_opsi))) continue;
                         CbtOpsiJawaban::create([
                             'cbt_bank_soal_id' => $soal->id,
-                            'teks_opsi' => $teks_opsi,
-                            'is_benar' => ($idx === $kunciIdx)
+                            'teks_opsi'        => $teks_opsi,
+                            'is_benar'         => ($idx === $kunciIdx)
                         ]);
                     }
                 }
@@ -405,14 +569,12 @@ class BankSoalController extends Controller
                 if (!empty(trim($pembahasan))) {
                     CbtPembahasan::create([
                         'cbt_bank_soal_id' => $soal->id,
-                        'teks_pembahasan' => $pembahasan
+                        'teks_pembahasan'  => $pembahasan
                     ]);
                 }
             }
-            fclose($handle);
             DB::commit();
-
-            return redirect()->route('guru.bank-soal.index')->with('success', 'Soal berhasil diimport.');
+            return redirect()->route('guru.bank-soal.index')->with('success', count($dataRows) . ' Soal berhasil diimport.');
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->route('guru.bank-soal.index')->with('error', 'Gagal mengimport soal: ' . $e->getMessage());

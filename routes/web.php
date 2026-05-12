@@ -21,7 +21,7 @@ Route::post('/login', [AuthController::class, 'authenticate'])->middleware('thro
 // Lupa Password
 Route::middleware('guest')->group(function () {
     Route::get('/forgot-password', [\App\Http\Controllers\PasswordResetController::class, 'create'])->name('password.request');
-    Route::post('/forgot-password', [\App\Http\Controllers\PasswordResetController::class, 'store'])->name('password.email');
+    Route::post('/forgot-password', [\App\Http\Controllers\PasswordResetController::class, 'store'])->name('password.email')->middleware('throttle:5,1');
     Route::get('/reset-password/{token}', [\App\Http\Controllers\PasswordResetController::class, 'edit'])->name('password.reset');
     Route::post('/reset-password', [\App\Http\Controllers\PasswordResetController::class, 'update'])->name('password.store');
 });
@@ -65,13 +65,26 @@ Route::middleware('auth')->group(function () {
             $kantorId = session('kantor_id');
             $periodeId = session('periode_id');
 
+            // Data Peserta Baru (7 Hari Terakhir)
+            $listPesertaBaru = \Illuminate\Support\Facades\Cache::remember("dash_list_peserta_baru_{$kantorId}_{$periodeId}", 3600, function() {
+                return \App\Models\PesertaDidik::aktif()->inContext()
+                    ->where('created_at', '>=', now()->subDays(7))
+                    ->select('id', 'nama_lengkap', 'asal_sekolah', 'created_at')
+                    ->latest()
+                    ->get();
+            });
+
+            // Data Peserta Keluar
+            $listPesertaKeluar = \Illuminate\Support\Facades\Cache::remember("dash_list_peserta_keluar_{$kantorId}_{$periodeId}", 3600, function() {
+                return \App\Models\PesertaDidik::keluar()->inContext()
+                    ->select('id', 'nama_lengkap', 'asal_sekolah', 'tanggal_keluar')
+                    ->latest('tanggal_keluar')
+                    ->get();
+            });
+
             $totalPesertaAktif = \Illuminate\Support\Facades\Cache::rememberForever("dash_total_peserta_{$kantorId}_{$periodeId}", fn() => \App\Models\PesertaDidik::aktif()->inContext()->count());
-            $pesertaBaru7Hari  = \Illuminate\Support\Facades\Cache::rememberForever("dash_peserta_baru_{$kantorId}_{$periodeId}", fn() => \App\Models\PesertaDidik::aktif()->inContext()
-                ->where('created_at', '>=', now()->subDays(7))
-                ->count());
-            $pesertaKeluar     = \Illuminate\Support\Facades\Cache::rememberForever("dash_peserta_keluar_{$kantorId}_{$periodeId}", fn() => \App\Models\PesertaDidik::keluar()->inContext()->count());
             $totalPaketAktif   = \Illuminate\Support\Facades\Cache::rememberForever("dash_total_paket_{$kantorId}_{$periodeId}", fn() => \App\Models\PaketBimbingan::inContext()->count());
-            $totalTenagaPengajar = \App\Models\User::where('level', 'guru')->count();
+            $totalTenagaPengajar = \App\Models\User::where('level', 'guru')->inContext()->count();
 
             $selectedKantor  = session('kantor_id')  ? Kantor::find(session('kantor_id'))  : null;
             $selectedPeriode = session('periode_id') ? Periode::find(session('periode_id')) : null;
@@ -79,8 +92,6 @@ Route::middleware('auth')->group(function () {
             $kantors  = \Illuminate\Support\Facades\Cache::remember('dash_kantors', 60, fn() => Kantor::all());
             $periodes = \Illuminate\Support\Facades\Cache::remember('dash_periodes', 60, fn() => Periode::all());
 
-            // ── Panel Pesan: data notifikasi untuk admin/staff ──
-            // Filter berdasarkan kantor yang sedang dipilih jika ada
             $pendaftaranMenunggu = \App\Models\PendaftaranSiswa::where('status', 'menunggu')
                 ->when($kantorId, fn($q) => $q->where('kantor_id', $kantorId))
                 ->count();
@@ -92,8 +103,8 @@ Route::middleware('auth')->group(function () {
 
             return view('dashboard', compact(
                 'totalPesertaAktif',
-                'pesertaBaru7Hari',
-                'pesertaKeluar',
+                'listPesertaBaru',
+                'listPesertaKeluar',
                 'totalPaketAktif',
                 'totalTenagaPengajar',
                 'selectedKantor',
@@ -237,8 +248,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/ujian/{id}', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'show'])->name('ujian.show');
         Route::post('/ujian/{id}/mulai', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'mulai'])->name('ujian.mulai');
         Route::get('/ujian/{id}/soal/{no}', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'soal'])->name('ujian.soal');
-        Route::post('/ujian/{id}/jawab', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'simpanJawaban'])->name('ujian.jawab');
-        Route::post('/ujian/{id}/log-blur', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'logBlur'])->name('ujian.log-blur');
+        Route::post('/ujian/{id}/jawab', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'simpanJawaban'])->name('ujian.jawab')->middleware('throttle:60,1');
+        Route::post('/ujian/{id}/log-blur', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'logBlur'])->name('ujian.log-blur')->middleware('throttle:20,1');
         Route::post('/ujian/{id}/submit', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'submit'])->name('ujian.submit');
         Route::get('/ujian/{id}/hasil', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'hasil'])->name('ujian.hasil');
         // ── Nilai / Hasil ──

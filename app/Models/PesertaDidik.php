@@ -5,6 +5,37 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 
+/**
+ * @property int $id
+ * @property string $nama_lengkap
+ * @property string $nisn
+ * @property string $jenis_kelamin
+ * @property string|null $tempat_lahir
+ * @property \Illuminate\Support\Carbon|null $tanggal_lahir
+ * @property string|null $agama
+ * @property string|null $alamat_lengkap
+ * @property string $asal_sekolah
+ * @property string|null $no_telepon
+ * @property string|null $nama_ayah
+ * @property string|null $nama_ibu
+ * @property string|null $pekerjaan_ayah
+ * @property string|null $pekerjaan_ibu
+ * @property string|null $no_telepon_ayah
+ * @property string|null $no_telepon_ibu
+ * @property string|null $informasi_dari
+ * @property int $paket_bimbingan_id
+ * @property int|null $kelompok_belajar_id
+ * @property string $status
+ * @property int|null $total_hadir
+ * @property int|null $total_izin
+ * @property int|null $total_sakit
+ * @property int|null $total_alpha
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * 
+ * @property-read \App\Models\User|null $user
+ * @property-read \App\Models\KelompokBelajar|null $kelompokBelajar
+ */
 class PesertaDidik extends Model
 {
     protected $fillable = [
@@ -45,13 +76,18 @@ class PesertaDidik extends Model
      */
     public function scopeInContext(Builder $query): Builder
     {
-        if (session('kantor_id')) {
-            $query->where('kantor_id', session('kantor_id'));
+        $kantorId = session('kantor_id');
+        $periodeId = session('periode_id');
+
+        // Jika tidak ada konteks di session, jangan tampilkan data apapun untuk keamanan
+        // Kecuali jika memang sistem didesain untuk melihat data global (biasanya Super Admin)
+        // Namun sesuai permintaan User, kita harus isolasi ketat.
+        if (!$kantorId || !$periodeId) {
+            return $query->whereRaw('1 = 0'); 
         }
-        if (session('periode_id')) {
-            $query->where('periode_id', session('periode_id'));
-        }
-        return $query;
+
+        return $query->where('kantor_id', $kantorId)
+                     ->where('periode_id', $periodeId);
     }
 
     /**
@@ -71,22 +107,22 @@ class PesertaDidik extends Model
     }
 
     // ─── Relationships ─────────────────────────────────────────────
-    public function kantor()
+    public function kantor(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Kantor::class);
     }
 
-    public function periode()
+    public function periode(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Periode::class);
     }
 
-    public function paketBimbingan()
+    public function paketBimbingan(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(PaketBimbingan::class, 'paket_bimbingan_id');
     }
 
-    public function kelompokBelajar()
+    public function kelompokBelajar(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(KelompokBelajar::class, 'kelompok_belajar_id');
     }

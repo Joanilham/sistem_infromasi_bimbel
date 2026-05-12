@@ -3,17 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>QR Absensi — {{ $peserta->nama_lengkap }}</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         :root {
-            --primary: #4318FF;
-            --primary-light: #F4F7FE;
-            --secondary: #E9EDF7;
-            --text-main: #2B3674;
-            --text-muted: #A3AED0;
-            --bg-body: #F4F7FE;
+            --primary: #388782;
+            --primary-light: #e6f4f2;
+            --secondary: #dbecea;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --bg-body: #f8fafc;
             --white: #FFFFFF;
             --danger: #EE5D50;
             --success: #01B574;
@@ -296,7 +298,7 @@ function buildQr(content) {
         text:           content,
         width:          200,
         height:         200,
-        colorDark:      '#2B3674', /* Matches text-main */
+        colorDark:      '#0f172a',
         colorLight:     '#ffffff',
         correctLevel:   QRCode.CorrectLevel.H
     });

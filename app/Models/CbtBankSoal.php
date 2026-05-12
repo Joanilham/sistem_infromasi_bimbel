@@ -5,6 +5,27 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @property int $id
+ * @property int|null $cbt_mapel_id
+ * @property int|null $cbt_bab_id
+ * @property string $tipe_soal
+ * @property string $tingkat_kesulitan
+ * @property array|null $tags
+ * @property string $pertanyaan
+ * @property string|null $file_media
+ * @property string|null $tipe_media
+ * @property string $status
+ * @property int $versi
+ * @property int|null $created_by
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * 
+ * @property-read \App\Models\CbtMapel|null $mapel
+ * @property-read \App\Models\CbtBab|null $bab
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\CbtOpsiJawaban[] $opsiJawabans
+ */
 class CbtBankSoal extends Model
 {
     use SoftDeletes;
@@ -17,32 +38,32 @@ class CbtBankSoal extends Model
     ];
 
     // ─── Relationships ─────────────────────────────────────────────
-    public function mapel()
+    public function mapel(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(CbtMapel::class, 'cbt_mapel_id');
     }
 
-    public function bab()
+    public function bab(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(CbtBab::class, 'cbt_bab_id');
     }
 
-    public function opsiJawabans()
+    public function opsiJawabans(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(CbtOpsiJawaban::class, 'cbt_bank_soal_id');
     }
 
-    public function pembahasan()
+    public function pembahasan(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(CbtPembahasan::class, 'cbt_bank_soal_id');
     }
 
-    public function creator()
+    public function creator(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    public function ujianSoals()
+    public function ujianSoals(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(CbtUjianSoal::class, 'cbt_bank_soal_id');
     }

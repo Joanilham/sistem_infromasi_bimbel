@@ -90,10 +90,61 @@
         .header-mobile-brand { display: flex; align-items: center; gap: 8px; font-size: 1.1rem; font-weight: 800; color: var(--text-main); text-decoration: none; }
         .header-mobile-brand svg { width: 22px; height: 22px; color: var(--primary); }
         .header-avatar {
-            width: 36px; height: 36px; border-radius: 50%;
+            width: 40px; height: 40px; border-radius: 50%;
             background: linear-gradient(135deg, var(--primary), #8F9BFA);
             color: white; display: flex; align-items: center; justify-content: center;
-            font-weight: 700; font-size: 0.85rem;
+            font-weight: 700; font-size: 0.8rem;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .header-avatar:focus-visible {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 24, 255, 0.25);
+        }
+        .profile-popover {
+            position: absolute;
+            right: 0;
+            top: calc(100% + 10px);
+            min-width: 220px;
+            background: var(--white);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 16px 48px rgba(15, 23, 42, 0.12);
+            z-index: 60;
+            overflow: hidden;
+        }
+        @media (prefers-color-scheme: dark) {
+            .profile-popover {
+                box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
+            }
+        }
+        .profile-popover-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            font-family: inherit;
+            color: var(--text-main);
+            text-decoration: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            text-align: left;
+            transition: background 0.15s;
+        }
+        .profile-popover-item:hover {
+            background: var(--primary-light);
+        }
+        .profile-popover-item.danger {
+            color: var(--danger);
+        }
+        .profile-popover-item.danger:hover {
+            background: rgba(238, 93, 80, 0.12);
         }
 
         /* Content wrap */
@@ -159,21 +210,10 @@
                     Nilai Saya
                 </a>
             </li>
-            <li>
-                <a href="{{ route('siswa.profile.edit') }}" class="sidebar-link {{ request()->routeIs('siswa.profile.*') ? 'active' : '' }}">
-                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                    Profil Saya
-                </a>
-            </li>
         </ul>
-        <div class="sidebar-footer">
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit" style="width:100%;display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(238, 93, 80, 0.1);color:var(--danger);border:none;border-radius:12px;font-weight:700;font-family:inherit;cursor:pointer;font-size:0.9rem;transition: background 0.2s;">
-                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-                    Logout
-                </button>
-            </form>
+        <div class="sidebar-footer mt-auto pt-4 px-1">
+            <p class="text-[10px] font-bold uppercase tracking-wider mb-2" style="color: var(--sidebar-text); opacity: 0.75;">Akun</p>
+            <p class="text-xs leading-snug mb-1" style="color: rgba(255,255,255,0.9);">Profil &amp; logout ada di menu foto pojok kanan atas.</p>
         </div>
     </aside>
 
@@ -196,16 +236,59 @@
                 </a>
             </div>
             
-            <div style="display: flex; align-items: center; gap: 16px;">
-                <div class="hidden lg:flex flex-col items-end mr-2">
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Status Siswa</span>
-                    <span class="text-xs font-bold text-slate-700 dark:text-slate-200">Aktif • {{ Auth::user()->pesertaDidik->kelompokBelajar->nama ?? 'Umum' }}</span>
+            <div class="flex items-center gap-3 sm:gap-4 relative" x-data="{ profileOpen: false }">
+                <div class="hidden lg:flex flex-col items-end mr-1">
+                    <span class="text-[10px] font-bold uppercase tracking-wider" style="color: var(--text-muted);">Status Siswa</span>
+                    <span class="text-xs font-bold" style="color: var(--text-main);">Aktif • {{ Auth::user()->pesertaDidik?->kelompokBelajar?->nama_kelompok ?? 'Umum' }}</span>
                 </div>
-                @if(Auth::user() && Auth::user()->photo)
-                    <img src="{{ asset('storage/' . Auth::user()->photo) }}" alt="Avatar" class="header-avatar" style="object-fit: cover;">
-                @else
-                    <div class="header-avatar">{{ strtoupper(substr(Auth::user()->name ?? 'S', 0, 2)) }}</div>
-                @endif
+                <button
+                    type="button"
+                    id="siswa-profile-trigger"
+                    @click="profileOpen = !profileOpen"
+                    @keydown.escape.window="profileOpen = false"
+                    class="shrink-0 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#4318FF] dark:focus-visible:ring-offset-[#080E29]"
+                    :aria-expanded="profileOpen"
+                    aria-haspopup="true"
+                    aria-label="Menu akun"
+                >
+                    @if(Auth::user() && Auth::user()->photo)
+                        <img src="{{ asset('storage/' . Auth::user()->photo) }}" alt="" class="header-avatar" width="40" height="40" style="object-fit: cover;">
+                    @else
+                        <div class="header-avatar">{{ strtoupper(substr(Auth::user()->name ?? 'S', 0, 2)) }}</div>
+                    @endif
+                </button>
+
+                {{-- Popup akun (klik foto) --}}
+                <div
+                    x-show="profileOpen"
+                    x-transition:enter="transition ease-out duration-150"
+                    x-transition:enter-start="opacity-0 translate-y-1 scale-95"
+                    x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                    x-transition:leave="transition ease-in duration-100"
+                    x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                    x-transition:leave-end="opacity-0 translate-y-1 scale-95"
+                    @click.outside="profileOpen = false"
+                    class="profile-popover"
+                    x-cloak
+                    role="menu"
+                    aria-label="Menu akun pengguna"
+                >
+                    <div class="px-4 py-3 border-b" style="border-color: var(--border-color);">
+                        <p class="text-xs font-bold truncate" style="color: var(--text-muted);">{{ Auth::user()->email }}</p>
+                        <p class="text-sm font-extrabold truncate mt-0.5" style="color: var(--text-main);">{{ Auth::user()->name }}</p>
+                    </div>
+                    <a href="{{ route('siswa.profile.edit') }}" class="profile-popover-item" role="menuitem" @click="profileOpen = false">
+                        <svg class="w-5 h-5 shrink-0 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                        Edit profil
+                    </a>
+                    <form method="POST" action="{{ route('logout') }}" role="none">
+                        @csrf
+                        <button type="submit" class="profile-popover-item danger w-full" role="menuitem">
+                            <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                            Logout
+                        </button>
+                    </form>
+                </div>
             </div>
         </header>
 
