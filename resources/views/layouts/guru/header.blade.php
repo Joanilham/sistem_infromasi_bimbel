@@ -21,7 +21,7 @@
                         @if(auth()->user() && auth()->user()->photo)
                             <img src="{{ asset('storage/' . auth()->user()->photo) }}" alt="Profile" class="w-[26px] h-[26px] rounded-full object-cover">
                         @else
-                            <div class="w-[26px] h-[26px] rounded-full bg-indigo-100 dark:bg-indigo-600 flex items-center justify-center text-indigo-700 dark:text-white font-bold text-xs">
+                            <div class="w-[26px] h-[26px] rounded-full bg-[#A2D5CB] dark:bg-[#388782] flex items-center justify-center text-[#388782] dark:text-white font-bold text-xs">
                                 {{ substr(auth()->user()->name ?? 'G', 0, 1) }}
                             </div>
                         @endif
@@ -46,8 +46,8 @@
                             <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Akun Saya</p>
                         </div>
 
-                        <a href="{{ route('guru.profile.edit') }}" class="flex items-center px-4 py-2.5 text-sm text-slate-700 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-700 hover:text-indigo-600 transition-colors">
-                            <svg class="mr-3 w-4 h-4 text-slate-400 group-hover:text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <a href="{{ route('guru.profile.edit') }}" class="flex items-center px-4 py-2.5 text-sm text-slate-700 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-700 hover:text-[#388782] transition-colors">
+                            <svg class="mr-3 w-4 h-4 text-slate-400 group-hover:text-[#388782]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                             </svg>
                             Edit Profile

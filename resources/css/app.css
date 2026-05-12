@@ -42,11 +42,19 @@
         --text-primary: #0f172a;
         --text-secondary: #475569;
         --text-muted: #94a3b8;
-        --primary: #6366f1;
-        --primary-hover: #4f46e5;
+        --primary: #388782;
+        --primary-hover: #206D6C;
         --success: #10b981;
         --danger: #ef4444;
         --warning: #f59e0b;
+        /* Teal Color Palette */
+        --teal-50: #A2D5CB;
+        --teal-100: #78BBB0;
+        --teal-200: #55A199;
+        --teal-600: #388782;
+        --teal-700: #206D6C;
+        --teal-800: #0F5253;
+        --teal-900: #043639;
     }
 
     .dark {
@@ -56,8 +64,8 @@
         --text-primary: #f8fafc;
         --text-secondary: #cbd5e1;
         --text-muted: #64748b;
-        --primary: #818cf8;
-        --primary-hover: #6366f1;
+        --primary: #78BBB0;
+        --primary-hover: #55A199;
     }
 
     body {
