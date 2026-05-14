@@ -9,7 +9,15 @@ use App\Models\Periode;
 
 Route::get('/', function () {
     $masterData = \App\Models\Master::first();
-    return view('welcome', compact('masterData'));
+    $pakets = \App\Models\PaketBimbingan::where('is_featured', true)->orderBy('urutan')->get();
+    if($pakets->isEmpty()) {
+        $pakets = \App\Models\PaketBimbingan::orderBy('urutan')->limit(3)->get();
+    }
+    $testimonials = \App\Models\Testimonial::where('is_active', true)->latest()->get();
+    $faqs = \App\Models\Faq::where('is_active', true)->orderBy('urutan')->get();
+    $galleries = \App\Models\Gallery::orderBy('urutan')->get();
+
+    return view('welcome', compact('masterData', 'pakets', 'testimonials', 'faqs', 'galleries'));
 })->name('welcome');
 
 Route::get('/login', function () {
@@ -101,6 +109,13 @@ Route::middleware('auth')->group(function () {
                 )
                 ->count();
 
+            // Lead Tracking: 10 Pendaftar Terbaru
+            $recentPendaftaran = \App\Models\PendaftaranSiswa::with(['paketBimbingan', 'pembayaran'])
+                ->when($kantorId, fn($q) => $q->where('kantor_id', $kantorId))
+                ->latest()
+                ->limit(10)
+                ->get();
+
             return view('dashboard', compact(
                 'totalPesertaAktif',
                 'listPesertaBaru',
@@ -112,7 +127,8 @@ Route::middleware('auth')->group(function () {
                 'kantors',
                 'periodes',
                 'pendaftaranMenunggu',
-                'pembayaranBelumDikonfirmasi'
+                'pembayaranBelumDikonfirmasi',
+                'recentPendaftaran'
             ));
         })->name('dashboard');
 
@@ -142,6 +158,18 @@ Route::middleware('auth')->group(function () {
             Route::get('/admin/pendaftaran', [App\Http\Controllers\PendaftaranController::class, 'adminIndex'])->name('admin.pendaftaran.index');
             Route::get('/admin/pendaftaran/{pendaftaran}', [App\Http\Controllers\PendaftaranController::class, 'adminShow'])->name('admin.pendaftaran.show');
             Route::post('/admin/pendaftaran/{pendaftaran}/verifikasi', [App\Http\Controllers\PendaftaranController::class, 'adminVerifikasi'])->name('admin.pendaftaran.verifikasi');
+
+            // Landing Page Management
+            Route::get('/admin/landing-page', [\App\Http\Controllers\Admin\LandingPageController::class, 'index'])->name('admin.landing-page.index');
+            Route::post('/admin/landing-page/general', [\App\Http\Controllers\Admin\LandingPageController::class, 'updateGeneral'])->name('admin.landing-page.update-general');
+            Route::post('/admin/landing-page/testimonial', [\App\Http\Controllers\Admin\LandingPageController::class, 'storeTestimonial'])->name('admin.landing-page.testimonial.store');
+            Route::delete('/admin/landing-page/testimonial/{testimonial}', [\App\Http\Controllers\Admin\LandingPageController::class, 'destroyTestimonial'])->name('admin.landing-page.testimonial.destroy');
+            Route::post('/admin/landing-page/faq', [\App\Http\Controllers\Admin\LandingPageController::class, 'storeFaq'])->name('admin.landing-page.faq.store');
+            Route::delete('/admin/landing-page/faq/{faq}', [\App\Http\Controllers\Admin\LandingPageController::class, 'destroyFaq'])->name('admin.landing-page.faq.destroy');
+            
+            // Gallery
+            Route::post('/admin/landing-page/gallery', [\App\Http\Controllers\Admin\LandingPageController::class, 'storeGallery'])->name('admin.landing-page.gallery.store');
+            Route::delete('/admin/landing-page/gallery/{gallery}', [\App\Http\Controllers\Admin\LandingPageController::class, 'destroyGallery'])->name('admin.landing-page.gallery.destroy');
         });
 
         // ----------------------------------------------------------
@@ -184,6 +212,8 @@ Route::middleware('auth')->group(function () {
             Route::delete('/admin/jadwal/{id}', [\App\Http\Controllers\Admin\JadwalController::class, 'destroy'])->name('admin.jadwal.destroy');
             Route::get('/admin/jadwal/konflik', [\App\Http\Controllers\Admin\JadwalController::class, 'konflik'])->name('admin.jadwal.konflik');
             Route::post('/admin/jadwal/duplikasi', [\App\Http\Controllers\Admin\JadwalController::class, 'duplikasi'])->name('admin.jadwal.duplikasi');
+
+
         });
     });
 
@@ -257,5 +287,7 @@ Route::middleware('auth')->group(function () {
 
         // ── Jadwal Siswa ──
         Route::get('/jadwal', [\App\Http\Controllers\Siswa\JadwalController::class, 'index'])->name('jadwal.index');
+
+
     });
 });

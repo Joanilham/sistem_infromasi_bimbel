@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Storage;
 
 class MasterController extends Controller
 {
+    use \App\Traits\HandlesImageUpload;
+
     public function index()
     {
         $master = Master::first() ?? new Master();
@@ -22,32 +24,37 @@ class MasterController extends Controller
             'wa_url'         => 'nullable|url|max:255',
             'instance_id'    => 'nullable|string|max:255',
             'wa_token'       => 'nullable|string|max:255',
-            'api_key'  => 'nullable|string|max:255',
-            'logo'           => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'api_key'        => 'nullable|string|max:255',
+            'logo'           => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
-        $master = Master::first() ?? new Master();
+        try {
+            $master = Master::first() ?? new Master();
 
-        $master->nama_lembaga   = array_key_exists('nama_lembaga', $validated) ? $validated['nama_lembaga'] : $master->nama_lembaga;
-        $master->alamat_lembaga = array_key_exists('alamat_lembaga', $validated) ? $validated['alamat_lembaga'] : $master->alamat_lembaga;
-        $master->wa_url         = array_key_exists('wa_url', $validated) ? $validated['wa_url'] : $master->wa_url;
-        $master->instance_id    = array_key_exists('instance_id', $validated) ? $validated['instance_id'] : $master->instance_id;
-        $master->wa_token       = array_key_exists('wa_token', $validated) ? $validated['wa_token'] : $master->wa_token;
-        $master->api_key  = array_key_exists('api_key', $validated) ? $validated['api_key'] : $master->_api_key;
+            $master->nama_lembaga   = $validated['nama_lembaga'] ?? $master->nama_lembaga;
+            $master->alamat_lembaga = $validated['alamat_lembaga'] ?? $master->alamat_lembaga;
+            $master->wa_url         = $validated['wa_url'] ?? $master->wa_url;
+            $master->instance_id    = $validated['instance_id'] ?? $master->instance_id;
+            $master->wa_token       = $validated['wa_token'] ?? $master->wa_token;
+            $master->api_key        = $validated['api_key'] ?? $master->api_key;
 
-        if ($request->hasFile('logo')) {
-            // Hapus logo lama jika ada
-            if ($master->logo && Storage::disk('public')->exists($master->logo)) {
-                Storage::disk('public')->delete($master->logo);
+            if ($request->hasFile('logo')) {
+                // Hapus logo lama jika ada
+                if ($master->logo) {
+                    Storage::disk('public')->delete($master->logo);
+                }
+
+                // Kompres dan simpan logo baru
+                $master->logo = $this->compressAndStore($request->file('logo'), 'logos', 80);
             }
 
-            $path = $request->file('logo')->store('logos', 'public');
-            $master->logo = $path;
+            $master->save();
+
+            return redirect()->route('master.index')->with('success', 'Data Master berhasil diperbarui.');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Master Update Error: ' . $e->getMessage());
+            return back()->withInput()->with('error', 'Terjadi kesalahan sistem saat memperbarui data master.');
         }
-
-        $master->save();
-
-        return redirect()->route('master.index')->with('success', 'Data Master berhasil diperbarui.');
     }
 
     public function testWhatsApp(Request $request)

@@ -89,15 +89,20 @@ class PesertaDidikController extends Controller
       'nisn.digits'           => 'NISN harus tepat 10 digit angka.',
     ]);
 
-    PesertaDidik::create($validated + [
-        'status' => 'Aktif',
-        'kantor_id' => session('kantor_id'),
-        'periode_id' => session('periode_id')
-    ]);
+    try {
+      PesertaDidik::create($validated + [
+          'status' => 'Aktif',
+          'kantor_id' => session('kantor_id'),
+          'periode_id' => session('periode_id')
+      ]);
 
-    $this->clearPesertaCache();
+      $this->clearPesertaCache();
 
-    return redirect()->route('peserta-didik.index')->with('success', 'Data Peserta Didik berhasil ditambahkan!');
+      return redirect()->route('peserta-didik.index')->with('success', 'Data Peserta Didik berhasil ditambahkan!');
+    } catch (\Exception $e) {
+      \Illuminate\Support\Facades\Log::error('Student Store Error: ' . $e->getMessage());
+      return back()->withInput()->with('error', 'Terjadi kesalahan sistem saat menambahkan data siswa.');
+    }
   }
 
   /**
@@ -153,11 +158,14 @@ class PesertaDidikController extends Controller
       $validated['alasan_keluar']  = null;
     }
 
-    $pesertaDidik->update($validated);
-
-    $this->clearPesertaCache();
-
-    return redirect()->route('peserta-didik.index')->with('success', 'Data Peserta Didik berhasil diperbarui!');
+    try {
+      $pesertaDidik->update($validated);
+      $this->clearPesertaCache();
+      return redirect()->route('peserta-didik.index')->with('success', 'Data Peserta Didik berhasil diperbarui!');
+    } catch (\Exception $e) {
+      \Illuminate\Support\Facades\Log::error('Student Update Error: ' . $e->getMessage());
+      return back()->withInput()->with('error', 'Terjadi kesalahan sistem saat memperbarui data siswa.');
+    }
   }
 
   /**

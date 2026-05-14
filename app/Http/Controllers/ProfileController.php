@@ -6,9 +6,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use App\Traits\HandlesImageUpload;
 
 class ProfileController extends Controller
 {
+    use HandlesImageUpload;
     /**
      * Tampilkan form edit profil untuk Administrator & Staff.
      */
@@ -50,19 +52,28 @@ class ProfileController extends Controller
         // Handle photo upload
         if ($request->hasFile('photo')) {
             $request->validate([
-                'photo' => ['image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
+                'photo' => ['image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
+            ], [
+                'photo.image' => 'File yang diunggah harus berupa gambar.',
+                'photo.mimes' => 'Format gambar hanya diperbolehkan: JPG, JPEG, PNG, WEBP.',
+                'photo.max'   => 'Ukuran gambar maksimal adalah 5MB.',
             ]);
 
-            // Delete old photo if exists
-            if ($user->photo && Storage::disk('public')->exists($user->photo)) {
-                Storage::disk('public')->delete($user->photo);
+            try {
+                // Delete old photo if exists
+                if ($user->photo && Storage::disk('public')->exists($user->photo)) {
+                    Storage::disk('public')->delete($user->photo);
+                }
+
+                $path = $this->compressAndStore($request->file('photo'), 'profile-photos');
+                $user->photo = $path;
+                $user->save();
+
+                return back()->with('success', 'Foto profil berhasil diperbarui!');
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Profile Photo Update Error: ' . $e->getMessage());
+                return back()->with('error', 'Terjadi kesalahan sistem saat memperbarui foto profil.');
             }
-
-            $path = $request->file('photo')->store('profile-photos', 'public');
-            $user->photo = $path;
-            $user->save();
-
-            return back()->with('success', 'Foto profil berhasil diperbarui!');
         }
 
         // Handle photo removal
@@ -100,8 +111,12 @@ class ProfileController extends Controller
 
         // KEAMANAN: pastikan field sensitif tidak bisa diubah via form
         // 'level' dan 'is_active' tidak pernah disentuh di sini
-        $user->save();
-
-        return back()->with('success', $pesan);
+        try {
+            $user->save();
+            return back()->with('success', $pesan);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Profile Update Error: ' . $e->getMessage());
+            return back()->with('error', 'Terjadi kesalahan saat menyimpan perubahan profil.');
+        }
     }
 }
