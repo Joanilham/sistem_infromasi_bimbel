@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="no-scrollbar">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,160 +12,224 @@
         *, *::before, *::after { box-sizing: border-box; }
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: #F4F7FE;
+            background: #F8FAFC;
             min-height: 100vh;
             margin: 0;
-            user-select: none; /* Anti copy-paste */
+            user-select: none;
+            color: #1E293B;
         }
 
-        /* Timer Bar */
-        #timer-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; }
-        #timer-progress { height: 3px; background: #4318FF; transition: width 1s linear; }
-        #timer-bar.danger #timer-progress { background: #EF4444; }
-        #timer-bar.danger { animation: pulse-bg 1s infinite; }
-        @keyframes pulse-bg {
-            0%, 100% { background: transparent; }
-            50% { background: rgba(239, 68, 68, 0.05); }
+        /* Dark Mode Support */
+        @media (prefers-color-scheme: dark) {
+            body { background: #09090B; color: #F1F5F9; }
+            .bg-white { background-color: #18181B !important; }
+            .border-slate-200 { border-color: #27272A !important; }
+            .text-slate-800 { color: #F1F5F9 !important; }
+            .text-slate-600 { color: #A1A1AA !important; }
         }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Timer Bar */
+        #timer-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 4px; background: rgba(0,0,0,0.05); }
+        #timer-progress { height: 100%; background: #388782; transition: width 1s linear; box-shadow: 0 0 10px rgba(56, 135, 130, 0.5); }
+        #timer-bar.danger #timer-progress { background: #EF4444; box-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
 
         /* Header */
         .exam-header {
-            background: white;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-blur: 12px;
             border-bottom: 1px solid #E2E8F0;
-            padding: 10px 16px;
+            padding: 12px 24px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 12px;
-            margin-top: 3px;
+            gap: 16px;
             position: sticky;
-            top: 3px;
-            z-index: 90;
+            top: 0;
+            z-index: 100;
         }
-        .exam-title { font-size: 0.9rem; font-weight: 700; color: #2B3674; max-width: 40%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        @media (prefers-color-scheme: dark) {
+            .exam-header { background: rgba(24, 24, 27, 0.8); border-color: #27272A; }
+        }
+
+        .exam-title-wrapper { display: flex; flex-direction: column; max-width: 50%; }
+        .exam-label { font-size: 10px; font-weight: 800; text-transform: uppercase; tracking-widest; color: #64748B; margin-bottom: 2px; }
+        .exam-title { font-size: 0.95rem; font-weight: 800; color: #0F172A; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        @media (prefers-color-scheme: dark) { .exam-title { color: #F8FAFC; } }
+
         .timer-display {
-            display: flex; align-items: center; gap: 6px;
-            background: #4318FF; color: white;
-            padding: 6px 12px; border-radius: 20px;
-            font-size: 0.85rem; font-weight: 700;
+            display: flex; align-items: center; gap: 8px;
+            background: #F1F5F9; color: #388782;
+            padding: 8px 16px; border-radius: 16px;
+            font-size: 0.9rem; font-weight: 800; font-variant-numeric: tabular-nums;
+            border: 1px solid #E2E8F0;
         }
-        .timer-display.danger { background: #EF4444; }
+        @media (prefers-color-scheme: dark) { 
+            .timer-display { background: #27272A; color: #5EEAD4; border-color: #3F3F46; } 
+        }
+        .timer-display.danger { background: #FEF2F2; color: #EF4444; border-color: #FEE2E2; animation: pulse-danger 2s infinite; }
+        @keyframes pulse-danger { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+
         .btn-submit {
-            padding: 7px 16px; background: #EF4444; color: white;
-            border: none; border-radius: 10px; font-size: 0.82rem;
-            font-weight: 700; cursor: pointer; font-family: inherit;
-            transition: background 0.2s;
+            padding: 8px 20px; background: #EF4444; color: white;
+            border: none; border-radius: 14px; font-size: 0.85rem;
+            font-weight: 800; cursor: pointer; font-family: inherit;
+            transition: all 0.2s; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
         }
-        .btn-submit:hover { background: #DC2626; }
+        .btn-submit:hover { background: #DC2626; transform: translateY(-1px); box-shadow: 0 6px 16px rgba(239, 68, 68, 0.3); }
 
         /* Layout */
-        .exam-layout { display: flex; min-height: calc(100vh - 50px); }
+        .exam-layout { display: flex; min-height: calc(100vh - 65px); }
 
         /* Sidebar navigator */
         .navigator-panel {
-            width: 240px; background: white; border-right: 1px solid #E2E8F0;
-            padding: 16px; display: none; flex-direction: column; gap: 12px;
-            position: sticky; top: 53px; height: calc(100vh - 53px);
+            width: 300px; background: white; border-right: 1px solid #E2E8F0;
+            padding: 24px; display: none; flex-direction: column; gap: 20px;
+            position: sticky; top: 65px; height: calc(100vh - 65px);
             overflow-y: auto;
         }
-        .navigator-panel h4 { font-size: 0.8rem; font-weight: 700; color: #A3AED0; text-transform: uppercase; letter-spacing: 0.05em; }
-        .nav-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+        @media (prefers-color-scheme: dark) { 
+            .navigator-panel { background: #18181B; border-color: #27272A; } 
+        }
+        .navigator-panel h4 { font-size: 0.75rem; font-weight: 800; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.1em; }
+        .nav-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
         .nav-btn {
-            width: 36px; height: 36px; border-radius: 8px; border: 2px solid #E2E8F0;
-            background: white; font-size: 0.78rem; font-weight: 700; cursor: pointer;
-            transition: all 0.15s; font-family: inherit; color: #2B3674;
+            aspect-ratio: 1; border-radius: 12px; border: 2px solid #F1F5F9;
+            background: #F8FAFC; font-size: 0.85rem; font-weight: 800; cursor: pointer;
+            transition: all 0.2s; font-family: inherit; color: #64748B;
             display: flex; justify-content: center; align-items: center; text-decoration: none;
         }
-        .nav-btn:hover { border-color: #4318FF; color: #4318FF; }
-        .nav-btn.active { background: #4318FF; color: white; border-color: #4318FF; }
-        .nav-btn.answered { background: #D1FAE5; border-color: #10B981; color: #065F46; }
-        .nav-btn.ragu { background: #FEF3C7; border-color: #F59E0B; color: #92400E; }
-        .nav-btn.active.answered { background: #4318FF; color: white; }
+        @media (prefers-color-scheme: dark) { 
+            .nav-btn { background: #27272A; border-color: #3F3F46; color: #A1A1AA; } 
+        }
+        .nav-btn:hover { border-color: #388782; color: #388782; transform: scale(1.05); }
+        .nav-btn.active { background: #388782; color: white; border-color: #388782; box-shadow: 0 4px 12px rgba(56, 135, 130, 0.3); }
+        .nav-btn.answered { background: #ECFDF5; border-color: #10B981; color: #059669; }
+        @media (prefers-color-scheme: dark) { .nav-btn.answered { background: #064E3B; border-color: #059669; color: #34D399; } }
+        .nav-btn.ragu { background: #FFFBEB; border-color: #F59E0B; color: #D97706; }
+        @media (prefers-color-scheme: dark) { .nav-btn.ragu { background: #78350F; border-color: #F59E0B; color: #FCD34D; } }
+        .nav-btn.active.answered { background: #388782; color: white; border-color: #388782; }
 
         /* Main soal */
-        .soal-main { flex: 1; padding: 24px 16px; max-width: 760px; margin: 0 auto; width: 100%; }
+        .soal-main { flex: 1; padding: 32px 24px; max-width: 840px; margin: 0 auto; width: 100%; }
 
         /* Card soal */
-        .soal-card { background: white; border-radius: 20px; border: 1px solid #E2E8F0; overflow: hidden; margin-bottom: 16px; }
-        .soal-num { padding: 16px 20px 0; }
-        .soal-num span { display: inline-flex; align-items: center; gap: 6px; font-size: 0.78rem; font-weight: 700; color: #A3AED0; text-transform: uppercase; letter-spacing: 0.05em; }
-        .badge { padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; }
-        .soal-text { padding: 16px 20px 20px; font-size: 1rem; font-weight: 500; color: #2B3674; line-height: 1.7; }
-        .soal-text img { max-width: 100%; border-radius: 10px; }
+        .soal-card { 
+            background: white; border-radius: 28px; border: 1px solid #E2E8F0; 
+            overflow: hidden; margin-bottom: 24px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+        }
+        @media (prefers-color-scheme: dark) { .soal-card { background: #18181B; border-color: #27272A; } }
+        
+        .soal-num-wrapper { 
+            padding: 24px 32px 0; 
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .soal-num-label { font-size: 0.8rem; font-weight: 800; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.1em; }
+        .badge-mapel { px: 3; py: 1; rounded: xl; font-size: 10px; font-weight: 800; background: #F1F5F9; color: #475569; }
+        @media (prefers-color-scheme: dark) { .badge-mapel { background: #27272A; color: #94A3B8; } }
+
+        .soal-text { padding: 24px 32px 32px; font-size: 1.1rem; font-weight: 600; color: #334155; line-height: 1.7; }
+        @media (prefers-color-scheme: dark) { .soal-text { color: #E2E8F0; } }
+        .soal-text img { max-width: 100%; border-radius: 16px; margin-top: 16px; border: 1px solid #E2E8F0; }
 
         /* Options */
-        .options { padding: 0 16px 20px; display: flex; flex-direction: column; gap: 10px; }
+        .options-container { padding: 0 24px 32px; display: flex; flex-direction: column; gap: 12px; }
         .option-label {
-            display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px;
-            border: 2px solid #E2E8F0; border-radius: 14px; cursor: pointer;
-            transition: all 0.15s; background: white;
+            display: flex; align-items: center; gap: 16px; padding: 18px 24px;
+            border: 2px solid #F1F5F9; border-radius: 20px; cursor: pointer;
+            transition: all 0.2s; background: #F8FAFC;
         }
-        .option-label:hover { border-color: #4318FF; background: #F4F7FE; }
-        .option-label.selected { border-color: #4318FF; background: #EEF2FF; }
+        @media (prefers-color-scheme: dark) { .option-label { background: #27272A; border-color: #3F3F46; } }
+        
+        .option-label:hover { border-color: #388782; background: white; transform: translateX(4px); }
+        @media (prefers-color-scheme: dark) { .option-label:hover { background: #18181B; } }
+        
+        .option-label.selected { border-color: #388782; background: #F0FDFA; }
+        @media (prefers-color-scheme: dark) { .option-label.selected { background: #134E4A/20; } }
+
         .option-mark {
-            flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%;
-            border: 2px solid #CBD5E1; display: flex; align-items: center; justify-content: center;
-            font-size: 0.78rem; font-weight: 800; color: #94A3B8; transition: all 0.15s;
+            flex-shrink: 0; width: 36px; height: 36px; border-radius: 12px;
+            border: 2px solid #E2E8F0; display: flex; align-items: center; justify-content: center;
+            font-size: 0.9rem; font-weight: 800; color: #94A3B8; transition: all 0.2s;
+            background: white;
         }
-        .option-label.selected .option-mark { background: #4318FF; border-color: #4318FF; color: white; }
-        .option-label input[type="radio"], .option-label input[type="checkbox"] { display: none; }
-        .option-text { font-size: 0.9rem; color: #2B3674; line-height: 1.5; padding-top: 2px; }
+        @media (prefers-color-scheme: dark) { .option-mark { background: #18181B; border-color: #3F3F46; } }
+        
+        .option-label.selected .option-mark { background: #388782; border-color: #388782; color: white; transform: scale(1.1); }
+        .option-label input { display: none; }
+        .option-text { font-size: 0.95rem; font-weight: 600; color: #475569; line-height: 1.5; }
+        @media (prefers-color-scheme: dark) { .option-text { color: #CBD5E1; } }
 
-        /* Essay textarea */
+        /* Essay */
+        .essay-wrapper { padding: 0 32px 32px; }
         .essay-box {
-            width: 100%; padding: 14px 16px; border: 2px solid #E2E8F0; border-radius: 14px;
-            font-family: inherit; font-size: 0.9rem; color: #2B3674; resize: vertical;
-            min-height: 140px; outline: none; transition: border-color 0.15s;
+            width: 100%; padding: 20px; border: 2px solid #F1F5F9; border-radius: 20px;
+            font-family: inherit; font-size: 1rem; color: #334155; resize: vertical;
+            min-height: 180px; outline: none; transition: all 0.2s; background: #F8FAFC;
         }
-        .essay-box:focus { border-color: #4318FF; }
+        @media (prefers-color-scheme: dark) { .essay-box { background: #27272A; border-color: #3F3F46; color: #E2E8F0; } }
+        .essay-box:focus { border-color: #388782; background: white; }
 
-        /* Bottom nav */
+        /* Bottom Nav */
         .soal-nav-bottom {
-            display: flex; align-items: center; justify-content: space-between; gap: 10px;
-            padding: 16px; background: white; border-radius: 16px;
-            border: 1px solid #E2E8F0;
+            display: flex; align-items: center; justify-content: space-between; gap: 16px;
+            padding: 20px 24px; background: white; border-radius: 24px;
+            border: 1px solid #E2E8F0; box-shadow: 0 4px 20px rgba(0,0,0,0.03);
         }
+        @media (prefers-color-scheme: dark) { .soal-nav-bottom { background: #18181B; border-color: #27272A; } }
+        
         .btn-nav {
-            display: flex; align-items: center; gap: 6px;
-            padding: 10px 18px; border-radius: 12px; font-family: inherit;
-            font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.15s; border: none;
+            display: flex; align-items: center; gap: 8px;
+            padding: 12px 24px; border-radius: 16px; font-family: inherit;
+            font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.2s; border: none;
         }
-        .btn-prev { background: #F4F7FE; color: #4318FF; }
-        .btn-prev:hover { background: #E8EDFF; }
-        .btn-next { background: #4318FF; color: white; }
-        .btn-next:hover { background: #3B10FF; }
-        .btn-prev:disabled, .btn-next:disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn-prev { background: #F1F5F9; color: #475569; }
+        @media (prefers-color-scheme: dark) { .btn-prev { background: #27272A; color: #94A3B8; } }
+        .btn-prev:hover:not(:disabled) { background: #E2E8F0; transform: translateX(-2px); }
+        
+        .btn-next { background: #388782; color: white; box-shadow: 0 4px 12px rgba(56, 135, 130, 0.2); }
+        .btn-next:hover:not(:disabled) { background: #2D6A66; transform: translateX(2px); box-shadow: 0 6px 16px rgba(56, 135, 130, 0.3); }
+        .btn-prev:disabled, .btn-next:disabled { opacity: 0.3; cursor: not-allowed; }
 
-        /* Ragu-ragu toggle */
-        .ragu-toggle { display: flex; align-items: center; gap: 8px; cursor: pointer; }
-        .ragu-toggle input { width: 16px; height: 16px; cursor: pointer; }
-        .ragu-toggle span { font-size: 0.8rem; font-weight: 600; color: #F59E0B; }
+        /* Ragu-ragu */
+        .ragu-toggle { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 8px 16px; border-radius: 12px; transition: background 0.2s; }
+        .ragu-toggle:hover { background: #FFFBEB; }
+        @media (prefers-color-scheme: dark) { .ragu-toggle:hover { background: #78350F/20; } }
+        .ragu-toggle input { width: 18px; height: 18px; cursor: pointer; accent-color: #F59E0B; }
+        .ragu-toggle span { font-size: 0.85rem; font-weight: 800; color: #D97706; }
 
-        @media (min-width: 900px) {
+        @media (min-width: 1024px) {
             .navigator-panel { display: flex; }
-            .soal-main { padding: 24px 32px; }
         }
 
-        /* Modal submit */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; display: none; align-items: center; justify-content: center; }
+        /* Modal */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.8); backdrop-blur: 8px; z-index: 500; display: none; align-items: center; justify-content: center; padding: 20px; }
         .modal-overlay.show { display: flex; }
-        .modal-box { background: white; border-radius: 20px; padding: 28px; max-width: 400px; width: 90%; text-align: center; }
+        .modal-box { background: white; border-radius: 32px; padding: 40px; max-width: 480px; width: 100%; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
+        @media (prefers-color-scheme: dark) { .modal-box { background: #18181B; } }
 
-        /* Toast Autosave */
+        /* Toast */
         #autosave-toast {
-            position: fixed; bottom: 20px; right: 20px; background: #10B981; color: white;
-            padding: 10px 20px; border-radius: 12px; font-size: 0.85rem; font-weight: 600;
-            display: flex; align-items: center; gap: 8px; opacity: 0; transform: translateY(10px);
-            transition: all 0.3s; z-index: 100;
+            position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(20px); 
+            background: #10B981; color: white;
+            padding: 12px 24px; border-radius: 20px; font-size: 0.85rem; font-weight: 800;
+            display: flex; align-items: center; gap: 10px; opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 1000;
+            box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4);
         }
-        #autosave-toast.show { opacity: 1; transform: translateY(0); }
+        #autosave-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     </style>
 </head>
-<body>
+<body class="no-scrollbar">
 
 <div id="autosave-toast">
-    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-    Tersimpan
+    <div class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
+        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+    </div>
+    Progress Tersimpan Otomatis
 </div>
 
 {{-- Timer Progress Bar --}}
@@ -175,24 +239,29 @@
 
 {{-- Exam Header --}}
 <header class="exam-header">
-    <div class="exam-title" title="{{ $sesi->ujian->judul }}">{{ $sesi->ujian->judul }}</div>
+    <div class="exam-title-wrapper">
+        <span class="exam-label">Assessment</span>
+        <div class="exam-title" title="{{ $sesi->ujian->judul }}">{{ $sesi->ujian->judul }}</div>
+    </div>
+    
     <div id="timer-display" class="timer-display">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         <span id="timer-text">--:--</span>
     </div>
-    <button class="btn-submit" onclick="showSubmitModal()">Kumpulkan</button>
+
+    <button class="btn-submit" onclick="showSubmitModal()">Selesai</button>
 </header>
 
 {{-- Layout --}}
 <div class="exam-layout">
 
     {{-- Navigator Sidebar --}}
-    <aside class="navigator-panel">
+    <aside class="navigator-panel no-scrollbar">
         <h4>Navigasi Soal</h4>
         <div class="nav-grid">
             @foreach($semuaJawaban as $nav)
             @php
-                $isDijawab = $nav->cbt_opsi_jawaban_id || $nav->jawaban_essay;
+                $isDijawab = $nav->cbt_opsi_jawaban_id || $nav->jawaban_teks;
                 $isRagu = $nav->ragu_ragu;
                 $isActive = $nav->urutan == $no;
             @endphp
@@ -202,10 +271,20 @@
             </a>
             @endforeach
         </div>
-        <div style="margin-top: auto; font-size: 0.72rem; color: #A3AED0; line-height: 1.6;">
-            <div style="display:flex;gap:6px;align-items:center;margin-bottom:4px;"><div style="width:14px;height:14px;background:#D1FAE5;border:2px solid #10B981;border-radius:4px;"></div> Dijawab</div>
-            <div style="display:flex;gap:6px;align-items:center;margin-bottom:4px;"><div style="width:14px;height:14px;background:#FEF3C7;border:2px solid #F59E0B;border-radius:4px;"></div> Ragu-ragu</div>
-            <div style="display:flex;gap:6px;align-items:center;"><div style="width:14px;height:14px;background:#4318FF;border-radius:4px;"></div> Sekarang</div>
+        
+        <div class="mt-auto pt-6 border-t border-slate-100 dark:border-zinc-800 space-y-3">
+            <div class="flex items-center gap-3">
+                <div class="w-4 h-4 rounded-md bg-[#ECFDF5] dark:bg-[#064E3B] border-2 border-[#10B981]"></div>
+                <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Terjawab</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="w-4 h-4 rounded-md bg-[#FFFBEB] dark:bg-[#78350F] border-2 border-[#F59E0B]"></div>
+                <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Ragu-ragu</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="w-4 h-4 rounded-md bg-[#388782] shadow-sm"></div>
+                <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Sekarang</span>
+            </div>
         </div>
     </aside>
 
@@ -217,31 +296,27 @@
 
             {{-- Kartu soal --}}
             <div class="soal-card">
-                <div class="soal-num">
-                    <span>
-                        Soal {{ $no }} / {{ $totalSoal }}
-                        @if($jawabanSaatIni->bankSoal->mapel)
-                            &bull; <span class="badge" style="background:#EEF2FF; color:#4318FF;">{{ $jawabanSaatIni->bankSoal->mapel->nama }}</span>
-                        @endif
-                        <span class="badge ml-1 {{ $jawabanSaatIni->bankSoal->tingkat_kesulitan === 'hard' ? 'bg-red-100 text-red-600' : ($jawabanSaatIni->bankSoal->tingkat_kesulitan === 'medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700') }}">
-                            {{ ucfirst($jawabanSaatIni->bankSoal->tingkat_kesulitan) }}
+                <div class="soal-num-wrapper">
+                    <span class="soal-num-label">Pertanyaan {{ $no }} dari {{ $totalSoal }}</span>
+                    @if($jawabanSaatIni->bankSoal->mapel)
+                        <span class="px-3 py-1 rounded-full text-[10px] font-black bg-slate-50 dark:bg-zinc-800 text-[#388782] border border-[#388782]/20 uppercase tracking-widest">
+                            {{ $jawabanSaatIni->bankSoal->mapel->nama }}
                         </span>
-                    </span>
+                    @endif
                 </div>
                 <div class="soal-text">{!! nl2br(e($jawabanSaatIni->bankSoal->pertanyaan)) !!}
                     @if($jawabanSaatIni->bankSoal->file_media)
-                        <img src="{{ asset('storage/' . $jawabanSaatIni->bankSoal->file_media) }}" alt="Media Soal" class="mt-3 max-w-full rounded-lg">
+                        <img src="{{ asset('storage/' . $jawabanSaatIni->bankSoal->file_media) }}" alt="Media Soal">
                     @endif
                 </div>
 
                 {{-- Pilihan Jawaban --}}
                 @if($jawabanSaatIni->bankSoal->tipe_soal === 'pg')
-                <div class="options">
+                <div class="options-container">
                     @php 
                         $letters = ['A','B','C','D','E']; 
                         $savedOpsi = $jawabanSaatIni->cbt_opsi_jawaban_id; 
                         
-                        // Menampilkan opsi sesuai urutan acak yang disimpan atau default
                         $opsiList = $jawabanSaatIni->bankSoal->opsiJawabans;
                         if ($jawabanSaatIni->opsi_order) {
                             $orderedOpsis = collect();
@@ -263,8 +338,8 @@
                 </div>
                 @else
                 {{-- Essay --}}
-                <div style="padding: 0 20px 20px;">
-                    <textarea name="jawaban_essay" class="essay-box" placeholder="Tuliskan jawaban Anda di sini..." oninput="debounceAutoSave()">{{ $jawabanSaatIni->jawaban_essay ?? '' }}</textarea>
+                <div class="essay-wrapper">
+                    <textarea name="jawaban_teks" class="essay-box" placeholder="Tuliskan jawaban Anda secara lengkap di sini..." oninput="debounceAutoSave()">{{ $jawabanSaatIni->jawaban_teks ?? '' }}</textarea>
                 </div>
                 @endif
             </div>
@@ -272,25 +347,25 @@
             {{-- Ragu-ragu + Nav --}}
             <div class="soal-nav-bottom">
                 <button type="button" class="btn-nav btn-prev" onclick="navigasi('prev')" {{ $no <= 1 ? 'disabled' : '' }}>
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-                    Sebelumnya
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+                    <span>Sebelumnya</span>
                 </button>
 
                 <label class="ragu-toggle">
                     <input type="hidden" name="ragu_ragu" value="0">
                     <input type="checkbox" name="ragu_ragu" value="1" id="ragu_check" {{ $jawabanSaatIni->ragu_ragu ? 'checked' : '' }} onchange="autoSave()">
-                    <span>🤔 Ragu-ragu</span>
+                    <span>Ragu-ragu</span>
                 </label>
 
                 @if($no < $totalSoal)
                 <button type="button" class="btn-nav btn-next" onclick="navigasi('next')">
-                    Selanjutnya
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    <span>Selanjutnya</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
                 </button>
                 @else
                 <button type="button" class="btn-nav btn-next" onclick="showSubmitModal()" style="background: #EF4444;">
-                    Kumpulkan
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    <span>Selesai</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                 </button>
                 @endif
             </div>
@@ -301,23 +376,21 @@
 {{-- Submit Confirmation Modal --}}
 <div id="submit-modal" class="modal-overlay">
     <div class="modal-box">
-        <div style="width:60px;height:60px;background:#FEE2E2;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
-            <svg style="width:28px;height:28px;color:#EF4444;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        <div class="w-20 h-20 bg-red-50 dark:bg-red-900/20 rounded-[2rem] flex items-center justify-center mx-auto mb-8">
+            <svg class="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
         </div>
-        <h3 style="font-size:1.1rem;font-weight:800;color:#2B3674;margin-bottom:8px;">Kumpulkan Ujian?</h3>
-        <p style="font-size:0.875rem;color:#A3AED0;margin-bottom:20px;" id="modal-info">
+        <h3 class="text-2xl font-black text-slate-800 dark:text-slate-100 mb-2 tracking-tight">Kumpulkan Ujian?</h3>
+        <p class="text-slate-400 dark:text-slate-500 mb-10 font-medium leading-relaxed" id="modal-info">
             @php 
-                $dijawabCount = $semuaJawaban->filter(fn($j) => $j->cbt_opsi_jawaban_id || $j->jawaban_essay)->count(); 
+                $dijawabCount = $semuaJawaban->filter(fn($j) => $j->cbt_opsi_jawaban_id || $j->jawaban_teks)->count(); 
             @endphp
-            {{ $dijawabCount }} dari {{ $totalSoal }} soal telah dijawab. Pastikan semua soal telah terisi.
+            Anda telah menjawab <span class="text-slate-800 dark:text-slate-200 font-bold">{{ $dijawabCount }} dari {{ $totalSoal }}</span> soal. Pastikan semua jawaban sudah benar sebelum mengakhiri sesi.
         </p>
-        <div style="display:flex;gap:10px;">
-            <button onclick="closeSubmitModal()" style="flex:1;padding:10px;border-radius:12px;border:2px solid #E2E8F0;background:white;font-family:inherit;font-size:0.875rem;font-weight:700;color:#64748B;cursor:pointer;">Batal</button>
-            <form action="{{ route('siswa.ujian.submit', $sesi->id) }}" method="POST" style="flex:1;">
+        <div class="flex gap-4">
+            <button onclick="closeSubmitModal()" class="flex-1 py-4 rounded-2xl bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-400 font-black transition-all hover:bg-slate-200">Kembali</button>
+            <form action="{{ route('siswa.ujian.submit', $sesi->id) }}" method="POST" class="flex-1">
                 @csrf
-                <button type="submit" style="width:100%;padding:10px;border-radius:12px;border:none;background:#EF4444;color:white;font-family:inherit;font-size:0.875rem;font-weight:700;cursor:pointer;">
-                    Ya, Kumpulkan
-                </button>
+                <button type="submit" class="w-full py-4 rounded-2xl bg-red-500 text-white font-black transition-all hover:bg-red-600 shadow-xl shadow-red-500/20">Kumpulkan</button>
             </form>
         </div>
     </div>
@@ -346,7 +419,7 @@ function updateTimer() {
     const pct = (sisaWaktu / totalWaktu) * 100;
     timerProgress.style.width = pct + '%';
 
-    if (sisaWaktu <= 300) { // 5 menit terakhir
+    if (sisaWaktu <= 300) {
         timerDisplay.classList.add('danger');
         timerBar.classList.add('danger');
     }
@@ -356,12 +429,11 @@ function updateTimer() {
 updateTimer();
 setInterval(updateTimer, 1000);
 
-// Anti Cheat: Disable Right Click & Copy Paste
+// Anti Cheat
 document.addEventListener('contextmenu', e => e.preventDefault());
 document.addEventListener('copy', e => e.preventDefault());
 document.addEventListener('paste', e => e.preventDefault());
 
-// Anti Cheat: Tab Blur Detection
 document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
         fetch('{{ route("siswa.ujian.log-blur", $sesi->id) }}', {
@@ -371,7 +443,6 @@ document.addEventListener('visibilitychange', () => {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content 
             }
         });
-        alert('PERINGATAN: Anda terdeteksi keluar dari halaman ujian! Aktivitas ini dicatat dalam sistem.');
     }
 });
 

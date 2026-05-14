@@ -125,7 +125,7 @@
         </div>
 
         {{-- Absensi --}}
-        <div class="overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900 lg:col-span-2">
+        <div class="overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
             <div class="flex flex-col gap-1 border-b border-slate-100 px-6 py-5 dark:border-slate-700 sm:flex-row sm:items-center sm:justify-between">
                 <h2 class="text-xl font-extrabold text-slate-800 dark:text-slate-100">Riwayat absensi terakhir</h2>
                 <span class="text-xs font-bold text-slate-400">5 entri teratas</span>
@@ -133,7 +133,7 @@
 
             @if($absensis->count() > 0)
                 <div class="overflow-x-auto">
-                    <table class="w-full min-w-[560px] text-left">
+                    <table class="w-full min-w-[500px] text-left">
                         <thead>
                             <tr class="bg-slate-50 text-[10px] font-black uppercase tracking-widest text-slate-400 dark:bg-slate-900/60">
                                 <th class="px-6 py-4">Tanggal</th>
@@ -167,6 +167,51 @@
                     </div>
                     <p class="font-bold text-slate-600 dark:text-slate-300">Belum ada data absensi</p>
                     <p class="mt-1 text-sm text-slate-400">Data akan muncul setelah presensi tercatat.</p>
+                </div>
+            @endif
+        </div>
+
+        {{-- Ujian yang tersedia --}}
+        <div class="overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+            <div class="flex flex-col gap-1 border-b border-slate-100 px-6 py-5 dark:border-slate-700 sm:flex-row sm:items-center sm:justify-between">
+                <h2 class="text-xl font-extrabold text-slate-800 dark:text-slate-100">Ujian yang tersedia</h2>
+                <span class="text-xs font-bold text-[#388782]">{{ $ujianAktif->count() }} tersedia</span>
+            </div>
+
+            @if($ujianAktif->count() > 0)
+                <div class="p-4 space-y-3">
+                    @foreach($ujianAktif->take(5) as $ujian)
+                        <a href="{{ route('siswa.ujian.show', $ujian->id) }}" class="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 hover:bg-teal-50 dark:hover:bg-teal-900/20 border border-transparent hover:border-teal-200 dark:hover:border-teal-800 transition-all group">
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white dark:bg-zinc-900 text-[#388782] shadow-sm group-hover:scale-110 transition-transform">
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h3 class="font-bold text-slate-800 dark:text-slate-100 truncate">{{ $ujian->judul }}</h3>
+                                <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mt-0.5">
+                                    {{ $ujian->durasi }} Menit • {{ $ujian->waktu_selesai ? $ujian->waktu_selesai->diffForHumans() : 'Tanpa batas waktu' }}
+                                </p>
+                            </div>
+                            <div class="text-slate-300 group-hover:text-[#388782] transition-colors">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+                            </div>
+                        </a>
+                    @endforeach
+                    @if($ujianAktif->count() > 5)
+                        <div class="pt-2">
+                            <a href="{{ route('siswa.ujian.index') }}" class="flex items-center justify-center gap-2 rounded-xl bg-slate-100 dark:bg-slate-800 px-4 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                                Lihat semua ujian
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                            </a>
+                        </div>
+                    @endif
+                </div>
+            @else
+                <div class="px-6 py-14 text-center">
+                    <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 dark:bg-slate-700">
+                        <svg class="h-7 w-7 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    </div>
+                    <p class="font-bold text-slate-600 dark:text-slate-300">Tidak ada ujian aktif</p>
+                    <p class="mt-1 text-sm text-slate-400">Semua ujian telah diselesaikan atau belum tersedia.</p>
                 </div>
             @endif
         </div>

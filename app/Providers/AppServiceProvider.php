@@ -41,6 +41,9 @@ class AppServiceProvider extends ServiceProvider
             View::share('periodes', $periodes);
             View::share('masterData', $masterData);
         } catch (\Exception $e) {
+            View::share('galleries', collect());
+            View::share('testimonials', collect());
+            View::share('faqs', collect());
             View::share('kantors', collect());
             View::share('periodes', collect());
             View::share('masterData', null);

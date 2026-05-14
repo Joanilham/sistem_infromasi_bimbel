@@ -78,15 +78,20 @@ class GuruController extends Controller
         $validated['is_active'] = true;
         $validated['username']  = $request->email;
 
-        unset($validated['password_confirmation']);
-        User::create($validated + [
-            'kantor_id' => session('kantor_id'),
-            'periode_id' => session('periode_id'),
-        ]);
+        try {
+            unset($validated['password_confirmation']);
+            User::create($validated + [
+                'kantor_id' => session('kantor_id'),
+                'periode_id' => session('periode_id'),
+            ]);
 
-        $this->clearGuruCache();
+            $this->clearGuruCache();
 
-        return redirect()->route('manajemen-guru.index')->with('success', 'Guru berhasil ditambahkan.');
+            return redirect()->route('manajemen-guru.index')->with('success', 'Guru berhasil ditambahkan.');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Guru Store Error: ' . $e->getMessage());
+            return back()->withInput()->with('error', 'Terjadi kesalahan sistem saat menambahkan data guru.');
+        }
     }
 
     /**
@@ -140,16 +145,21 @@ class GuruController extends Controller
             unset($validated['password']);
         }
 
-        $validated['username'] = $validated['email'];
-        unset($validated['password_confirmation']);
-        $guru->update($validated);
+        try {
+            $validated['username'] = $validated['email'];
+            unset($validated['password_confirmation']);
+            $guru->update($validated);
 
-        // Debug: log after update
-        \Illuminate\Support\Facades\Log::info('Guru updated successfully:', ['id' => $guru->id, 'status' => $guru->fresh()->status]);
+            // Debug: log after update
+            \Illuminate\Support\Facades\Log::info('Guru updated successfully:', ['id' => $guru->id, 'status' => $guru->fresh()->status]);
 
-        $this->clearGuruCache();
+            $this->clearGuruCache();
 
-        return redirect()->route('manajemen-guru.index')->with('success', 'Data guru berhasil diperbarui.');
+            return redirect()->route('manajemen-guru.index')->with('success', 'Data guru berhasil diperbarui.');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Guru Update Error: ' . $e->getMessage());
+            return back()->withInput()->with('error', 'Terjadi kesalahan sistem saat memperbarui data guru.');
+        }
     }
 
     /**

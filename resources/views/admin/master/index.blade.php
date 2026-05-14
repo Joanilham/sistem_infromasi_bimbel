@@ -42,7 +42,13 @@
                     </div>
 
                     <div class="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800">
-                        <h4 class="text-sm font-semibold text-slate-900 dark:text-white mb-4">Pengaturan WhatsApp Gateway</h4>
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="text-sm font-semibold text-slate-900 dark:text-white">Pengaturan WhatsApp Gateway</h4>
+                            <span class="px-2 py-1 bg-red-100 text-red-600 text-[10px] font-black rounded-lg uppercase animate-pulse">⚠️ Jangan merubah bagian ini</span>
+                        </div>
+                        <p class="text-[10px] text-red-500 mb-4 italic font-bold leading-relaxed bg-red-50 dark:bg-red-900/10 p-2 rounded-lg">
+                            *Hubungi TIM IT jika ingin merubah kredensial Gateway. Kesalahan pengisian dapat menyebabkan sistem gagal mengirim notifikasi otomatis.
+                        </p>
 
                         <!-- WA URL -->
                         <div class="mb-4">
@@ -128,7 +134,11 @@
                             @endif
                         </div>
                         <input type="file" name="logo" id="logo" class="block w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-indigo-900/30 dark:file:text-indigo-400 dark:hover:file:bg-indigo-900/50 transition-colors" accept="image/*">
-                        <p class="mt-2 text-xs text-slate-500 dark:text-slate-400 text-center">Format PNG, JPG, JPEG (Max. 2MB). Disarankan persegi untuk tata rias terbaik.</p>
+                        <p class="mt-2 text-xs text-slate-500 dark:text-slate-400 text-center italic">Format PNG, JPG, JPEG (Max. 2MB).</p>
+                        
+                        <div class="mt-4 p-3 bg-blue-50 dark:bg-zinc-800 rounded-xl border border-blue-100 dark:border-zinc-700 text-[10px] text-blue-700 dark:text-blue-400 leading-relaxed font-medium">
+                            <span class="font-bold">Info Terintegrasi:</span> Logo & Nama Lembaga juga terhubung dengan pengaturan <a href="{{ route('admin.landing-page.index') }}" class="underline font-bold">Landing Page</a>.
+                        </div>
                     </div>
                 </div>
             </div>

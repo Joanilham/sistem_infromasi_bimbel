@@ -6,7 +6,21 @@ use Illuminate\Database\Eloquent\Model;
 
 class PaketBimbingan extends Model
 {
-    protected $fillable = ['kantor_id', 'periode_id', 'nama_paket', 'nominal'];
+    protected $fillable = [
+        'kantor_id', 
+        'periode_id', 
+        'nama_paket', 
+        'nominal', 
+        'harga_coret',
+        'durasi_jumlah',
+        'durasi_satuan',
+        'deskripsi',
+        'benefits',
+        'gambar_paket', 
+        'is_featured', 
+        'label_populer',
+        'urutan'
+    ];
 
     public function scopeInContext($query)
     {

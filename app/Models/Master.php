@@ -27,5 +27,19 @@ class Master extends Model
         'wa_token',
         'api_key',
         'logo',
+        'hero_title',
+        'hero_subtitle',
+        'hero_image',
+        'hero_overlay_opacity',
+        'tentang_kami',
+        'wa_number',
+        'wa_widget_status',
+        'wa_widget_message',
+        'instagram_url',
+        'landing_sections_visibility',
+    ];
+
+    protected $casts = [
+        'landing_sections_visibility' => 'array',
     ];
 }

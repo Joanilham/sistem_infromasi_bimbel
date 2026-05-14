@@ -12,9 +12,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use App\Traits\HandlesImageUpload;
 
 class BankSoalController extends Controller
 {
+    use HandlesImageUpload;
     /**
      * Daftar semua soal milik guru (dengan filter & search).
      */
@@ -94,12 +96,17 @@ class BankSoalController extends Controller
             'tingkat_kesulitan' => 'required|in:easy,medium,hard',
             'cbt_mapel_id'      => 'nullable|exists:cbt_mapels,id',
             'cbt_bab_id'        => 'nullable|exists:cbt_babs,id',
-            'media'             => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'media'             => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120', // Dinaikkan ke 5MB karena ada kompresi
             'pembahasan'        => 'nullable|string',
-            // Opsi PG
             'opsi'              => 'required_if:tipe_soal,pg|array',
             'opsi.*'            => 'required_if:tipe_soal,pg|string',
             'kunci'             => 'required_if:tipe_soal,pg|integer',
+        ], [
+            'media.image' => 'File yang diunggah harus berupa gambar.',
+            'media.mimes' => 'Format gambar hanya diperbolehkan: JPG, JPEG, PNG, WEBP.',
+            'media.max'   => 'Ukuran gambar maksimal adalah 5MB.',
+            'pertanyaan.required' => 'Teks pertanyaan wajib diisi.',
+            'tipe_soal.required' => 'Tipe soal harus dipilih.',
         ]);
 
         DB::beginTransaction();
@@ -108,8 +115,13 @@ class BankSoalController extends Controller
             $mediaPath = null;
             $mediaType = null;
             if ($request->hasFile('media')) {
-                $mediaPath = $request->file('media')->store('bank-soal/media', 'public');
-                $mediaType = 'image';
+                try {
+                    $mediaPath = $this->compressAndStore($request->file('media'), 'bank-soal/media');
+                    $mediaType = 'image';
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error('Error upload bank soal: ' . $e->getMessage());
+                    return back()->withInput()->with('error', 'Gagal memproses file gambar. Pastikan format valid.');
+                }
             }
 
             // Simpan soal
@@ -151,7 +163,8 @@ class BankSoalController extends Controller
                 ->with('success', 'Soal berhasil ditambahkan.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withInput()->with('error', 'Gagal menyimpan soal: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error('Store Soal Error: ' . $e->getMessage());
+            return back()->withInput()->with('error', 'Terjadi kesalahan sistem saat menyimpan soal. Silakan coba lagi nanti.');
         }
     }
 
@@ -201,11 +214,15 @@ class BankSoalController extends Controller
             'tingkat_kesulitan' => 'required|in:easy,medium,hard',
             'cbt_mapel_id'      => 'nullable|exists:cbt_mapels,id',
             'cbt_bab_id'        => 'nullable|exists:cbt_babs,id',
-            'media'             => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'media'             => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
             'pembahasan'        => 'nullable|string',
             'opsi'              => 'required_if:tipe_soal,pg|array',
             'opsi.*'            => 'required_if:tipe_soal,pg|string',
             'kunci'             => 'required_if:tipe_soal,pg|integer',
+        ], [
+            'media.image' => 'File yang diunggah harus berupa gambar.',
+            'media.mimes' => 'Format gambar hanya diperbolehkan: JPG, JPEG, PNG, WEBP.',
+            'media.max'   => 'Ukuran gambar maksimal adalah 5MB.',
         ]);
 
         DB::beginTransaction();
@@ -213,12 +230,17 @@ class BankSoalController extends Controller
             // Upload media jika ada file baru
             $mediaData = [];
             if ($request->hasFile('media')) {
-                // Hapus media lama
-                if ($soal->file_media) {
-                    Storage::disk('public')->delete($soal->file_media);
+                try {
+                    // Hapus media lama
+                    if ($soal->file_media) {
+                        Storage::disk('public')->delete($soal->file_media);
+                    }
+                    $mediaData['file_media'] = $this->compressAndStore($request->file('media'), 'bank-soal/media');
+                    $mediaData['tipe_media'] = 'image';
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error('Error update bank soal: ' . $e->getMessage());
+                    return back()->withInput()->with('error', 'Gagal memproses file gambar baru.');
                 }
-                $mediaData['file_media'] = $request->file('media')->store('bank-soal/media', 'public');
-                $mediaData['tipe_media'] = 'image';
             }
 
             // Update soal
@@ -260,7 +282,8 @@ class BankSoalController extends Controller
                 ->with('success', 'Soal berhasil diperbarui.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withInput()->with('error', 'Gagal memperbarui soal: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error('Update Soal Error: ' . $e->getMessage());
+            return back()->withInput()->with('error', 'Terjadi kesalahan sistem saat memperbarui soal.');
         }
     }
 
@@ -430,7 +453,11 @@ class BankSoalController extends Controller
     public function import(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|max:2048'
+            'file' => 'required|file|mimes:csv,xls,xml,txt|max:5120'
+        ], [
+            'file.required' => 'Silakan pilih file untuk diimport.',
+            'file.mimes'    => 'Format file tidak didukung. Gunakan template CSV atau Excel (XLS) yang tersedia.',
+            'file.max'      => 'Ukuran file maksimal adalah 5MB.',
         ]);
 
         $file = $request->file('file');
