@@ -20,6 +20,13 @@ Route::get('/', function () {
     return view('welcome', compact('masterData', 'pakets', 'testimonials', 'faqs', 'galleries'));
 })->name('welcome');
 
+Route::get('/paket/{id}', function ($id) {
+    $paket = \App\Models\PaketBimbingan::findOrFail($id);
+    $masterData = \App\Models\Master::first();
+    $testimonials = \App\Models\Testimonial::where('is_active', true)->latest()->limit(5)->get();
+    return view('paket.detail', compact('paket', 'masterData', 'testimonials'));
+})->name('paket.detail');
+
 Route::get('/login', function () {
     return view('auth.login');
 })->name('login')->middleware('guest');
@@ -176,7 +183,7 @@ Route::middleware('auth')->group(function () {
         // ADMINISTRATOR & STAFF: Fitur Operasional (wajib konteks)
         // ----------------------------------------------------------
         Route::middleware('konteks')->group(function () {
-            Route::resource('paket-bimbingan', \App\Http\Controllers\PaketBimbinganController::class)->except(['create', 'edit', 'show']);
+            Route::resource('paket-bimbingan', \App\Http\Controllers\PaketBimbinganController::class)->except(['show']);
             Route::get('/peserta-didik/export', [\App\Http\Controllers\PesertaDidikController::class, 'export'])->name('peserta-didik.export');
             Route::get('/peserta-didik/keluar', [\App\Http\Controllers\PesertaDidikController::class, 'keluar'])->name('peserta-didik.keluar');
             Route::get('/peserta-didik/keluar/export', [\App\Http\Controllers\PesertaDidikController::class, 'exportKeluar'])->name('peserta-didik.keluar.export');

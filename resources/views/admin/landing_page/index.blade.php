@@ -3,7 +3,10 @@
 @section('title', 'Manajemen Landing Page')
 
 @section('content')
-<div class="space-y-8" x-data="{ tab: 'general' }">
+<div class="space-y-8" x-data="{ 
+    tab: 'general', 
+    overlayOpacity: {{ $master->hero_overlay_opacity ?? 50 }} 
+}">
     <!-- Header -->
     <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-8 shadow-sm border border-slate-100 dark:border-zinc-800 relative overflow-hidden">
         <div class="absolute top-0 right-0 p-8 opacity-10">
@@ -132,10 +135,37 @@
                                 <p class="text-[10px] text-slate-400 mt-2 italic">*Disarankan gambar landscape (16:9) resolusi tinggi. Maks 5MB.</p>
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Overlay Darkness ({{ $master->hero_overlay_opacity }}%)</label>
-                                <input type="range" name="hero_overlay_opacity" min="0" max="90" step="5" value="{{ $master->hero_overlay_opacity ?? 50 }}" class="w-full h-2 bg-slate-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Overlay Darkness (<span x-text="overlayOpacity"></span>%)</label>
+                                <input type="range" name="hero_overlay_opacity" min="0" max="90" step="5" x-model="overlayOpacity" class="w-full h-2 bg-slate-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-indigo-600">
                                 <p class="text-[10px] text-slate-400 mt-2 italic">Semakin tinggi, gambar latar belakang semakin gelap agar teks lebih mudah dibaca.</p>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-zinc-900 rounded-[2rem] p-8 border border-slate-100 dark:border-zinc-800 shadow-sm">
+                    <h2 class="text-xl font-bold mb-8 flex items-center">
+                        <span class="w-10 h-10 rounded-xl bg-orange-100 dark:bg-orange-900/30 text-orange-600 flex items-center justify-center mr-4">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                        </span>
+                        Statistik (Counter Stats)
+                    </h2>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Siswa Aktif</label>
+                            <input type="text" name="stats_siswa" value="{{ old('stats_siswa', $master->stats_siswa) }}" class="w-full px-4 py-3 rounded-xl border-slate-200 dark:border-zinc-800 dark:bg-zinc-950 focus:ring-indigo-500 transition-all text-center font-bold" placeholder="1.200+">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Tutor</label>
+                            <input type="text" name="stats_tutor" value="{{ old('stats_tutor', $master->stats_tutor) }}" class="w-full px-4 py-3 rounded-xl border-slate-200 dark:border-zinc-800 dark:bg-zinc-950 focus:ring-indigo-500 transition-all text-center font-bold" placeholder="50+">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Modul</label>
+                            <input type="text" name="stats_modul" value="{{ old('stats_modul', $master->stats_modul) }}" class="w-full px-4 py-3 rounded-xl border-slate-200 dark:border-zinc-800 dark:bg-zinc-950 focus:ring-indigo-500 transition-all text-center font-bold" placeholder="100+">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Kepuasan</label>
+                            <input type="text" name="stats_kepuasan" value="{{ old('stats_kepuasan', $master->stats_kepuasan) }}" class="w-full px-4 py-3 rounded-xl border-slate-200 dark:border-zinc-800 dark:bg-zinc-950 focus:ring-indigo-500 transition-all text-center font-bold" placeholder="98%">
                         </div>
                     </div>
                 </div>

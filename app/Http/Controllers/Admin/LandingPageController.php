@@ -18,11 +18,12 @@ class LandingPageController extends Controller
     public function index()
     {
         $master = Master::first() ?? new Master();
+        $pakets = PaketBimbingan::inContext()->orderBy('urutan')->get();
         $testimonials = Testimonial::latest()->get();
         $faqs = Faq::orderBy('urutan')->get();
         $galleries = \App\Models\Gallery::inContext()->orderBy('urutan')->get();
         
-        return view('admin.landing_page.index', compact('master', 'testimonials', 'faqs', 'galleries'));
+        return view('admin.landing_page.index', compact('master', 'pakets', 'testimonials', 'faqs', 'galleries'));
     }
 
     public function storeGallery(Request $request)
@@ -73,6 +74,10 @@ class LandingPageController extends Controller
             'hero_image'     => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
             'hero_overlay_opacity' => 'nullable|integer|min:0|max:100',
             'tentang_kami'   => 'nullable|string',
+            'stats_siswa'    => 'nullable|string|max:50',
+            'stats_tutor'    => 'nullable|string|max:50',
+            'stats_modul'    => 'nullable|string|max:50',
+            'stats_kepuasan' => 'nullable|string|max:50',
         ]);
 
         try {

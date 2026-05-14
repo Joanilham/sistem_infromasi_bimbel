@@ -15,6 +15,16 @@ class PaketBimbinganController extends Controller
         return view('admin.paket_bimbingan.index', compact('paketBimbingans'));
     }
 
+    public function create()
+    {
+        return view('admin.paket_bimbingan.create');
+    }
+
+    public function edit(PaketBimbingan $paketBimbingan)
+    {
+        return view('admin.paket_bimbingan.edit', compact('paketBimbingan'));
+    }
+
     public function store(Request $request)
     {
         // Bersihkan titik sebelum validasi
@@ -31,10 +41,19 @@ class PaketBimbinganController extends Controller
             'durasi_satuan' => 'nullable|string|in:Bulan,Tahun',
             'deskripsi'     => 'nullable|string',
             'benefits'      => 'nullable|string',
+            'target_peserta'=> 'nullable|string',
+            'fasilitas'     => 'nullable|string',
             'is_featured'   => 'nullable|boolean',
             'label_populer' => 'nullable|string|max:50',
             'urutan'        => 'nullable|integer',
             'gambar_paket'  => 'nullable|image|mimes:jpg,jpeg,png,webp|max:1024',
+        ], [
+            'nama_paket.required' => 'Nama paket wajib diisi.',
+            'nominal.required'    => 'Harga promo wajib diisi.',
+            'nominal.numeric'     => 'Harga harus berupa angka.',
+            'gambar_paket.max'    => 'Ukuran gambar terlalu besar. Maksimal adalah 1MB.',
+            'gambar_paket.image'  => 'File yang diunggah harus berupa gambar.',
+            'gambar_paket.mimes'  => 'Format gambar harus jpg, jpeg, png, atau webp.',
         ]);
 
         try {
@@ -50,7 +69,7 @@ class PaketBimbinganController extends Controller
             return redirect()->route('paket-bimbingan.index')->with('success', 'Paket berhasil ditambahkan.');
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Store Paket Error: ' . $e->getMessage());
-            return back()->withInput()->with('error', 'Gagal menambah paket.');
+            return back()->withInput()->with('error', 'Gagal menambah paket. Silakan periksa kembali isian Anda.');
         }
     }
 
@@ -69,10 +88,19 @@ class PaketBimbinganController extends Controller
             'durasi_satuan' => 'nullable|string|in:Bulan,Tahun',
             'deskripsi'     => 'nullable|string',
             'benefits'      => 'nullable|string',
+            'target_peserta'=> 'nullable|string',
+            'fasilitas'     => 'nullable|string',
             'is_featured'   => 'nullable|boolean',
             'label_populer' => 'nullable|string|max:50',
             'urutan'        => 'nullable|integer',
             'gambar_paket'  => 'nullable|image|mimes:jpg,jpeg,png,webp|max:1024',
+        ], [
+            'nama_paket.required' => 'Nama paket wajib diisi.',
+            'nominal.required'    => 'Harga promo wajib diisi.',
+            'nominal.numeric'     => 'Harga harus berupa angka.',
+            'gambar_paket.max'    => 'Ukuran gambar terlalu besar. Maksimal adalah 1MB.',
+            'gambar_paket.image'  => 'File yang diunggah harus berupa gambar.',
+            'gambar_paket.mimes'  => 'Format gambar harus jpg, jpeg, png, atau webp.',
         ]);
 
         try {
@@ -87,7 +115,7 @@ class PaketBimbinganController extends Controller
             return redirect()->route('paket-bimbingan.index')->with('success', 'Paket berhasil diperbarui.');
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Update Paket Error: ' . $e->getMessage());
-            return back()->withInput()->with('error', 'Gagal memperbarui paket.');
+            return back()->withInput()->with('error', 'Gagal memperbarui paket. Silakan periksa kembali isian Anda atau coba lagi nanti.');
         }
     }
 

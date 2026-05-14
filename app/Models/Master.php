@@ -37,6 +37,10 @@ class Master extends Model
         'wa_widget_message',
         'instagram_url',
         'landing_sections_visibility',
+        'stats_siswa',
+        'stats_tutor',
+        'stats_modul',
+        'stats_kepuasan',
     ];
 
     protected $casts = [

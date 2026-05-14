@@ -16,6 +16,8 @@ class PaketBimbingan extends Model
         'durasi_satuan',
         'deskripsi',
         'benefits',
+        'target_peserta',
+        'fasilitas',
         'gambar_paket', 
         'is_featured', 
         'label_populer',
