@@ -10,12 +10,12 @@
             <div class="admin-table-title">Daftar Paket Bimbingan</div>
             <div class="admin-table-subtitle">Kelola data paket bimbingan belajar dan nominal harga.</div>
         </div>
-        <button onclick="document.getElementById('modal-create').classList.remove('hidden')" class="btn-add">
+        <a href="{{ route('paket-bimbingan.create') }}" class="btn-add">
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
             </svg>
             Tambah Paket
-        </button>
+        </a>
     </div>
 
     {{-- Table --}}
@@ -53,13 +53,13 @@
                         @endif
                     </td>
                     <td>
-                        <div class="flex flex-col">
+                        <div class="flex flex-col gap-1 items-start">
                             @if($paket->harga_coret)
-                                <span class="text-[10px] text-slate-400 line-through">Rp {{ number_format($paket->harga_coret, 0, ',', '.') }}</span>
+                                <span class="text-[10px] text-slate-400 line-through leading-none">Rp {{ number_format($paket->harga_coret, 0, ',', '.') }}</span>
                             @endif
-                            <span class="badge badge-emerald">
+                            <span class="badge badge-emerald py-1 px-3">
                                 <span class="badge-dot" style="background:#059669"></span>
-                                Rp {{ number_format($paket->nominal, 0, ',', '.') }}
+                                <span class="font-bold">Rp {{ number_format($paket->nominal, 0, ',', '.') }}</span>
                             </span>
                         </div>
                     </td>
@@ -72,22 +72,11 @@
                     </td>
                     <td style="text-align:right">
                         <div class="action-group">
-                            <button type="button" onclick="editPaket(this)"
-                                data-id="{{ $paket->id }}"
-                                data-nama="{{ $paket->nama_paket }}"
-                                data-nominal="{{ $paket->nominal }}"
-                                data-coret="{{ $paket->harga_coret }}"
-                                data-durasi-jml="{{ $paket->durasi_jumlah }}"
-                                data-durasi-sat="{{ $paket->durasi_satuan }}"
-                                data-label="{{ $paket->label_populer }}"
-                                data-deskripsi="{{ $paket->deskripsi }}"
-                                data-benefits="{{ $paket->benefits }}"
-                                data-featured="{{ $paket->is_featured ? '1' : '0' }}"
-                                class="btn-icon btn-icon-edit" title="Edit">
+                            <a href="{{ route('paket-bimbingan.edit', $paket->id) }}" class="btn-icon btn-icon-edit" title="Edit">
                                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                 </svg>
-                            </button>
+                            </a>
                             @include('admin.paket_bimbingan.delete')
                         </div>
                     </td>
@@ -97,10 +86,6 @@
         </table>
     </div>
 </div>
-
-@include('admin.paket_bimbingan.create')
-@include('admin.paket_bimbingan.edit')
-@include('admin.paket_bimbingan.script')
 
 @section('scripts')
 <script>

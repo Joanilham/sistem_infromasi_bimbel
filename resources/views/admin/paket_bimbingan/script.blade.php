@@ -9,6 +9,8 @@
         const label = button.getAttribute('data-label');
         const deskripsi = button.getAttribute('data-deskripsi');
         const benefits = button.getAttribute('data-benefits');
+        const target = button.getAttribute('data-target');
+        const fasilitas = button.getAttribute('data-fasilitas');
         const featured = button.getAttribute('data-featured');
 
         document.getElementById('form-modal-edit').action = '/paket-bimbingan/' + id;
@@ -20,6 +22,8 @@
         document.getElementById('edit_label_populer').value = label || '';
         document.getElementById('edit_deskripsi').value = deskripsi || '';
         document.getElementById('edit_benefits').value = benefits || '';
+        document.getElementById('edit_target_peserta').value = target || '';
+        document.getElementById('edit_fasilitas').value = fasilitas || '';
         document.getElementById('edit_is_featured').checked = featured === '1';
 
         document.getElementById('modal-edit').classList.remove('hidden');
