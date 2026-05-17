@@ -220,6 +220,37 @@ Route::middleware('auth')->group(function () {
             Route::get('/admin/jadwal/konflik', [\App\Http\Controllers\Admin\JadwalController::class, 'konflik'])->name('admin.jadwal.konflik');
             Route::post('/admin/jadwal/duplikasi', [\App\Http\Controllers\Admin\JadwalController::class, 'duplikasi'])->name('admin.jadwal.duplikasi');
 
+            // ── Keuangan ──────────────────────────────────────────────────
+            Route::prefix('keuangan')->name('keuangan.')->group(function () {
+
+                // Pembayaran Siswa
+                Route::get('/pembayaran', [\App\Http\Controllers\Keuangan\PembayaranController::class, 'index'])->name('pembayaran.index');
+                Route::get('/pembayaran/{pesertaDidik}', [\App\Http\Controllers\Keuangan\PembayaranController::class, 'show'])->name('pembayaran.show');
+                Route::put('/pembayaran/{pembayaranSiswa}', [\App\Http\Controllers\Keuangan\PembayaranController::class, 'update'])->name('pembayaran.update');
+                Route::post('/pembayaran/{pembayaranSiswa}/transaksi', [\App\Http\Controllers\Keuangan\PembayaranController::class, 'storeTransaksi'])->name('pembayaran.transaksi.store');
+                Route::delete('/transaksi/{transaksiPembayaran}', [\App\Http\Controllers\Keuangan\PembayaranController::class, 'destroyTransaksi'])->name('transaksi.destroy');
+
+                // Pemasukan — static routes FIRST, parameter routes AFTER
+                Route::get('/pemasukan', [\App\Http\Controllers\Keuangan\PemasukanController::class, 'index'])->name('pemasukan.index');
+                Route::post('/pemasukan', [\App\Http\Controllers\Keuangan\PemasukanController::class, 'store'])->name('pemasukan.store');
+                Route::get('/pemasukan/kategori', [\App\Http\Controllers\Keuangan\PemasukanController::class, 'indexKategori'])->name('pemasukan.kategori.index');
+                Route::post('/pemasukan/kategori', [\App\Http\Controllers\Keuangan\PemasukanController::class, 'storeKategori'])->name('pemasukan.kategori.store');
+                Route::delete('/pemasukan/kategori/{kategoriPemasukan}', [\App\Http\Controllers\Keuangan\PemasukanController::class, 'destroyKategori'])->name('pemasukan.kategori.destroy');
+                Route::put('/pemasukan/{pemasukan}', [\App\Http\Controllers\Keuangan\PemasukanController::class, 'update'])->name('pemasukan.update');
+                Route::delete('/pemasukan/{pemasukan}', [\App\Http\Controllers\Keuangan\PemasukanController::class, 'destroy'])->name('pemasukan.destroy');
+
+                // Pengeluaran — static routes FIRST, parameter routes AFTER
+                Route::get('/pengeluaran', [\App\Http\Controllers\Keuangan\PengeluaranController::class, 'index'])->name('pengeluaran.index');
+                Route::post('/pengeluaran', [\App\Http\Controllers\Keuangan\PengeluaranController::class, 'store'])->name('pengeluaran.store');
+                Route::get('/pengeluaran/kategori', [\App\Http\Controllers\Keuangan\PengeluaranController::class, 'indexKategori'])->name('pengeluaran.kategori.index');
+                Route::post('/pengeluaran/kategori', [\App\Http\Controllers\Keuangan\PengeluaranController::class, 'storeKategori'])->name('pengeluaran.kategori.store');
+                Route::delete('/pengeluaran/kategori/{kategoriPengeluaran}', [\App\Http\Controllers\Keuangan\PengeluaranController::class, 'destroyKategori'])->name('pengeluaran.kategori.destroy');
+                Route::put('/pengeluaran/{pengeluaran}', [\App\Http\Controllers\Keuangan\PengeluaranController::class, 'update'])->name('pengeluaran.update');
+                Route::delete('/pengeluaran/{pengeluaran}', [\App\Http\Controllers\Keuangan\PengeluaranController::class, 'destroy'])->name('pengeluaran.destroy');
+
+                // Tagihan
+                Route::get('/tagihan', [\App\Http\Controllers\Keuangan\TagihanController::class, 'index'])->name('tagihan.index');
+            });
 
         });
     });

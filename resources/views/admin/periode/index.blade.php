@@ -3,204 +3,174 @@
 @section('title', 'Pengaturan Periode')
 
 @section('content')
-<div class="admin-table-card">
+<div class="space-y-6">
+
     {{-- Header --}}
-    <div class="admin-table-header">
+    <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-zinc-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div>
-            <div class="admin-table-title">Daftar Periode</div>
-            <div class="admin-table-subtitle">Kelola master data periode tahun ajaran aktif dan arsip.</div>
+            <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Manajemen Periode</h1>
+            <p class="text-slate-500 dark:text-slate-400 mt-2 text-sm font-medium">Pengaturan tahun ajaran dan periode aktif sistem informasi.</p>
         </div>
-        <button @click="$dispatch('open-modal-create')" class="btn-add">
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <button onclick="document.getElementById('modal-create').classList.remove('hidden')"
+           class="inline-flex items-center gap-3 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs px-8 py-4 rounded-2xl shadow-xl shadow-indigo-500/20 transition-all active:scale-95 group shrink-0">
+            <svg class="w-5 h-5 transition-transform group-hover:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
             </svg>
             Tambah Periode
         </button>
     </div>
 
-    {{-- Table --}}
-    <div class="admin-table-body">
-        <table id="dataTable" class="admin-datatable">
-            <thead>
-                <tr>
-                    <th style="width:50px">No</th>
-                    <th>Tahun Periode</th>
-                    <th class="text-center">Status</th>
-                    <th class="text-right" style="width:120px">Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($periodes as $periode)
-                <tr>
-                    <td><span class="cell-no">{{ $loop->iteration }}</span></td>
-                    <td>
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                            </div>
-                            <span class="cell-label">{{ $periode->tahun_periode }}</span>
-                        </div>
-                    </td>
-                    <td class="text-center">
-                        @if($periode->is_active)
-                            <span class="badge badge-success">
-                                <span class="badge-dot bg-emerald-500"></span>
-                                AKTIF
-                            </span>
-                        @else
-                            <span class="badge badge-secondary">
-                                <span class="badge-dot bg-slate-400"></span>
-                                TIDAK AKTIF
-                            </span>
-                        @endif
-                    </td>
-                    <td style="text-align:right">
-                        <div class="action-group">
-                            <button type="button" 
-                                @click="$dispatch('open-modal-edit', { id: '{{ $periode->id }}', tahun: '{{ $periode->tahun_periode }}', active: {{ $periode->is_active ? 'true' : 'false' }} })"
-                                class="btn-icon btn-icon-edit" title="Edit">
-                                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                </svg>
-                            </button>
-                            <form action="{{ route('periode.destroy', $periode->id) }}" method="POST" class="inline" id="form-delete-periode-{{ $periode->id }}">
-                                @csrf
-                                @method('DELETE')
-                                <button type="button"
-                                    onclick="confirmDelete('Hapus Periode?', 'Apakah Anda yakin ingin menghapus periode {{ $periode->tahun_periode }}?', document.getElementById('form-delete-periode-{{ $periode->id }}'))"
-                                    class="btn-icon btn-icon-delete" title="Hapus">
-                                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                </button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+    @if(session('success'))
+        <div class="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800 text-emerald-800 dark:text-emerald-400 rounded-3xl px-8 py-4 text-sm font-bold flex items-center gap-3">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            {{ session('success') }}
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-800 text-rose-800 dark:text-rose-400 rounded-3xl px-8 py-4 text-sm font-bold flex items-center gap-3">
+            <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+            {{ session('error') }}
+        </div>
+    @endif
+
+    {{-- Table Card --}}
+    <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] border border-slate-100 dark:border-zinc-800 shadow-sm overflow-hidden">
+
+        {{-- Toolbar --}}
+        <div class="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-b border-slate-100 dark:border-zinc-800 bg-slate-50/30 dark:bg-zinc-900/30">
+            <div class="flex items-center gap-4">
+                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Tampilkan</label>
+                <form method="GET" id="perPageForm">
+                    <input type="hidden" name="search" value="{{ $search }}">
+                    <select name="per_page" onchange="document.getElementById('perPageForm').submit()" 
+                        class="bg-white dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-xs font-black py-2 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
+                        @foreach([10,25,50,100] as $n)
+                            <option value="{{ $n }}" {{ $perPage == $n ? 'selected' : '' }}>{{ $n }}</option>
+                        @endforeach
+                    </select>
+                </form>
+            </div>
+            <form method="GET" class="flex gap-2">
+                <input type="hidden" name="per_page" value="{{ $perPage }}">
+                <div class="relative group">
+                    <input type="text" name="search" value="{{ $search }}" placeholder="Cari tahun periode…"
+                        class="w-64 bg-white dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-sm font-bold py-2.5 pl-11 pr-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
+                    <svg class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                </div>
+                <button type="submit" class="bg-slate-900 dark:bg-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 text-white font-black text-xs px-6 py-2.5 rounded-xl transition-all active:scale-95 shadow-lg shadow-slate-900/10">
+                    Cari
+                </button>
+            </form>
+        </div>
+
+        {{-- Table --}}
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm border-collapse border border-slate-200 dark:border-zinc-800">
+                <thead class="bg-indigo-600 dark:bg-indigo-900/80 text-[10px] uppercase tracking-widest text-white font-black">
+                    <tr>
+                        <th class="px-4 py-3 text-left w-24 border border-white/20">
+                            <a href="{{ request()->fullUrlWithQuery(['sort' => 'id', 'order' => request('sort') == 'id' && request('order') == 'asc' ? 'desc' : 'asc']) }}" class="flex items-center justify-between group">
+                                No (ID)
+                                <span class="transition-all {{ request('sort') == 'id' ? 'opacity-100' : 'opacity-30 group-hover:opacity-100' }}">
+                                    @if(request('sort') == 'id' && request('order') == 'asc')
+                                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 15l7-7 7 7"/></svg>
+                                    @elseif(request('sort') == 'id' && request('order') == 'desc')
+                                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M19 9l-7 7-7-7"/></svg>
+                                    @else
+                                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M7 10l5-5 5 5M7 14l5 5 5-5"/></svg>
+                                    @endif
+                                </span>
+                            </a>
+                        </th>
+                        <th class="px-4 py-3 text-left border border-white/20">
+                            <a href="{{ request()->fullUrlWithQuery(['sort' => 'tahun_periode', 'order' => request('sort') == 'tahun_periode' && request('order') == 'asc' ? 'desc' : 'asc']) }}" class="flex items-center justify-between group">
+                                Tahun Akademik
+                                <span class="transition-all {{ request('sort') == 'tahun_periode' ? 'opacity-100' : 'opacity-30 group-hover:opacity-100' }}">
+                                    @if(request('sort') == 'tahun_periode' && request('order') == 'asc')
+                                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 15l7-7 7 7"/></svg>
+                                    @elseif(request('sort') == 'tahun_periode' && request('order') == 'desc')
+                                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M19 9l-7 7-7-7"/></svg>
+                                    @else
+                                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M7 10l5-5 5 5M7 14l5 5 5-5"/></svg>
+                                    @endif
+                                </span>
+                            </a>
+                        </th>
+                        <th class="px-4 py-3 text-center border border-white/20">Status Keaktifan</th>
+                        <th class="px-4 py-3 text-center w-32 border border-white/20">Opsi</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-zinc-900">
+                    @forelse($periodes as $i => $periode)
+                        <tr class="hover:bg-indigo-50/50 dark:hover:bg-indigo-900/10 transition-all even:bg-slate-50/50 dark:even:bg-zinc-800/30">
+                            <td class="px-4 py-3 text-slate-400 font-bold text-xs font-mono border border-slate-200 dark:border-zinc-800 text-center">
+                                #{{ str_pad($periodes->firstItem() + $i, 3, '0', STR_PAD_LEFT) }}
+                            </td>
+                            <td class="px-4 py-3 font-bold text-slate-900 dark:text-white border border-slate-200 dark:border-zinc-800">
+                                {{ $periode->tahun_periode }}
+                            </td>
+                            <td class="px-4 py-3 text-center border border-slate-200 dark:border-zinc-800">
+                                @if($periode->is_active)
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 text-[9px] font-black uppercase ring-1 ring-emerald-100 shadow-sm">
+                                        <span class="w-1 h-1 rounded-full bg-emerald-500 animate-pulse"></span>
+                                        Aktif
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-slate-50 dark:bg-zinc-800 text-slate-400 dark:text-zinc-500 text-[9px] font-black uppercase ring-1 ring-slate-200">
+                                        Non-Aktif
+                                    </span>
+                                @endif
+                            </td>
+                            <td class="px-4 py-3 border border-slate-200 dark:border-zinc-800">
+                                <div class="flex items-center justify-center gap-2">
+                                    <button type="button" onclick="editPeriode(this)"
+                                        data-id="{{ $periode->id }}"
+                                        data-tahun="{{ $periode->tahun_periode }}"
+                                        data-active="{{ $periode->is_active ? 1 : 0 }}"
+                                        class="inline-flex items-center justify-center w-8 h-8 rounded bg-amber-50 dark:bg-amber-900/10 text-amber-600 dark:text-amber-400 hover:bg-amber-100 transition-all"
+                                        title="Edit Periode">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                        </svg>
+                                    </button>
+                                    @include('admin.periode.delete')
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4" class="px-8 py-24 text-center border border-slate-200 dark:border-zinc-800">
+                                <div class="w-20 h-20 bg-slate-50 dark:bg-zinc-800 rounded-[2rem] flex items-center justify-center mx-auto mb-6 text-4xl shadow-inner">
+                                    📅
+                                </div>
+                                <h3 class="font-black text-slate-900 dark:text-white text-lg">Periode Kosong</h3>
+                                <p class="text-slate-400 text-sm mt-2 font-medium">Silahkan tambahkan periode tahun ajaran baru untuk memulai operasional.</p>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        {{-- Footer Pagination --}}
+        <div class="px-8 py-6 border-t border-slate-100 dark:border-zinc-800 bg-slate-50/30 dark:bg-zinc-900/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <p class="text-xs text-slate-500 dark:text-slate-400 font-bold">
+                Menampilkan <span class="text-slate-900 dark:text-white">{{ $periodes->firstItem() ?? 0 }}</span> – <span class="text-slate-900 dark:text-white">{{ $periodes->lastItem() ?? 0 }}</span> dari <span class="text-slate-900 dark:text-white">{{ $periodes->total() ?? 0 }}</span> Periode
+            </p>
+            @if($periodes->hasPages())
+                <div class="flex justify-end">
+                    {{ $periodes->withQueryString()->links() }}
+                </div>
+            @endif
+        </div>
     </div>
+    </div>
+
 </div>
+
+@include('admin.periode.create')
+@include('admin.periode.edit')
+@include('admin.periode.script')
 @endsection
-
-@push('modals')
-<div x-data="{ 
-    modalCreate: false, 
-    modalEdit: false,
-    editData: { id: '', tahun: '', active: false }
-}" 
-@open-modal-create.window="modalCreate = true"
-@open-modal-edit.window="editData = $event.detail; modalEdit = true;"
-x-cloak>
-    
-    <!-- Modal Create -->
-    <div x-show="modalCreate" class="fixed inset-0 z-[100] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div x-show="modalCreate" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity z-[100]" aria-hidden="true" @click="modalCreate = false"></div>
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div x-show="modalCreate" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" class="relative z-[110] inline-block align-bottom bg-white dark:bg-slate-900 rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-slate-100 dark:border-slate-700">
-                <form action="{{ route('periode.store') }}" method="POST">
-                    @csrf
-                    <div class="bg-white dark:bg-slate-900 px-6 pt-6 pb-6">
-                        <div class="flex items-center justify-between mb-5">
-                            <h3 class="text-xl font-bold text-slate-800 dark:text-white" id="modal-title">Tambah Periode Baru</h3>
-                            <button type="button" @click="modalCreate = false" class="text-slate-400 dark:text-slate-500 hover:text-slate-500 dark:hover:text-slate-300 focus:outline-none">
-                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                            </button>
-                        </div>
-                        <div class="space-y-4">
-                            <div>
-                                <label for="tahun_periode" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Tahun Periode</label>
-                                <input type="text" name="tahun_periode" id="tahun_periode" required
-                                    class="focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 border text-slate-900 dark:text-white bg-white dark:bg-slate-800 placeholder-slate-400 dark:placeholder-slate-500"
-                                    placeholder="Contoh: 2025/2026">
-                            </div>
-                            <div class="flex items-start mt-4 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700">
-                                <div class="flex items-center h-5">
-                                    <input id="is_active" name="is_active" type="checkbox" value="1" class="h-5 w-5 text-indigo-600 focus:ring-indigo-500 border-slate-300 dark:border-slate-600 rounded cursor-pointer dark:bg-slate-800 transition-all">
-                                </div>
-                                <div class="ml-3 text-sm">
-                                    <label for="is_active" class="font-bold text-slate-800 dark:text-slate-200 cursor-pointer">Set Sebagai Periode Aktif</label>
-                                    <p class="text-slate-500 dark:text-slate-400 text-xs mt-0.5">Hanya satu periode yang bisa aktif dalam satu waktu.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-slate-50 dark:bg-slate-800/50 px-6 py-4 sm:flex sm:flex-row-reverse rounded-b-2xl border-t border-slate-100 dark:border-slate-700 gap-2">
-                        <button type="submit" class="w-full inline-flex justify-center rounded-xl border border-transparent shadow-md px-6 py-2.5 bg-indigo-600 text-base font-bold text-white hover:bg-indigo-700 focus:outline-none sm:w-auto sm:text-sm transition-all transform hover:scale-[1.02] active:scale-[0.98]">
-                            Simpan Periode
-                        </button>
-                        <button type="button" @click="modalCreate = false" class="mt-3 w-full inline-flex justify-center rounded-xl border border-slate-300 dark:border-slate-600 shadow-sm px-6 py-2.5 bg-white dark:bg-slate-700 text-base font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-600 focus:outline-none sm:mt-0 sm:w-auto sm:text-sm transition-all">
-                            Batal
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Edit -->
-    <div x-show="modalEdit" class="fixed inset-0 z-[100] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div x-show="modalEdit" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity z-[100]" aria-hidden="true" @click="modalEdit = false"></div>
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div x-show="modalEdit" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" class="relative z-[110] inline-block align-bottom bg-white dark:bg-slate-900 rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-slate-100 dark:border-slate-700">
-                <form :action="'{{ url('periode') }}/' + editData.id" method="POST">
-                    @csrf
-                    @method('PUT')
-                    <div class="bg-white dark:bg-slate-900 px-6 pt-6 pb-6">
-                        <div class="flex items-center justify-between mb-5">
-                            <h3 class="text-xl font-bold text-slate-800 dark:text-white" id="modal-title">Edit Periode</h3>
-                            <button type="button" @click="modalEdit = false" class="text-slate-400 dark:text-slate-500 hover:text-slate-500 dark:hover:text-slate-300 focus:outline-none">
-                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                            </button>
-                        </div>
-                        <div class="space-y-4">
-                            <div>
-                                <label for="edit_tahun_periode" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Tahun Periode</label>
-                                <input type="text" name="tahun_periode" id="edit_tahun_periode" x-model="editData.tahun" required
-                                    class="focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 border text-slate-900 dark:text-white bg-white dark:bg-slate-800 placeholder-slate-400 dark:placeholder-slate-500">
-                            </div>
-                            <div class="flex items-start mt-4 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700">
-                                <div class="flex items-center h-5">
-                                    <input id="edit_is_active" name="is_active" type="checkbox" value="1" x-model="editData.active" class="h-5 w-5 text-indigo-600 focus:ring-indigo-500 border-slate-300 dark:border-slate-600 rounded cursor-pointer dark:bg-slate-800 transition-all">
-                                </div>
-                                <div class="ml-3 text-sm">
-                                    <label for="edit_is_active" class="font-bold text-slate-800 dark:text-slate-200 cursor-pointer">Set Sebagai Periode Aktif</label>
-                                    <p class="text-slate-500 dark:text-slate-400 text-xs mt-0.5">Jadikan sebagai periode utama aplikasi.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-slate-50 dark:bg-slate-800/50 px-6 py-4 sm:flex sm:flex-row-reverse rounded-b-2xl border-t border-slate-100 dark:border-slate-700 gap-2">
-                        <button type="submit" class="w-full inline-flex justify-center rounded-xl border border-transparent shadow-md px-6 py-2.5 bg-indigo-600 text-base font-bold text-white hover:bg-indigo-700 focus:outline-none sm:w-auto sm:text-sm transition-all transform hover:scale-[1.02] active:scale-[0.98]">
-                            Update Periode
-                        </button>
-                        <button type="button" @click="modalEdit = false" class="mt-3 w-full inline-flex justify-center rounded-xl border border-slate-300 dark:border-slate-600 shadow-sm px-6 py-2.5 bg-white dark:bg-slate-700 text-base font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-600 focus:outline-none sm:mt-0 sm:w-auto sm:text-sm transition-all">
-                            Batal
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-@endpush
-
-@push('scripts')
-<script>
-    $(document).ready(function() {
-        if (!$.fn.DataTable.isDataTable('#dataTable')) {
-            $('#dataTable').DataTable({
-                language: {
-                    url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/id.json'
-                },
-                dom: '<"flex flex-col md:flex-row justify-between items-center mb-4 gap-4"lf>rt<"flex flex-col md:flex-row justify-between items-center mt-4 gap-4"ip>',
-            });
-        }
-    });
-</script>
-@endpush

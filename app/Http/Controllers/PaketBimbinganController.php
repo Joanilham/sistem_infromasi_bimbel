@@ -9,9 +9,21 @@ class PaketBimbinganController extends Controller
 {
     use \App\Traits\HandlesImageUpload;
 
-    public function index()
+    public function index(Request $request)
     {
-        $paketBimbingans = PaketBimbingan::inContext()->orderBy('urutan')->get();
+        $search     = $request->input('search', '');
+        $perPage    = in_array($request->input('per_page'), [10, 25, 50, 100]) ? (int) $request->input('per_page') : 10;
+        $sort       = in_array($request->input('sort'), ['id', 'nama_paket', 'urutan']) ? $request->input('sort') : 'urutan';
+        $order      = in_array($request->input('order'), ['asc', 'desc']) ? $request->input('order') : 'asc';
+
+        $paketBimbingans = PaketBimbingan::inContext()
+            ->when($search, fn($q) =>
+                $q->where('nama_paket', 'like', "%{$search}%")
+            )
+            ->orderBy($sort, $order)
+            ->paginate($perPage)
+            ->withQueryString();
+
         return view('admin.paket_bimbingan.index', compact('paketBimbingans'));
     }
 

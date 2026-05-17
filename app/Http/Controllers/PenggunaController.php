@@ -19,11 +19,27 @@ class PenggunaController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        $search  = $request->input('search', '');
+        $perPage = in_array($request->input('per_page'), [10, 25, 50, 100]) ? (int) $request->input('per_page') : 10;
+        $sort    = in_array($request->input('sort'), ['id', 'name']) ? $request->input('sort') : 'id';
+        $order   = in_array($request->input('order'), ['asc', 'desc']) ? $request->input('order') : 'desc';
+
         // Hanya tampilkan pengguna dengan level administrator & staff
-        $penggunas = User::whereIn('level', $this->allowedLevels)->latest()->get();
-        return view('admin.pengguna.index', compact('penggunas'));
+        $penggunas = User::whereIn('level', $this->allowedLevels)
+            ->when($search, function ($q) use ($search) {
+                $q->where(function ($sq) use ($search) {
+                    $sq->where('name', 'like', "%{$search}%")
+                       ->orWhere('username', 'like', "%{$search}%")
+                       ->orWhere('email', 'like', "%{$search}%");
+                });
+            })
+            ->orderBy($sort, $order)
+            ->paginate($perPage)
+            ->withQueryString();
+            
+        return view('admin.pengguna.index', compact('penggunas', 'search', 'perPage'));
     }
 
     /**
