@@ -17,21 +17,43 @@
             <div class="flex items-center gap-2 sm:gap-4">
                 <!-- Notification / Email Link -->
                 @php
-                    $kId = session('kantor_id');
-                    $pendaftaranMenunggu = \App\Models\PendaftaranSiswa::where('status', 'menunggu')->when($kId, fn($q) => $q->where('kantor_id', $kId))->count();
-                    $pembayaranBelumDikonfirmasi = \App\Models\PembayaranPendaftaran::where('status', 'menunggu')->whereHas('pendaftaranSiswa', fn($q) => $q->when($kId, fn($q2) => $q2->where('kantor_id', $kId)))->count();
-                    $totalPesan = $pendaftaranMenunggu + $pembayaranBelumDikonfirmasi;
+                    $kId       = session('kantor_id');
+                    $pId       = session('periode_id');
+
+                    $pendaftaranMenunggu = \App\Models\PendaftaranSiswa::where('status', 'menunggu')
+                        ->when($kId, fn($q) => $q->where('kantor_id', $kId))->count();
+
+                    $pembayaranBelumDikonfirmasi = \App\Models\PembayaranPendaftaran::where('status', 'menunggu')
+                        ->whereHas('pendaftaranSiswa', fn($q) => $q->when($kId, fn($q2) => $q2->where('kantor_id', $kId)))->count();
+
+                    $transferSppCount = ($kId && $pId) ? \App\Models\TransaksiPembayaran::where('tipe_pembayaran', 'TRANSFER')
+                        ->whereHas('pembayaranSiswa.pesertaDidik', fn($q) => $q->inContext())
+                        ->where('created_at', '>=', \Carbon\Carbon::now()->subDays(30))
+                        ->count() : 0;
+
+                    $tagihanJatuhTempoCount = 0;
+                    if ($kId && $pId) {
+                        $tagihanRaw = \App\Models\PembayaranSiswa::with('transaksi')
+                            ->whereHas('pesertaDidik', fn($q) => $q->inContext()->aktif())
+                            ->where(function($q) {
+                                $q->where('batas_waktu', '<=', \Carbon\Carbon::now()->addDays(7))
+                                  ->orWhereNull('batas_waktu');
+                            })
+                            ->get();
+                        $tagihanJatuhTempoCount = $tagihanRaw->filter(fn($p) => $p->kekurangan > 0)->count();
+                    }
+
+                    $totalPesan = $pendaftaranMenunggu + $pembayaranBelumDikonfirmasi + $transferSppCount + $tagihanJatuhTempoCount;
                 @endphp
                 <div class="relative">
-                    <a href="{{ route('notifikasi.index') }}" class="relative inline-flex p-2 rounded-full text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-200 transition-colors focus:outline-none" aria-label="Notifications">
+                    <a href="{{ route('notifikasi.index') }}" class="relative inline-flex items-center justify-center p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-all focus:outline-none" aria-label="Notifications">
                         <!-- Email Icon -->
                         <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                         </svg>
                         @if($totalPesan > 0)
-                        <span class="absolute top-1.5 right-1.5 flex h-2 w-2">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+                        <span class="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-white text-[9px] font-black leading-none ring-2 ring-white dark:ring-zinc-900">
+                            {{ $totalPesan > 9 ? '9+' : $totalPesan }}
                         </span>
                         @endif
                     </a>

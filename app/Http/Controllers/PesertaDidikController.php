@@ -13,39 +13,70 @@ class PesertaDidikController extends Controller
   /**
    * Display a listing of the resource.
    */
-  public function index()
+  public function index(Request $request)
   {
-    $kantorId = session('kantor_id');
-    $periodeId = session('periode_id');
+    $search     = $request->input('search', '');
+    $perPage    = in_array($request->input('per_page'), [10, 25, 50, 100]) ? (int) $request->input('per_page') : 10;
+    $paketId    = $request->input('paket_id');
+    $kelompokId = $request->input('kelompok_id');
+    $jk         = $request->input('jenis_kelamin');
+    $sort       = in_array($request->input('sort'), ['id', 'nama_lengkap', 'paket_bimbingan_id', 'kelompok_belajar_id']) ? $request->input('sort') : 'id';
+    $order      = in_array($request->input('order'), ['asc', 'desc']) ? $request->input('order') : 'desc';
 
-    $pesertaDidiks = \Illuminate\Support\Facades\Cache::rememberForever("data_peserta_didiks_aktif_{$kantorId}_{$periodeId}", function () {
-      return PesertaDidik::aktif()->inContext()->with('paketBimbingan', 'kelompokBelajar')->latest()->get();
-    });
-    $paketBimbingans = \Illuminate\Support\Facades\Cache::rememberForever("data_paket_bimbingans_{$kantorId}_{$periodeId}", function () {
-      return PaketBimbingan::inContext()->get();
-    });
-    $kelompokBelajars = \Illuminate\Support\Facades\Cache::rememberForever("data_kelompok_belajars_{$kantorId}_{$periodeId}", function () {
-      return KelompokBelajar::inContext()->orderBy('nama_kelompok')->get();
-    });
-    return view('admin.peserta_didik.aktif', compact('pesertaDidiks', 'paketBimbingans', 'kelompokBelajars'));
+    $pesertaDidiks = PesertaDidik::aktif()
+        ->inContext()
+        ->with('paketBimbingan', 'kelompokBelajar')
+        ->when($search, function ($q) use ($search) {
+            $q->where(function ($sq) use ($search) {
+                $sq->where('nama_lengkap', 'like', "%{$search}%")
+                   ->orWhere('nisn', 'like', "%{$search}%")
+                   ->orWhere('asal_sekolah', 'like', "%{$search}%");
+            });
+        })
+        ->when($paketId, fn($q) => $q->where('paket_bimbingan_id', $paketId))
+        ->when($kelompokId, fn($q) => $q->where('kelompok_belajar_id', $kelompokId))
+        ->when($jk, fn($q) => $q->where('jenis_kelamin', $jk))
+        ->orderBy($sort, $order)
+        ->paginate($perPage)
+        ->withQueryString();
+
+    $paketBimbingans = PaketBimbingan::inContext()->get();
+    $kelompokBelajars = KelompokBelajar::inContext()->orderBy('nama_kelompok')->get();
+
+    return view('admin.peserta_didik.aktif', compact('pesertaDidiks', 'paketBimbingans', 'kelompokBelajars', 'search', 'perPage'));
   }
 
   /**
    * Daftar peserta didik yang sudah keluar.
    */
-  public function keluar()
+  public function keluar(Request $request)
   {
-    $kantorId = session('kantor_id');
-    $periodeId = session('periode_id');
+    $search     = $request->input('search', '');
+    $perPage    = in_array($request->input('per_page'), [10, 25, 50, 100]) ? (int) $request->input('per_page') : 10;
+    $paketId    = $request->input('paket_id');
+    $jk         = $request->input('jenis_kelamin');
+    $sort       = in_array($request->input('sort'), ['id', 'nama_lengkap', 'tanggal_keluar']) ? $request->input('sort') : 'tanggal_keluar';
+    $order      = in_array($request->input('order'), ['asc', 'desc']) ? $request->input('order') : 'desc';
 
-    $pesertaDidiks = \Illuminate\Support\Facades\Cache::rememberForever("data_peserta_didiks_keluar_{$kantorId}_{$periodeId}", function() {
-      return PesertaDidik::keluar()
+    $pesertaDidiks = PesertaDidik::keluar()
         ->inContext()
         ->with('paketBimbingan')
-        ->orderBy('tanggal_keluar', 'desc')
-        ->get();
-    });
-    return view('admin.peserta_didik.keluar', compact('pesertaDidiks'));
+        ->when($search, function ($q) use ($search) {
+            $q->where(function ($sq) use ($search) {
+                $sq->where('nama_lengkap', 'like', "%{$search}%")
+                   ->orWhere('nisn', 'like', "%{$search}%")
+                   ->orWhere('asal_sekolah', 'like', "%{$search}%");
+            });
+        })
+        ->when($paketId, fn($q) => $q->where('paket_bimbingan_id', $paketId))
+        ->when($jk, fn($q) => $q->where('jenis_kelamin', $jk))
+        ->orderBy($sort, $order)
+        ->paginate($perPage)
+        ->withQueryString();
+
+    $paketBimbingans = PaketBimbingan::inContext()->get();
+
+    return view('admin.peserta_didik.keluar', compact('pesertaDidiks', 'paketBimbingans', 'search', 'perPage'));
   }
 
   /**
@@ -90,11 +121,24 @@ class PesertaDidikController extends Controller
     ]);
 
     try {
-      PesertaDidik::create($validated + [
+      $peserta = PesertaDidik::create($validated + [
           'status' => 'Aktif',
           'kantor_id' => session('kantor_id'),
           'periode_id' => session('periode_id')
       ]);
+
+      // Kirim Notifikasi WA (Manual Add)
+      $nomor = $peserta->no_telepon ?? $peserta->no_telepon_ayah ?? $peserta->no_telepon_ibu;
+      if ($nomor) {
+          dispatch(function () use ($peserta, $nomor) {
+              try {
+                  $pesan = "📚 *Data Siswa Aktif*\n\nHalo *{$peserta->nama_lengkap}*,\n\nAdmin telah menambahkan data Anda ke dalam sistem Bimbingan Belajar. Anda sekarang telah terdaftar sebagai siswa aktif.\n\nSelamat belajar dan sukses selalu! 🙏";
+                  (new \App\Services\WhatsAppService())->sendMessage($nomor, $pesan);
+              } catch (\Exception $e) {
+                  \Illuminate\Support\Facades\Log::error("Gagal kirim WA Manual Add: " . $e->getMessage());
+              }
+          })->afterResponse();
+      }
 
       $this->clearPesertaCache();
 

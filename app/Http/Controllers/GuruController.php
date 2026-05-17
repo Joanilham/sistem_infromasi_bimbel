@@ -12,39 +12,63 @@ class GuruController extends Controller
     /**
      * Display a listing of active guru.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $kantorId = session('kantor_id');
-        $periodeId = session('periode_id');
+        $search     = $request->input('search', '');
+        $perPage    = in_array($request->input('per_page'), [10, 25, 50, 100]) ? (int) $request->input('per_page') : 10;
+        $mapel      = $request->input('matapelajaran');
+        $sort       = in_array($request->input('sort'), ['id', 'name', 'matapelajaran']) ? $request->input('sort') : 'id';
+        $order      = in_array($request->input('order'), ['asc', 'desc']) ? $request->input('order') : 'desc';
 
-        $gurus = \Illuminate\Support\Facades\Cache::rememberForever("data_gurus_aktif_{$kantorId}_{$periodeId}", function () {
-            return User::where('level', 'guru')
-                ->where('status', 'Aktif')
-                ->inContext()
-                ->latest()
-                ->get();
-        });
+        $gurus = User::where('level', 'guru')
+            ->where('status', 'Aktif')
+            ->inContext()
+            ->when($search, function ($q) use ($search) {
+                $q->where(function ($sq) use ($search) {
+                    $sq->where('name', 'like', "%{$search}%")
+                       ->orWhere('nip', 'like', "%{$search}%")
+                       ->orWhere('email', 'like', "%{$search}%");
+                });
+            })
+            ->when($mapel, fn($q) => $q->where('matapelajaran', $mapel))
+            ->orderBy($sort, $order)
+            ->paginate($perPage)
+            ->withQueryString();
 
-        return view('admin.guru.aktif', compact('gurus'));
+        $daftarMapel = User::where('level', 'guru')->inContext()->whereNotNull('matapelajaran')->distinct()->pluck('matapelajaran');
+
+        return view('admin.guru.aktif', compact('gurus', 'daftarMapel', 'search', 'perPage'));
     }
 
     /**
      * Display a listing of guru who have left.
      */
-    public function keluar()
+    public function keluar(Request $request)
     {
-        $kantorId = session('kantor_id');
-        $periodeId = session('periode_id');
+        $search     = $request->input('search', '');
+        $perPage    = in_array($request->input('per_page'), [10, 25, 50, 100]) ? (int) $request->input('per_page') : 10;
+        $mapel      = $request->input('matapelajaran');
+        $sort       = in_array($request->input('sort'), ['id', 'name', 'tanggal_keluar']) ? $request->input('sort') : 'tanggal_keluar';
+        $order      = in_array($request->input('order'), ['asc', 'desc']) ? $request->input('order') : 'desc';
 
-        $gurus = \Illuminate\Support\Facades\Cache::rememberForever("data_gurus_keluar_{$kantorId}_{$periodeId}", function () {
-            return User::where('level', 'guru')
-                ->where('status', 'Keluar')
-                ->inContext()
-                ->orderBy('tanggal_keluar', 'desc')
-                ->get();
-        });
+        $gurus = User::where('level', 'guru')
+            ->where('status', 'Keluar')
+            ->inContext()
+            ->when($search, function ($q) use ($search) {
+                $q->where(function ($sq) use ($search) {
+                    $sq->where('name', 'like', "%{$search}%")
+                       ->orWhere('nip', 'like', "%{$search}%")
+                       ->orWhere('email', 'like', "%{$search}%");
+                });
+            })
+            ->when($mapel, fn($q) => $q->where('matapelajaran', $mapel))
+            ->orderBy($sort, $order)
+            ->paginate($perPage)
+            ->withQueryString();
 
-        return view('admin.guru.keluar', compact('gurus'));
+        $daftarMapel = User::where('level', 'guru')->inContext()->whereNotNull('matapelajaran')->distinct()->pluck('matapelajaran');
+
+        return view('admin.guru.keluar', compact('gurus', 'daftarMapel', 'search', 'perPage'));
     }
 
     /**

@@ -8,183 +8,157 @@
     overlayOpacity: {{ $master->hero_overlay_opacity ?? 50 }} 
 }">
     <!-- Header -->
-    <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-8 shadow-sm border border-slate-100 dark:border-zinc-800 relative overflow-hidden">
-        <div class="absolute top-0 right-0 p-8 opacity-10">
-            <svg class="w-32 h-32 text-indigo-500" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-        </div>
-        <div class="relative z-10">
-            <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Manajemen Landing Page</h1>
-            <p class="text-slate-500 dark:text-slate-400 mt-2 max-w-2xl">
-                Kelola konten halaman depan website Anda tanpa perlu mengubah kode. Ubah teks, gambar, dan pengaturan lainnya dengan mudah.
-            </p>
+    <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-zinc-800 shadow-sm relative overflow-hidden group">
+        <div class="absolute -top-24 -right-24 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl group-hover:bg-indigo-500/10 transition-colors duration-1000"></div>
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div>
+                <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Manajemen Landing Page</h1>
+                <p class="text-slate-500 dark:text-slate-400 mt-2 max-w-2xl font-medium text-sm leading-relaxed">
+                    Kustomisasi tampilan depan portal bimbingan belajar. Kelola narasi, visual, testimoni, dan galeri untuk memikat calon peserta didik.
+                </p>
+            </div>
+            <div class="flex items-center gap-3 shrink-0">
+                <div class="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shadow-inner">
+                    <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/></svg>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- Tab Navigation -->
-    <div class="flex gap-2 p-1.5 bg-slate-100 dark:bg-zinc-800 rounded-2xl w-fit">
-        <button @click="tab = 'general'" :class="tab === 'general' ? 'bg-white dark:bg-zinc-700 shadow-sm text-indigo-600 dark:text-white' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'" class="px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-200">
-            Konfigurasi Umum
+    <div class="flex flex-wrap gap-2 p-2 bg-slate-100/80 dark:bg-zinc-800/80 backdrop-blur-xl rounded-[2rem] w-fit border border-slate-200/50 dark:border-zinc-700/50">
+        <button @click="tab = 'general'" :class="tab === 'general' ? 'bg-white dark:bg-zinc-700 shadow-lg text-indigo-600 dark:text-white scale-105' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'" class="px-8 py-3 rounded-[1.5rem] text-xs font-black uppercase tracking-widest transition-all duration-300 active:scale-95">
+            Umum
         </button>
-        <button @click="tab = 'packages'" :class="tab === 'packages' ? 'bg-white dark:bg-zinc-700 shadow-sm text-indigo-600 dark:text-white' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'" class="px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-200">
-            Paket Bimbingan
+        <button @click="tab = 'packages'" :class="tab === 'packages' ? 'bg-white dark:bg-zinc-700 shadow-lg text-indigo-600 dark:text-white scale-105' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'" class="px-8 py-3 rounded-[1.5rem] text-xs font-black uppercase tracking-widest transition-all duration-300 active:scale-95">
+            Paket
         </button>
-        <button @click="tab = 'testimonials'" :class="tab === 'testimonials' ? 'bg-white dark:bg-zinc-700 shadow-sm text-indigo-600 dark:text-white' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'" class="px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-200">
-            Testimonial
+        <button @click="tab = 'testimonials'" :class="tab === 'testimonials' ? 'bg-white dark:bg-zinc-700 shadow-lg text-indigo-600 dark:text-white scale-105' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'" class="px-8 py-3 rounded-[1.5rem] text-xs font-black uppercase tracking-widest transition-all duration-300 active:scale-95">
+            Testimoni
         </button>
-        <button @click="tab = 'faq'" :class="tab === 'faq' ? 'bg-white dark:bg-zinc-700 shadow-sm text-indigo-600 dark:text-white' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'" class="px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-200">
+        <button @click="tab = 'faq'" :class="tab === 'faq' ? 'bg-white dark:bg-zinc-700 shadow-lg text-indigo-600 dark:text-white scale-105' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'" class="px-8 py-3 rounded-[1.5rem] text-xs font-black uppercase tracking-widest transition-all duration-300 active:scale-95">
             FAQ
         </button>
-        <button @click="tab = 'gallery'" :class="tab === 'gallery' ? 'bg-white dark:bg-zinc-700 shadow-sm text-indigo-600 dark:text-white' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'" class="px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-200">
-            Gallery Fasilitas
+        <button @click="tab = 'gallery'" :class="tab === 'gallery' ? 'bg-white dark:bg-zinc-700 shadow-lg text-indigo-600 dark:text-white scale-105' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'" class="px-8 py-3 rounded-[1.5rem] text-xs font-black uppercase tracking-widest transition-all duration-300 active:scale-95">
+            Galeri
         </button>
     </div>
 
     <!-- General Settings Tab -->
-    <div x-show="tab === 'general'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0">
+    <div x-show="tab === 'general'" x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0">
         <form action="{{ route('admin.landing-page.update-general') }}" method="POST" enctype="multipart/form-data" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             @csrf
             <!-- Left Column: Socials & Contacts -->
             <div class="lg:col-span-1 space-y-8">
-                <div class="bg-white dark:bg-zinc-900 rounded-[2rem] p-6 border border-slate-100 dark:border-zinc-800 shadow-sm">
-                    <h2 class="text-lg font-bold mb-6 flex items-center">
-                        <span class="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-600 flex items-center justify-center mr-3">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
-                        </span>
-                        Kontak & Sosmed
+                <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-zinc-800 shadow-sm relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-150 duration-700"></div>
+                    <h2 class="text-xs font-black text-slate-400 uppercase tracking-[0.3em] mb-8 flex items-center gap-3">
+                        <span class="w-8 h-[2px] bg-emerald-500"></span>
+                        Koneksi & Sosial
                     </h2>
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">WhatsApp Number (Untuk Link Chat)</label>
-                            <input type="text" name="wa_number" value="{{ old('wa_number', $master->wa_number) }}" class="w-full px-4 py-3 rounded-xl border-slate-200 dark:border-zinc-800 dark:bg-zinc-950 focus:ring-indigo-500 transition-all" placeholder="Contoh: 628123456789">
-                            <p class="text-[10px] text-slate-400 mt-1 italic">*Gunakan format 62 (tanpa + atau 0).</p>
+                    <div class="space-y-6">
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">WhatsApp CS (Format: 62...)</label>
+                            <input type="text" name="wa_number" value="{{ old('wa_number', $master->wa_number) }}" class="w-full bg-slate-50/50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all" placeholder="628123456789">
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Instagram URL</label>
-                            <input type="text" name="instagram_url" value="{{ old('instagram_url', $master->instagram_url) }}" class="w-full px-4 py-3 rounded-xl border-slate-200 dark:border-zinc-800 dark:bg-zinc-950 focus:ring-indigo-500 transition-all" placeholder="https://instagram.com/genius.edu">
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Instagram Profile URL</label>
+                            <input type="text" name="instagram_url" value="{{ old('instagram_url', $master->instagram_url) }}" class="w-full bg-slate-50/50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-all" placeholder="https://instagram.com/...">
                         </div>
 
                         <!-- WA Widget Settings -->
-                        <div class="mt-8 pt-8 border-t border-slate-100 dark:border-zinc-800">
-                            <h3 class="text-sm font-bold mb-4 flex items-center text-green-600">
-                                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.937 3.659 1.43 5.623 1.43h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                                WA Floating Widget
-                            </h3>
+                        <div class="mt-12 pt-10 border-t border-slate-100 dark:border-zinc-800">
+                            <div class="flex items-center justify-between mb-8">
+                                <h3 class="text-xs font-black uppercase tracking-widest text-emerald-600">WhatsApp Widget</h3>
+                                <label class="relative inline-flex items-center cursor-pointer group">
+                                    <input type="checkbox" name="wa_widget_status" value="1" class="sr-only peer" {{ $master->wa_widget_status ? 'checked' : '' }}>
+                                    <div class="w-12 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-zinc-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-emerald-500 shadow-inner transition-colors"></div>
+                                </label>
+                            </div>
                             <div class="space-y-4">
-                                <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-zinc-950 rounded-xl border border-slate-100 dark:border-zinc-800">
-                                    <span class="text-xs font-bold text-slate-600 dark:text-zinc-400">Aktifkan Tombol Melayang</span>
-                                    <label class="relative inline-flex items-center cursor-pointer">
-                                        <input type="checkbox" name="wa_widget_status" value="1" class="sr-only peer" {{ $master->wa_widget_status ? 'checked' : '' }}>
-                                        <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-600"></div>
-                                    </label>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Pesan Otomatis (Greeting)</label>
-                                    <textarea name="wa_widget_message" rows="2" class="w-full px-4 py-3 rounded-xl border-slate-200 dark:border-zinc-800 dark:bg-zinc-950 focus:ring-indigo-500 transition-all text-xs" placeholder="Halo Admin, saya ingin bertanya tentang program bimbel...">{{ old('wa_widget_message', $master->wa_widget_message) }}</textarea>
+                                <div class="space-y-2">
+                                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Pesan Sapaan (Greeting)</label>
+                                    <textarea name="wa_widget_message" rows="2" class="w-full bg-slate-50/50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-xs font-bold py-4 px-5 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all resize-none" placeholder="Halo Admin...">{{ old('wa_widget_message', $master->wa_widget_message) }}</textarea>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="p-6 bg-blue-50 dark:bg-zinc-800/50 rounded-3xl border border-blue-100 dark:border-zinc-800">
-                    <p class="text-[10px] text-blue-700 dark:text-blue-400 leading-relaxed font-medium text-center italic">
-                        <span class="font-bold">Informasi:</span> Pengaturan <span class="underline">Nama & Logo Lembaga</span> dipusatkan di menu <a href="{{ route('master.index') }}" class="font-black text-indigo-900 dark:text-white underline">Data Master</a>. 
-                        <br>Jangan merubah bagian ini tanpa koordinasi, hubungi TIM IT jika ingin merubah identitas utama.
+                <div class="p-8 bg-indigo-50 dark:bg-zinc-800 rounded-[2.5rem] border border-indigo-100 dark:border-zinc-700/50 relative overflow-hidden group">
+                    <div class="absolute -bottom-8 -right-8 w-32 h-32 bg-indigo-500/5 rounded-full blur-2xl group-hover:bg-indigo-500/10 transition-colors"></div>
+                    <p class="text-[11px] text-indigo-700 dark:text-indigo-300 leading-relaxed font-bold italic relative">
+                        <span class="text-indigo-900 dark:text-white uppercase tracking-widest block mb-2 not-italic underline">Pusat Data Master</span>
+                        Informasi <span class="font-black">Nama Lembaga & Logo Utama</span> dikonfigurasi melalui modul <a href="{{ route('master.index') }}" class="text-indigo-600 dark:text-indigo-400 font-black hover:underline px-1">Master</a>. 
                     </p>
                 </div>
             </div>
 
             <!-- Right Column: Hero Section -->
             <div class="lg:col-span-2 space-y-8">
-                <div class="bg-white dark:bg-zinc-900 rounded-[2rem] p-8 border border-slate-100 dark:border-zinc-800 shadow-sm relative overflow-hidden">
-                    <h2 class="text-xl font-bold mb-8 flex items-center">
-                        <span class="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 flex items-center justify-center mr-4">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                        </span>
-                        Hero Section (Header Utama)
+                <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-zinc-800 shadow-sm relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-150 duration-700"></div>
+                    <h2 class="text-xs font-black text-slate-400 uppercase tracking-[0.3em] mb-8 flex items-center gap-3">
+                        <span class="w-8 h-[2px] bg-indigo-500"></span>
+                        Visual & Narasi Hero
                     </h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div class="space-y-6">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Judul Utama (Hero Title)</label>
-                                <input type="text" name="hero_title" value="{{ old('hero_title', $master->hero_title) }}" class="w-full px-4 py-3 rounded-xl border-slate-200 dark:border-zinc-800 dark:bg-zinc-950 focus:ring-indigo-500 transition-all font-bold text-lg" placeholder="Contoh: Bimbingan Belajar Paling Genius">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                        <div class="space-y-8">
+                            <div class="space-y-2">
+                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Headline Utama</label>
+                                <input type="text" name="hero_title" value="{{ old('hero_title', $master->hero_title) }}" class="w-full bg-slate-50/50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-xl font-black py-5 px-6 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-900 dark:text-white" placeholder="Bimbingan Belajar Genius">
                             </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Sub-judul (Hero Subtitle)</label>
-                                <textarea name="hero_subtitle" rows="4" class="w-full px-4 py-3 rounded-xl border-slate-200 dark:border-zinc-800 dark:bg-zinc-950 focus:ring-indigo-500 transition-all" placeholder="Jelaskan secara singkat tentang lembaga Anda...">{{ old('hero_subtitle', $master->hero_subtitle) }}</textarea>
+                            <div class="space-y-2">
+                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Deskripsi Sub-headline</label>
+                                <textarea name="hero_subtitle" rows="5" class="w-full bg-slate-50/50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-5 px-6 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all leading-relaxed resize-none" placeholder="Deskripsikan visi utama lembaga Anda...">{{ old('hero_subtitle', $master->hero_subtitle) }}</textarea>
                             </div>
                         </div>
-                        <div class="space-y-6">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Background Hero Image</label>
-                                <div class="relative group rounded-2xl overflow-hidden aspect-video bg-slate-100 dark:bg-zinc-800 border-2 border-dashed border-slate-200 dark:border-zinc-700">
+                        <div class="space-y-8">
+                            <div class="space-y-4">
+                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Gambar Latar Belakang (High-Res)</label>
+                                <div class="relative group rounded-[2rem] overflow-hidden aspect-video bg-slate-100 dark:bg-zinc-800 ring-4 ring-slate-50 dark:ring-zinc-900 transition-all shadow-inner">
                                     @if($master->hero_image)
-                                        <img src="{{ asset('storage/' . $master->hero_image) }}" class="w-full h-full object-cover">
-                                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                            <span class="text-white text-xs font-bold">Ganti Gambar</span>
+                                        <img src="{{ asset('storage/' . $master->hero_image) }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                                        <div class="absolute inset-0 bg-indigo-900/40 opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-[2px] flex items-center justify-center">
+                                            <span class="bg-white text-slate-900 px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest shadow-xl">Ganti Visual</span>
                                         </div>
                                     @else
-                                        <div class="flex items-center justify-center h-full text-slate-400">
+                                        <div class="flex flex-col items-center justify-center h-full text-slate-300 gap-3">
                                             <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                            <span class="text-[10px] font-black uppercase tracking-widest">Unggah Gambar</span>
                                         </div>
                                     @endif
                                     <input type="file" name="hero_image" class="absolute inset-0 opacity-0 cursor-pointer">
                                 </div>
-                                <p class="text-[10px] text-slate-400 mt-2 italic">*Disarankan gambar landscape (16:9) resolusi tinggi. Maks 5MB.</p>
                             </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Overlay Darkness (<span x-text="overlayOpacity"></span>%)</label>
-                                <input type="range" name="hero_overlay_opacity" min="0" max="90" step="5" x-model="overlayOpacity" class="w-full h-2 bg-slate-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-indigo-600">
-                                <p class="text-[10px] text-slate-400 mt-2 italic">Semakin tinggi, gambar latar belakang semakin gelap agar teks lebih mudah dibaca.</p>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Kecerahan Overlay</label>
+                                    <span class="text-[10px] font-black text-indigo-600 bg-indigo-50 px-3 py-1 rounded-lg shadow-sm" x-text="overlayOpacity + '%'"></span>
+                                </div>
+                                <input type="range" name="hero_overlay_opacity" min="0" max="90" step="5" x-model="overlayOpacity" class="w-full h-1.5 bg-slate-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+                                <p class="text-[10px] text-slate-400 italic font-medium leading-relaxed">*Meningkatkan overlay mempermudah pembacaan teks putih di atas gambar.</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-white dark:bg-zinc-900 rounded-[2rem] p-8 border border-slate-100 dark:border-zinc-800 shadow-sm">
-                    <h2 class="text-xl font-bold mb-8 flex items-center">
-                        <span class="w-10 h-10 rounded-xl bg-orange-100 dark:bg-orange-900/30 text-orange-600 flex items-center justify-center mr-4">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-                        </span>
-                        Statistik (Counter Stats)
+                <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-zinc-800 shadow-sm relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-slate-500/5 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-150 duration-700"></div>
+                    <h2 class="text-xs font-black text-slate-400 uppercase tracking-[0.3em] mb-8 flex items-center gap-3">
+                        <span class="w-8 h-[2px] bg-slate-800 dark:bg-white"></span>
+                        Tentang Lembaga
                     </h2>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Siswa Aktif</label>
-                            <input type="text" name="stats_siswa" value="{{ old('stats_siswa', $master->stats_siswa) }}" class="w-full px-4 py-3 rounded-xl border-slate-200 dark:border-zinc-800 dark:bg-zinc-950 focus:ring-indigo-500 transition-all text-center font-bold" placeholder="1.200+">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Tutor</label>
-                            <input type="text" name="stats_tutor" value="{{ old('stats_tutor', $master->stats_tutor) }}" class="w-full px-4 py-3 rounded-xl border-slate-200 dark:border-zinc-800 dark:bg-zinc-950 focus:ring-indigo-500 transition-all text-center font-bold" placeholder="50+">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Modul</label>
-                            <input type="text" name="stats_modul" value="{{ old('stats_modul', $master->stats_modul) }}" class="w-full px-4 py-3 rounded-xl border-slate-200 dark:border-zinc-800 dark:bg-zinc-950 focus:ring-indigo-500 transition-all text-center font-bold" placeholder="100+">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Kepuasan</label>
-                            <input type="text" name="stats_kepuasan" value="{{ old('stats_kepuasan', $master->stats_kepuasan) }}" class="w-full px-4 py-3 rounded-xl border-slate-200 dark:border-zinc-800 dark:bg-zinc-950 focus:ring-indigo-500 transition-all text-center font-bold" placeholder="98%">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white dark:bg-zinc-900 rounded-[2rem] p-8 border border-slate-100 dark:border-zinc-800 shadow-sm">
-                    <h2 class="text-xl font-bold mb-8 flex items-center">
-                        <span class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-600 flex items-center justify-center mr-4">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        </span>
-                        Tentang Kami
-                    </h2>
-                    <textarea name="tentang_kami" rows="6" class="w-full px-4 py-3 rounded-xl border-slate-200 dark:border-zinc-800 dark:bg-zinc-950 focus:ring-indigo-500 transition-all" placeholder="Ceritakan sejarah atau visi misi bimbingan belajar Anda...">{{ old('tentang_kami', $master->tentang_kami) }}</textarea>
+                    <textarea name="tentang_kami" rows="6" class="w-full bg-slate-50/50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-[2rem] text-sm font-bold py-6 px-8 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all leading-relaxed resize-none" placeholder="Tuliskan sejarah, visi, dan pencapaian lembaga...">{{ old('tentang_kami', $master->tentang_kami) }}</textarea>
                 </div>
 
                 <!-- Sticky Save Button -->
                 <div class="flex justify-end pt-4">
-                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-10 rounded-2xl shadow-lg shadow-indigo-500/30 transition-all transform hover:scale-105 active:scale-95 flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                        Simpan Semua Perubahan
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-black py-5 px-12 rounded-[2rem] shadow-2xl shadow-indigo-600/20 transition-all active:scale-95 flex items-center gap-4 group">
+                        <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center group-hover:rotate-12 transition-transform">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                        <span class="uppercase tracking-widest text-xs">Simpan Semua Perubahan</span>
                     </button>
                 </div>
             </div>
@@ -192,182 +166,249 @@
     </div>
 
     <!-- Packages Tab -->
-    <div x-show="tab === 'packages'" x-transition class="bg-white dark:bg-zinc-900 rounded-[2rem] p-8 border border-slate-100 dark:border-zinc-800 shadow-sm" x-cloak>
-        <div class="flex justify-between items-center mb-8">
-            <h2 class="text-xl font-bold">Daftar Paket Bimbingan</h2>
-            <a href="{{ route('paket-bimbingan.index') }}" class="text-indigo-600 font-bold hover:underline">Kelola di Manajemen Paket &rarr;</a>
+    <div x-show="tab === 'packages'" x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-10" x-cloak>
+        <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-10 border border-slate-100 dark:border-zinc-800 shadow-sm relative overflow-hidden group">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-150 duration-700"></div>
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+                <div>
+                    <h2 class="text-xs font-black text-slate-400 uppercase tracking-[0.3em] mb-2 flex items-center gap-3">
+                        <span class="w-8 h-[2px] bg-indigo-500"></span>
+                        Katalog Paket Bimbingan
+                    </h2>
+                    <p class="text-slate-500 dark:text-slate-400 text-[10px] font-bold italic ml-11">*Daftar ini ditampilkan secara otomatis di landing page.</p>
+                </div>
+                <a href="{{ route('paket-bimbingan.index') }}" class="inline-flex items-center gap-3 bg-indigo-600 text-white font-black text-[10px] uppercase tracking-widest px-8 py-4 rounded-2xl shadow-xl shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 shrink-0">
+                    Kelola Harga & Deskripsi
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </a>
+            </div>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            @foreach($pakets ?? [] as $paket)
-                <div class="p-6 rounded-2xl bg-slate-50 dark:bg-zinc-800 border border-slate-100 dark:border-zinc-700">
-                    <div class="text-2xl mb-4">🎓</div>
-                    <h3 class="font-bold dark:text-white">{{ $paket->nama_paket }}</h3>
-                    <p class="text-xs text-slate-500 mt-2 line-clamp-2">{{ $paket->deskripsi ?? 'Belum ada deskripsi.' }}</p>
-                    <div class="mt-4 pt-4 border-t border-slate-200 dark:border-zinc-700 flex justify-between items-center">
-                        <span class="text-sm font-black text-indigo-600 dark:text-indigo-400">Rp {{ number_format($paket->nominal, 0, ',', '.') }}</span>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            @forelse($pakets ?? [] as $paket)
+                <div class="bg-white dark:bg-zinc-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-zinc-800 shadow-sm relative group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-indigo-500/5 rounded-full -mr-12 -mt-12 transition-transform group-hover:scale-150 duration-700"></div>
+                    <div class="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-2xl mb-6 shadow-inner ring-1 ring-indigo-100 dark:ring-indigo-800">
+                        🎓
+                    </div>
+                    <h3 class="text-lg font-black text-slate-900 dark:text-white mb-3 tracking-tight">{{ $paket->nama_paket }}</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-3 italic mb-6 font-medium">"{{ $paket->deskripsi ?? 'Deskripsi paket belum diatur.' }}"</p>
+                    <div class="pt-6 border-t border-slate-50 dark:border-zinc-800 flex justify-between items-center">
+                        <div class="flex flex-col">
+                            <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Investasi</span>
+                            <span class="text-base font-black text-indigo-600 dark:text-indigo-400">Rp {{ number_format($paket->nominal, 0, ',', '.') }}</span>
+                        </div>
                         @if($paket->is_featured)
-                            <span class="px-2 py-1 bg-indigo-100 text-indigo-600 text-[10px] font-bold rounded-lg uppercase">Featured</span>
+                            <span class="px-3 py-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-[9px] font-black rounded-lg uppercase tracking-widest ring-1 ring-emerald-100 dark:ring-emerald-800">Populer</span>
                         @endif
                     </div>
                 </div>
-            @endforeach
+            @empty
+                <div class="lg:col-span-3 py-20 text-center">
+                    <div class="w-24 h-24 bg-slate-50 dark:bg-zinc-800 rounded-[3rem] flex items-center justify-center mx-auto mb-6 shadow-inner text-5xl">🏷️</div>
+                    <h3 class="font-black text-slate-900 dark:text-white text-xl">Paket Belum Tersedia</h3>
+                    <p class="text-slate-400 text-sm mt-3 font-medium">Silahkan buat paket bimbingan di menu pengaturan master.</p>
+                </div>
+            @endforelse
         </div>
     </div>
 
     <!-- Testimonials Tab -->
-    <div x-show="tab === 'testimonials'" x-transition class="space-y-8" x-cloak>
-        <div class="bg-white dark:bg-zinc-900 rounded-[2rem] p-8 border border-slate-100 dark:border-zinc-800 shadow-sm">
-            <h2 class="text-xl font-bold mb-8">Tambah Testimonial Baru</h2>
-            <form action="{{ route('admin.landing-page.testimonial.store') }}" method="POST" enctype="multipart/form-data" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div x-show="tab === 'testimonials'" x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-10" x-cloak>
+        <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-10 border border-slate-100 dark:border-zinc-800 shadow-sm relative overflow-hidden group">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-pink-500/5 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-150 duration-700"></div>
+            <h2 class="text-xs font-black text-slate-400 uppercase tracking-[0.3em] mb-10 flex items-center gap-3">
+                <span class="w-8 h-[2px] bg-pink-500"></span>
+                Entri Testimoni Baru
+            </h2>
+            <form action="{{ route('admin.landing-page.testimonial.store') }}" method="POST" enctype="multipart/form-data" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 @csrf
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nama Pengulas</label>
-                    <input type="text" name="nama" required class="w-full px-4 py-3 rounded-xl border-slate-200 dark:border-zinc-800 dark:bg-zinc-950 focus:ring-indigo-500 transition-all" placeholder="Contoh: Andi Wijaya">
+                <div class="space-y-2">
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nama Lengkap</label>
+                    <input type="text" name="nama" required class="w-full bg-slate-50/50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-all" placeholder="Misal: Andi Wijaya">
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Jabatan / Posisi</label>
-                    <input type="text" name="posisi" class="w-full px-4 py-3 rounded-xl border-slate-200 dark:border-zinc-800 dark:bg-zinc-950 focus:ring-indigo-500 transition-all" placeholder="Contoh: Alumni 2023 / Orang Tua Siswa">
+                <div class="space-y-2">
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Keterangan / Jabatan</label>
+                    <input type="text" name="posisi" class="w-full bg-slate-50/50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-all" placeholder="Misal: Alumni Lulus PTN">
                 </div>
-                <div class="md:col-span-2">
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Isi Ulasan</label>
-                    <textarea name="ulasan" rows="3" required class="w-full px-4 py-3 rounded-xl border-slate-200 dark:border-zinc-800 dark:bg-zinc-950 focus:ring-indigo-500 transition-all" placeholder="Tuliskan pengalaman positif mereka..."></textarea>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Bintang (1-5)</label>
-                    <select name="bintang" class="w-full px-4 py-3 rounded-xl border-slate-200 dark:border-zinc-800 dark:bg-zinc-950 focus:ring-indigo-500 transition-all">
-                        <option value="5">⭐⭐⭐⭐⭐ (5 Bintang)</option>
-                        <option value="4">⭐⭐⭐⭐ (4 Bintang)</option>
-                        <option value="3">⭐⭐⭐ (3 Bintang)</option>
+                <div class="space-y-2">
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Rating Penilaian</label>
+                    <select name="bintang" class="w-full bg-slate-50/50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-all cursor-pointer">
+                        <option value="5">⭐⭐⭐⭐⭐ (Sempurna)</option>
+                        <option value="4">⭐⭐⭐⭐ (Sangat Baik)</option>
+                        <option value="3">⭐⭐⭐ (Cukup)</option>
                     </select>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Foto Pengulas</label>
-                    <input type="file" name="foto" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100 transition-all cursor-pointer">
+                <div class="lg:col-span-2 space-y-2">
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Naskah Testimoni</label>
+                    <textarea name="ulasan" rows="2" required class="w-full bg-slate-50/50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-all resize-none" placeholder="Tuliskan ulasan positif mereka..."></textarea>
                 </div>
-                <div class="md:col-span-2 flex justify-end">
-                    <button type="submit" class="bg-indigo-600 text-white font-bold py-3 px-8 rounded-xl shadow-lg hover:bg-indigo-700 transition-all">Tambah Testimonial</button>
+                <div class="space-y-2">
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Foto Profil (Opsional)</label>
+                    <input type="file" name="foto" class="block w-full text-[10px] text-slate-500 file:mr-4 file:py-2 file:px-6 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:bg-pink-50 file:text-pink-600 hover:file:bg-pink-100 transition-all cursor-pointer mt-2">
+                </div>
+                <div class="lg:col-span-3 flex justify-end">
+                    <button type="submit" class="bg-pink-600 hover:bg-pink-700 text-white font-black text-xs px-10 py-4 rounded-2xl shadow-xl shadow-pink-500/20 transition-all active:scale-95 flex items-center gap-3">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                        Tambahkan Testimoni
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            @forelse($testimonials as $testi)
+                <div class="bg-white dark:bg-zinc-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-zinc-800 shadow-sm relative group hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                    <form action="{{ route('admin.landing-page.testimonial.destroy', $testi) }}" method="POST" class="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity">
+                        @csrf @method('DELETE')
+                        <button type="submit" onclick="return confirm('Hapus testimonial ini?')" class="w-10 h-10 bg-rose-50 dark:bg-rose-900/20 text-rose-600 rounded-xl flex items-center justify-center hover:bg-rose-600 hover:text-white transition-all shadow-sm">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                    </form>
+                    <div class="flex items-center gap-5 mb-8">
+                        <div class="w-16 h-16 rounded-[1.25rem] bg-slate-50 dark:bg-zinc-800 overflow-hidden border-2 border-white dark:border-zinc-700 shadow-md">
+                            @if($testi->foto)
+                                <img src="{{ asset('storage/' . $testi->foto) }}" class="w-full h-full object-cover">
+                            @else
+                                <div class="w-full h-full flex items-center justify-center text-2xl">👤</div>
+                            @endif
+                        </div>
+                        <div>
+                            <h4 class="font-black text-slate-900 dark:text-white text-lg tracking-tight">{{ $testi->nama }}</h4>
+                            <span class="text-[10px] font-black uppercase tracking-widest text-indigo-500">{{ $testi->posisi }}</span>
+                        </div>
+                    </div>
+                    <div class="mb-6">
+                        <div class="flex gap-1 text-amber-400 mb-4">
+                            @for($i=0; $i<$testi->bintang; $i++) 
+                                <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            @endfor
+                        </div>
+                        <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-medium italic">"{{ $testi->ulasan }}"</p>
+                    </div>
+                </div>
+            @empty
+                <div class="lg:col-span-3 py-20 text-center">
+                    <div class="w-24 h-24 bg-slate-50 dark:bg-zinc-800 rounded-[3rem] flex items-center justify-center mx-auto mb-6 shadow-inner text-5xl">💬</div>
+                    <h3 class="font-black text-slate-900 dark:text-white text-xl">Belum Ada Testimoni</h3>
+                    <p class="text-slate-400 text-sm mt-3 font-medium">Testimoni akan membangun kepercayaan calon siswa Anda.</p>
+                </div>
+            @endforelse
+        </div>
+    </div>
+
+    <!-- FAQ Tab -->
+    <div x-show="tab === 'faq'" x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-10" x-cloak>
+        <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-10 border border-slate-100 dark:border-zinc-800 shadow-sm relative overflow-hidden group">
+             <div class="absolute top-0 right-0 w-32 h-32 bg-slate-500/5 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-150 duration-700"></div>
+            <h2 class="text-xs font-black text-slate-400 uppercase tracking-[0.3em] mb-10 flex items-center gap-3">
+                <span class="w-8 h-[2px] bg-slate-800 dark:bg-white"></span>
+                Katalog Pertanyaan (FAQ)
+            </h2>
+            <form action="{{ route('admin.landing-page.faq.store') }}" method="POST" class="space-y-8">
+                @csrf
+                <div class="space-y-2">
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Pertanyaan Umum</label>
+                    <input type="text" name="pertanyaan" required class="w-full bg-slate-50/50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500 transition-all" placeholder="Contoh: Apakah bisa bayar cicil?">
+                </div>
+                <div class="space-y-2">
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Jawaban Penjelasan</label>
+                    <textarea name="jawaban" rows="3" required class="w-full bg-slate-50/50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500 transition-all resize-none" placeholder="Berikan jawaban yang jelas dan ringkas..."></textarea>
+                </div>
+                <div class="flex justify-end">
+                    <button type="submit" class="bg-slate-900 dark:bg-white dark:text-slate-900 hover:bg-black dark:hover:bg-slate-100 text-white font-black text-xs px-10 py-4 rounded-2xl shadow-xl transition-all active:scale-95 flex items-center gap-3 group">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                        Tambahkan Ke Daftar
+                    </button>
                 </div>
             </form>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            @foreach($testimonials as $testi)
-                <div class="bg-white dark:bg-zinc-900 p-6 rounded-[2rem] border border-slate-100 dark:border-zinc-800 shadow-sm relative group">
-                    <form action="{{ route('admin.landing-page.testimonial.destroy', $testi) }}" method="POST" class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                        @csrf @method('DELETE')
-                        <button type="submit" onclick="return confirm('Hapus testimonial ini?')" class="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                        </button>
-                    </form>
-                    <div class="flex items-center gap-4 mb-4">
-                        <div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-zinc-800 overflow-hidden">
-                            @if($testi->foto)
-                                <img src="{{ asset('storage/' . $testi->foto) }}" class="w-full h-full object-cover">
-                            @else
-                                <div class="w-full h-full flex items-center justify-center">👤</div>
-                            @endif
-                        </div>
-                        <div>
-                            <h4 class="font-bold dark:text-white">{{ $testi->nama }}</h4>
-                            <span class="text-xs text-slate-500">{{ $testi->posisi }}</span>
-                        </div>
-                    </div>
-                    <p class="text-sm text-slate-600 dark:text-slate-400 italic">"{{ $testi->ulasan }}"</p>
-                    <div class="mt-4 text-yellow-400 text-xs">
-                        @for($i=0; $i<$testi->bintang; $i++) ⭐ @endfor
-                    </div>
-                </div>
-            @endforeach
-        </div>
-    </div>
-
-    <!-- FAQ Tab -->
-    <div x-show="tab === 'faq'" x-transition class="space-y-8" x-cloak>
-        <div class="bg-white dark:bg-zinc-900 rounded-[2rem] p-8 border border-slate-100 dark:border-zinc-800 shadow-sm">
-            <h2 class="text-xl font-bold mb-8">Tambah Pertanyaan Baru (FAQ)</h2>
-            <form action="{{ route('admin.landing-page.faq.store') }}" method="POST" class="space-y-6">
-                @csrf
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Pertanyaan</label>
-                    <input type="text" name="pertanyaan" required class="w-full px-4 py-3 rounded-xl border-slate-200 dark:border-zinc-800 dark:bg-zinc-950 focus:ring-indigo-500 transition-all" placeholder="Contoh: Bagaimana cara mendaftar?">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Jawaban</label>
-                    <textarea name="jawaban" rows="3" required class="w-full px-4 py-3 rounded-xl border-slate-200 dark:border-zinc-800 dark:bg-zinc-950 focus:ring-indigo-500 transition-all" placeholder="Tuliskan jawaban lengkapnya..."></textarea>
-                </div>
-                <div class="flex justify-end">
-                    <button type="submit" class="bg-indigo-600 text-white font-bold py-3 px-8 rounded-xl shadow-lg hover:bg-indigo-700 transition-all">Tambah FAQ</button>
-                </div>
-            </form>
-        </div>
-
-        <div class="space-y-4">
-            @foreach($faqs as $faq)
-                <div class="bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-slate-100 dark:border-zinc-800 shadow-sm flex justify-between items-start group">
+            @forelse($faqs as $faq)
+                <div class="bg-white dark:bg-zinc-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-zinc-800 shadow-sm flex justify-between items-start group hover:shadow-md transition-all">
                     <div class="flex-1">
-                        <h4 class="font-bold dark:text-white mb-2">{{ $faq->pertanyaan }}</h4>
-                        <p class="text-sm text-slate-600 dark:text-slate-400">{{ $faq->jawaban }}</p>
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="w-6 h-6 rounded-lg bg-slate-100 dark:bg-zinc-800 text-slate-900 dark:text-white flex items-center justify-center text-[10px] font-black">Q</span>
+                            <h4 class="font-black text-slate-900 dark:text-white tracking-tight">{{ $faq->pertanyaan }}</h4>
+                        </div>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-medium ml-9">{{ $faq->jawaban }}</p>
                     </div>
                     <form action="{{ route('admin.landing-page.faq.destroy', $faq) }}" method="POST" class="ml-4 opacity-0 group-hover:opacity-100 transition-opacity">
                         @csrf @method('DELETE')
-                        <button type="submit" onclick="return confirm('Hapus FAQ ini?')" class="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        <button type="submit" onclick="return confirm('Hapus FAQ ini?')" class="w-9 h-9 bg-rose-50 dark:bg-rose-900/20 text-rose-600 rounded-xl flex items-center justify-center hover:bg-rose-600 hover:text-white transition-all shadow-sm">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                         </button>
                     </form>
                 </div>
-            @endforeach
+            @empty
+                <div class="md:col-span-2 py-20 text-center">
+                    <div class="w-24 h-24 bg-slate-50 dark:bg-zinc-800 rounded-[3rem] flex items-center justify-center mx-auto mb-6 shadow-inner text-5xl">❓</div>
+                    <h3 class="font-black text-slate-900 dark:text-white text-xl">Belum Ada FAQ</h3>
+                    <p class="text-slate-400 text-sm mt-3 font-medium">Bantu calon pendaftar memahami layanan Anda lebih cepat.</p>
+                </div>
+            @endforelse
         </div>
     </div>
 
     <!-- Gallery Tab -->
-    <div x-show="tab === 'gallery'" x-transition class="space-y-8" x-cloak>
-        <div class="bg-white dark:bg-zinc-900 rounded-[2rem] p-8 border border-slate-100 dark:border-zinc-800 shadow-sm">
-            <h2 class="text-xl font-bold mb-8">Tambah Foto Gallery Baru</h2>
-            <form action="{{ route('admin.landing-page.gallery.store') }}" method="POST" enctype="multipart/form-data" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div x-show="tab === 'gallery'" x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-10" x-cloak>
+        <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-10 border border-slate-100 dark:border-zinc-800 shadow-sm relative overflow-hidden group">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-150 duration-700"></div>
+            <h2 class="text-xs font-black text-slate-400 uppercase tracking-[0.3em] mb-10 flex items-center gap-3">
+                <span class="w-8 h-[2px] bg-indigo-500"></span>
+                Koleksi Visual (Galeri)
+            </h2>
+            <form action="{{ route('admin.landing-page.gallery.store') }}" method="POST" enctype="multipart/form-data" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 @csrf
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Judul Foto / Kegiatan</label>
-                        <input type="text" name="judul" class="w-full px-4 py-3 rounded-xl border-slate-200 dark:border-zinc-800 dark:bg-zinc-950 focus:ring-indigo-500 transition-all" placeholder="Misal: Kelas Intensif UTBK">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Kategori</label>
-                        <select name="kategori" class="w-full px-4 py-3 rounded-xl border-slate-200 dark:border-zinc-800 dark:bg-zinc-950 focus:ring-indigo-500 transition-all">
-                            <option value="Fasilitas">Fasilitas</option>
-                            <option value="Kegiatan">Kegiatan</option>
-                            <option value="Prestasi">Prestasi</option>
-                        </select>
-                    </div>
+                <div class="space-y-2">
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Keterangan Singkat / Judul</label>
+                    <input type="text" name="judul" required class="w-full bg-slate-50/50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all" placeholder="Misal: Suasana Kelas">
                 </div>
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Pilih Foto</label>
-                        <input type="file" name="foto" required class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 transition-all cursor-pointer">
-                    </div>
-                    <div class="flex justify-end">
-                        <button type="submit" class="bg-indigo-600 text-white font-bold py-3 px-8 rounded-xl shadow-lg hover:bg-indigo-700 transition-all">Unggah Ke Gallery</button>
-                    </div>
+                <div class="space-y-2">
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Label Kategori</label>
+                    <select name="kategori" class="w-full bg-slate-50/50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all cursor-pointer">
+                        <option value="Fasilitas">Infrastruktur & Fasilitas</option>
+                        <option value="Kegiatan">Aktivitas Belajar</option>
+                        <option value="Prestasi">Siswa Berprestasi</option>
+                    </select>
+                </div>
+                <div class="space-y-2">
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Pilih File Gambar</label>
+                    <input type="file" name="foto" required class="block w-full text-[10px] text-slate-500 file:mr-4 file:py-2 file:px-6 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100 transition-all cursor-pointer mt-2">
+                </div>
+                <div class="lg:col-span-3 flex justify-end">
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs px-10 py-4 rounded-2xl shadow-xl shadow-indigo-500/20 transition-all active:scale-95 flex items-center gap-3">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                        Unggah Ke Galeri
+                    </button>
                 </div>
             </form>
         </div>
 
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            @foreach($galleries as $gal)
-                <div class="relative aspect-square rounded-2xl overflow-hidden group shadow-lg border border-slate-100 dark:border-zinc-800">
-                    <img src="{{ asset('storage/' . $gal->foto) }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-4 flex flex-col justify-end">
-                        <p class="text-xs text-white font-black uppercase tracking-widest mb-1">{{ $gal->judul }}</p>
-                        <span class="text-[10px] text-indigo-300 font-bold uppercase">{{ $gal->kategori }}</span>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+            @forelse($galleries as $gal)
+                <div class="relative aspect-square rounded-[2.5rem] overflow-hidden group shadow-lg border-4 border-white dark:border-zinc-900 hover:shadow-2xl transition-all duration-500">
+                    <img src="{{ asset('storage/' . $gal->foto) }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-6 flex flex-col justify-end backdrop-blur-[1px]">
+                        <p class="text-xs text-white font-black uppercase tracking-[0.2em] mb-1 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">{{ $gal->judul }}</p>
+                        <span class="text-[10px] text-indigo-300 font-black uppercase tracking-widest translate-y-4 group-hover:translate-y-0 transition-transform duration-500 delay-75">{{ $gal->kategori }}</span>
                         
-                        <form action="{{ route('admin.landing-page.gallery.destroy', $gal) }}" method="POST" class="absolute top-2 right-2">
+                        <form action="{{ route('admin.landing-page.gallery.destroy', $gal) }}" method="POST" class="absolute top-4 right-4">
                             @csrf @method('DELETE')
-                            <button type="submit" class="w-8 h-8 rounded-lg bg-red-600 text-white flex items-center justify-center hover:bg-red-700 shadow-lg" onclick="return confirm('Hapus foto ini?')">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            <button type="submit" class="w-9 h-9 rounded-xl bg-rose-600/90 text-white flex items-center justify-center hover:bg-rose-600 shadow-xl transition-all active:scale-90" onclick="return confirm('Hapus foto ini?')">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
                             </button>
                         </form>
                     </div>
                 </div>
-            @endforeach
+            @empty
+                <div class="col-span-full py-20 text-center">
+                    <div class="w-24 h-24 bg-slate-50 dark:bg-zinc-800 rounded-[3rem] flex items-center justify-center mx-auto mb-6 shadow-inner text-5xl">📸</div>
+                    <h3 class="font-black text-slate-900 dark:text-white text-xl">Galeri Masih Kosong</h3>
+                    <p class="text-slate-400 text-sm mt-3 font-medium">Unggah foto-foto kegiatan belajar mengajar untuk menarik minat.</p>
+                </div>
+            @endforelse
         </div>
     </div>
 </div>

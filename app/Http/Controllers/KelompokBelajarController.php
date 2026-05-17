@@ -10,10 +10,25 @@ class KelompokBelajarController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $kelompokBelajars = KelompokBelajar::inContext()->latest()->get();
-        return view('admin.kelompok_belajar.index', compact('kelompokBelajars'));
+        $search  = $request->input('search', '');
+        $perPage = in_array($request->input('per_page'), [10, 25, 50, 100])
+                    ? (int) $request->input('per_page')
+                    : 10;
+
+        $sort    = in_array($request->input('sort'), ['id', 'nama_kelompok']) ? $request->input('sort') : 'id';
+        $order   = in_array($request->input('order'), ['asc', 'desc']) ? $request->input('order') : 'desc';
+
+        $kelompokBelajars = KelompokBelajar::inContext()
+            ->when($search, fn($q) =>
+                $q->where('nama_kelompok', 'like', "%{$search}%")
+            )
+            ->orderBy($sort, $order)
+            ->paginate($perPage)
+            ->withQueryString();
+
+        return view('admin.kelompok_belajar.index', compact('kelompokBelajars', 'search', 'perPage'));
     }
 
     /**
