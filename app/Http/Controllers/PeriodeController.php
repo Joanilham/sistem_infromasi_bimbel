@@ -10,10 +10,21 @@ class PeriodeController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $periodes = Periode::all();
-        return view('admin.periode.index', compact('periodes'));
+        $search  = $request->input('search', '');
+        $perPage = in_array($request->input('per_page'), [10, 25, 50, 100]) ? (int) $request->input('per_page') : 10;
+        $sort    = in_array($request->input('sort'), ['id', 'tahun_periode']) ? $request->input('sort') : 'id';
+        $order   = in_array($request->input('order'), ['asc', 'desc']) ? $request->input('order') : 'desc';
+
+        $periodes = Periode::when($search, function ($q) use ($search) {
+            $q->where('tahun_periode', 'like', "%{$search}%");
+        })
+        ->orderBy($sort, $order)
+        ->paginate($perPage)
+        ->withQueryString();
+
+        return view('admin.periode.index', compact('periodes', 'search', 'perPage'));
     }
 
     /**

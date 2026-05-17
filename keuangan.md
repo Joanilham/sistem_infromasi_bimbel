@@ -406,5 +406,5 @@ CREATE TABLE pengeluaran (
 - **Format currency:** semua nominal disimpan sebagai `DECIMAL(12,0)` tanpa desimal (rupiah bulat).
 - **No. Kwitansi:** di-generate otomatis saat transaksi disimpan, format `YYMMDD{urutan_harian}/{kode_user}`.
 - **Tagihan:** bukan tabel tersendiri, melainkan query `VIEW` dari `pembayaran_siswa` yang menghitung `total_harus_dibayar - SUM(transaksi_pembayaran.nominal)`.
-- **Hak akses:** semua menu keuangan hanya dapat diakses oleh role `admin` dan `keuangan`.
+- **Hak akses:** semua menu keuangan hanya dapat diakses oleh role `admin` dan `staff`.
 - **Cetak PDF:** gunakan library seperti DomPDF (Laravel) atau Puppeteer (Node.js) untuk generate kwitansi dan rekap.

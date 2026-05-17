@@ -126,4 +126,9 @@ class PesertaDidik extends Model
     {
         return $this->belongsTo(KelompokBelajar::class, 'kelompok_belajar_id');
     }
+
+    public function pembayaran(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(PembayaranSiswa::class, 'peserta_didik_id');
+    }
 }

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Absensi;
 use App\Models\PesertaDidik;
+use App\Models\PaketBimbingan;
+use App\Models\KelompokBelajar;
 use App\Services\WhatsAppService;
 use App\Http\Controllers\Siswa\QrController;
 use Illuminate\Http\Request;
@@ -29,8 +31,19 @@ class AbsensiController extends Controller
     {
         $bulan = (int) $request->input('bulan', now()->month);
         $tahun = (int) $request->input('tahun', now()->year);
+        $paketId = $request->input('paket_id');
+        $kelompokId = $request->input('kelompok_id');
 
-        $pesertaDidiks = PesertaDidik::aktif()->inContext()->with('paketBimbingan')->get();
+        $sort    = in_array($request->input('sort'), ['id', 'nama_lengkap']) ? $request->input('sort') : 'nama_lengkap';
+        $order   = in_array($request->input('order'), ['asc', 'desc']) ? $request->input('order') : 'asc';
+
+        $pesertaDidiks = PesertaDidik::aktif()
+            ->inContext()
+            ->when($paketId, fn($q) => $q->where('paket_id', $paketId))
+            ->when($kelompokId, fn($q) => $q->where('kelompok_id', $kelompokId))
+            ->with('paketBimbingan')
+            ->orderBy($sort, $order)
+            ->get();
 
         $absensis = Absensi::whereIn('peserta_didik_id', $pesertaDidiks->pluck('id'))
             ->whereMonth('tanggal', $bulan)
@@ -46,7 +59,10 @@ class AbsensiController extends Controller
             $p->total_alpha = $records->where('status_masuk', 'alpha')->count();
         });
 
-        return view('admin.absensi.rekap', compact('pesertaDidiks', 'bulan', 'tahun'));
+        $pakets = PaketBimbingan::inContext()->get();
+        $kelompoks = KelompokBelajar::inContext()->get();
+
+        return view('admin.absensi.rekap', compact('pesertaDidiks', 'bulan', 'tahun', 'pakets', 'kelompoks'));
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -233,7 +249,7 @@ class AbsensiController extends Controller
 
     private function kirimWa(PesertaDidik $peserta, Absensi $absensi, string $tipe): void
     {
-        $nomor = $peserta->no_telepon_ayah ?? $peserta->no_telepon_ibu;
+        $nomor = $peserta->no_telepon_ayah ?? $peserta->no_telepon_ibu ?? $peserta->no_telepon;
         if (!$nomor) return;
 
         $tanggalFormatted = Carbon::parse($absensi->tanggal)->translatedFormat('d F Y');

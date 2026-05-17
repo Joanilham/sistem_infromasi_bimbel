@@ -189,6 +189,19 @@ class PendaftaranController extends Controller
 
             \Illuminate\Support\Facades\DB::commit();
 
+            // Kirim Notifikasi WA Pendaftaran Baru
+            $nomor = $pendaftaran->no_telepon ?? $pendaftaran->no_telepon_ayah ?? $pendaftaran->no_telepon_ibu;
+            if ($nomor) {
+                dispatch(function () use ($pendaftaran, $nomor) {
+                    try {
+                        $pesan = "📚 *Pendaftaran Berhasil*\n\nHalo *{$pendaftaran->nama_lengkap}*,\n\nTerima kasih telah mendaftar di bimbingan belajar kami! Data pendaftaran Anda telah kami terima dengan status: *MENUNGGU VERIFIKASI*.\n\nSilakan tunggu konfirmasi selanjutnya dari admin melalui WhatsApp ini.\n\nTerima kasih. 🙏";
+                        (new \App\Services\WhatsAppService())->sendMessage($nomor, $pesan);
+                    } catch (\Exception $e) {
+                        \Illuminate\Support\Facades\Log::error("Gagal kirim WA Pendaftaran Baru: " . $e->getMessage());
+                    }
+                })->afterResponse();
+            }
+
             Session::forget(['daftar_email', 'daftar_password', 'daftar_data', 'daftar_kantor_id']);
             return redirect()->route('daftar.selesai')->with('kode_pendaftaran', $pendaftaran->id);
 
@@ -237,13 +250,29 @@ class PendaftaranController extends Controller
     // ADMIN: Daftar & Detail Pendaftaran
     // ──────────────────────────────────────────────────────────
 
-    public function adminIndex()
+    public function adminIndex(Request $request)
     {
+        $search     = $request->input('search', '');
+        $status     = $request->input('status');
+        $paketId    = $request->input('paket_id');
+        $perPage    = in_array($request->input('per_page'), [10, 25, 50, 100]) ? (int) $request->input('per_page') : 10;
+        $sort       = in_array($request->input('sort'), ['id', 'nama_lengkap', 'paket_bimbingan_id']) ? $request->input('sort') : 'id';
+        $order      = in_array($request->input('order'), ['asc', 'desc']) ? $request->input('order') : 'desc';
+
         $pendaftarans = PendaftaranSiswa::with(['paketBimbingan', 'pembayaran', 'kantor'])
-            ->orderByRaw("FIELD(status,'menunggu','diverifikasi','ditolak')")
-            ->latest()
-            ->paginate(20);
-        return view('admin.pendaftaran.index', compact('pendaftarans'));
+            ->when($search, function ($q) use ($search) {
+                $q->where('nama_lengkap', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            })
+            ->when($status, fn($q) => $q->where('status', $status))
+            ->when($paketId, fn($q) => $q->where('paket_bimbingan_id', $paketId))
+            ->orderBy($sort, $order)
+            ->paginate($perPage)
+            ->withQueryString();
+
+        $pakets = PaketBimbingan::inContext()->get();
+
+        return view('admin.pendaftaran.index', compact('pendaftarans', 'search', 'perPage', 'pakets'));
     }
 
     public function adminShow(PendaftaranSiswa $pendaftaran)
@@ -316,16 +345,13 @@ class PendaftaranController extends Controller
                 $pendaftaran->pembayaran->delete();
             }
             $pendaftaran->delete();
-            
-            return back()->with('success', '❌ Pendaftaran ditolak dan data telah dihapus agar email dapat digunakan kembali.');
+        } else {
+            $pendaftaran->update([
+                'status'             => $request->aksi,
+                'catatan_admin'      => $request->catatan_admin,
+                'email_verified_at'  => $request->aksi === 'diverifikasi' ? now() : $pendaftaran->email_verified_at,
+            ]);
         }
-
-        $pendaftaran->update([
-            'status'             => $request->aksi,
-            'catatan_admin'      => $request->catatan_admin,
-            // Jika diterima, tandai email sebagai terverifikasi otomatis
-            'email_verified_at'  => $request->aksi === 'diverifikasi' ? now() : $pendaftaran->email_verified_at,
-        ]);
 
         // Bersihkan cache dashboard jika ada
         try {
@@ -336,6 +362,25 @@ class PendaftaranController extends Controller
             \Illuminate\Support\Facades\Cache::forget("data_peserta_didiks_aktif_{$kantorId}_{$periodeId}");
         } catch (\Throwable $e) {}
 
-        return back()->with('success', '✅ Pendaftaran diverifikasi! Akun siswa berhasil dibuat.');
+        // Kirim Notifikasi WA setelah commit
+        if ($request->aksi === 'diverifikasi' || $request->aksi === 'ditolak') {
+            $nomor = $pendaftaran->no_telepon ?? $pendaftaran->no_telepon_ayah ?? $pendaftaran->no_telepon_ibu;
+            if ($nomor) {
+                dispatch(function () use ($pendaftaran, $request, $nomor) {
+                    try {
+                        if ($request->aksi === 'diverifikasi') {
+                            $pesan = "🎉 *Pendaftaran Diterima*\n\nAssalamu'alaikum Bapak/Ibu,\n\nSelamat! Pendaftaran siswa atas nama:\n*{$pendaftaran->nama_lengkap}*\n\n✅ Telah *DIVERIFIKASI* dan diterima sebagai siswa aktif.\n\nAkun siswa telah dibuat:\n📧 Email: {$pendaftaran->email}\n\nSilakan login ke sistem untuk melihat informasi lebih lanjut.\n\nTerima kasih. 🙏";
+                        } else {
+                            $pesan = "❌ *Pendaftaran Ditolak*\n\nAssalamu'alaikum Bapak/Ibu,\n\nMohon maaf, pendaftaran siswa atas nama:\n*{$pendaftaran->nama_lengkap}*\n\nBelum dapat kami terima karena beberapa hal.\n\nCatatan: " . ($request->catatan_admin ?? '-') . "\n\nTerima kasih atas pengertiannya. 🙏";
+                        }
+                        (new \App\Services\WhatsAppService())->sendMessage($nomor, $pesan);
+                    } catch (\Exception $e) {
+                        \Illuminate\Support\Facades\Log::error("Gagal kirim WA Verifikasi: " . $e->getMessage());
+                    }
+                })->afterResponse();
+            }
+        }
+
+        return back()->with('success', $request->aksi === 'diverifikasi' ? '✅ Pendaftaran diverifikasi! Akun siswa berhasil dibuat.' : '❌ Pendaftaran ditolak.');
     }
 }
