@@ -14,10 +14,28 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('username')->unique()->nullable();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('photo')->nullable();
+            $table->enum('level', ['Super Admin', 'Admin', 'Guru', 'Siswa'])->default('Siswa');
             $table->boolean('is_active')->default(true);
+            
+            // Kolom khusus Guru
+            $table->text('alamat')->nullable();
+            $table->string('matapelajaran')->nullable();
+            $table->string('nip')->nullable();
+            $table->string('no_telp')->nullable();
+            $table->enum('status', ['Aktif', 'Nonaktif'])->nullable();
+            $table->date('tanggal_keluar')->nullable();
+            $table->text('alasan_keluar')->nullable();
+            
+            // Relasi
+            $table->foreignId('peserta_didik_id')->nullable()->constrained('peserta_didiks')->onDelete('set null');
+            $table->foreignId('kantor_id')->nullable()->constrained('kantors')->onDelete('set null');
+            $table->foreignId('periode_id')->nullable()->constrained('periodes')->onDelete('set null');
+            
             $table->rememberToken();
             $table->timestamps();
         });

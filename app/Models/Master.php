@@ -45,5 +45,7 @@ class Master extends Model
 
     protected $casts = [
         'landing_sections_visibility' => 'array',
+        'wa_token'                    => 'encrypted',
+        'api_key'                     => 'encrypted',
     ];
 }

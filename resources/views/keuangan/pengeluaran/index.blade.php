@@ -191,7 +191,7 @@
                 </thead>
                 <tbody class="bg-white dark:bg-zinc-900">
                     @forelse($pengeluaran as $p)
-                        <tr class="hover:bg-indigo-50/50 dark:hover:bg-indigo-900/10 transition-all even:bg-slate-50/50 dark:even:bg-zinc-800/30" x-data="{ editing: false }">
+                        <tr class="hover:bg-indigo-50/50 dark:hover:bg-indigo-900/10 transition-all even:bg-slate-50/50 dark:even:bg-zinc-800/30">
                             <td class="px-4 py-3 text-slate-500 font-bold text-xs border border-slate-200 dark:border-zinc-800 text-center">
                                 #{{ $p->id }}
                             </td>
@@ -212,56 +212,23 @@
                             </td>
                             <td class="px-4 py-3 border border-slate-200 dark:border-zinc-800">
                                 <div class="flex items-center justify-center gap-2">
-                                    <button type="button" @click="editing = !editing" 
-                                        class="inline-flex items-center justify-center w-8 h-8 rounded bg-amber-50 dark:bg-amber-900/10 text-amber-600 dark:text-amber-400 hover:bg-amber-100 transition-all"
-                                        title="Edit">
-                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                                    </button>
-                                    <form action="{{ route('keuangan.pengeluaran.destroy', $p->id) }}" method="POST" onsubmit="return confirm('Hapus data ini?')">
-                                        @csrf @method('DELETE')
-                                        <button type="submit" class="inline-flex items-center justify-center w-8 h-8 rounded bg-rose-50 dark:bg-rose-900/10 text-rose-600 dark:text-rose-400 hover:bg-rose-100 transition-all" title="Hapus">
-                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                        </button>
-                                    </form>
+                                    @if(strtolower(auth()->user()->level) === 'super admin')
+                                        <a href="{{ route('keuangan.pengeluaran.edit', $p->id) }}" 
+                                            class="inline-flex items-center justify-center w-8 h-8 rounded bg-amber-50 dark:bg-amber-900/10 text-amber-600 dark:text-amber-400 hover:bg-amber-100 transition-all"
+                                            title="Edit">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                        </a>
+                                        <form action="{{ route('keuangan.pengeluaran.destroy', $p->id) }}" method="POST" onsubmit="return confirm('Hapus data ini?')">
+                                            @csrf @method('DELETE')
+                                            <button type="submit" class="inline-flex items-center justify-center w-8 h-8 rounded bg-rose-50 dark:bg-rose-900/10 text-rose-600 dark:text-rose-400 hover:bg-rose-100 transition-all" title="Hapus">
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                            </button>
+                                        </form>
+                                    @else
+                                        <span class="text-xs text-slate-400 dark:text-slate-500 italic">No Action</span>
+                                    @endif
                                 </div>
                             </td>
-
-                            {{-- Inline Edit --}}
-                            <template x-if="editing">
-                                <tr class="bg-indigo-50/50 dark:bg-indigo-900/10">
-                                    <td colspan="6" class="px-4 py-4 border border-indigo-100 dark:border-indigo-900/30">
-                                        <form action="{{ route('keuangan.pengeluaran.update', $p->id) }}" method="POST" class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
-                                            @csrf @method('PUT')
-                                            <div>
-                                                <label class="block text-[9px] font-black text-indigo-500 uppercase tracking-widest mb-1">Tanggal</label>
-                                                <input type="date" name="tanggal" value="{{ $p->tanggal->format('Y-m-d') }}" required 
-                                                    class="w-full bg-white dark:bg-zinc-950 border-slate-200 rounded-lg text-xs font-bold py-2 px-3 focus:ring-2 focus:ring-indigo-500/20 transition-all">
-                                            </div>
-                                            <div>
-                                                <label class="block text-[9px] font-black text-indigo-500 uppercase tracking-widest mb-1">Kategori</label>
-                                                <select name="kategori_id" required 
-                                                    class="w-full bg-white dark:bg-zinc-950 border-slate-200 rounded-lg text-xs font-bold py-2 px-3 focus:ring-2 focus:ring-indigo-500/20 transition-all">
-                                                    @foreach($kategoris as $k)<option value="{{ $k->id }}" {{ $p->kategori_id == $k->id ? 'selected' : '' }}>{{ $k->nama }}</option>@endforeach
-                                                </select>
-                                            </div>
-                                            <div>
-                                                <label class="block text-[9px] font-black text-indigo-500 uppercase tracking-widest mb-1">Nominal</label>
-                                                <input type="number" name="nominal" value="{{ $p->nominal }}" min="1" required 
-                                                    class="w-full bg-white dark:bg-zinc-950 border-slate-200 rounded-lg text-xs font-black py-2 px-3 focus:ring-2 focus:ring-indigo-500/20 transition-all">
-                                            </div>
-                                            <div class="flex gap-2">
-                                                <button type="submit" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white text-[9px] font-black uppercase tracking-widest py-2 rounded shadow-lg shadow-indigo-500/20 transition-all active:scale-95">Simpan</button>
-                                                <button type="button" @click="editing = false" class="bg-white dark:bg-zinc-800 text-slate-500 text-[9px] font-black uppercase tracking-widest px-4 py-2 rounded border border-slate-200 transition-all">Batal</button>
-                                            </div>
-                                            <div class="sm:col-span-4">
-                                                <label class="block text-[9px] font-black text-indigo-500 uppercase tracking-widest mb-1">Keterangan</label>
-                                                <input type="text" name="keterangan" value="{{ $p->keterangan }}" 
-                                                    class="w-full bg-white dark:bg-zinc-950 border-slate-200 rounded-lg text-xs font-bold py-2 px-3 focus:ring-2 focus:ring-indigo-500/20 transition-all">
-                                            </div>
-                                        </form>
-                                    </td>
-                                </tr>
-                            </template>
                         </tr>
                     @empty
                         <tr>

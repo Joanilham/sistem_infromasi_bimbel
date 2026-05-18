@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('jadwal_mapels', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('guru_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('guru_id')->constrained('users')->onDelete('restrict');
             $table->string('hari'); // Senin, Selasa, dll
             $table->time('jam_mulai');
             $table->time('jam_selesai');

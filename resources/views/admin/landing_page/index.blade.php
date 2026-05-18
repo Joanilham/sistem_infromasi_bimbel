@@ -50,6 +50,38 @@
             @csrf
             <!-- Left Column: Socials & Contacts -->
             <div class="lg:col-span-1 space-y-8">
+                <!-- Identitas Instansi -->
+                <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-zinc-800 shadow-sm relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-150 duration-700"></div>
+                    <h2 class="text-xs font-black text-slate-400 uppercase tracking-[0.3em] mb-8 flex items-center gap-3">
+                        <span class="w-8 h-[2px] bg-indigo-500"></span>
+                        Identitas Instansi
+                    </h2>
+                    <div class="space-y-6">
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Nama Instansi / Lembaga</label>
+                            <input type="text" name="nama_lembaga" value="{{ old('nama_lembaga', $master->nama_lembaga) }}" class="w-full bg-slate-50/50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-900 dark:text-white" placeholder="Genius Education">
+                        </div>
+                        <div class="space-y-4">
+                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Logo Instansi</label>
+                            <div class="relative group rounded-[2rem] overflow-hidden aspect-video bg-slate-100 dark:bg-zinc-800 ring-4 ring-slate-50 dark:ring-zinc-900 transition-all shadow-inner flex items-center justify-center p-4">
+                                @if($master->logo)
+                                    <img src="{{ asset('storage/' . $master->logo) }}" class="max-h-20 w-auto object-contain transition-transform duration-700 group-hover:scale-110">
+                                    <div class="absolute inset-0 bg-indigo-900/40 opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-[2px] flex items-center justify-center">
+                                        <span class="bg-white text-slate-900 px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest shadow-xl">Ganti Logo</span>
+                                    </div>
+                                @else
+                                    <div class="flex flex-col items-center justify-center text-slate-300 gap-3">
+                                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                        <span class="text-[10px] font-black uppercase tracking-widest">Unggah Logo</span>
+                                    </div>
+                                @endif
+                                <input type="file" name="logo" class="absolute inset-0 opacity-0 cursor-pointer">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-zinc-800 shadow-sm relative overflow-hidden group">
                     <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-150 duration-700"></div>
                     <h2 class="text-xs font-black text-slate-400 uppercase tracking-[0.3em] mb-8 flex items-center gap-3">
@@ -88,8 +120,8 @@
                 <div class="p-8 bg-indigo-50 dark:bg-zinc-800 rounded-[2.5rem] border border-indigo-100 dark:border-zinc-700/50 relative overflow-hidden group">
                     <div class="absolute -bottom-8 -right-8 w-32 h-32 bg-indigo-500/5 rounded-full blur-2xl group-hover:bg-indigo-500/10 transition-colors"></div>
                     <p class="text-[11px] text-indigo-700 dark:text-indigo-300 leading-relaxed font-bold italic relative">
-                        <span class="text-indigo-900 dark:text-white uppercase tracking-widest block mb-2 not-italic underline">Pusat Data Master</span>
-                        Informasi <span class="font-black">Nama Lembaga & Logo Utama</span> dikonfigurasi melalui modul <a href="{{ route('master.index') }}" class="text-indigo-600 dark:text-indigo-400 font-black hover:underline px-1">Master</a>. 
+                        <span class="text-indigo-900 dark:text-white uppercase tracking-widest block mb-2 not-italic underline">Sinkronisasi Identitas</span>
+                        Nama Lembaga dan Logo Utama yang diubah di sini akan otomatis sinkron dengan portal dan sistem utama.
                     </p>
                 </div>
             </div>

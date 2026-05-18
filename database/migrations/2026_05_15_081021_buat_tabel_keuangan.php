@@ -19,11 +19,14 @@ return new class extends Migration
         Schema::create('pemasukan', function (Blueprint $table) {
             $table->id();
             $table->date('tanggal');
-            $table->foreignId('kategori_id')->constrained('kategori_pemasukan')->cascadeOnDelete();
+            $table->foreignId('kategori_id')->constrained('kategori_pemasukan')->onDelete('restrict');
             $table->decimal('nominal', 12, 0);
             $table->string('keterangan', 255)->nullable();
-            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();
+            $table->softDeletes();
+            
+            $table->index(['tanggal']);
         });
 
         // ── Kategori Pengeluaran ──────────────────────────────────
@@ -37,17 +40,20 @@ return new class extends Migration
         Schema::create('pengeluaran', function (Blueprint $table) {
             $table->id();
             $table->date('tanggal');
-            $table->foreignId('kategori_id')->constrained('kategori_pengeluaran')->cascadeOnDelete();
+            $table->foreignId('kategori_id')->constrained('kategori_pengeluaran')->onDelete('restrict');
             $table->decimal('nominal', 12, 0);
             $table->string('keterangan', 255)->nullable();
-            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();
+            $table->softDeletes();
+            
+            $table->index(['tanggal']);
         });
 
         // ── Pembayaran Siswa (Header) ─────────────────────────────
         Schema::create('pembayaran_siswa', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('peserta_didik_id')->constrained('peserta_didiks')->cascadeOnDelete();
+            $table->foreignId('peserta_didik_id')->constrained('peserta_didiks')->onDelete('restrict');
             $table->decimal('diskon_persen', 5, 2)->default(0);
             $table->decimal('diskon_nominal', 12, 0)->default(0);
             $table->string('keterangan_diskon', 255)->nullable();
@@ -55,19 +61,26 @@ return new class extends Migration
             $table->decimal('total_harus_dibayar', 12, 0)->default(0);
             $table->date('batas_waktu')->nullable();
             $table->timestamps();
+            $table->softDeletes();
+            
+            $table->index(['peserta_didik_id']);
         });
 
         // ── Transaksi Pembayaran (Detail) ─────────────────────────
         Schema::create('transaksi_pembayaran', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('pembayaran_siswa_id')->constrained('pembayaran_siswa')->cascadeOnDelete();
+            $table->foreignId('pembayaran_siswa_id')->constrained('pembayaran_siswa')->onDelete('cascade');
             $table->decimal('nominal', 12, 0);
             $table->date('tanggal');
             $table->enum('tipe_pembayaran', ['TUNAI', 'TRANSFER'])->default('TUNAI');
             $table->string('no_kwitansi', 30)->unique()->nullable();
             $table->string('penerima', 100)->nullable();
-            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();
+            $table->softDeletes();
+            
+            $table->index(['tanggal']);
+            $table->index(['pembayaran_siswa_id', 'tanggal']);
         });
     }
 

@@ -22,7 +22,7 @@
     }
     .jadwal-scope *, .jadwal-scope *::before, .jadwal-scope *::after { box-sizing: border-box; }
 
-    .jadwal-scope .content { max-width: 900px; margin: 0 auto; }
+    .jadwal-scope .content { max-width: 950px; margin: 0 auto; }
 
     .jadwal-scope .today-hero {
         background: linear-gradient(135deg, #388782, #206D6C);
@@ -132,15 +132,58 @@
     }
     .jadwal-scope .empty-state svg { width: 64px; height: 64px; margin: 0 auto 12px; opacity: 0.4; }
     .jadwal-scope .empty-state p { font-weight: 600; }
+
+    /* Modern Table Scrollbar */
+    .custom-scrollbar::-webkit-scrollbar {
+        height: 8px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(156, 163, 175, 0.2);
+        border-radius: 9999px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgba(156, 163, 175, 0.4);
+    }
 </style>
 @endpush
 
 @section('content')
+@php
+    // Cerdas: Menghitung jam minimum & maksimum aktif agar tabel adaptif & tidak boros ruang vertikal
+    $minHour = 13; // default bimbel siang
+    $maxHour = 19; // default bimbel sore/malam
+    foreach ($jadwal as $j) {
+        if ($j->jam_mulai) {
+            $startHour = (int) \Carbon\Carbon::parse($j->jam_mulai)->format('H');
+            if ($startHour < $minHour && $startHour >= 6) {
+                $minHour = $startHour;
+            }
+        }
+        if ($j->jam_selesai) {
+            $endHour = (int) \Carbon\Carbon::parse($j->jam_selesai)->format('H');
+            if ($endHour > $maxHour && $endHour <= 22) {
+                $maxHour = $endHour;
+            }
+        }
+    }
+    
+    $timeSlots = [];
+    for ($h = $minHour; $h <= $maxHour; $h++) { 
+        $timeSlots[] = sprintf('%02d:00', $h); 
+    }
+    $hariList = \App\Models\Jadwal::HARI_LIST;
+@endphp
+
 <div class="jadwal-scope pb-4">
     <div class="content">
         @php
             $todayItems = $jadwal->filter(fn($j) => $j->hari === $hariIni)->sortBy('jam_mulai');
         @endphp
+        
+        {{-- Widget Hari Ini --}}
         <div class="today-hero">
             <h2>📅 {{ $hariIni }}, {{ now()->locale('id')->isoFormat('D MMMM YYYY') }}</h2>
             <p class="sub">Jadwal hari ini — {{ $peserta?->kelompokBelajar?->nama_kelompok ?? 'Belum ada rombel' }}</p>
@@ -163,38 +206,131 @@
             @endif
         </div>
 
-        <div x-data="{ activeDay: '{{ $hariIni }}' }">
-            <div class="day-tabs">
-                @foreach(\App\Models\Jadwal::HARI_LIST as $h)
-                <button type="button" class="day-tab" :class="activeDay === '{{ $h }}' ? 'active' : ''" @click="activeDay = '{{ $h }}'">{{ $h }}</button>
+        {{-- Switch View Mode Premium untuk Siswa --}}
+        <div x-data="{ viewMode: 'list', activeDay: '{{ $hariIni }}' }">
+            <div class="flex items-center justify-between mb-5 px-1">
+                <h3 class="text-sm font-black uppercase tracking-widest text-[#388782] dark:text-[#A2D5CB]">Struktur Jadwal Mingguan</h3>
+                <div class="flex items-center bg-slate-100 dark:bg-zinc-800 p-1 rounded-2xl border border-slate-200/50 dark:border-zinc-700/50 shadow-inner">
+                    <button @click="viewMode = 'list'" 
+                        :class="viewMode === 'list' ? 'bg-white dark:bg-zinc-750 text-[#388782] dark:text-white shadow-sm' : 'text-slate-450 hover:text-slate-700 dark:text-slate-400'"
+                        class="inline-flex items-center gap-1.5 font-black text-[10px] uppercase tracking-wider px-4 py-2.5 rounded-xl transition-all">
+                        List Harian
+                    </button>
+                    <button @click="viewMode = 'calendar'" 
+                        :class="viewMode === 'calendar' ? 'bg-white dark:bg-zinc-750 text-[#388782] dark:text-white shadow-sm' : 'text-slate-450 hover:text-slate-700 dark:text-slate-400'"
+                        class="inline-flex items-center gap-1.5 font-black text-[10px] uppercase tracking-wider px-4 py-2.5 rounded-xl transition-all">
+                        Kalender Grid
+                    </button>
+                </div>
+            </div>
+
+            {{-- VIEW 1: List Harian (Scrolled tabs) --}}
+            <div x-show="viewMode === 'list'" class="transition-all">
+                <div class="day-tabs">
+                    @foreach($hariList as $h)
+                    <button type="button" class="day-tab" :class="activeDay === '{{ $h }}' ? 'active' : ''" @click="activeDay = '{{ $h }}'">{{ $h }}</button>
+                    @endforeach
+                </div>
+
+                @foreach($hariList as $h)
+                <div x-show="activeDay === '{{ $h }}'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
+                    @php $dayItems = $jadwal->filter(fn($j) => $j->hari === $h)->sortBy('jam_mulai'); @endphp
+                    @if($dayItems->isEmpty())
+                    <div class="empty-state">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        <p>Tidak ada jadwal di hari {{ $h }}</p>
+                    </div>
+                    @else
+                        @foreach($dayItems as $idx => $j)
+                        <div class="schedule-card">
+                            <div class="sc-dot dot-{{ $idx % 5 }}"></div>
+                            <div class="sc-time">
+                                <div class="sc-start">{{ \Carbon\Carbon::parse($j->jam_mulai)->format('H:i') }}</div>
+                                <div class="sc-end">{{ \Carbon\Carbon::parse($j->jam_selesai)->format('H:i') }}</div>
+                            </div>
+                            <div class="sc-info">
+                                <div class="sc-mapel">{{ $j->mataPelajaran?->nama ?? '-' }}</div>
+                                <div class="sc-meta">{{ $j->guru?->name ?? '-' }} {{ $j->ruangan ? '· '.$j->ruangan : '' }}</div>
+                            </div>
+                        </div>
+                        @endforeach
+                    @endif
+                </div>
                 @endforeach
             </div>
 
-            @foreach(\App\Models\Jadwal::HARI_LIST as $h)
-            <div x-show="activeDay === '{{ $h }}'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
-                @php $dayItems = $jadwal->filter(fn($j) => $j->hari === $h)->sortBy('jam_mulai'); @endphp
-                @if($dayItems->isEmpty())
-                <div class="empty-state">
-                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                    <p>Tidak ada jadwal di hari {{ $h }}</p>
+            {{-- VIEW 2: Kalender Grid (Siswa Version - Gorgeous & Compact) --}}
+            <div x-show="viewMode === 'calendar'" x-cloak class="bg-white dark:bg-zinc-900 rounded-[2rem] border border-slate-150 dark:border-zinc-800 shadow-sm overflow-hidden transition-all">
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full min-w-[850px] text-sm table-fixed border-collapse border border-slate-150 dark:border-zinc-800">
+                        <thead class="bg-[#388782]/10 dark:bg-zinc-950/65 text-[10px] uppercase tracking-widest text-[#388782] dark:text-[#A2D5CB] font-black">
+                            <tr>
+                                <th class="py-4 px-4 text-center w-28 border border-slate-200 dark:border-zinc-800 bg-[#388782]/20 dark:bg-zinc-900">Jam</th>
+                                @foreach($hariList as $hari)
+                                <th class="py-4 px-2 text-center border border-slate-200 dark:border-zinc-800 {{ ($hariIni === $hari && $hari !== 'Minggu') ? 'bg-[#388782]/15 dark:bg-[#388782]/20 font-black text-[#388782] dark:text-[#A2D5CB]' : '' }}">
+                                    {{ $hari }}
+                                    @if($hariIni === $hari && $hari !== 'Minggu')
+                                        <span class="inline-block ml-1.5 w-1.5 h-1.5 rounded-full bg-[#388782] animate-pulse"></span>
+                                    @endif
+                                </th>
+                                @endforeach
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white dark:bg-zinc-900">
+                            @foreach($timeSlots as $slot)
+                            <tr class="hover:bg-slate-50/20 dark:hover:bg-zinc-850/10 transition-colors">
+                                {{-- Label Jam Kolom Kiri --}}
+                                <td class="py-3 px-4 text-[11px] font-black font-mono text-slate-500 dark:text-slate-400 align-middle border border-slate-200 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-900/50 text-center shadow-inner">
+                                    {{ $slot }}
+                                </td>
+                                
+                                {{-- Sel Hari --}}
+                                @foreach($hariList as $hari)
+                                <td class="p-2 align-top min-h-[105px] h-28 {{ ($hariIni === $hari && $hari !== 'Minggu') ? 'bg-[#388782]/5 dark:bg-[#388782]/5' : '' }} relative border border-slate-150 dark:border-zinc-800">
+                                    @php
+                                        $slotItems = $jadwal->filter(function($j) use ($hari, $slot) {
+                                            return $j->hari === $hari && \Carbon\Carbon::parse($j->jam_mulai)->format('H:00') === $slot;
+                                        });
+                                    @endphp
+                                    
+                                    <div class="space-y-2">
+                                        @foreach($slotItems as $j)
+                                        <div class="group/card p-2.5 rounded-xl border-l-[4px] ring-1 ring-black/5 dark:ring-white/5 border-[#388782] bg-[#388782]/5 hover:bg-[#388782]/10 dark:bg-[#388782]/10 dark:hover:bg-[#388782]/20 transition-all hover:scale-[1.02]">
+                                            <p class="font-extrabold text-[10px] text-slate-800 dark:text-white leading-tight break-words">
+                                                {{ $j->mataPelajaran?->nama ?? 'Sesi Belajar' }}
+                                            </p>
+                                            <div class="flex items-center gap-1 mt-1 text-[8px] font-black text-slate-450 dark:text-slate-400 uppercase tracking-tighter">
+                                                <span>{{ \Carbon\Carbon::parse($j->jam_mulai)->format('H:i') }}–{{ \Carbon\Carbon::parse($j->jam_selesai)->format('H:i') }}</span>
+                                            </div>
+                                            <div class="mt-2 space-y-0.5 border-t border-slate-200/50 dark:border-zinc-800/50 pt-1">
+                                                <p class="text-[8.5px] font-bold text-slate-500 dark:text-slate-400 truncate">
+                                                    {{ $j->guru?->name ?? '-' }}
+                                                </p>
+                                                @if($j->ruangan)
+                                                <p class="text-[8px] font-bold text-slate-400 dark:text-slate-500 truncate">
+                                                    Ruang: {{ $j->ruangan }}
+                                                </p>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        @endforeach
+                                    </div>
+                                </td>
+                                @endforeach
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
-                @else
-                    @foreach($dayItems as $idx => $j)
-                    <div class="schedule-card">
-                        <div class="sc-dot dot-{{ $idx % 5 }}"></div>
-                        <div class="sc-time">
-                            <div class="sc-start">{{ \Carbon\Carbon::parse($j->jam_mulai)->format('H:i') }}</div>
-                            <div class="sc-end">{{ \Carbon\Carbon::parse($j->jam_selesai)->format('H:i') }}</div>
-                        </div>
-                        <div class="sc-info">
-                            <div class="sc-mapel">{{ $j->mataPelajaran?->nama ?? '-' }}</div>
-                            <div class="sc-meta">{{ $j->guru?->name ?? '-' }} {{ $j->ruangan ? '· '.$j->ruangan : '' }}</div>
-                        </div>
-                    </div>
-                    @endforeach
+
+                @if($jadwal->isEmpty())
+                <div class="p-12 text-center bg-white dark:bg-zinc-900">
+                    <svg class="w-12 h-12 mx-auto text-slate-350 dark:text-zinc-700 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    <p class="text-slate-400 dark:text-slate-500 font-black text-sm">Belum Ada Jadwal Mengajar</p>
+                </div>
                 @endif
             </div>
-            @endforeach
+
         </div>
     </div>
 </div>

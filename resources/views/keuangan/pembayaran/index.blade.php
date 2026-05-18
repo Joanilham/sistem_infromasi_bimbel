@@ -120,6 +120,20 @@
                             </a>
                         </th>
                         <th class="px-4 py-3 text-left border border-white/20">Program</th>
+                        <th class="px-4 py-3 text-left border border-white/20 w-32">
+                            <a href="{{ request()->fullUrlWithQuery(['sort' => 'batas_waktu', 'order' => request('sort') == 'batas_waktu' && request('order') == 'asc' ? 'desc' : 'asc']) }}" class="flex items-center justify-between group">
+                                Jatuh Tempo
+                                <span class="transition-all {{ request('sort') == 'batas_waktu' ? 'opacity-100' : 'opacity-30 group-hover:opacity-100' }}">
+                                    @if(request('sort') == 'batas_waktu' && request('order') == 'asc')
+                                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 15l7-7 7 7"/></svg>
+                                    @elseif(request('sort') == 'batas_waktu' && request('order') == 'desc')
+                                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M19 9l-7 7-7-7"/></svg>
+                                    @else
+                                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M7 10l5-5 5 5M7 14l5 5 5-5"/></svg>
+                                    @endif
+                                </span>
+                            </a>
+                        </th>
                         <th class="px-4 py-3 text-center border border-white/20">Status Keuangan</th>
                         <th class="px-4 py-3 text-center w-40 border border-white/20">Aksi</th>
                     </tr>
@@ -145,6 +159,21 @@
                             </td>
                             <td class="px-4 py-3 border border-slate-200 dark:border-zinc-800">
                                 <p class="text-xs font-bold text-slate-600 dark:text-slate-300 leading-tight">{{ $s->paketBimbingan?->nama_paket ?? '-' }}</p>
+                            </td>
+                            <td class="px-4 py-3 border border-slate-200 dark:border-zinc-800">
+                                @if($s->pembayaran && $s->pembayaran->batas_waktu)
+                                    @php $overdue = $s->pembayaran->batas_waktu->isPast() && !$s->pembayaran->lunas; @endphp
+                                    <div class="flex flex-col">
+                                        <span class="font-bold text-xs {{ $overdue ? 'text-rose-600 dark:text-rose-400' : 'text-slate-700 dark:text-slate-300' }}">
+                                            {{ $s->pembayaran->batas_waktu->format('d/m/Y') }}
+                                        </span>
+                                        @if($overdue)
+                                            <span class="text-[8px] font-black text-rose-500 uppercase tracking-widest mt-0.5 animate-pulse">Overdue</span>
+                                        @endif
+                                    </div>
+                                @else
+                                    <span class="text-slate-400 font-semibold italic text-[10px]">Belum Diatur</span>
+                                @endif
                             </td>
                             <td class="px-4 py-3 text-center border border-slate-200 dark:border-zinc-800">
                                 @if($s->pembayaran)

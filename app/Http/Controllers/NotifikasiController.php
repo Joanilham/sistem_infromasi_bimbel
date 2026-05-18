@@ -11,15 +11,42 @@ use Carbon\Carbon;
 
 class NotifikasiController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $kantorId  = session('kantor_id');
         $periodeId = session('periode_id');
+        $isSuperAdmin = auth()->check() && strtolower(auth()->user()->level) === 'super admin';
+        $filterKantorId = $isSuperAdmin ? null : $kantorId;
+        $search = $request->input('search', '');
+
+        // Auto-create missing PembayaranSiswa records for active students in context
+        if ($kantorId && $periodeId) {
+            $studentsWithoutBilling = \App\Models\PesertaDidik::aktif()
+                ->inContext()
+                ->whereDoesntHave('pembayaran')
+                ->get();
+
+            foreach ($studentsWithoutBilling as $student) {
+                $student->pembayaran()->create([
+                    'total_harus_dibayar' => $student->paketBimbingan?->nominal ?? 0,
+                    'biaya_pendaftaran'   => 0,
+                    'diskon_persen'       => 0,
+                    'diskon_nominal'      => 0,
+                ]);
+            }
+        }
 
         // ── 1. Pendaftaran Menunggu Verifikasi ─────────────────────
         $pendaftaranMenunggu = PendaftaranSiswa::with(['kantor', 'paketBimbingan'])
             ->where('status', 'menunggu')
-            ->when($kantorId, fn($q) => $q->where('kantor_id', $kantorId))
+            ->when($filterKantorId, fn($q) => $q->where('kantor_id', $filterKantorId))
+            ->when($search, function ($q) use ($search) {
+                $q->where(function ($q2) use ($search) {
+                    $q2->where('nama_lengkap', 'like', "%{$search}%")
+                       ->orWhere('email', 'like', "%{$search}%")
+                       ->orWhere('no_telepon', 'like', "%{$search}%");
+                });
+            })
             ->latest()
             ->get();
 
@@ -29,36 +56,57 @@ class NotifikasiController extends Controller
                 'pendaftaranSiswa.paketBimbingan',
             ])
             ->where('status', 'menunggu')
-            ->whereHas('pendaftaranSiswa', fn($q) =>
-                $q->when($kantorId, fn($q2) => $q2->where('kantor_id', $kantorId))
-            )
+            ->whereHas('pendaftaranSiswa', function ($q) use ($filterKantorId, $search) {
+                $q->when($filterKantorId, fn($q2) => $q2->where('kantor_id', $filterKantorId));
+                if ($search) {
+                    $q->where(function ($q2) use ($search) {
+                        $q2->where('nama_lengkap', 'like', "%{$search}%")
+                           ->orWhere('email', 'like', "%{$search}%");
+                    });
+                }
+            })
             ->latest()
             ->get();
 
-        // ── 3. Transfer SPP (Transaksi TRANSFER 7 hari terakhir) ───
+        // ── 3. Transfer SPP (Transaksi TRANSFER 30 hari terakhir) ───
         $transferSpp = TransaksiPembayaran::with([
                 'pembayaranSiswa.pesertaDidik.paketBimbingan',
                 'user',
             ])
             ->where('tipe_pembayaran', 'TRANSFER')
-            ->whereHas('pembayaranSiswa.pesertaDidik', function ($q) use ($kantorId, $periodeId) {
+            ->whereHas('pembayaranSiswa.pesertaDidik', function ($q) use ($search) {
                 $q->inContext();
+                if ($search) {
+                    $q->where('nama_lengkap', 'like', "%{$search}%");
+                }
+            })
+            ->when($search, function ($q) use ($search) {
+                $q->where(function ($q2) use ($search) {
+                    $q2->where('no_kwitansi', 'like', "%{$search}%")
+                       ->orWhere('penerima', 'like', "%{$search}%");
+                });
             })
             ->where('created_at', '>=', Carbon::now()->subDays(30))
             ->latest()
             ->get();
 
         // ── 4. Tagihan Jatuh Tempo / Overdue ──────────────────────
-        // Siswa belum lunas, deadline <= 3 hari ke depan atau sudah lewat
+        // Siswa belum lunas, deadline <= 31 hari ke depan atau sudah lewat, atau belum diatur
         $tagihanJatuhTempo = PembayaranSiswa::with([
                 'pesertaDidik.paketBimbingan',
                 'transaksi',
             ])
-            ->whereHas('pesertaDidik', function ($q) use ($kantorId, $periodeId) {
+            ->whereHas('pesertaDidik', function ($q) use ($search) {
                 $q->inContext()->aktif();
+                if ($search) {
+                    $q->where(function ($q2) use ($search) {
+                        $q2->where('nama_lengkap', 'like', "%{$search}%")
+                           ->orWhere('nomor_induk', 'like', "%{$search}%");
+                    });
+                }
             })
             ->where(function ($q) {
-                $q->where('batas_waktu', '<=', Carbon::now()->addDays(7))
+                $q->where('batas_waktu', '<=', Carbon::now()->addDays(31))
                   ->orWhere('batas_waktu', '<', Carbon::today())
                   ->orWhereNull('batas_waktu');
             })
@@ -71,6 +119,7 @@ class NotifikasiController extends Controller
             'pembayaranBelumDikonfirmasi',
             'transferSpp',
             'tagihanJatuhTempo',
+            'search',
         ));
     }
 }

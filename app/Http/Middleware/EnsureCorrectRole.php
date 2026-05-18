@@ -22,8 +22,9 @@ class EnsureCorrectRole
      * mencoba mengakses area yang bukan milik mereka.
      */
     protected array $roleRedirectMap = [
+        'super admin'   => 'dashboard',
+        'admin'         => 'dashboard',
         'administrator' => 'dashboard',
-        'staff'         => 'dashboard',
         'guru'          => 'guru.dashboard',
         'siswa'         => 'siswa.dashboard',
     ];
@@ -37,18 +38,23 @@ class EnsureCorrectRole
 
         $user = Auth::user();
 
-        // Normalisasi allowed roles (support "administrator,staff")
+        // Normalisasi allowed roles (case-insensitive)
         $allowedRoles = [];
         foreach ($roles as $r) {
             foreach (explode(',', $r) as $single) {
-                $allowedRoles[] = trim($single);
+                // Support mapping old names to new standard names
+                $name = strtolower(trim($single));
+                if ($name === 'administrator') $allowedRoles[] = 'super admin';
+                $allowedRoles[] = $name;
             }
         }
 
+        $userRoleLower = strtolower($user->level);
+
         // Jika role user tidak ada di daftar yang diizinkan
-        if (!in_array($user->level, $allowedRoles)) {
+        if (!in_array($userRoleLower, $allowedRoles)) {
             // Redirect ke dashboard sesuai role mereka
-            $redirectRoute = $this->roleRedirectMap[$user->level] ?? 'dashboard';
+            $redirectRoute = $this->roleRedirectMap[$userRoleLower] ?? 'dashboard';
 
             return redirect()
                 ->route($redirectRoute)

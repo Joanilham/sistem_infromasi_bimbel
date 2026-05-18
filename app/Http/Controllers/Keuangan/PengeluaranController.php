@@ -51,8 +51,22 @@ class PengeluaranController extends Controller
         return back()->with('success', 'Pengeluaran berhasil disimpan.');
     }
 
+    public function edit(Pengeluaran $pengeluaran)
+    {
+        if (strtolower(Auth::user()->level) !== 'super admin') {
+            abort(403, 'Hanya Super Admin yang berwenang mengubah transaksi.');
+        }
+
+        $kategoris = KategoriPengeluaran::orderBy('nama')->get();
+        return view('keuangan.pengeluaran.edit', compact('pengeluaran', 'kategoris'));
+    }
+
     public function update(Request $request, Pengeluaran $pengeluaran)
     {
+        if (strtolower(Auth::user()->level) !== 'super admin') {
+            abort(403, 'Hanya Super Admin yang berwenang mengubah transaksi.');
+        }
+
         $validated = $request->validate([
             'tanggal'     => 'required|date',
             'kategori_id' => 'required|exists:kategori_pengeluaran,id',
@@ -61,11 +75,15 @@ class PengeluaranController extends Controller
         ]);
 
         $pengeluaran->update($validated);
-        return back()->with('success', 'Pengeluaran berhasil diperbarui.');
+        return redirect()->route('keuangan.pengeluaran.index')->with('success', 'Pengeluaran berhasil diperbarui.');
     }
 
     public function destroy(Pengeluaran $pengeluaran)
     {
+        if (strtolower(Auth::user()->level) !== 'super admin') {
+            abort(403, 'Hanya Super Admin yang berwenang menghapus transaksi.');
+        }
+
         $pengeluaran->delete();
         return back()->with('success', 'Pengeluaran dihapus.');
     }

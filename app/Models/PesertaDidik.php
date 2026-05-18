@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * @property int $id
@@ -38,6 +39,8 @@ use Illuminate\Database\Eloquent\Builder;
  */
 class PesertaDidik extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'kantor_id',
         'periode_id',
@@ -69,6 +72,19 @@ class PesertaDidik extends Model
         'tanggal_lahir'  => 'date',
         'tanggal_keluar' => 'date',
     ];
+
+    protected static function booted()
+    {
+        static::created(function ($peserta) {
+            // Automatically create default billing profile
+            $peserta->pembayaran()->create([
+                'total_harus_dibayar' => $peserta->paketBimbingan?->nominal ?? 0,
+                'biaya_pendaftaran'   => 0,
+                'diskon_persen'       => 0,
+                'diskon_nominal'      => 0,
+            ]);
+        });
+    }
 
     // ─── Scopes ────────────────────────────────────────────────────
     /**

@@ -12,7 +12,7 @@ class TagihanController extends Controller
     {
         $search  = $request->input('search', '');
         $perPage = in_array($request->input('per_page'), [10, 25, 50, 100]) ? (int) $request->input('per_page') : 10;
-        $sort    = in_array($request->input('sort'), ['id', 'nama_lengkap']) ? $request->input('sort') : 'id';
+        $sort    = in_array($request->input('sort'), ['id', 'nama_lengkap', 'batas_waktu']) ? $request->input('sort') : 'id';
         $order   = in_array($request->input('order'), ['asc', 'desc']) ? $request->input('order') : 'desc';
 
         // Eager load untuk hindari N+1
@@ -31,7 +31,12 @@ class TagihanController extends Controller
             })
             ->join('peserta_didiks', 'pembayaran_siswa.peserta_didik_id', '=', 'peserta_didiks.id')
             ->select('pembayaran_siswa.*')
-            ->orderBy($sort === 'nama_lengkap' ? 'peserta_didiks.nama_lengkap' : 'pembayaran_siswa.id', $order);
+            ->when($sort === 'batas_waktu', function ($q) use ($order) {
+                $q->orderByRaw('pembayaran_siswa.batas_waktu IS NULL, pembayaran_siswa.batas_waktu ' . $order);
+            })
+            ->when($sort !== 'batas_waktu', function ($q) use ($sort, $order) {
+                $q->orderBy($sort === 'nama_lengkap' ? 'peserta_didiks.nama_lengkap' : 'pembayaran_siswa.id', $order);
+            });
 
         // Filter hanya yang masih punya kekurangan (dilakukan di PHP karena computed attribute)
         $allTagihan = $tagihanQuery->get()->filter(fn($p) => $p->kekurangan > 0);

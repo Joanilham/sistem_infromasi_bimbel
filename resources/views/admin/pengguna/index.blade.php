@@ -9,7 +9,7 @@
     <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-zinc-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div>
             <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Manajemen Pengguna</h1>
-            <p class="text-slate-500 dark:text-slate-400 mt-2 text-sm font-medium">Kelola hak akses dan akun administrator serta staff operasional sistem.</p>
+            <p class="text-slate-500 dark:text-slate-400 mt-2 text-sm font-medium">Kelola hak akses dan akun administrator serta admin cabang sistem.</p>
         </div>
         <button onclick="document.getElementById('modal-create').classList.remove('hidden')"
            class="inline-flex items-center gap-3 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs px-8 py-4 rounded-2xl shadow-xl shadow-indigo-500/20 transition-all active:scale-95 group shrink-0">
@@ -118,7 +118,7 @@
                                 {{ $p->username ?? '-' }}
                             </td>
                             <td class="px-4 py-3 border border-slate-200 dark:border-zinc-800">
-                                @if($p->level === 'administrator')
+                                @if(in_array(strtolower($p->level), ['super admin', 'administrator']))
                                     <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 text-[9px] font-black uppercase ring-1 ring-purple-100">
                                         {{ $p->level }}
                                     </span>

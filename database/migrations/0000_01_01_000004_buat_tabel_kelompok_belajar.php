@@ -13,8 +13,12 @@ return new class extends Migration
     {
         Schema::create('kelompok_belajars', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('kantor_id')->nullable()->constrained('kantors')->onDelete('restrict');
+            $table->foreignId('periode_id')->nullable()->constrained('periodes')->onDelete('restrict');
             $table->string('nama_kelompok');
             $table->timestamps();
+            
+            $table->index(['kantor_id', 'periode_id']);
         });
     }
 

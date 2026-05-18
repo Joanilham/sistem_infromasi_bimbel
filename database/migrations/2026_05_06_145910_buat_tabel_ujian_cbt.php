@@ -42,6 +42,10 @@ return new class extends Migration
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();
             $table->softDeletes();
+            
+            $table->index('status');
+            $table->index('tipe_soal');
+            $table->index('deleted_at');
         });
 
         // Opsi Jawaban (untuk PG dan Multi Correct)
@@ -77,9 +81,12 @@ return new class extends Migration
             $table->integer('limit_attempt')->default(1); // 0 = unlimited
             $table->string('token')->nullable(); // Anti cheat basic
             $table->boolean('tampilkan_hasil')->default(true);
-            $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('restrict');
             $table->timestamps();
             $table->softDeletes();
+            
+            $table->index('mode');
+            $table->index('deleted_at');
         });
 
         // Assign Ujian ke Kelas atau User Tertentu
@@ -99,33 +106,47 @@ return new class extends Migration
             $table->integer('bobot')->default(1);
             $table->integer('urutan')->nullable();
             $table->timestamps();
+            
+            $table->unique(['cbt_ujian_id', 'cbt_bank_soal_id'], 'cbt_us_ujian_soal_unique');
         });
 
         // Pelaksanaan Ujian (Peserta)
         Schema::create('cbt_pesertas', function (Blueprint $table) {
             $table->id();
             $table->foreignId('cbt_ujian_id')->constrained()->onDelete('cascade');
-            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Siswa / Peserta
+            $table->foreignId('user_id')->constrained()->onDelete('restrict'); // Siswa / Peserta
             $table->enum('status', ['mengerjakan', 'selesai', 'timeout'])->default('mengerjakan');
             $table->dateTime('waktu_mulai');
             $table->dateTime('waktu_selesai')->nullable();
             $table->decimal('skor', 8, 2)->nullable();
             $table->integer('attempt_ke')->default(1);
+            $table->string('ip_address')->nullable();
+            $table->string('session_token')->nullable();
+            $table->integer('blur_count')->default(0);
             $table->timestamps();
+            
+            $table->index('status');
+            $table->index(['user_id', 'status']);
         });
 
         // Jawaban Peserta
         Schema::create('cbt_peserta_jawabans', function (Blueprint $table) {
             $table->id();
             $table->foreignId('cbt_peserta_id')->constrained()->onDelete('cascade');
-            $table->foreignId('cbt_bank_soal_id')->constrained()->onDelete('cascade');
-            $table->longText('jawaban_teks')->nullable(); // Untuk essay
+            $table->foreignId('cbt_bank_soal_id')->constrained()->onDelete('restrict');
+            $table->longText('jawaban_essay')->nullable(); // Untuk essay
+            $table->string('file_jawaban')->nullable();
             $table->foreignId('cbt_opsi_jawaban_id')->nullable()->constrained()->onDelete('set null'); // Untuk PG
             $table->json('jawaban_multi')->nullable(); // Untuk Multi Correct
             $table->boolean('ragu_ragu')->default(false);
             $table->boolean('is_benar')->nullable(); // Null = belum dinilai (essay)
             $table->decimal('skor', 8, 2)->nullable();
+            $table->integer('urutan')->nullable();
+            $table->json('opsi_order')->nullable();
             $table->timestamps();
+            
+            $table->unique(['cbt_peserta_id', 'cbt_bank_soal_id'], 'idx_peserta_soal_unique');
+            $table->index('is_benar');
         });
     }
 

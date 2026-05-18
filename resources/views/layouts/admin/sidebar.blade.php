@@ -24,7 +24,7 @@
 </div>
 
 <!-- Sidebar Content -->
-<div class="flex-1 min-h-0 overflow-y-auto p-4 pb-24 custom-scrollbar bg-white dark:bg-zinc-950">
+<div id="sidebar-scroll-container" class="flex-1 min-h-0 overflow-y-auto p-4 pb-24 custom-scrollbar bg-white dark:bg-zinc-950">
     <nav class="space-y-1 mb-8">
         <a href="{{ route('dashboard') }}"
             class="flex items-center px-3 py-2.5 rounded-2xl transition-all duration-200 {{ request()->routeIs('dashboard') ? 'bg-blue-500 shadow-md shadow-blue-500/30' : 'hover:bg-slate-100 dark:hover:bg-zinc-800' }} group">
@@ -325,9 +325,9 @@
     </div>
 
     <!-- MENU PENGATURAN -->
-    @if(auth()->check() && auth()->user()->level === 'administrator')
+    @if(auth()->check() && in_array(strtolower(auth()->user()->level), ['super admin', 'administrator']))
     <div class="mb-6">
-        <h3 class="px-3 text-[10px] font-bold uppercase text-slate-400 dark:text-slate-500 tracking-widest mb-2">MENU PENGATURAN</h3>
+        <h3 class="px-3 text-[10px] font-bold uppercase text-slate-400 dark:text-slate-500 tracking-widest mb-2">MENU PENGATURAN SISTEM</h3>
         <nav class="space-y-1">
 
             <a href="{{ route('kantor.index') }}"
@@ -379,7 +379,43 @@
                 </div>
                 <span class="text-sm font-semibold {{ request()->routeIs('pengguna.*') ? 'text-white' : 'text-slate-700 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-white' }}">Pengaturan Pengguna</span>
             </a>
+
+            <a href="{{ route('admin.backup.index') }}"
+                class="flex items-center px-3 py-2.5 rounded-2xl transition-all duration-200 {{ request()->routeIs('admin.backup.*') ? 'bg-zinc-700 shadow-md shadow-zinc-700/30' : 'hover:bg-slate-100 dark:hover:bg-zinc-800' }} group">
+                <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mr-3 {{ request()->routeIs('admin.backup.*') ? 'bg-white/25' : 'bg-zinc-600 shadow-sm shadow-zinc-600/40' }}">
+                    <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+                    </svg>
+                </div>
+                <span class="text-sm font-semibold {{ request()->routeIs('admin.backup.*') ? 'text-white' : 'text-slate-700 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-white' }}">Backup Database</span>
+            </a>
         </nav>
     </div>
     @endif
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const sidebarScroll = document.getElementById("sidebar-scroll-container");
+            if (sidebarScroll) {
+                // Pulihkan posisi scroll
+                const savedScroll = localStorage.getItem("sidebar-scroll-position");
+                if (savedScroll) {
+                    sidebarScroll.scrollTop = parseInt(savedScroll, 10);
+                }
+
+                // Simpan posisi scroll saat di-scroll
+                sidebarScroll.addEventListener("scroll", function() {
+                    localStorage.setItem("sidebar-scroll-position", sidebarScroll.scrollTop);
+                });
+                
+                // Simpan posisi scroll saat link diklik (opsi tambahan)
+                const links = sidebarScroll.querySelectorAll("a");
+                links.forEach(link => {
+                    link.addEventListener("click", function() {
+                        localStorage.setItem("sidebar-scroll-position", sidebarScroll.scrollTop);
+                    });
+                });
+            }
+        });
+    </script>
 </div>
