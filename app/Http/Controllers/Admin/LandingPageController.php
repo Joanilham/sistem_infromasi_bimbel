@@ -65,6 +65,8 @@ class LandingPageController extends Controller
     public function updateGeneral(Request $request)
     {
         $validated = $request->validate([
+            'nama_lembaga'   => 'nullable|string|max:255',
+            'logo'           => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'wa_number'      => 'nullable|string|max:20',
             'wa_widget_status' => 'nullable|boolean',
             'wa_widget_message' => 'nullable|string|max:255',
@@ -83,6 +85,11 @@ class LandingPageController extends Controller
         try {
             $master = Master::first() ?? new Master();
             $validated['wa_widget_status'] = $request->has('wa_widget_status');
+
+            if ($request->hasFile('logo')) {
+                if ($master->logo) Storage::disk('public')->delete($master->logo);
+                $validated['logo'] = $this->compressAndStore($request->file('logo'), 'logos', 80);
+            }
 
             if ($request->hasFile('hero_image')) {
                 if ($master->hero_image) Storage::disk('public')->delete($master->hero_image);

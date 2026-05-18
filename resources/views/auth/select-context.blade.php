@@ -76,66 +76,93 @@
                 </div>
             @endif
 
+            @php
+                $currentKantorId = session('kantor_id') ?: (auth()->user()->kantor_id ?: (\App\Models\Kantor::first()->id ?? ''));
+                $currentKantor = \App\Models\Kantor::find($currentKantorId);
+                $currentKantorLabel = $currentKantor ? $currentKantor->nama_kantor : 'Pilih kantor cabang';
+
+                $activePeriode = \App\Models\Periode::where('is_active', true)->first();
+                $currentPeriodeId = session('periode_id') ?: ($activePeriode ? $activePeriode->id : (\App\Models\Periode::first()->id ?? ''));
+                $currentPeriode = \App\Models\Periode::find($currentPeriodeId);
+                $currentPeriodeLabel = $currentPeriode ? ($currentPeriode->tahun_periode . ' - ' . ucfirst($currentPeriode->semester ?? '')) : 'Pilih tahun ajaran';
+            @endphp
+
             <form action="{{ route('session.konteks') }}" method="POST" class="space-y-6">
                 @csrf
                 <input type="hidden" name="redirect" value="/dashboard">
 
-                <div class="space-y-1.5" x-data="{ open: false, selected: '', selectedLabel: 'Pilih kantor cabang' }">
-                    <label class="block text-sm font-bold text-slate-700">Kantor Cabang</label>
-                    <div class="relative">
-                        <button type="button" @click="open = !open" @click.away="open = false"
-                            class="relative w-full rounded-xl border border-slate-200 bg-slate-50 pl-11 pr-10 py-3 text-left text-sm text-slate-900 shadow-sm focus:border-blue-600 focus:bg-white focus:ring-1 focus:ring-blue-600 transition-all duration-200">
-                            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+                @if(strtolower(auth()->user()->level) === 'super admin')
+                    <div class="space-y-1.5" x-data="{ open: false, selected: '{{ $currentKantorId }}', selectedLabel: '{{ $currentKantorLabel }}' }">
+                        <label class="block text-sm font-bold text-slate-700">Kantor Cabang</label>
+                        <div class="relative">
+                            <button type="button" @click="open = !open" @click.away="open = false"
+                                class="relative w-full rounded-xl border border-slate-200 bg-slate-50 pl-11 pr-10 py-3 text-left text-sm text-slate-900 shadow-sm focus:border-blue-600 focus:bg-white focus:ring-1 focus:ring-blue-600 transition-all duration-200">
+                                <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+                                    <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                    </svg>
+                                </span>
+                                <span x-text="selectedLabel" :class="selected === '' ? 'text-slate-400' : 'text-slate-900 font-semibold'">Pilih kantor cabang</span>
+                                <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4">
+                                    <svg class="h-4 w-4 text-slate-400 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                                </span>
+                            </button>
+
+                            <input type="hidden" name="kantor_id" :value="selected" required>
+
+                            <div x-show="open" 
+                                 x-transition:enter="transition ease-out duration-100"
+                                 x-transition:enter-start="opacity-0 scale-95"
+                                 x-transition:enter-end="opacity-100 scale-100"
+                                 x-transition:leave="transition ease-in duration-75"
+                                 x-transition:leave-start="opacity-100 scale-100"
+                                 x-transition:leave-end="opacity-0 scale-95"
+                                 class="absolute z-50 mt-3 w-full rounded-3xl dropdown-glass p-2 shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-white/20 ring-1 ring-black ring-opacity-5 overflow-hidden focus:outline-none" style="display: none;">
+                                <div class="max-h-60 overflow-y-auto custom-scrollbar space-y-1">
+                                    @foreach($kantors as $kantor)
+                                        <div @click="selected = '{{ $kantor->id }}'; selectedLabel = '{{ $kantor->nama_kantor }}'; open = false"
+                                             class="group flex items-center gap-4 px-4 py-3.5 text-sm rounded-2xl cursor-pointer transition-all duration-200"
+                                             :class="selected == '{{ $kantor->id }}' ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'text-slate-600 hover:bg-blue-50 hover:text-blue-700'">
+                                             <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-100 bg-white/50 shadow-sm group-hover:border-blue-200 group-hover:bg-white transition-all duration-200"
+                                                  :class="selected == '{{ $kantor->id }}' ? 'bg-white/20 border-white/20' : ''">
+                                                 <svg class="h-5 w-5" :class="selected == '{{ $kantor->id }}' ? 'text-white' : 'text-slate-400 group-hover:text-blue-600'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                                 </svg>
+                                             </div>
+                                             <div class="flex flex-col">
+                                                 <span class="font-bold">{{ $kantor->nama_kantor }}</span>
+                                                 <span class="text-[10px] opacity-70" :class="selected == '{{ $kantor->id }}' ? 'text-white' : 'text-slate-400'">Klik untuk memilih unit ini</span>
+                                             </div>
+                                             <span x-show="selected == '{{ $kantor->id }}'" class="ml-auto" x-transition>
+                                                 <div class="bg-white rounded-full p-1">
+                                                     <svg class="h-3 w-3 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4">
+                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                                     </svg>
+                                                 </div>
+                                             </span>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @else
+                    <div class="space-y-1.5">
+                        <label class="block text-sm font-bold text-slate-700">Kantor Cabang</label>
+                        <div class="relative flex items-center w-full rounded-xl border border-slate-200 bg-slate-100/80 px-4 py-3 text-sm text-slate-500 shadow-sm cursor-not-allowed">
+                            <span class="mr-3">
                                 <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                                 </svg>
                             </span>
-                            <span x-text="selectedLabel" :class="selected === '' ? 'text-slate-400' : 'text-slate-900 font-semibold'">Pilih kantor cabang</span>
-                            <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4">
-                                <svg class="h-4 w-4 text-slate-400 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-                            </span>
-                        </button>
-
-                        <input type="hidden" name="kantor_id" :value="selected" required>
-
-                        <div x-show="open" 
-                             x-transition:enter="transition ease-out duration-100"
-                             x-transition:enter-start="opacity-0 scale-95"
-                             x-transition:enter-end="opacity-100 scale-100"
-                             x-transition:leave="transition ease-in duration-75"
-                             x-transition:leave-start="opacity-100 scale-100"
-                             x-transition:leave-end="opacity-0 scale-95"
-                             class="absolute z-50 mt-3 w-full rounded-3xl dropdown-glass p-2 shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-white/20 ring-1 ring-black ring-opacity-5 overflow-hidden focus:outline-none" style="display: none;">
-                            <div class="max-h-60 overflow-y-auto custom-scrollbar space-y-1">
-                                @foreach($kantors as $kantor)
-                                    <div @click="selected = '{{ $kantor->id }}'; selectedLabel = '{{ $kantor->nama_kantor }}'; open = false"
-                                         class="group flex items-center gap-4 px-4 py-3.5 text-sm rounded-2xl cursor-pointer transition-all duration-200"
-                                         :class="selected == '{{ $kantor->id }}' ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'text-slate-600 hover:bg-blue-50 hover:text-blue-700'">
-                                         <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-100 bg-white/50 shadow-sm group-hover:border-blue-200 group-hover:bg-white transition-all duration-200"
-                                              :class="selected == '{{ $kantor->id }}' ? 'bg-white/20 border-white/20' : ''">
-                                             <svg class="h-5 w-5" :class="selected == '{{ $kantor->id }}' ? 'text-white' : 'text-slate-400 group-hover:text-blue-600'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                             </svg>
-                                         </div>
-                                         <div class="flex flex-col">
-                                             <span class="font-bold">{{ $kantor->nama_kantor }}</span>
-                                             <span class="text-[10px] opacity-70" :class="selected == '{{ $kantor->id }}' ? 'text-white' : 'text-slate-400'">Klik untuk memilih unit ini</span>
-                                         </div>
-                                         <span x-show="selected == '{{ $kantor->id }}'" class="ml-auto" x-transition>
-                                             <div class="bg-white rounded-full p-1">
-                                                 <svg class="h-3 w-3 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4">
-                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                                 </svg>
-                                             </div>
-                                         </span>
-                                    </div>
-                                @endforeach
-                            </div>
+                            <span class="font-bold text-slate-600">{{ $kantors->first()->nama_kantor ?? 'Tidak terasosiasi' }}</span>
+                            <span class="ml-auto text-[10px] bg-slate-200 text-slate-700 px-2 py-0.5 rounded-md font-bold uppercase tracking-widest">Locked</span>
                         </div>
+                        <input type="hidden" name="kantor_id" value="{{ $kantors->first()->id ?? '' }}">
                     </div>
-                </div>
+                @endif
 
-                <div class="space-y-2" x-data="{ open: false, selected: '', selectedLabel: 'Pilih tahun ajaran' }">
+                <div class="space-y-2" x-data="{ open: false, selected: '{{ $currentPeriodeId }}', selectedLabel: '{{ $currentPeriodeLabel }}' }">
                     <label class="block text-sm font-bold text-slate-700 ml-1">Tahun Ajaran</label>
                     <div class="relative">
                         <button type="button" @click="open = !open" @click.away="open = false"

@@ -71,22 +71,31 @@ class AuthController extends Controller
 
             $request->session()->regenerate();
 
-            // Redirect ke halaman pilih konteks khusus untuk admin / staff jika belum memilih
             $user = Auth::user();
-            if (in_array($user->level, ['administrator', 'staff'])) {
-                if (!$request->session()->has('kantor_id') || !$request->session()->has('periode_id')) {
-                    return redirect()->route('konteks.select');
+            $level = strtolower($user->level);
+
+            if (in_array($level, ['super admin', 'admin'])) {
+                // Otomatis atur default kantor_id & periode_id ke session
+                $kantorId = $user->kantor_id ?: (\App\Models\Kantor::first()->id ?? null);
+                $periodeId = $user->periode_id ?: (\App\Models\Periode::where('is_active', true)->first()->id ?? (\App\Models\Periode::first()->id ?? null));
+
+                if ($kantorId) {
+                    $request->session()->put('kantor_id', $kantorId);
                 }
-                return redirect()->intended('dashboard');
+                if ($periodeId) {
+                    $request->session()->put('periode_id', $periodeId);
+                }
+
+                return redirect()->route('konteks.select');
             }
 
             // Redirect khusus untuk guru
-            if ($user->level === 'guru') {
+            if ($level === 'guru') {
                 return redirect()->route('guru.dashboard');
             }
 
             // Redirect khusus untuk siswa
-            if ($user->level === 'siswa') {
+            if ($level === 'siswa') {
                 return redirect()->route('siswa.dashboard');
             }
 
@@ -103,12 +112,19 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
-        Auth::logout();
+        // Log out specifically from the web guard
+        \Illuminate\Support\Facades\Auth::guard('web')->logout();
 
+        // Clear all session data completely
+        $request->session()->flush();
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
 
-        return redirect()->route('welcome');
+        // Redirect to welcome with explicit headers to prevent browser caching
+        return redirect()->route('welcome')->withHeaders([
+            'Cache-Control' => 'no-cache, no-store, max-age=0, must-revalidate',
+            'Pragma'        => 'no-cache',
+            'Expires'       => 'Sun, 02 Jan 1990 00:00:00 GMT',
+        ]);
     }
 }

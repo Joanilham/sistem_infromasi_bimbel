@@ -103,7 +103,7 @@ class DummyUserSeeder extends Seeder
                 'name' => $pd->nama_lengkap,
                 'username' => 'siswa' . $i,
                 'email' => 'siswa' . $i . '@example.com',
-                'level' => 'siswa',
+                'level' => 'Siswa',
                 'password' => Hash::make('password'),
                 'is_active' => true,
                 'peserta_didik_id' => $pd->id,

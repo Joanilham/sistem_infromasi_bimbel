@@ -100,10 +100,12 @@ class PendaftaranController extends Controller
         if (!Session::has('daftar_email') || !Session::has('daftar_data')) {
             return redirect()->route('daftar.step1');
         }
-        $data    = Session::get('daftar_data');
-        $paketId = $data['paket_bimbingan_id'] ?? null;
-        $paket   = $paketId ? PaketBimbingan::find($paketId) : null;
-        return view('pendaftaran.step3', compact('paket'));
+        $data      = Session::get('daftar_data');
+        $kantorId  = Session::get('daftar_kantor_id');
+        $paketId   = $data['paket_bimbingan_id'] ?? null;
+        $paket     = $paketId ? PaketBimbingan::find($paketId) : null;
+        $pakets    = PaketBimbingan::when($kantorId, fn($q) => $q->where('kantor_id', $kantorId))->get();
+        return view('pendaftaran.step3', compact('paket', 'pakets'));
     }
 
     public function step3Store(Request $request)
@@ -113,8 +115,9 @@ class PendaftaranController extends Controller
         }
 
         $request->validate([
-            'metode_pembayaran' => 'required|string',
-            'bukti_pembayaran'  => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'metode_pembayaran'   => 'required|string',
+            'bukti_pembayaran'    => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'paket_bimbingan_id'  => 'nullable|exists:paket_bimbingans,id',
         ], [
             'bukti_pembayaran.required' => 'Bukti pembayaran wajib diunggah.',
             'bukti_pembayaran.mimes'    => 'Format bukti pembayaran hanya diperbolehkan: JPG, JPEG, PNG, PDF.',
@@ -122,6 +125,12 @@ class PendaftaranController extends Controller
         ]);
 
         $data      = Session::get('daftar_data');
+        
+        // Update paket_bimbingan_id di session jika user memilih/mengubah di Step 3
+        if ($request->filled('paket_bimbingan_id')) {
+            $data['paket_bimbingan_id'] = $request->paket_bimbingan_id;
+            Session::put('daftar_data', $data);
+        }
         $email     = Session::get('daftar_email');
         $password  = Session::get('daftar_password');
         $kantorId  = Session::get('daftar_kantor_id');
@@ -259,7 +268,11 @@ class PendaftaranController extends Controller
         $sort       = in_array($request->input('sort'), ['id', 'nama_lengkap', 'paket_bimbingan_id']) ? $request->input('sort') : 'id';
         $order      = in_array($request->input('order'), ['asc', 'desc']) ? $request->input('order') : 'desc';
 
+        $isSuperAdmin = auth()->check() && strtolower(auth()->user()->level) === 'super admin';
+        $kantorId = session('kantor_id');
+
         $pendaftarans = PendaftaranSiswa::with(['paketBimbingan', 'pembayaran', 'kantor'])
+            ->unless($isSuperAdmin, fn($q) => $q->where('kantor_id', $kantorId))
             ->when($search, function ($q) use ($search) {
                 $q->where('nama_lengkap', 'like', "%{$search}%")
                   ->orWhere('email', 'like', "%{$search}%");

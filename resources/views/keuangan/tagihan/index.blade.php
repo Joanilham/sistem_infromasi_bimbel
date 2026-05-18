@@ -12,13 +12,14 @@
             <p class="text-slate-500 dark:text-slate-400 mt-2 text-sm font-medium">Monitoring tunggakan dan kekurangan pembayaran biaya bimbingan belajar.</p>
         </div>
         <div class="shrink-0">
-            <span class="inline-flex items-center gap-3 bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 font-black text-xs px-6 py-3.5 rounded-2xl ring-2 ring-rose-100/50 dark:ring-rose-900/30 shadow-sm">
+            <a href="{{ request()->fullUrlWithQuery(['sort' => 'batas_waktu', 'order' => 'asc']) }}" 
+                class="inline-flex items-center gap-3 bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 font-black text-xs px-6 py-3.5 rounded-2xl ring-2 ring-rose-100/50 dark:ring-rose-900/30 shadow-sm hover:scale-105 active:scale-95 transition-all">
                 <span class="relative flex h-2 w-2">
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
                     <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
                 </span>
                 Urutkan Jatuh Tempo
-            </span>
+            </a>
         </div>
     </div>
 
@@ -88,7 +89,20 @@
                                 </span>
                             </a>
                         </th>
-                        <th class="px-4 py-3 text-left w-32 border border-white/20">Jatuh Tempo</th>
+                        <th class="px-4 py-3 text-left w-44 border border-white/20">
+                            <a href="{{ request()->fullUrlWithQuery(['sort' => 'batas_waktu', 'order' => request('sort') == 'batas_waktu' && request('order') == 'asc' ? 'desc' : 'asc']) }}" class="flex items-center justify-between group">
+                                Jatuh Tempo
+                                <span class="transition-all {{ request('sort') == 'batas_waktu' ? 'opacity-100' : 'opacity-30 group-hover:opacity-100' }}">
+                                    @if(request('sort') == 'batas_waktu' && request('order') == 'asc')
+                                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 15l7-7 7 7"/></svg>
+                                    @elseif(request('sort') == 'batas_waktu' && request('order') == 'desc')
+                                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M19 9l-7 7-7-7"/></svg>
+                                    @else
+                                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M7 10l5-5 5 5M7 14l5 5 5-5"/></svg>
+                                    @endif
+                                </span>
+                            </a>
+                        </th>
                         <th class="px-4 py-3 text-left border border-white/20">
                             <a href="{{ request()->fullUrlWithQuery(['sort' => 'nama_lengkap', 'order' => request('sort') == 'nama_lengkap' && request('order') == 'asc' ? 'desc' : 'asc']) }}" class="flex items-center justify-between group">
                                 Siswa
@@ -119,18 +133,16 @@
                                 #{{ $t->id }}
                             </td>
                             <td class="px-4 py-3 border border-slate-200 dark:border-zinc-800">
-                                @if($t->batas_waktu)
-                                    <div class="flex flex-col">
-                                        <span class="font-bold {{ $overdue ? 'text-rose-600 dark:text-rose-400' : 'text-slate-700 dark:text-slate-300' }}">
-                                            {{ $t->batas_waktu->format('d/m/Y') }}
-                                        </span>
-                                        @if($overdue)
-                                            <span class="text-[8px] font-black text-rose-500 uppercase tracking-widest mt-0.5">Overdue!</span>
-                                        @endif
-                                    </div>
-                                @else
-                                    <span class="text-slate-400 font-bold italic text-[10px]">Belum Diatur</span>
-                                @endif
+                                <form action="{{ route('keuangan.pembayaran.update', $t->id) }}" method="POST" class="flex items-center gap-2">
+                                    @csrf @method('PUT')
+                                    <input type="date" name="batas_waktu" 
+                                        value="{{ $t->batas_waktu ? $t->batas_waktu->format('Y-m-d') : '' }}" 
+                                        onchange="this.form.submit()"
+                                        class="bg-slate-50 hover:bg-slate-100 dark:bg-zinc-800/50 dark:hover:bg-zinc-800 border-0 rounded-lg text-xs font-black px-2.5 py-1.5 focus:ring-2 focus:ring-rose-500/20 text-slate-700 dark:text-slate-300 transition-all cursor-pointer">
+                                    @if($overdue)
+                                        <span class="px-1.5 py-0.5 rounded bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400 text-[8px] font-black uppercase tracking-wider shrink-0 animate-pulse">Overdue</span>
+                                    @endif
+                                </form>
                             </td>
                             <td class="px-4 py-3 border border-slate-200 dark:border-zinc-800">
                                 <div class="flex items-center gap-3">

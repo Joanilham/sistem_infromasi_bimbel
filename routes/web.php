@@ -62,12 +62,13 @@ Route::prefix('daftar')->name('daftar.')->group(function () {
 Route::middleware('auth')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::get('/logout', [AuthController::class, 'logout']);
 
     // ----------------------------------------------------------
     // AREA ADMINISTRATOR & STAFF
     // ensure_role memastikan siswa/guru tidak bisa masuk ke sini
     // ----------------------------------------------------------
-    Route::middleware('ensure_role:administrator,staff')->group(function () {
+    Route::middleware('ensure_role:Super Admin,Admin')->group(function () {
 
         // Rute pemilihan konteks (wajib sebelum pakai fitur)
         Route::get('/select-context', [KonteksController::class, 'selectContext'])->name('konteks.select');
@@ -107,21 +108,164 @@ Route::middleware('auth')->group(function () {
             $kantors  = \Illuminate\Support\Facades\Cache::remember('dash_kantors', 60, fn() => Kantor::all());
             $periodes = \Illuminate\Support\Facades\Cache::remember('dash_periodes', 60, fn() => Periode::all());
 
+            $isSuperAdmin = auth()->check() && strtolower(auth()->user()->level) === 'super admin';
+            $filterKantorId = $isSuperAdmin ? null : $kantorId;
+
             $pendaftaranMenunggu = \App\Models\PendaftaranSiswa::where('status', 'menunggu')
-                ->when($kantorId, fn($q) => $q->where('kantor_id', $kantorId))
+                ->when($filterKantorId, fn($q) => $q->where('kantor_id', $filterKantorId))
                 ->count();
             $pembayaranBelumDikonfirmasi = \App\Models\PembayaranPendaftaran::where('status', 'menunggu')
                 ->whereHas('pendaftaranSiswa', fn($q) => $q
-                    ->when($kantorId, fn($q2) => $q2->where('kantor_id', $kantorId))
+                    ->when($filterKantorId, fn($q2) => $q2->where('kantor_id', $filterKantorId))
                 )
                 ->count();
 
+            // Auto-create missing PembayaranSiswa records for active students in context
+            if ($kantorId && $periodeId) {
+                $studentsWithoutBilling = \App\Models\PesertaDidik::aktif()
+                    ->inContext()
+                    ->whereDoesntHave('pembayaran')
+                    ->get();
+
+                foreach ($studentsWithoutBilling as $student) {
+                    $student->pembayaran()->create([
+                        'total_harus_dibayar' => $student->paketBimbingan?->nominal ?? 0,
+                        'biaya_pendaftaran'   => 0,
+                        'diskon_persen'       => 0,
+                        'diskon_nominal'      => 0,
+                    ]);
+                }
+            }
+
+            // Tagihan Jatuh Tempo Count
+            $tagihanJatuhTempoCount = 0;
+            if ($kantorId && $periodeId) {
+                $tagihanRaw = \App\Models\PembayaranSiswa::with('transaksi')
+                    ->whereHas('pesertaDidik', fn($q) => $q->inContext()->aktif())
+                    ->where(function($q) {
+                        $q->where('batas_waktu', '<=', \Carbon\Carbon::now()->addDays(7))
+                          ->orWhereNull('batas_waktu');
+                    })
+                    ->get();
+                $tagihanJatuhTempoCount = $tagihanRaw->filter(fn($p) => $p->kekurangan > 0)->count();
+            }
+
             // Lead Tracking: 10 Pendaftar Terbaru
             $recentPendaftaran = \App\Models\PendaftaranSiswa::with(['paketBimbingan', 'pembayaran'])
-                ->when($kantorId, fn($q) => $q->where('kantor_id', $kantorId))
+                ->when($filterKantorId, fn($q) => $q->where('kantor_id', $filterKantorId))
                 ->latest()
                 ->limit(10)
                 ->get();
+
+            // --- DATA UNTUK GRAFIK (PESERTA DIDIK & KEUANGAN) ---
+            $selectedPeriodeObj = $periodeId ? Periode::find($periodeId) : null;
+            $yearStart = null;
+            $yearEnd = null;
+            if ($selectedPeriodeObj) {
+                if (preg_match('/(\d{4})\/(\d{4})/', $selectedPeriodeObj->tahun_periode, $matches)) {
+                    $yearStart = (int) $matches[1];
+                    $yearEnd = (int) $matches[2];
+                } elseif (preg_match('/(\d{4})/', $selectedPeriodeObj->tahun_periode, $matches)) {
+                    $yearStart = (int) $matches[1];
+                    $yearEnd = $yearStart;
+                }
+            }
+
+            if (!$yearStart) {
+                $yearStart = (int) date('Y');
+                $yearEnd = $yearStart + 1;
+            }
+
+            $monthsList = [];
+            $labels = [];
+            if ($yearStart === $yearEnd) {
+                for ($m = 1; $m <= 12; $m++) {
+                    $monthsList[] = sprintf('%04d-%02d', $yearStart, $m);
+                    $labels[] = \Carbon\Carbon::create($yearStart, $m, 1)->translatedFormat('F Y');
+                }
+            } else {
+                for ($m = 7; $m <= 12; $m++) {
+                    $monthsList[] = sprintf('%04d-%02d', $yearStart, $m);
+                    $labels[] = \Carbon\Carbon::create($yearStart, $m, 1)->translatedFormat('F Y');
+                }
+                for ($m = 1; $m <= 6; $m++) {
+                    $monthsList[] = sprintf('%04d-%02d', $yearEnd, $m);
+                    $labels[] = \Carbon\Carbon::create($yearEnd, $m, 1)->translatedFormat('F Y');
+                }
+            }
+
+            $pesertaMasukData = array_fill_keys($monthsList, 0);
+            $pesertaKeluarData = array_fill_keys($monthsList, 0);
+            $uangMasukData = array_fill_keys($monthsList, 0);
+            $uangKeluarData = array_fill_keys($monthsList, 0);
+
+            // 1. Peserta Didik
+            $pesertas = \App\Models\PesertaDidik::inContext()
+                ->where('periode_id', $periodeId)
+                ->get();
+
+            foreach ($pesertas as $p) {
+                if ($p->created_at) {
+                    $key = $p->created_at->format('Y-m');
+                    if (array_key_exists($key, $pesertaMasukData)) {
+                        $pesertaMasukData[$key]++;
+                    }
+                }
+                if ($p->tanggal_keluar) {
+                    $key = \Carbon\Carbon::parse($p->tanggal_keluar)->format('Y-m');
+                    if (array_key_exists($key, $pesertaKeluarData)) {
+                        $pesertaKeluarData[$key]++;
+                    }
+                }
+            }
+
+            // 2. Keuangan - Transaksi Pembayaran Siswa (Uang Masuk)
+            $transaksiSpp = \App\Models\TransaksiPembayaran::whereHas('pembayaranSiswa.pesertaDidik', function($q) use ($kantorId, $periodeId) {
+                    $q->where('kantor_id', $kantorId)->where('periode_id', $periodeId);
+                })
+                ->whereBetween('tanggal', [$yearStart === $yearEnd ? "{$yearStart}-01-01" : "{$yearStart}-07-01", $yearStart === $yearEnd ? "{$yearStart}-12-31" : "{$yearEnd}-06-30"])
+                ->get();
+
+            foreach ($transaksiSpp as $t) {
+                if ($t->tanggal) {
+                    $key = \Carbon\Carbon::parse($t->tanggal)->format('Y-m');
+                    if (array_key_exists($key, $uangMasukData)) {
+                        $uangMasukData[$key] += (int) $t->nominal;
+                    }
+                }
+            }
+
+            // 3. Keuangan - Pemasukan Lainnya (Uang Masuk)
+            $pemasukanLain = \App\Models\Pemasukan::whereBetween('tanggal', [$yearStart === $yearEnd ? "{$yearStart}-01-01" : "{$yearStart}-07-01", $yearStart === $yearEnd ? "{$yearStart}-12-31" : "{$yearEnd}-06-30"])
+                ->get();
+
+            foreach ($pemasukanLain as $pl) {
+                if ($pl->tanggal) {
+                    $key = \Carbon\Carbon::parse($pl->tanggal)->format('Y-m');
+                    if (array_key_exists($key, $uangMasukData)) {
+                        $uangMasukData[$key] += (int) $pl->nominal;
+                    }
+                }
+            }
+
+            // 4. Keuangan - Pengeluaran (Uang Keluar)
+            $pengeluaranList = \App\Models\Pengeluaran::whereBetween('tanggal', [$yearStart === $yearEnd ? "{$yearStart}-01-01" : "{$yearStart}-07-01", $yearStart === $yearEnd ? "{$yearStart}-12-31" : "{$yearEnd}-06-30"])
+                ->get();
+
+            foreach ($pengeluaranList as $pg) {
+                if ($pg->tanggal) {
+                    $key = \Carbon\Carbon::parse($pg->tanggal)->format('Y-m');
+                    if (array_key_exists($key, $uangKeluarData)) {
+                        $uangKeluarData[$key] += (int) $pg->nominal;
+                    }
+                }
+            }
+
+            $chartLabels = $labels;
+            $chartPesertaMasuk = array_values($pesertaMasukData);
+            $chartPesertaKeluar = array_values($pesertaKeluarData);
+            $chartUangMasuk = array_values($uangMasukData);
+            $chartUangKeluar = array_values($uangKeluarData);
 
             return view('dashboard', compact(
                 'totalPesertaAktif',
@@ -135,7 +279,13 @@ Route::middleware('auth')->group(function () {
                 'periodes',
                 'pendaftaranMenunggu',
                 'pembayaranBelumDikonfirmasi',
-                'recentPendaftaran'
+                'tagihanJatuhTempoCount',
+                'recentPendaftaran',
+                'chartLabels',
+                'chartPesertaMasuk',
+                'chartPesertaKeluar',
+                'chartUangMasuk',
+                'chartUangKeluar'
             ));
         })->name('dashboard');
 
@@ -147,10 +297,15 @@ Route::middleware('auth')->group(function () {
         Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
 
+        // Verifikasi Pendaftaran Siswa (Bisa diakses Super Admin & Admin)
+        Route::get('/admin/pendaftaran', [App\Http\Controllers\PendaftaranController::class, 'adminIndex'])->name('admin.pendaftaran.index');
+        Route::get('/admin/pendaftaran/{pendaftaran}', [App\Http\Controllers\PendaftaranController::class, 'adminShow'])->name('admin.pendaftaran.show');
+        Route::post('/admin/pendaftaran/{pendaftaran}/verifikasi', [App\Http\Controllers\PendaftaranController::class, 'adminVerifikasi'])->name('admin.pendaftaran.verifikasi');
+
         // ----------------------------------------------------------
         // KHUSUS ADMINISTRATOR
         // ----------------------------------------------------------
-        Route::middleware('ensure_role:administrator')->group(function () {
+        Route::middleware('ensure_role:Super Admin')->group(function () {
             Route::resource('kantor', \App\Http\Controllers\KantorController::class);
             Route::patch('/kantor/{id}/restore', [\App\Http\Controllers\KantorController::class, 'restore'])->name('kantor.restore');
             Route::resource('periode', \App\Http\Controllers\PeriodeController::class);
@@ -160,11 +315,6 @@ Route::middleware('auth')->group(function () {
             Route::get('/master', [\App\Http\Controllers\MasterController::class, 'index'])->name('master.index');
             Route::put('/master', [\App\Http\Controllers\MasterController::class, 'update'])->name('master.update');
             Route::post('/master/test-wa', [\App\Http\Controllers\MasterController::class, 'testWhatsApp'])->name('master.test.wa');
-
-            // Verifikasi Pendaftaran Siswa
-            Route::get('/admin/pendaftaran', [App\Http\Controllers\PendaftaranController::class, 'adminIndex'])->name('admin.pendaftaran.index');
-            Route::get('/admin/pendaftaran/{pendaftaran}', [App\Http\Controllers\PendaftaranController::class, 'adminShow'])->name('admin.pendaftaran.show');
-            Route::post('/admin/pendaftaran/{pendaftaran}/verifikasi', [App\Http\Controllers\PendaftaranController::class, 'adminVerifikasi'])->name('admin.pendaftaran.verifikasi');
 
             // Landing Page Management
             Route::get('/admin/landing-page', [\App\Http\Controllers\Admin\LandingPageController::class, 'index'])->name('admin.landing-page.index');
@@ -177,6 +327,15 @@ Route::middleware('auth')->group(function () {
             // Gallery
             Route::post('/admin/landing-page/gallery', [\App\Http\Controllers\Admin\LandingPageController::class, 'storeGallery'])->name('admin.landing-page.gallery.store');
             Route::delete('/admin/landing-page/gallery/{gallery}', [\App\Http\Controllers\Admin\LandingPageController::class, 'destroyGallery'])->name('admin.landing-page.gallery.destroy');
+
+            // Backup Database
+            Route::get('/admin/backup', [\App\Http\Controllers\Admin\BackupController::class, 'index'])->name('admin.backup.index');
+            Route::post('/admin/backup', [\App\Http\Controllers\Admin\BackupController::class, 'create'])->name('admin.backup.create');
+            Route::get('/admin/backup/download/{filename}', [\App\Http\Controllers\Admin\BackupController::class, 'download'])->name('admin.backup.download');
+            Route::delete('/admin/backup/{filename}', [\App\Http\Controllers\Admin\BackupController::class, 'destroy'])->name('admin.backup.destroy');
+            Route::post('/admin/backup/upload', [\App\Http\Controllers\Admin\BackupController::class, 'upload'])->name('admin.backup.upload');
+            Route::post('/admin/backup/restore/{filename}', [\App\Http\Controllers\Admin\BackupController::class, 'restore'])->name('admin.backup.restore');
+            Route::post('/admin/backup/toggle', [\App\Http\Controllers\Admin\BackupController::class, 'toggle'])->name('admin.backup.toggle');
         });
 
         // ----------------------------------------------------------
@@ -228,6 +387,8 @@ Route::middleware('auth')->group(function () {
                 Route::get('/pembayaran/{pesertaDidik}', [\App\Http\Controllers\Keuangan\PembayaranController::class, 'show'])->name('pembayaran.show');
                 Route::put('/pembayaran/{pembayaranSiswa}', [\App\Http\Controllers\Keuangan\PembayaranController::class, 'update'])->name('pembayaran.update');
                 Route::post('/pembayaran/{pembayaranSiswa}/transaksi', [\App\Http\Controllers\Keuangan\PembayaranController::class, 'storeTransaksi'])->name('pembayaran.transaksi.store');
+                Route::get('/transaksi/{transaksiPembayaran}/edit', [\App\Http\Controllers\Keuangan\PembayaranController::class, 'editTransaksi'])->name('transaksi.edit');
+                Route::put('/transaksi/{transaksiPembayaran}', [\App\Http\Controllers\Keuangan\PembayaranController::class, 'updateTransaksi'])->name('transaksi.update');
                 Route::delete('/transaksi/{transaksiPembayaran}', [\App\Http\Controllers\Keuangan\PembayaranController::class, 'destroyTransaksi'])->name('transaksi.destroy');
 
                 // Pemasukan — static routes FIRST, parameter routes AFTER
@@ -236,6 +397,7 @@ Route::middleware('auth')->group(function () {
                 Route::get('/pemasukan/kategori', [\App\Http\Controllers\Keuangan\PemasukanController::class, 'indexKategori'])->name('pemasukan.kategori.index');
                 Route::post('/pemasukan/kategori', [\App\Http\Controllers\Keuangan\PemasukanController::class, 'storeKategori'])->name('pemasukan.kategori.store');
                 Route::delete('/pemasukan/kategori/{kategoriPemasukan}', [\App\Http\Controllers\Keuangan\PemasukanController::class, 'destroyKategori'])->name('pemasukan.kategori.destroy');
+                Route::get('/pemasukan/{pemasukan}/edit', [\App\Http\Controllers\Keuangan\PemasukanController::class, 'edit'])->name('pemasukan.edit');
                 Route::put('/pemasukan/{pemasukan}', [\App\Http\Controllers\Keuangan\PemasukanController::class, 'update'])->name('pemasukan.update');
                 Route::delete('/pemasukan/{pemasukan}', [\App\Http\Controllers\Keuangan\PemasukanController::class, 'destroy'])->name('pemasukan.destroy');
 
@@ -245,6 +407,7 @@ Route::middleware('auth')->group(function () {
                 Route::get('/pengeluaran/kategori', [\App\Http\Controllers\Keuangan\PengeluaranController::class, 'indexKategori'])->name('pengeluaran.kategori.index');
                 Route::post('/pengeluaran/kategori', [\App\Http\Controllers\Keuangan\PengeluaranController::class, 'storeKategori'])->name('pengeluaran.kategori.store');
                 Route::delete('/pengeluaran/kategori/{kategoriPengeluaran}', [\App\Http\Controllers\Keuangan\PengeluaranController::class, 'destroyKategori'])->name('pengeluaran.kategori.destroy');
+                Route::get('/pengeluaran/{pengeluaran}/edit', [\App\Http\Controllers\Keuangan\PengeluaranController::class, 'edit'])->name('pengeluaran.edit');
                 Route::put('/pengeluaran/{pengeluaran}', [\App\Http\Controllers\Keuangan\PengeluaranController::class, 'update'])->name('pengeluaran.update');
                 Route::delete('/pengeluaran/{pengeluaran}', [\App\Http\Controllers\Keuangan\PengeluaranController::class, 'destroy'])->name('pengeluaran.destroy');
 

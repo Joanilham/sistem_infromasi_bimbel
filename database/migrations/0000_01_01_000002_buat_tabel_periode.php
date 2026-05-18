@@ -11,8 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('masters', function (Blueprint $table) {
-            $table->string('api_key')->nullable()->after('wa_token');
+        Schema::create('periodes', function (Blueprint $table) {
+            $table->id();
+            $table->string('tahun_periode');
+            $table->boolean('is_active')->default(false);
+            $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -21,8 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('masters', function (Blueprint $table) {
-            $table->dropColumn('api_key');
-        });
+        Schema::dropIfExists('periodes');
     }
 };

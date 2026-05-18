@@ -11,11 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('kantors', function (Blueprint $table) {
-            $table->id();
-            $table->string('nama_kantor');
-            $table->string('alamat')->nullable();
-            $table->timestamps();
+        Schema::table('pendaftaran_siswas', function (Blueprint $table) {
+            $table->string('email_verification_token', 64)->nullable()->after('email_verified_at');
         });
     }
 
@@ -24,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('kantors');
+        Schema::table('pendaftaran_siswas', function (Blueprint $table) {
+            $table->dropColumn('email_verification_token');
+        });
     }
 };
