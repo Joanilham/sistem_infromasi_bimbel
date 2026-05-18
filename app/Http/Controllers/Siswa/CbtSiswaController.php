@@ -87,7 +87,7 @@ class CbtSiswaController extends Controller
             ->with(['ujian'])
             ->whereIn('status', ['selesai', 'timeout'])
             ->orderBy('waktu_selesai', 'desc')
-            ->get();
+            ->paginate(10);
 
         return view('siswa.cbt.riwayat', compact('pesertas'));
     }
@@ -233,7 +233,7 @@ class CbtSiswaController extends Controller
         // Load semua jawaban untuk navigasi grid
         $semuaJawaban = CbtPesertaJawaban::where('cbt_peserta_id', $sesi->id)
             ->orderBy('urutan')
-            ->get(['id', 'urutan', 'cbt_opsi_jawaban_id', 'jawaban_teks', 'ragu_ragu']);
+            ->get(['id', 'urutan', 'cbt_opsi_jawaban_id', 'jawaban_essay', 'ragu_ragu']);
 
         $totalSoal = $semuaJawaban->count();
         if ($no < 1 || $no > $totalSoal) {
@@ -274,8 +274,8 @@ class CbtSiswaController extends Controller
 
         if ($request->has('cbt_opsi_jawaban_id')) {
             $jawaban->cbt_opsi_jawaban_id = $request->cbt_opsi_jawaban_id;
-        } elseif ($request->has('jawaban_teks')) {
-            $jawaban->jawaban_teks = $request->jawaban_teks;
+        } elseif ($request->has('jawaban_essay')) {
+            $jawaban->jawaban_essay = $request->jawaban_essay;
         }
 
         if ($request->has('ragu_ragu')) {

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $id
  * @property int $cbt_peserta_id
  * @property int $cbt_bank_soal_id
- * @property string|null $jawaban_teks
+ * @property string|null $jawaban_essay
  * @property int|null $cbt_opsi_jawaban_id
  * @property array|null $jawaban_multi
  * @property bool $ragu_ragu
