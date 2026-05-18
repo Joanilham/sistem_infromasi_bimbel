@@ -19,20 +19,25 @@ class DatabaseSeeder extends Seeder
         $this->call([
             KantorSeeder::class,
             PeriodeSeeder::class,
-            DummyUserSeeder::class,
+            DummyFullSeeder::class,
         ]);
 
+        $kantor = \App\Models\Kantor::first();
+        $periode = \App\Models\Periode::first();
+
         User::factory()->create([
-            'name'     => 'Admin User',
-            'email'    => 'admin@admin.com',
-            'level'    => 'administrator',
+            'name'     => 'Super Admin',
+            'email'    => 'superadmin@admin.com',
+            'level'    => 'Super Admin',
             'password' => bcrypt('password'),
         ]);
         User::factory()->create([
-            'name'     => 'Staff User',
-            'email'    => 'staff@staff.com',
-            'level'    => 'staff',
+            'name'     => 'Admin',
+            'email'    => 'admin@admin.com',
+            'level'    => 'Admin',
             'password' => bcrypt('password'),
+            'kantor_id' => $kantor ? $kantor->id : null,
+            'periode_id' => $periode ? $periode->id : null,
         ]);
     }
 }

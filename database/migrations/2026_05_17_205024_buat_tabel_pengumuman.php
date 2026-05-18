@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('masters', function (Blueprint $table) {
+        Schema::create('pengumuman', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_lembaga')->nullable();
-            $table->text('alamat_lembaga')->nullable();
-            $table->string('instance_id')->nullable();
-            $table->string('wa_token')->nullable();
-            $table->string('logo')->nullable();
+            $table->string('judul');
+            $table->text('isi');
+            $table->string('foto')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('masters');
+        Schema::dropIfExists('pengumuman');
     }
 };

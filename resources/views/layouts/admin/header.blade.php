@@ -19,12 +19,14 @@
                 @php
                     $kId       = session('kantor_id');
                     $pId       = session('periode_id');
+                    $isSuperAdmin = auth()->check() && strtolower(auth()->user()->level) === 'super admin';
+                    $filterKantorId = $isSuperAdmin ? null : $kId;
 
                     $pendaftaranMenunggu = \App\Models\PendaftaranSiswa::where('status', 'menunggu')
-                        ->when($kId, fn($q) => $q->where('kantor_id', $kId))->count();
+                        ->when($filterKantorId, fn($q) => $q->where('kantor_id', $filterKantorId))->count();
 
                     $pembayaranBelumDikonfirmasi = \App\Models\PembayaranPendaftaran::where('status', 'menunggu')
-                        ->whereHas('pendaftaranSiswa', fn($q) => $q->when($kId, fn($q2) => $q2->where('kantor_id', $kId)))->count();
+                        ->whereHas('pendaftaranSiswa', fn($q) => $q->when($filterKantorId, fn($q2) => $q2->where('kantor_id', $filterKantorId)))->count();
 
                     $transferSppCount = ($kId && $pId) ? \App\Models\TransaksiPembayaran::where('tipe_pembayaran', 'TRANSFER')
                         ->whereHas('pembayaranSiswa.pesertaDidik', fn($q) => $q->inContext())
@@ -36,7 +38,7 @@
                         $tagihanRaw = \App\Models\PembayaranSiswa::with('transaksi')
                             ->whereHas('pesertaDidik', fn($q) => $q->inContext()->aktif())
                             ->where(function($q) {
-                                $q->where('batas_waktu', '<=', \Carbon\Carbon::now()->addDays(7))
+                                $q->where('batas_waktu', '<=', \Carbon\Carbon::now()->addDays(31))
                                   ->orWhereNull('batas_waktu');
                             })
                             ->get();

@@ -108,7 +108,7 @@
                 $soal = $j->bankSoal;
                 $isCorrect = $j->is_benar;
                 $isEssay = $soal->tipe_soal === 'essay';
-                $isKosong = !$j->cbt_opsi_jawaban_id && !$j->jawaban_teks;
+                $isKosong = !$j->cbt_opsi_jawaban_id && !$j->jawaban_essay;
             @endphp
             <div class="bg-white dark:bg-zinc-900 rounded-[2rem] border border-slate-100 dark:border-zinc-800 overflow-hidden shadow-sm hover:shadow-md transition-all">
                 <div class="p-6 md:p-8">
@@ -170,7 +170,7 @@
                         @else
                             <div class="p-6 rounded-2xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-100 dark:border-zinc-800">
                                 <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Jawaban Kamu:</p>
-                                <p class="text-sm font-bold text-slate-700 dark:text-slate-300 leading-relaxed">{{ $j->jawaban_teks ?: '(Kosong)' }}</p>
+                                <p class="text-sm font-bold text-slate-700 dark:text-slate-300 leading-relaxed">{{ $j->jawaban_essay ?: '(Kosong)' }}</p>
                             </div>
                         @endif
 
@@ -181,7 +181,7 @@
                                     <svg class="w-4 h-4 text-[#388782]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>
                                     <span class="text-[10px] font-black text-[#388782] uppercase tracking-widest">Penjelasan Solusi</span>
                                 </div>
-                                <p class="text-sm font-medium text-slate-600 dark:text-slate-400 leading-relaxed">{!! nl2br(e($soal->pembahasan)) !!}</p>
+                                <p class="text-sm font-medium text-slate-600 dark:text-slate-400 leading-relaxed">{!! nl2br(e($soal->pembahasan->pembahasanBersih)) !!}</p>
                             </div>
                         @endif
                     </div>

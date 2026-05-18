@@ -34,14 +34,14 @@
     <!-- Header / Navbar -->
     <nav class="fixed top-0 left-0 right-0 z-50 glass-nav border-b border-slate-200/60 h-20">
         <div class="h-full w-full px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-full max-w-7xl mx-auto">
+            <div class="flex justify-between items-center h-full w-full">
                 <div class="flex items-center gap-2 sm:gap-3">
                     @if($masterData && $masterData->logo)
                         <img src="{{ asset('storage/' . $masterData->logo) }}" alt="Logo" class="h-10 w-auto object-contain">
                     @else
                         <div class="h-10 w-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-lg shadow-indigo-200">G</div>
                     @endif
-                    <span class="font-black text-lg sm:text-xl tracking-tight hidden xs:block">{{ $masterData->nama_lembaga ?? 'Genius Education' }}</span>
+                    <span class="font-black text-lg sm:text-xl tracking-tight block">{{ $masterData->nama_lembaga ?? 'Genius Education' }}</span>
                 </div>
                 
                 <div class="flex items-center gap-2 sm:gap-4">
@@ -160,7 +160,6 @@
                         <div class="px-8 pb-8">
                             <a href="{{ route('paket.detail', $paket->id) }}" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-4.5 rounded-2xl transition-all shadow-xl shadow-indigo-100 flex items-center justify-center gap-3 active:scale-95 group/btn">
                                 Info Lebih Lanjut
-                                <svg class="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                             </a>
                         </div>
                     </div>

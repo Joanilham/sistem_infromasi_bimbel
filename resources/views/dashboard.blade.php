@@ -4,6 +4,11 @@
 
 @section('content')
 
+@php
+    $activeKantorName = \App\Models\Kantor::where('id', session('kantor_id'))->value('nama_kantor') ?? 'Belum Dipilih';
+    $activePeriodeYear = \App\Models\Periode::where('id', session('periode_id'))->value('tahun_periode') ?? 'Belum Dipilih';
+@endphp
+
 <div x-data="{ 
     ...dashboardClock(),
     showListModal: false,
@@ -44,6 +49,33 @@
                         {{ auth()->user()->name ?? 'Administrator' }}! 👋
                     </span>
                 </h1>
+
+                {{-- Sleek Active Context Info Capsule --}}
+                <div class="flex flex-wrap items-center gap-3 mt-6">
+                    <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 shadow-sm text-white">
+                        <span class="flex items-center justify-center w-8 h-8 rounded-xl bg-white/10 text-white shrink-0">
+                            <svg class="h-4.5 w-4.5 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                            </svg>
+                        </span>
+                        <div class="flex flex-col text-left pr-2">
+                            <span class="text-[9px] uppercase tracking-widest text-indigo-100 font-bold leading-none mb-1">Kantor Cabang</span>
+                            <span class="text-xs font-black text-white tracking-tight">{{ $activeKantorName }}</span>
+                        </div>
+                    </div>
+
+                    <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 shadow-sm text-white">
+                        <span class="flex items-center justify-center w-8 h-8 rounded-xl bg-white/10 text-white shrink-0">
+                            <svg class="h-4.5 w-4.5 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </span>
+                        <div class="flex flex-col text-left pr-2">
+                            <span class="text-[9px] uppercase tracking-widest text-indigo-100 font-bold leading-none mb-1">Tahun Ajaran</span>
+                            <span class="text-xs font-black text-white tracking-tight">{{ $activePeriodeYear }}</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {{-- Real-Time Clock --}}
@@ -60,41 +92,10 @@
         </div>
     </div>
 
-    {{-- ─── Stat Cards ─── --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-10">
-        {{-- Card: Peserta Didik --}}
-        <div class="relative bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden group">
-            <div class="absolute inset-0 bg-gradient-to-br from-indigo-50 to-transparent dark:from-indigo-950/40 dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div class="relative z-10">
-                <div class="flex items-center justify-between mb-5">
-                    <span class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Peserta Didik</span>
-                    <div class="p-2.5 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                        </svg>
-                    </div>
-                </div>
-                <p class="text-4xl font-black text-slate-800 dark:text-white mb-2">{{ $totalPesertaAktif }}</p>
-                <div class="flex items-center gap-3 mt-1">
-                    <button type="button" @click="openList('baru', 'Peserta Baru (7 Hari Terakhir)')" 
-                        class="text-xs font-semibold px-2 py-1 rounded-md flex items-center gap-1 transition-all duration-200 hover:scale-105 hover:shadow-md cursor-pointer {{ ($listPesertaBaru ?? collect())->count() > 0 ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-500/20' : 'bg-slate-50 text-slate-400 dark:bg-slate-800 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700' }}">
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                        </svg>
-                        {{ ($listPesertaBaru ?? collect())->count() }} Masuk
-                    </button>
-                    <button type="button" @click="openList('keluar', 'Peserta Keluar')" 
-                        class="text-xs font-semibold px-2 py-1 rounded-md flex items-center gap-1 transition-all duration-200 hover:scale-105 hover:shadow-md cursor-pointer {{ ($listPesertaKeluar ?? collect())->count() > 0 ? 'bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-500/20' : 'bg-slate-50 text-slate-400 dark:bg-slate-800 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700' }}">
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                        </svg>
-                        {{ ($listPesertaKeluar ?? collect())->count() }} Keluar
-                    </button>
-                </div>
-            </div>
-            <div class="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-indigo-400 to-violet-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500 rounded-b-2xl"></div>
-        </div>
+    @include('layouts.admin.pesan-panel')
 
+    {{-- ─── Stat Cards ─── --}}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10">
         {{-- Card: Tenaga Pengajar --}}
         <div class="relative bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden group">
             <div class="absolute inset-0 bg-gradient-to-br from-amber-50 to-transparent dark:from-amber-950/40 dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -127,7 +128,7 @@
             <div class="absolute inset-0 bg-gradient-to-br from-emerald-50 to-transparent dark:from-emerald-950/40 dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
             <div class="relative z-10">
                 <div class="flex items-center justify-between mb-5">
-                    <span class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Paket Aktif</span>
+                    <span class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Paket Bimbingan Aktif</span>
                     <div class="p-2.5 rounded-xl bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform">
                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
@@ -144,23 +145,40 @@
             </div>
             <div class="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-emerald-400 to-teal-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500 rounded-b-2xl"></div>
         </div>
+    </div>
 
-        {{-- Card: Pemasukan --}}
-        <div class="relative bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden group">
-            <div class="absolute inset-0 bg-gradient-to-br from-rose-50 to-transparent dark:from-rose-950/40 dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div class="relative z-10">
-                <div class="flex items-center justify-between mb-5">
-                    <span class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Pemasukan Bulan Ini</span>
-                    <div class="p-2.5 rounded-xl bg-rose-100 dark:bg-rose-900/50 text-rose-600 dark:text-rose-400 group-hover:scale-110 transition-transform">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
+    {{-- ─── Grafik Statistik ─── --}}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+        {{-- Chart: Peserta Didik --}}
+        <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-[2rem] p-6 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+            <div>
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h3 class="text-lg font-extrabold text-slate-800 dark:text-white tracking-tight">Statistik Peserta Didik</h3>
+                        <p class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Peserta masuk vs keluar periode ini</p>
+                    </div>
+                    <div class="px-3.5 py-1 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest border border-indigo-100/50 dark:border-indigo-900/50">
+                        Siswa
                     </div>
                 </div>
-                <p class="text-3xl font-black text-slate-800 dark:text-white mb-2">Rp 0</p>
-                <p class="text-sm font-medium text-slate-400">Belum ada transaksi</p>
+                <div id="chart-peserta-didik" class="w-full min-h-[320px]"></div>
             </div>
-            <div class="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-rose-400 to-pink-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500 rounded-b-2xl"></div>
+        </div>
+
+        {{-- Chart: Keuangan --}}
+        <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-[2rem] p-6 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+            <div>
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h3 class="text-lg font-extrabold text-slate-800 dark:text-white tracking-tight">Statistik Keuangan</h3>
+                        <p class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Arus kas masuk vs keluar periode ini</p>
+                    </div>
+                    <div class="px-3.5 py-1 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest border border-emerald-100/50 dark:border-emerald-900/50">
+                        Keuangan
+                    </div>
+                </div>
+                <div id="chart-keuangan" class="w-full min-h-[320px]"></div>
+            </div>
         </div>
     </div>
 
@@ -223,7 +241,7 @@
                                     @endphp
                                     <a href="{{ $waLink }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-50 dark:bg-green-950 text-green-600 dark:text-green-400 text-[10px] font-black uppercase tracking-widest hover:bg-green-600 hover:text-white transition-all">
                                         <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.937 3.659 1.43 5.623 1.43h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                                        Follow Up
+                                        Hubungi
                                     </a>
                                 </td>
                             </tr>
@@ -238,75 +256,6 @@
         </div>
     </div>
 
-    {{-- ─── Akses Cepat ─── --}}
-    <div class="mb-3 flex items-end justify-between">
-        <div>
-            <h2 class="text-xl font-extrabold text-slate-800 dark:text-white tracking-tight">Akses Cepat</h2>
-            <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Navigasi ke fitur utama sistem</p>
-        </div>
-    </div>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {{-- Pengguna --}}
-        <a href="{{ route('pengguna.index') }}"
-            class="group relative flex flex-col gap-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-6 hover:border-blue-400 dark:hover:border-blue-600 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 overflow-hidden">
-            <div class="absolute inset-0 bg-gradient-to-br from-blue-50/80 to-transparent dark:from-blue-950/40 dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <div class="relative z-10 p-3 w-fit rounded-xl bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
-                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-            </div>
-            <div class="relative z-10">
-                <h3 class="font-bold text-slate-800 dark:text-white text-base mb-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Pengaturan Pengguna</h3>
-                <p class="text-sm text-slate-500 dark:text-slate-400 leading-snug">Kelola role administrator &amp; staff sistem.</p>
-            </div>
-        </a>
-
-        {{-- Data Instansi --}}
-        <a href="{{ route('master.index') }}"
-            class="group relative flex flex-col gap-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-6 hover:border-violet-400 dark:hover:border-violet-600 hover:shadow-xl hover:shadow-violet-500/10 transition-all duration-300 overflow-hidden">
-            <div class="absolute inset-0 bg-gradient-to-br from-violet-50/80 to-transparent dark:from-violet-950/40 dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <div class="relative z-10 p-3 w-fit rounded-xl bg-violet-100 dark:bg-violet-900/50 text-violet-600 dark:text-violet-400 group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300">
-                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-                </svg>
-            </div>
-            <div class="relative z-10">
-                <h3 class="font-bold text-slate-800 dark:text-white text-base mb-1 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">Data Instansi</h3>
-                <p class="text-sm text-slate-500 dark:text-slate-400 leading-snug">Profil, logo instansi &amp; integrasi Gateway.</p>
-            </div>
-        </a>
-
-        {{-- Paket Bimbingan --}}
-        <a href="{{ route('paket-bimbingan.index') }}"
-            class="group relative flex flex-col gap-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-6 hover:border-emerald-400 dark:hover:border-emerald-600 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 overflow-hidden">
-            <div class="absolute inset-0 bg-gradient-to-br from-emerald-50/80 to-transparent dark:from-emerald-950/40 dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <div class="relative z-10 p-3 w-fit rounded-xl bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
-                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                </svg>
-            </div>
-            <div class="relative z-10">
-                <h3 class="font-bold text-slate-800 dark:text-white text-base mb-1 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">Paket Bimbingan</h3>
-                <p class="text-sm text-slate-500 dark:text-slate-400 leading-snug">Jenis paket kursus, harga &amp; layanan tersedia.</p>
-            </div>
-        </a>
-
-        {{-- Peserta Didik --}}
-        <a href="{{ route('peserta-didik.index') }}"
-            class="group relative flex flex-col gap-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-6 hover:border-rose-400 dark:hover:border-rose-600 hover:shadow-xl hover:shadow-rose-500/10 transition-all duration-300 overflow-hidden">
-            <div class="absolute inset-0 bg-gradient-to-br from-rose-50/80 to-transparent dark:from-rose-950/40 dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <div class="relative z-10 p-3 w-fit rounded-xl bg-rose-100 dark:bg-rose-900/50 text-rose-600 dark:text-rose-400 group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300">
-                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />
-                </svg>
-            </div>
-            <div class="relative z-10">
-                <h3 class="font-bold text-slate-800 dark:text-white text-base mb-1 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors">Peserta Didik</h3>
-                <p class="text-sm text-slate-500 dark:text-slate-400 leading-snug">Database murid, biodata &amp; pendaftaran siswa.</p>
-            </div>
-        </a>
-    </div>
 
     {{-- ─── Modal Detail Peserta ─── --}}
     <div x-show="showListModal" 
@@ -406,7 +355,142 @@
 @endsection
 
 @section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const isDark = document.documentElement.classList.contains('dark');
+        const gridColor = isDark ? '#334155' : '#f1f5f9';
+
+        // 1. Chart Peserta Didik
+        var optionsPeserta = {
+            series: [{
+                name: 'Peserta Masuk',
+                data: @json($chartPesertaMasuk)
+            }, {
+                name: 'Peserta Keluar',
+                data: @json($chartPesertaKeluar)
+            }],
+            chart: {
+                type: 'area',
+                height: 320,
+                toolbar: { show: false },
+                fontFamily: 'Plus Jakarta Sans, sans-serif'
+            },
+            colors: ['#4F46E5', '#EF4444'], // Indigo & Red
+            fill: {
+                type: 'gradient',
+                gradient: {
+                    shadeIntensity: 1,
+                    opacityFrom: 0.3,
+                    opacityTo: 0.02,
+                    stops: [0, 90, 100]
+                }
+            },
+            dataLabels: { enabled: false },
+            stroke: { curve: 'smooth', width: 3 },
+            xaxis: {
+                categories: @json($chartLabels),
+                axisBorder: { show: false },
+                axisTicks: { show: false },
+                labels: {
+                    style: { colors: '#94a3b8', fontSize: '11px', fontWeight: 600 }
+                }
+            },
+            yaxis: {
+                labels: {
+                    style: { colors: '#94a3b8', fontSize: '11px', fontWeight: 600 }
+                }
+            },
+            grid: {
+                borderColor: gridColor,
+                strokeDashArray: 4,
+                xaxis: { lines: { show: false } }
+            },
+            legend: {
+                position: 'top',
+                horizontalAlign: 'right',
+                fontWeight: 700,
+                fontSize: '12px',
+                labels: { colors: '#64748b' }
+            },
+            tooltip: {
+                theme: isDark ? 'dark' : 'light',
+                x: { format: 'dd MMM yyyy' }
+            }
+        };
+
+        var chartPeserta = new ApexCharts(document.querySelector("#chart-peserta-didik"), optionsPeserta);
+        chartPeserta.render();
+
+        // 2. Chart Keuangan
+        var optionsKeuangan = {
+            series: [{
+                name: 'Uang Masuk',
+                data: @json($chartUangMasuk)
+            }, {
+                name: 'Uang Keluar',
+                data: @json($chartUangKeluar)
+            }],
+            chart: {
+                type: 'area',
+                height: 320,
+                toolbar: { show: false },
+                fontFamily: 'Plus Jakarta Sans, sans-serif'
+            },
+            colors: ['#10B981', '#F43F5E'], // Emerald & Rose
+            fill: {
+                type: 'gradient',
+                gradient: {
+                    shadeIntensity: 1,
+                    opacityFrom: 0.3,
+                    opacityTo: 0.02,
+                    stops: [0, 90, 100]
+                }
+            },
+            dataLabels: { enabled: false },
+            stroke: { curve: 'smooth', width: 3 },
+            xaxis: {
+                categories: @json($chartLabels),
+                axisBorder: { show: false },
+                axisTicks: { show: false },
+                labels: {
+                    style: { colors: '#94a3b8', fontSize: '11px', fontWeight: 600 }
+                }
+            },
+            yaxis: {
+                labels: {
+                    formatter: function (value) {
+                        return "Rp " + new Intl.NumberFormat('id-ID').format(value);
+                    },
+                    style: { colors: '#94a3b8', fontSize: '11px', fontWeight: 600 }
+                }
+            },
+            grid: {
+                borderColor: gridColor,
+                strokeDashArray: 4,
+                xaxis: { lines: { show: false } }
+            },
+            legend: {
+                position: 'top',
+                horizontalAlign: 'right',
+                fontWeight: 700,
+                fontSize: '12px',
+                labels: { colors: '#64748b' }
+            },
+            tooltip: {
+                theme: isDark ? 'dark' : 'light',
+                y: {
+                    formatter: function (value) {
+                        return "Rp " + new Intl.NumberFormat('id-ID').format(value);
+                    }
+                }
+            }
+        };
+
+        var chartKeuangan = new ApexCharts(document.querySelector("#chart-keuangan"), optionsKeuangan);
+        chartKeuangan.render();
+    });
+
     document.addEventListener('alpine:init', () => {
         window.dashboardClock = () => ({
             time: '00:00:00',

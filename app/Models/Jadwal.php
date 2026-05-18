@@ -21,7 +21,7 @@ class Jadwal extends Model
     ];
 
     // ── Daftar hari yang valid ──────────────────────────────────
-    const HARI_LIST = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    const HARI_LIST = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
 
     // ── Scopes ──────────────────────────────────────────────────
     public function scopeInContext(Builder $query): Builder

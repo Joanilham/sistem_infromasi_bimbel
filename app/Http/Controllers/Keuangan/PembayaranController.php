@@ -17,10 +17,10 @@ class PembayaranController extends Controller
     {
         $search  = $request->input('search', '');
         $perPage = in_array($request->input('per_page'), [10, 25, 50, 100]) ? (int) $request->input('per_page') : 10;
-        $sort    = in_array($request->input('sort'), ['id', 'nama_lengkap']) ? $request->input('sort') : 'id';
+        $sort    = in_array($request->input('sort'), ['id', 'nama_lengkap', 'batas_waktu']) ? $request->input('sort') : 'id';
         $order   = in_array($request->input('order'), ['asc', 'desc']) ? $request->input('order') : 'desc';
 
-        $siswa = PesertaDidik::with(['paketBimbingan', 'pembayaran.transaksi'])
+        $siswaQuery = PesertaDidik::with(['paketBimbingan', 'pembayaran.transaksi'])
             ->inContext()
             ->aktif()
             ->when($search, function ($q) use ($search) {
@@ -30,10 +30,17 @@ class PembayaranController extends Controller
                 });
             })
             ->when($request->paket_id, fn($q) => $q->where('paket_id', $request->paket_id))
-            ->when($request->kelompok_id, fn($q) => $q->where('kelompok_id', $request->kelompok_id))
-            ->orderBy($sort, $order)
-            ->paginate($perPage)
-            ->withQueryString();
+            ->when($request->kelompok_id, fn($q) => $q->where('kelompok_id', $request->kelompok_id));
+
+        if ($sort === 'batas_waktu') {
+            $siswaQuery->leftJoin('pembayaran_siswa', 'peserta_didiks.id', '=', 'pembayaran_siswa.peserta_didik_id')
+                ->select('peserta_didiks.*')
+                ->orderByRaw('pembayaran_siswa.batas_waktu IS NULL, pembayaran_siswa.batas_waktu ' . $order);
+        } else {
+            $siswaQuery->orderBy('peserta_didiks.' . $sort, $order);
+        }
+
+        $siswa = $siswaQuery->paginate($perPage)->withQueryString();
 
         $pakets = \App\Models\PaketBimbingan::inContext()->get();
         $kelompoks = \App\Models\KelompokBelajar::inContext()->get();
@@ -71,8 +78,12 @@ class PembayaranController extends Controller
         ]);
 
         $biaya   = $pembayaranSiswa->pesertaDidik->paketBimbingan?->nominal ?? 0;
-        $diskon  = ($validated['diskon_nominal'] ?? 0);
-        $total   = $biaya - $diskon + ($validated['biaya_pendaftaran'] ?? 0);
+        
+        // Preserve existing values if not provided in the request
+        $diskon  = $request->has('diskon_nominal') ? ($validated['diskon_nominal'] ?? 0) : $pembayaranSiswa->diskon_nominal;
+        $biayaDaftar = $request->has('biaya_pendaftaran') ? ($validated['biaya_pendaftaran'] ?? 0) : $pembayaranSiswa->biaya_pendaftaran;
+        
+        $total   = $biaya - $diskon + $biayaDaftar;
 
         $pembayaranSiswa->update(array_merge($validated, ['total_harus_dibayar' => max(0, $total)]));
 
@@ -118,7 +129,41 @@ class PembayaranController extends Controller
     // ── Hapus Transaksi ──────────────────────────────────────────
     public function destroyTransaksi(TransaksiPembayaran $transaksiPembayaran)
     {
+        if (strtolower(Auth::user()->level) !== 'super admin') {
+            abort(403, 'Hanya Super Admin yang berwenang mengedit atau menghapus transaksi SPP.');
+        }
+
         $transaksiPembayaran->delete();
-        return back()->with('success', 'Transaksi dihapus.');
+        return back()->with('success', 'Transaksi berhasil dihapus.');
+    }
+
+    // ── Edit Transaksi ───────────────────────────────────────────
+    public function editTransaksi(TransaksiPembayaran $transaksiPembayaran)
+    {
+        if (strtolower(Auth::user()->level) !== 'super admin') {
+            abort(403, 'Hanya Super Admin yang berwenang mengedit atau menghapus transaksi SPP.');
+        }
+
+        $pesertaDidik = $transaksiPembayaran->pembayaranSiswa->pesertaDidik;
+        return view('keuangan.pembayaran.edit_transaksi', compact('transaksiPembayaran', 'pesertaDidik'));
+    }
+
+    // ── Update Transaksi ─────────────────────────────────────────
+    public function updateTransaksi(Request $request, TransaksiPembayaran $transaksiPembayaran)
+    {
+        if (strtolower(Auth::user()->level) !== 'super admin') {
+            abort(403, 'Hanya Super Admin yang berwenang mengedit atau menghapus transaksi SPP.');
+        }
+
+        $validated = $request->validate([
+            'nominal'         => 'required|integer|min:1',
+            'tanggal'         => 'required|date',
+            'tipe_pembayaran' => 'required|in:TUNAI,TRANSFER',
+        ]);
+
+        $transaksiPembayaran->update($validated);
+
+        return redirect()->route('keuangan.pembayaran.show', $transaksiPembayaran->pembayaranSiswa->peserta_didik_id)
+            ->with('success', 'Transaksi pembayaran berhasil diperbarui.');
     }
 }

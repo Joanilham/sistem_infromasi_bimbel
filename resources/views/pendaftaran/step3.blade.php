@@ -80,7 +80,17 @@
 @endsection
 
 @section('content')
-<div class="card">
+<div class="card" x-data="{ 
+    selectedPaketId: '{{ $paket?->id ?? '' }}',
+    pakets: [
+        @foreach($pakets as $p)
+        { id: '{{ $p->id }}', nama: '{{ $p->nama_paket }}', nominal: {{ $p->nominal ?? 0 }}, nominalFormatted: 'Rp {{ number_format($p->nominal ?? 0, 0, ',', '.') }}' },
+        @endforeach
+    ],
+    get currentPaket() {
+        return this.pakets.find(p => p.id == this.selectedPaketId);
+    }
+}">
     <div class="card-title">Pembayaran Pendaftaran</div>
     <div class="card-sub">Upload bukti pembayaran untuk menyelesaikan pendaftaran Anda.</div>
 
@@ -91,13 +101,11 @@
     </div>
     @endif
 
-    @if($paket)
-    <div class="payment-info">
+    <div x-show="currentPaket" class="payment-info" x-cloak>
         <h4>Rincian Pembayaran</h4>
-        <div class="payment-amount">Rp {{ number_format($paket->nominal, 0, ',', '.') }}</div>
-        <div class="payment-note">Paket: {{ $paket->nama_paket }}</div>
+        <div class="payment-amount" x-text="currentPaket ? currentPaket.nominalFormatted : ''"></div>
+        <div class="payment-note" x-text="currentPaket ? 'Paket: ' + currentPaket.nama : ''"></div>
     </div>
-    @endif
 
     <p class="section-label">CARA PEMBAYARAN</p>
     <div class="rekening-list">
@@ -123,6 +131,17 @@
         @csrf
         <p class="section-label">UPLOAD BUKTI BAYAR</p>
         <div class="form-grid">
+            <div class="form-group form-col-full">
+                <label>Paket Bimbingan Belajar <span class="req">*</span></label>
+                <select name="paket_bimbingan_id" class="form-control" x-model="selectedPaketId" required>
+                    <option value="">— Pilih Paket Bimbingan —</option>
+                    <template x-for="p in pakets" :key="p.id">
+                        <option :value="p.id" x-text="p.nama + ' (' + p.nominalFormatted + ')'" :selected="p.id == selectedPaketId"></option>
+                    </template>
+                </select>
+                @error('paket_bimbingan_id')<span class="invalid-feedback">{{ $message }}</span>@enderror
+            </div>
+
             <div class="form-group">
                 <label>Metode Pembayaran <span class="req">*</span></label>
                 <select name="metode_pembayaran" class="form-control" required>
@@ -135,26 +154,25 @@
                 </select>
                 @error('metode_pembayaran')<span class="invalid-feedback">{{ $message }}</span>@enderror
             </div>
+
             <div class="form-group">
                 <label>Jumlah Pembayaran</label>
-                @if($paket && $paket->nominal)
-                    {{-- Hidden input yang dikirim ke server --}}
-                    <input type="hidden" name="jumlah" value="{{ $paket->nominal }}">
-                    {{-- Tampilan informatif (tidak bisa diedit) --}}
+                <div x-show="currentPaket" x-cloak>
                     <div class="jumlah-display">
                         <div>
                             <div class="jumlah-label">Tagihan sesuai paket</div>
-                            <div class="jumlah-value">Rp {{ number_format($paket->nominal, 0, ',', '.') }}</div>
+                            <div class="jumlah-value" x-text="currentPaket ? currentPaket.nominalFormatted : ''"></div>
                         </div>
                         <span class="jumlah-badge">✓ Otomatis</span>
                     </div>
-                @else
+                </div>
+                <div x-show="!currentPaket" x-cloak>
                     <div class="no-paket-note">
-                        ⚠️ Tidak ada paket yang dipilih — jumlah pembayaran akan dikonfirmasi oleh admin.
+                        ⚠️ Silakan pilih paket bimbingan di atas.
                     </div>
-                    <input type="hidden" name="jumlah" value="">
-                @endif
+                </div>
             </div>
+
             <div class="form-group form-col-full">
                 <label>Bukti Pembayaran <span class="req">*</span></label>
                 <div class="upload-area" id="upload-area" onclick="document.getElementById('bukti_file').click()">

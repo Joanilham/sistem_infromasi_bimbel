@@ -9,7 +9,7 @@
                 + $tagihanJatuhTempo->count();
 @endphp
 
-<div x-data="{ tab: 'pendaftaran' }" class="space-y-6">
+<div x-data="{ tab: new URLSearchParams(window.location.search).get('tab') || 'pendaftaran' }" class="space-y-6">
 
     {{-- Header --}}
     <div class="bg-white dark:bg-zinc-900 rounded-[2rem] p-6 sm:p-8 border border-slate-100 dark:border-zinc-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -22,6 +22,32 @@
             </h1>
             <p class="text-slate-500 dark:text-slate-400 mt-1 text-sm">Notifikasi pendaftaran, keuangan, dan tagihan siswa.</p>
         </div>
+    </div>
+
+    {{-- Search & Filter Bar --}}
+    <div class="bg-white dark:bg-zinc-900 rounded-[2rem] p-6 border border-slate-100 dark:border-zinc-800 shadow-sm">
+        <form method="GET" action="{{ route('notifikasi.index') }}" class="flex flex-col sm:flex-row items-center gap-4">
+            <input type="hidden" name="tab" :value="tab">
+            <div class="relative w-full group">
+                <input type="text" name="search" value="{{ $search }}" placeholder="Cari berdasarkan nama siswa, email, nomor kwitansi, atau penerima..."
+                    class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-semibold py-3.5 pl-12 pr-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-slate-200">
+                <svg class="w-5 h-5 absolute left-4.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+            </div>
+            <div class="flex items-center gap-2 w-full sm:w-auto shrink-0">
+                <button type="submit" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs px-8 py-4 rounded-2xl transition-all active:scale-95 shadow-md hover:shadow-lg hover:shadow-indigo-500/10 uppercase tracking-widest shrink-0">
+                    Cari
+                </button>
+                @if($search)
+                    <a href="{{ route('notifikasi.index') }}?tab={{ request('tab', 'pendaftaran') }}" class="bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/40 p-4 rounded-2xl transition-all shrink-0" title="Reset Pencarian">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </a>
+                @endif
+            </div>
+        </form>
     </div>
 
     {{-- Tab Navigation --}}

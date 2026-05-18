@@ -261,7 +261,7 @@
         <div class="nav-grid">
             @foreach($semuaJawaban as $nav)
             @php
-                $isDijawab = $nav->cbt_opsi_jawaban_id || $nav->jawaban_teks;
+                $isDijawab = $nav->cbt_opsi_jawaban_id || $nav->jawaban_essay;
                 $isRagu = $nav->ragu_ragu;
                 $isActive = $nav->urutan == $no;
             @endphp
@@ -339,7 +339,7 @@
                 @else
                 {{-- Essay --}}
                 <div class="essay-wrapper">
-                    <textarea name="jawaban_teks" class="essay-box" placeholder="Tuliskan jawaban Anda secara lengkap di sini..." oninput="debounceAutoSave()">{{ $jawabanSaatIni->jawaban_teks ?? '' }}</textarea>
+                    <textarea name="jawaban_essay" class="essay-box" placeholder="Tuliskan jawaban Anda secara lengkap di sini..." oninput="debounceAutoSave()">{{ $jawabanSaatIni->jawaban_essay ?? '' }}</textarea>
                 </div>
                 @endif
             </div>
@@ -382,7 +382,7 @@
         <h3 class="text-2xl font-black text-slate-800 dark:text-slate-100 mb-2 tracking-tight">Kumpulkan Ujian?</h3>
         <p class="text-slate-400 dark:text-slate-500 mb-10 font-medium leading-relaxed" id="modal-info">
             @php 
-                $dijawabCount = $semuaJawaban->filter(fn($j) => $j->cbt_opsi_jawaban_id || $j->jawaban_teks)->count(); 
+                $dijawabCount = $semuaJawaban->filter(fn($j) => $j->cbt_opsi_jawaban_id || $j->jawaban_essay)->count(); 
             @endphp
             Anda telah menjawab <span class="text-slate-800 dark:text-slate-200 font-bold">{{ $dijawabCount }} dari {{ $totalSoal }}</span> soal. Pastikan semua jawaban sudah benar sebelum mengakhiri sesi.
         </p>

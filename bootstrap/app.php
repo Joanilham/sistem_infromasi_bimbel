@@ -31,10 +31,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'konteks'     => \App\Http\Middleware\CekKonteks::class,
         ]);
 
-        // Pengecualian CSRF untuk endpoint scanner QR (menghindari error 419 via Ngrok/AJAX)
+        // Pengecualian CSRF untuk endpoint scanner QR & logout (menghindari error 419 via Ngrok/AJAX)
         $middleware->validateCsrfTokens(except: [
             'absensi/scan-masuk',
             'absensi/scan-pulang',
+            'logout',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

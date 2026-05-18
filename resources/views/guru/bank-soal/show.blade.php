@@ -113,7 +113,7 @@
         </button>
         <div x-show="open" x-transition class="mt-4 pt-4 border-t border-slate-100 dark:border-zinc-800">
             <div class="prose prose-sm dark:prose-invert max-w-none text-slate-700 dark:text-slate-300 bg-amber-50/50 dark:bg-amber-900/10 p-4 rounded-xl">
-                {!! nl2br(e($soal->pembahasan->teks_pembahasan)) !!}
+                {!! nl2br(e($soal->pembahasan->pembahasanBersih)) !!}
             </div>
         </div>
     </div>

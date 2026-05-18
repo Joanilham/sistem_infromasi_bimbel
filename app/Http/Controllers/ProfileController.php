@@ -12,7 +12,7 @@ class ProfileController extends Controller
 {
     use HandlesImageUpload;
     /**
-     * Tampilkan form edit profil untuk Administrator & Staff.
+     * Tampilkan form edit profil untuk Administrator & Admin.
      */
     public function edit(Request $request)
     {

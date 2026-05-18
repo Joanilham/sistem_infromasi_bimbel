@@ -10,11 +10,7 @@ use Illuminate\Validation\Rule;
 
 class PenggunaController extends Controller
 {
-    /**
-     * Role yang diizinkan dikelola oleh Administrator via halaman ini.
-     * Siswa & Guru TIDAK bisa diubah levelnya ke administrator/staff melalui sini.
-     */
-    protected array $allowedLevels = ['administrator', 'staff'];
+    protected array $allowedLevels = ['Super Admin', 'Admin'];
 
     /**
      * Display a listing of the resource.
@@ -26,7 +22,7 @@ class PenggunaController extends Controller
         $sort    = in_array($request->input('sort'), ['id', 'name']) ? $request->input('sort') : 'id';
         $order   = in_array($request->input('order'), ['asc', 'desc']) ? $request->input('order') : 'desc';
 
-        // Hanya tampilkan pengguna dengan level administrator & staff
+        // Hanya tampilkan pengguna dengan level administrator & admin
         $penggunas = User::whereIn('level', $this->allowedLevels)
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($sq) use ($search) {
@@ -72,7 +68,7 @@ class PenggunaController extends Controller
     {
         $pengguna = User::whereIn('level', $this->allowedLevels)->findOrFail($id);
 
-        // Pastikan pengguna yang diupdate memang level administrator/staff
+        // Pastikan pengguna yang diupdate memang level administrator/admin
         if (!in_array($pengguna->level, $this->allowedLevels)) {
             return back()->withErrors(['error' => 'Pengguna ini tidak dapat dikelola dari halaman ini.']);
         }

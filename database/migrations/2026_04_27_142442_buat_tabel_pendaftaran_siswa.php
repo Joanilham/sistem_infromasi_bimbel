@@ -12,6 +12,7 @@ return new class extends Migration
             $table->id();
             // Akun
             $table->string('email')->unique();
+            $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             // Data Pribadi
             $table->string('nama_lengkap');
@@ -24,8 +25,8 @@ return new class extends Migration
             $table->string('no_telepon')->nullable();
             // Data Akademik
             $table->string('asal_sekolah');
-            $table->unsignedBigInteger('paket_bimbingan_id')->nullable();
-            $table->unsignedBigInteger('kelompok_belajar_id')->nullable();
+            $table->foreignId('paket_bimbingan_id')->nullable()->constrained('paket_bimbingans')->onDelete('restrict');
+            $table->foreignId('kelompok_belajar_id')->nullable()->constrained('kelompok_belajars')->onDelete('restrict');
             $table->string('informasi_dari')->nullable();
             // Data Orang Tua
             $table->string('nama_ayah')->nullable();
@@ -37,9 +38,11 @@ return new class extends Migration
             // Status
             $table->enum('status', ['menunggu', 'diverifikasi', 'ditolak'])->default('menunggu');
             $table->text('catatan_admin')->nullable();
-            $table->unsignedBigInteger('kantor_id')->nullable();
-            $table->unsignedBigInteger('periode_id')->nullable();
+            $table->foreignId('kantor_id')->nullable()->constrained('kantors')->onDelete('restrict');
+            $table->foreignId('periode_id')->nullable()->constrained('periodes')->onDelete('restrict');
             $table->timestamps();
+            
+            $table->index(['kantor_id', 'periode_id']);
         });
     }
 
