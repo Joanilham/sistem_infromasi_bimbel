@@ -13,11 +13,11 @@
                 <p class="text-slate-500 dark:text-zinc-400 mt-2 font-medium">Pantau perkembangan belajarmu dari hasil ujian sebelumnya.</p>
             </div>
             <a href="{{ route('siswa.ujian.index') }}" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl text-sm font-black text-white bg-[#388782] hover:bg-[#2D6A66] transition-all shadow-xl shadow-[#388782]/20 hover:scale-[1.02] active:scale-95">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
-                Ambil Ujian Baru
+                Ke halaman Ujian
             </a>
         </div>
 
+    @if(!$pembayaranBelumLunas)
         @if($pesertas->count() > 0)
             @php
                 $selesai = $pesertas->where('status', 'selesai');
@@ -132,6 +132,72 @@
                 Pilih Ujian Pertama
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
             </a>
+        </div>
+    @endif
+    @else
+        @php
+            $master = \App\Models\Master::first();
+            $waNum = $master?->wa_number ?? '6281234567890';
+            $pesertaDidik = Auth::user()->pesertaDidik;
+            $pesanKeuangan = "Halo Admin Keuangan, saya " . ($pesertaDidik?->nama_lengkap ?? Auth::user()->name) . " (NISN: " . ($pesertaDidik?->nisn ?? $pesertaDidik?->nomor_induk ?? '-') . ") ingin menanyakan / mengonfirmasi mengenai kekurangan tagihan saya sebesar Rp " . number_format($kekurangan, 0, ',', '.') . ". Mohon bantuannya.";
+            $waKeuanganUrl = "https://wa.me/" . preg_replace('/[^0-9]/', '', $waNum) . "?text=" . urlencode($pesanKeuangan);
+        @endphp
+
+        <div class="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-amber-50/90 to-orange-50/90 dark:from-zinc-900/90 dark:to-zinc-950/90 border border-amber-200/50 dark:border-amber-500/20 p-8 md:p-12 shadow-2xl backdrop-blur-xl flex flex-col items-center text-center space-y-8">
+            {{-- Glowing Background Effects --}}
+            <div class="absolute -left-20 -top-20 w-60 h-60 bg-amber-500/10 dark:bg-amber-500/5 rounded-full blur-3xl"></div>
+            <div class="absolute -right-20 -bottom-20 w-60 h-60 bg-yellow-500/10 dark:bg-yellow-500/5 rounded-full blur-3xl"></div>
+
+            {{-- Golden Glowing Lock Icon --}}
+            <div class="relative group">
+                <div class="absolute inset-0 bg-gradient-to-tr from-amber-500 to-yellow-400 rounded-full blur-xl opacity-40 group-hover:opacity-60 transition duration-700 animate-pulse"></div>
+                <div class="relative w-24 h-24 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-400 flex items-center justify-center text-white shadow-xl shadow-amber-500/20 transform group-hover:scale-110 transition duration-500">
+                    <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    </svg>
+                </div>
+            </div>
+
+            {{-- Content Texts --}}
+            <div class="max-w-xl space-y-3 relative">
+                <span class="px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 text-[10px] font-black uppercase tracking-[0.2em]">Akses Terbatas</span>
+                <h2 class="text-2xl md:text-3xl font-black text-slate-800 dark:text-zinc-100 tracking-tight leading-tight">
+                    Halaman Nilai dan Evaluasi Anda Dikunci Sementara
+                </h2>
+                <p class="text-sm text-slate-500 dark:text-zinc-400 font-medium">
+                    Untuk menjamin transparansi administrasi bimbingan, akses menu <strong class="text-slate-700 dark:text-zinc-200">Nilai Saya</strong> &amp; <strong class="text-slate-700 dark:text-zinc-200">Analisis Hasil Ujian</strong> ditangguhkan sementara sampai sisa tagihan Anda dilunasi.
+                </p>
+            </div>
+
+            {{-- Sisa Tagihan Block --}}
+            <div class="relative w-full max-w-sm p-6 rounded-3xl bg-white/60 dark:bg-zinc-900/60 border border-white dark:border-zinc-800/80 shadow-md backdrop-blur-md">
+                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-zinc-500 mb-1">Sisa Tagihan Anda</p>
+                <p class="text-3xl font-black text-amber-500 tracking-tight">
+                    Rp {{ number_format($kekurangan, 0, ',', '.') }}
+                </p>
+                <div class="mt-3 flex items-center justify-center gap-2 text-xs text-slate-400 dark:text-zinc-500">
+                    <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Status Pembayaran: Belum Lunas</span>
+                </div>
+            </div>
+
+            {{-- Action Buttons --}}
+            <div class="flex flex-col sm:flex-row items-center gap-4 w-full max-w-md pt-2">
+                <a href="{{ route('siswa.pembayaran.index') }}" class="w-full sm:flex-1 inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl text-sm font-black text-white bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 transition-all shadow-xl shadow-amber-500/20 hover:scale-[1.02] active:scale-95">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    Bayar Tagihan Sekarang
+                </a>
+                <a href="{{ $waKeuanganUrl }}" target="_blank" class="w-full sm:flex-1 inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl text-sm font-black text-slate-600 dark:text-zinc-300 bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700/80 transition-all hover:scale-[1.02] active:scale-95">
+                    <svg class="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                    Hubungi Admin Keuangan
+                </a>
+            </div>
         </div>
     @endif
 

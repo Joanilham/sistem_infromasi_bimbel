@@ -157,6 +157,8 @@ function editSoalForm() {
     @php
         $opsiData = $soal->opsiJawabans->map(fn($o, $i) => ['teks' => $o->teks_opsi])->values();
         $kunciIdx = $soal->opsiJawabans->search(fn($o) => $o->is_benar);
+        $defaultOpsi = [['teks'=>''],['teks'=>''],['teks'=>''],['teks'=>'']];
+        $opsiFinal = $opsiData->count() ? $opsiData : $defaultOpsi;
     @endphp
     return {
         tipeSoal: '{{ old("tipe_soal", $soal->tipe_soal) }}',
@@ -164,7 +166,7 @@ function editSoalForm() {
         babId: '{{ old("cbt_bab_id", $soal->cbt_bab_id ?? "") }}',
         babList: @json($babs),
         kunciJawaban: {{ $kunciIdx !== false ? $kunciIdx : 0 }},
-        opsiList: @json($opsiData->count() ? $opsiData : [['teks'=>''],['teks'=>''],['teks'=>''],['teks'=>'']]),
+        opsiList: @json($opsiFinal),
 
         addOpsi() { if (this.opsiList.length < 5) this.opsiList.push({ teks: '' }); },
         removeOpsi(index) {

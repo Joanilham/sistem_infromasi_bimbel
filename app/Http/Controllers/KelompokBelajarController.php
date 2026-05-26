@@ -20,7 +20,9 @@ class KelompokBelajarController extends Controller
         $sort    = in_array($request->input('sort'), ['id', 'nama_kelompok']) ? $request->input('sort') : 'id';
         $order   = in_array($request->input('order'), ['asc', 'desc']) ? $request->input('order') : 'desc';
 
-        $kelompokBelajars = KelompokBelajar::inContext()
+        // 1. HAPUS inContext() agar Admin bisa melihat semua kelompok belajar secara global
+        $kelompokBelajars = KelompokBelajar::query()
+            ->withCount('pesertaDidiks')
             ->when($search, fn($q) =>
                 $q->where('nama_kelompok', 'like', "%{$search}%")
             )
@@ -36,17 +38,23 @@ class KelompokBelajarController extends Controller
      */
     public function store(Request $request)
     {
+        // 2. PROTEKSI AKSES: Hanya Admin Pusat yang boleh menambah data
+        if (strtolower(auth()->user()->level) !== 'admin') {
+            abort(403, 'Akses Ditolak. Hanya Admin Pusat yang berhak menambah Kelompok Belajar.');
+        }
+
         $validated = $request->validate([
             'nama_kelompok' => 'required|string|max:255',
         ]);
 
-        $validated['kantor_id'] = session('kantor_id');
-        $validated['periode_id'] = session('periode_id');
+        // 3. PAKSA MENJADI GLOBAL: Set kantor_id dan periode_id menjadi null
+        $validated['kantor_id'] = null;
+        $validated['periode_id'] = null;
 
         KelompokBelajar::create($validated);
 
         return redirect()->route('kelompok-belajar.index')
-            ->with('success', 'Data Kelompok Belajar berhasil ditambahkan.');
+            ->with('success', 'Data Kelompok Belajar Global berhasil ditambahkan.');
     }
 
     /**
@@ -54,14 +62,23 @@ class KelompokBelajarController extends Controller
      */
     public function update(Request $request, KelompokBelajar $kelompokBelajar)
     {
+        // PROTEKSI AKSES UPDATE
+        if (strtolower(auth()->user()->level) !== 'admin') {
+            abort(403, 'Akses Ditolak. Hanya Admin Pusat yang berhak mengubah Kelompok Belajar.');
+        }
+
         $validated = $request->validate([
             'nama_kelompok' => 'required|string|max:255',
         ]);
 
+        // PASTIKAN TETAP GLOBAL SAAT DIUPDATE
+        $validated['kantor_id'] = null;
+        $validated['periode_id'] = null;
+
         $kelompokBelajar->update($validated);
 
         return redirect()->route('kelompok-belajar.index')
-            ->with('success', 'Data Kelompok Belajar berhasil diperbarui.');
+            ->with('success', 'Data Kelompok Belajar Global berhasil diperbarui.');
     }
 
     /**
@@ -69,6 +86,11 @@ class KelompokBelajarController extends Controller
      */
     public function destroy(KelompokBelajar $kelompokBelajar)
     {
+        // PROTEKSI AKSES DELETE
+        if (strtolower(auth()->user()->level) !== 'admin') {
+            abort(403, 'Akses Ditolak.');
+        }
+
         $kelompokBelajar->delete();
 
         return redirect()->route('kelompok-belajar.index')

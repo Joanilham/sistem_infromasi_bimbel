@@ -39,6 +39,14 @@ class PenggunaController extends Controller
     }
 
     /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        return view('admin.pengguna.create');
+    }
+
+    /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
@@ -50,15 +58,35 @@ class PenggunaController extends Controller
             'level'                 => ['required', 'string', Rule::in($this->allowedLevels)],
             'password'              => 'required|string|min:8|confirmed',
             'password_confirmation' => 'required',
+            'permissions'           => 'nullable|array',
+            'permissions.*'         => 'string',
         ]);
 
         $validated['password']  = Hash::make($validated['password']);
         $validated['is_active'] = true;
 
+        if ($validated['level'] !== 'Admin') {
+            $validated['permissions'] = null;
+        }
+
         unset($validated['password_confirmation']);
         User::create($validated);
 
         return redirect()->route('pengguna.index')->with('success', 'Pengguna berhasil ditambahkan.');
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit($id)
+    {
+        $pengguna = User::whereIn('level', $this->allowedLevels)->findOrFail($id);
+
+        if (!in_array($pengguna->level, $this->allowedLevels)) {
+            return back()->withErrors(['error' => 'Pengguna ini tidak dapat dikelola dari halaman ini.']);
+        }
+
+        return view('admin.pengguna.edit', compact('pengguna'));
     }
 
     /**
@@ -79,6 +107,8 @@ class PenggunaController extends Controller
             'email'    => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($pengguna->id)],
             'level'    => ['required', 'string', Rule::in($this->allowedLevels)],
             'password' => 'nullable|string|min:8|confirmed',
+            'permissions'   => 'nullable|array',
+            'permissions.*' => 'string',
         ]);
 
         if (!empty($validated['password'])) {
@@ -96,6 +126,10 @@ class PenggunaController extends Controller
         // Tidak boleh mengubah level akun sendiri
         if ($pengguna->id === Auth::id() && $validated['level'] !== Auth::user()->level) {
             return back()->withErrors(['error' => 'Anda tidak dapat mengubah level akun Anda sendiri.']);
+        }
+
+        if ($validated['level'] !== 'Admin') {
+            $validated['permissions'] = null;
         }
 
         unset($validated['password_confirmation']);

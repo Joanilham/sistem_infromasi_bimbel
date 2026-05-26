@@ -5,7 +5,12 @@
 @section('content')
 <div class="pd-form-wrap">
     <h2 style="font-size:1.05rem;font-weight:700;color:#111827;margin-bottom:4px;">Edit Transaksi Pembayaran</h2>
-    <p style="font-size:.78rem;color:#6b7280;margin-bottom:0;">Perbarui detail transaksi pembayaran SPP untuk siswa <strong>{{ $pesertaDidik->nama_lengkap }}</strong>.</p>
+    <p style="font-size:.78rem;color:#6b7280;margin-bottom:0;">
+        Perbarui detail transaksi pembayaran SPP untuk siswa <strong>{{ $pesertaDidik->nama_lengkap }}</strong>.
+        @if($pesertaDidik->pembayaran)
+            (Sisa Tagihan Siswa saat ini: <strong>Rp {{ number_format($pesertaDidik->pembayaran->kekurangan, 0, ',', '.') }},-</strong>)
+        @endif
+    </p>
 
     @if ($errors->any())
         <div class="bg-red-50 border border-red-200 text-red-800 rounded-2xl px-6 py-4 text-sm font-bold mt-4">
@@ -17,7 +22,7 @@
         </div>
     @endif
 
-    <form action="{{ route('keuangan.transaksi.update', $transaksiPembayaran->id) }}" method="POST">
+    <form id="form-edit-transaksi" action="{{ route('keuangan.transaksi.update', $transaksiPembayaran->id) }}" method="POST">
         @csrf
         @method('PUT')
 
@@ -26,7 +31,7 @@
         <div class="pd-grid">
             <div class="pd-field">
                 <label>Nominal Pembayaran (Rp) <span>*</span></label>
-                <input type="number" name="nominal" required value="{{ old('nominal', $transaksiPembayaran->nominal) }}" placeholder="Masukkan nominal pembayaran...">
+                <input type="text" name="nominal" id="edit-nominal" required inputmode="numeric" value="{{ old('nominal', $transaksiPembayaran->nominal) }}" placeholder="Masukkan nominal pembayaran...">
             </div>
             
             <div class="pd-field">
@@ -54,4 +59,44 @@
         </div>
     </form>
 </div>
+
+<script>
+    // Fungsi Format Rupiah (Thousand Separator)
+    function formatRupiah(angka) {
+        var number_string = angka.replace(/[^,\d]/g, '').toString(),
+            split = number_string.split(','),
+            sisa = split[0].length % 3,
+            rupiah = split[0].substr(0, sisa),
+            ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+
+        if (ribuan) {
+            var separator = sisa ? '.' : '';
+            rupiah += separator + ribuan.join('.');
+        }
+
+        rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
+        return rupiah;
+    }
+
+    const editNominalInput = document.getElementById('edit-nominal');
+    if (editNominalInput) {
+        editNominalInput.addEventListener('input', function(e) {
+            this.value = formatRupiah(this.value);
+        });
+        if (editNominalInput.value) {
+            editNominalInput.value = formatRupiah(editNominalInput.value);
+        }
+    }
+
+    // Bersihkan titik sebelum submit form
+    const formEdit = document.getElementById('form-edit-transaksi');
+    if (formEdit) {
+        formEdit.addEventListener('submit', function(e) {
+            const input = document.getElementById('edit-nominal');
+            if (input) {
+                input.value = input.value.replace(/\./g, '');
+            }
+        });
+    }
+</script>
 @endsection

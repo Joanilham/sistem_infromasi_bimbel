@@ -486,11 +486,22 @@ function autoSave() {
             'X-Requested-With': 'XMLHttpRequest', 
             'Accept': 'application/json' 
         }
-    }).then(res => res.json())
+    }).then(res => {
+          if (res.status === 419 || res.status === 401) {
+              alert('⚠️ Sesi Anda telah berakhir / kedaluwarsa. Halaman akan memuat ulang agar Anda dapat masuk kembali dan melanjutkan ujian.');
+              window.location.reload();
+              return;
+          }
+          if (!res.ok) throw new Error('Simpan jawaban gagal.');
+          return res.json();
+      })
       .then(res => {
-          if(res.status === 'saved') {
+          if(res && res.status === 'saved') {
               showToast();
           }
+      })
+      .catch(err => {
+          console.error('Error saving answer:', err);
       });
 }
 
@@ -499,6 +510,14 @@ function showToast() {
     toast.classList.add('show');
     setTimeout(() => toast.classList.remove('show'), 2000);
 }
+
+// Keep-Alive Ping (Perpanjang sesi Laravel siswa secara otomatis setiap 5 menit)
+setInterval(() => {
+    fetch(window.location.href, {
+        method: 'HEAD',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    }).catch(err => console.warn('Keep-alive ping failed:', err));
+}, 300000); // 5 menit
 </script>
 </body>
 </html>

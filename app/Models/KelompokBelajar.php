@@ -3,23 +3,17 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasContextScope;
+
+use App\Traits\Auditable;
 
 class KelompokBelajar extends Model
 {
     protected $fillable = ['kantor_id', 'periode_id', 'nama_kelompok'];
 
-    public function scopeInContext($query)
-    {
-        $kantorId = session('kantor_id');
-        $periodeId = session('periode_id');
+    use HasContextScope, Auditable;
 
-        if (!$kantorId || !$periodeId) {
-            return $query->whereRaw('1 = 0');
-        }
-
-        return $query->where('kantor_id', $kantorId)
-                     ->where('periode_id', $periodeId);
-    }
+    // scopeInContext() disediakan oleh HasContextScope trait
 
     // ─── Relationships ─────────────────────────────────────────────
     public function pesertaDidiks()

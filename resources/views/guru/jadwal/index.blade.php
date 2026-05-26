@@ -73,11 +73,6 @@
         </div>
     </div>
 
-    @if(session('success'))
-    <div class="bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-150 dark:border-emerald-900/40 text-emerald-600 dark:text-emerald-400 px-6 py-4 rounded-[2rem] text-sm font-bold shadow-sm">
-        {{ session('success') }}
-    </div>
-    @endif
 
     {{-- JADWAL HARI INI (Quick Widget Premium) --}}
     <div class="bg-gradient-to-br from-indigo-600 via-indigo-650 to-indigo-700 dark:from-zinc-950 dark:via-indigo-950/40 dark:to-zinc-950 rounded-[2.5rem] p-8 text-white shadow-xl shadow-indigo-600/10 dark:shadow-none relative overflow-hidden group">

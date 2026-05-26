@@ -17,8 +17,12 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  */
+use App\Traits\Auditable;
+
 class Master extends Model
 {
+    use Auditable;
+
     protected $fillable = [
         'nama_lembaga',
         'alamat_lembaga',
@@ -41,6 +45,7 @@ class Master extends Model
         'stats_tutor',
         'stats_modul',
         'stats_kepuasan',
+        'dp_persen_minimal', 
     ];
 
     protected $casts = [

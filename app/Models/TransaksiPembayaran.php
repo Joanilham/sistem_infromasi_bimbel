@@ -6,9 +6,11 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use App\Traits\Auditable;
+
 class TransaksiPembayaran extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, Auditable;
 
     protected $table = 'transaksi_pembayaran';
 
@@ -20,6 +22,11 @@ class TransaksiPembayaran extends Model
         'no_kwitansi',
         'penerima',
         'user_id',
+        'status',
+        'bukti_pembayaran',
+        'catatan_siswa',
+        'bank_tujuan_id',
+        'alasan_penolakan',
     ];
 
     protected $casts = [
@@ -36,6 +43,11 @@ class TransaksiPembayaran extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function bankTujuan()
+    {
+        return $this->belongsTo(Bank::class, 'bank_tujuan_id');
     }
 
     /**

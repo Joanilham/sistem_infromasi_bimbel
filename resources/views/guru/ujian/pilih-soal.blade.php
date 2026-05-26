@@ -58,7 +58,7 @@
                 @empty
                 <div class="p-8 text-center text-slate-400 dark:text-slate-500 text-sm">
                     <p>Semua soal sudah dipilih atau belum ada soal di bank soal.</p>
-                    <a href="{{ route('guru.bank-soal.create') }}" class="text-indigo-600 dark:text-indigo-400 hover:underline mt-1 inline-block">Buat soal baru →</a>
+                    <a href="{{ route('guru.bank-soal.create') }}" class="text-indigo-600 dark:text-indigo-400 hover:underline mt-1 inline-block">Buat soal baru</a>
                 </div>
                 @endforelse
             </div>
@@ -94,7 +94,7 @@
                         </div>
                         <form method="POST" action="{{ route('guru.ujian.soal.destroy', [$ujian->id, $us->bankSoal->id]) }}">
                             @csrf @method('DELETE')
-                            <button type="submit" class="w-7 h-7 flex items-center justify-center rounded-lg text-slate-400 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400 transition-colors shrink-0 opacity-0 group-hover:opacity-100" title="Hapus dari ujian" onclick="return confirm('Hapus soal ini dari ujian?')">
+                            <button type="submit" class="w-7 h-7 flex items-center justify-center rounded-lg text-slate-400 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400 transition-colors shrink-0 opacity-0 group-hover:opacity-100" title="Hapus dari ujian" onclick="event.preventDefault(); confirmDelete('Hapus Soal?', 'Keluarkan soal ini dari ujian?', this.closest('form'))">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                             </button>
                         </form>
@@ -112,7 +112,7 @@
 
     {{-- Action footer --}}
     <div class="flex justify-between items-center pt-2">
-        <a href="{{ route('guru.ujian.edit', $ujian->id) }}" class="text-sm text-slate-500 dark:text-slate-400 hover:text-indigo-600 font-medium">← Edit Info Ujian</a>
+        <a href="{{ route('guru.ujian.edit', $ujian->id) }}" class="text-sm text-slate-500 dark:text-slate-400 hover:text-indigo-600 font-medium">Edit Info Ujian</a>
         <a href="{{ route('guru.ujian.peserta', $ujian->id) }}" class="px-6 py-2.5 bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-xl text-sm font-semibold shadow-md hover:shadow-lg transition-all flex items-center gap-2">
             Atur Peserta
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>

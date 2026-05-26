@@ -37,10 +37,7 @@
                     if ($kId && $pId) {
                         $tagihanRaw = \App\Models\PembayaranSiswa::with('transaksi')
                             ->whereHas('pesertaDidik', fn($q) => $q->inContext()->aktif())
-                            ->where(function($q) {
-                                $q->where('batas_waktu', '<=', \Carbon\Carbon::now()->addDays(31))
-                                  ->orWhereNull('batas_waktu');
-                            })
+                            ->where('batas_waktu', '<=', \Carbon\Carbon::now()->addDays(31))
                             ->get();
                         $tagihanJatuhTempoCount = $tagihanRaw->filter(fn($p) => $p->kekurangan > 0)->count();
                     }
@@ -98,6 +95,15 @@
                             </svg>
                             Edit Profile
                         </a>
+
+                        @if(auth()->check() && in_array(strtolower(auth()->user()->level), ['super admin', 'admin', 'administrator']))
+                        <a href="{{ route('konteks.select') }}" class="flex items-center px-4 py-2.5 text-sm text-slate-700 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-700 hover:text-indigo-600 transition-colors">
+                            <svg class="mr-3 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                            </svg>
+                            Ganti Cabang / Periode
+                        </a>
+                        @endif
 
                         <div class="border-t border-slate-50 my-1"></div>
 

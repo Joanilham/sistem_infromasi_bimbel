@@ -13,8 +13,12 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\CbtBab[] $babs
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\CbtBankSoal[] $bankSoals
  */
+use App\Traits\Auditable;
+
 class CbtMapel extends Model
 {
+    use Auditable;
+
     protected $table = 'cbt_mapels';
     protected $guarded = [];
 

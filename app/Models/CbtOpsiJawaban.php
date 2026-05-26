@@ -15,8 +15,12 @@ use Illuminate\Database\Eloquent\Model;
  * 
  * @property-read \App\Models\CbtBankSoal $bankSoal
  */
+use App\Traits\Auditable;
+
 class CbtOpsiJawaban extends Model
 {
+    use Auditable;
+
     protected $table = 'cbt_opsi_jawabans';
     protected $guarded = [];
 

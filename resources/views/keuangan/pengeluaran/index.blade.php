@@ -24,6 +24,45 @@
         </div>
     @endif
 
+    {{-- Arus Kas Summary Cards --}}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {{-- Card 1: Pengeluaran Cabang Ini --}}
+        <div class="relative bg-gradient-to-br from-rose-500 to-rose-600 dark:from-rose-900/40 dark:to-rose-950/40 border border-rose-400/20 dark:border-rose-800/30 rounded-[2rem] p-6 shadow-xl shadow-rose-500/10 text-white overflow-hidden group">
+            <div class="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-white/5 blur-xl pointer-events-none group-hover:scale-110 transition-transform duration-500"></div>
+            <div class="relative z-10 flex items-center justify-between">
+                <div>
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-rose-200">Pengeluaran - {{ $selectedKantorName }}</span>
+                    <h3 class="text-3xl font-black mt-2 tracking-tight">Rp {{ number_format($totalCabangIni, 0, ',', '.') }}</h3>
+                    <p class="text-xs text-rose-100/90 mt-1 font-medium flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                        Cabang: {{ $selectedKantorName }}
+                    </p>
+                </div>
+                <div class="p-4 rounded-2xl bg-white/10 text-white shrink-0 group-hover:scale-110 transition-transform duration-300">
+                    🏢
+                </div>
+            </div>
+        </div>
+
+        {{-- Card 2: Pengeluaran Seluruh Cabang --}}
+        <div class="relative bg-gradient-to-br from-amber-500 to-amber-600 dark:from-amber-900/40 dark:to-amber-950/40 border border-amber-400/20 dark:border-amber-800/30 rounded-[2rem] p-6 shadow-xl shadow-amber-500/10 text-white overflow-hidden group">
+            <div class="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-white/5 blur-xl pointer-events-none group-hover:scale-110 transition-transform duration-500"></div>
+            <div class="relative z-10 flex items-center justify-between">
+                <div>
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-amber-200">Pengeluaran Seluruh Cabang</span>
+                    <h3 class="text-3xl font-black mt-2 tracking-tight">Rp {{ number_format($totalSeluruhCabang, 0, ',', '.') }}</h3>
+                    <p class="text-xs text-amber-100/90 mt-1 font-medium flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse"></span>
+                        Akumulasi nasional (seluruh cabang)
+                    </p>
+                </div>
+                <div class="p-4 rounded-2xl bg-white/10 text-white shrink-0 group-hover:scale-110 transition-transform duration-300">
+                    🌍
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{-- Form Tambah Card --}}
     <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-zinc-800 shadow-sm relative overflow-hidden group">
         <div class="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-150 duration-700"></div>
@@ -86,6 +125,20 @@
                         @foreach([10,25,50,100] as $n)<option value="{{ $n }}" {{ request('per_page', 10) == $n ? 'selected' : '' }}>{{ $n }}</option>@endforeach
                     </select>
                 </div>
+
+                {{-- Cabang Filter (Khusus Super Admin) --}}
+                @if($isSuperAdmin)
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Cabang</label>
+                    <select name="kantor_id" onchange="this.form.submit()"
+                        class="bg-white dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-xs font-black py-2 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
+                        <option value="">Semua Cabang</option>
+                        @foreach($kantors as $kantor)
+                            <option value="{{ $kantor->id }}" {{ $kantorId == $kantor->id ? 'selected' : '' }}>{{ $kantor->nama_kantor }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                @endif
 
                 {{-- Kategori Filter --}}
                 <div class="flex flex-col gap-1.5">
@@ -218,7 +271,7 @@
                                             title="Edit">
                                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                         </a>
-                                        <form action="{{ route('keuangan.pengeluaran.destroy', $p->id) }}" method="POST" onsubmit="return confirm('Hapus data ini?')">
+                                        <form action="{{ route('keuangan.pengeluaran.destroy', $p->id) }}" method="POST" onsubmit="event.preventDefault(); confirmDelete('Hapus Data?', 'Data ini tidak dapat dikembalikan!', this)">
                                             @csrf @method('DELETE')
                                             <button type="submit" class="inline-flex items-center justify-center w-8 h-8 rounded bg-rose-50 dark:bg-rose-900/10 text-rose-600 dark:text-rose-400 hover:bg-rose-100 transition-all" title="Hapus">
                                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>

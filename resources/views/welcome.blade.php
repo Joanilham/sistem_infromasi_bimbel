@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>{{ $masterData->nama_lembaga ?? 'Genius Education' }} - Platform Manajemen Pendidikan</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ isset($masterData) && $masterData->logo ? Storage::url($masterData->logo) : asset('favicon.png') }}">
     
     <!-- Meta Tags SEO -->
     <meta name="description" content="{{ $masterData->hero_subtitle ?? 'Sistem informasi manajemen pendidikan terpadu untuk bimbingan belajar modern.' }}">
@@ -12,6 +14,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- AOS Animation CSS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
@@ -58,22 +63,21 @@
         @if($masterData && $masterData->hero_image)
             <div class="absolute inset-0 z-0 w-full h-full">
                 <img src="{{ asset('storage/' . $masterData->hero_image) }}" alt="Hero Background" class="w-full h-full object-cover object-center">
-                <div class="absolute inset-0 bg-black" style="opacity: {{ ($masterData->hero_overlay_opacity ?? 50) / 100 }};"></div>
+                <div class="absolute inset-0 bg-black" style="opacity: {{ $masterData->hero_overlay_opacity ?? 0.5 }};"></div>
             </div>
         @else
             <!-- Fallback Gradient if no image -->
             <div class="absolute inset-0 z-0 bg-gradient-to-br from-indigo-900 via-slate-900 to-black opacity-90 w-full h-full"></div>
         @endif
-
+        
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center w-full">
-            <span class="inline-block bg-indigo-600/20 text-indigo-400 text-[10px] font-black px-4 py-2 rounded-full mb-6 uppercase tracking-[0.2em] shadow-sm border border-indigo-500/30 backdrop-blur-md">Solusi Pendidikan Modern</span>
-            <h1 class="text-4xl sm:text-5xl lg:text-7xl font-black text-white mb-6 sm:mb-8 leading-[1.1] tracking-tight max-w-4xl mx-auto">
+            <h1 class="text-4xl sm:text-5xl lg:text-7xl font-black text-white mb-6 sm:mb-8 leading-[1.1] tracking-tight max-w-4xl mx-auto" data-aos="fade-up" data-aos-delay="100">
                 {{ $masterData->hero_title ?? 'Wujudkan Impian Akademik Bersama Kami' }}
             </h1>
-            <p class="text-slate-300 text-base sm:text-lg lg:text-xl max-w-2xl mx-auto mb-10 sm:mb-12 leading-relaxed font-medium px-4">
+            <p class="text-slate-300 text-base sm:text-lg lg:text-xl max-w-2xl mx-auto mb-10 sm:mb-12 leading-relaxed font-medium px-4" data-aos="fade-up" data-aos-delay="200">
                 {{ $masterData->hero_subtitle ?? 'Platform pembelajaran terintegrasi yang memudahkan manajemen pendaftaran, progres belajar, dan evaluasi hasil belajar.' }}
             </p>
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 px-6">
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 px-6" data-aos="fade-up" data-aos-delay="300">
                 <a href="#program" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-10 py-4 rounded-2xl shadow-xl shadow-indigo-500/30 transition-all active:scale-95 flex items-center justify-center gap-3">
                     Pilih Program
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="M19 9l-7 7-7-7"/></svg>
@@ -87,7 +91,7 @@
     <section id="program" class="py-20 bg-slate-50">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 sm:mb-16 gap-6 text-center md:text-left">
-                <div>
+                <div data-aos="fade-up">
                     <h2 class="text-3xl lg:text-4xl font-black text-slate-900 mb-4 tracking-tight">Program Bimbingan Unggulan</h2>
                     <p class="text-slate-500 font-medium max-w-lg">Pilih jalur bimbingan yang sesuai dengan target dan kebutuhan akademikmu.</p>
                 </div>
@@ -95,7 +99,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
                 @forelse($pakets as $paket)
-                    <div class="group bg-white rounded-[2.5rem] overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-slate-100 flex flex-col h-full relative">
+                    <div class="group bg-white rounded-[2.5rem] overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-slate-100 flex flex-col h-full relative" data-aos="fade-up" data-aos-delay="{{ $loop->iteration * 100 }}">
                         <!-- Badge Diskon -->
                         @if($paket->harga_coret && $paket->harga_coret > $paket->nominal)
                             @php $diskon = round((($paket->harga_coret - $paket->nominal) / $paket->harga_coret) * 100); @endphp
@@ -176,7 +180,7 @@
     <section id="tentang" class="py-24 bg-white overflow-hidden w-full">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20 items-center">
-                <div class="order-2 lg:order-1 relative">
+                <div class="order-2 lg:order-1 relative" data-aos="fade-right">
                     <div class="bg-slate-50 p-10 sm:p-14 rounded-[3rem] border border-slate-100 relative z-10 shadow-2xl shadow-slate-100/50">
                         <h3 class="text-2xl font-black text-slate-900 mb-8 flex items-center gap-4">
                             <span class="w-10 h-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center text-sm shadow-lg shadow-indigo-100">V</span>
@@ -199,7 +203,7 @@
                         </ul>
                     </div>
                 </div>
-                <div class="order-1 lg:order-2">
+                <div class="order-1 lg:order-2" data-aos="fade-left">
                     <span class="bg-indigo-50 text-indigo-700 text-[10px] font-black px-4 py-2 rounded-full mb-6 inline-block uppercase tracking-[0.2em] border border-indigo-100">Profil Institusi</span>
                     <h2 class="text-4xl lg:text-6xl font-black text-slate-900 mb-8 leading-[1.1]">Eksosistem Belajar <span class="text-indigo-600 underline decoration-indigo-200 underline-offset-8">Modern</span>.</h2>
                     <p class="text-slate-500 text-lg leading-relaxed mb-12 font-medium">
@@ -226,7 +230,7 @@
                 <div class="col-span-1 md:col-span-2 space-y-10 text-center md:text-left">
                     <a href="#" class="flex items-center gap-4 justify-center md:justify-start">
                         @if($masterData && $masterData->logo)
-                            <img src="{{ asset('storage/' . $masterData->logo) }}" alt="Logo" class="h-14 w-auto object-contain brightness-0 invert">
+                            <img src="{{ asset('storage/' . $masterData->logo) }}" alt="Logo" class="h-14 w-auto object-contain bg-white rounded-xl p-2">
                         @else
                             <div class="h-14 w-14 bg-white rounded-2xl flex items-center justify-center text-indigo-600 font-black text-3xl">G</div>
                         @endif
@@ -236,10 +240,10 @@
                         {{ $masterData->hero_subtitle ?? 'Bimbingan belajar masa kini dengan sistem terpadu.' }}
                     </p>
                     <div class="flex items-center gap-6 justify-center md:justify-start">
-                        @if($masterData->instagram_url)
+                        @if($masterData && $masterData->instagram_url)
                             <a href="{{ $masterData->instagram_url }}" class="text-slate-500 hover:text-white transition-colors"><svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a>
                         @endif
-                        @if($masterData->wa_number)
+                        @if($masterData && $masterData->wa_number)
                             <a href="https://wa.me/{{ $masterData->wa_number }}" class="text-slate-500 hover:text-white transition-colors"><svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181 0 6.167 1.24 8.407 3.481 2.242 2.242 3.48 5.226 3.481 8.408-.003 6.557-5.338 11.892-11.893 11.892-1.997 0-3.956-.503-5.69-1.448l-6.301 1.667zm6.155-3.642l.354.21c1.558.924 3.355 1.411 5.2 1.412 5.398 0 9.791-4.393 9.794-9.792.001-2.614-1.017-5.072-2.866-6.922-1.849-1.85-4.307-2.868-6.921-2.868-5.398 0-9.791-4.393-9.794 9.792 0 2.059.54 4.062 1.562 5.807l.233.395-1.015 3.702 3.847-.999zm12.316-8.736c-.3-.149-1.776-.877-2.051-.976-.275-.099-.476-.149-.675.149-.199.299-.773.976-.948 1.176-.175.199-.35.224-.65.075-.3-.149-1.265-.465-2.41-1.487-.89-.793-1.49-1.773-1.665-2.072-.175-.299-.019-.461.13-.609.135-.134.3-.314.45-.471.15-.157.2-.269.3-.449.1-.179.05-.337-.025-.486-.075-.149-.675-1.628-.925-2.226-.243-.586-.489-.507-.675-.516-.173-.008-.372-.01-.571-.01-.199 0-.523.075-.797.373-.274.299-1.047 1.023-1.047 2.493 0 1.47 1.071 2.891 1.22 3.091.149.199 2.108 3.218 5.105 4.512.713.308 1.27.492 1.705.631.716.227 1.368.195 1.883.118.574-.085 1.776-.726 2.025-1.42.25-.694.25-1.288.175-1.42-.075-.133-.275-.208-.575-.357z"/></svg></a>
                         @endif
                     </div>
@@ -266,7 +270,6 @@
                         <li><a href="{{ route('welcome') }}" class="text-slate-400 hover:text-white transition-colors">Beranda Utama</a></li>
                         <li><a href="{{ route('daftar.step1') }}" class="text-indigo-400 hover:text-indigo-300 transition-colors">Daftar Sekarang</a></li>
                         <li><a href="{{ route('login') }}" class="text-slate-400 hover:text-white transition-colors">Masuk Ke Portal</a></li>
-                        <li><a href="{{ route('login') }}" class="text-slate-500 hover:text-slate-300 transition-colors text-[10px]">Portal Admin</a></li>
                     </ul>
                 </div>
             </div>
@@ -297,5 +300,14 @@
         </div>
     @endif
 
+    <!-- AOS JS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            once: true,
+            duration: 800,
+            offset: 50,
+        });
+    </script>
 </body>
 </html>

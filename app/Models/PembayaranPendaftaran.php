@@ -18,12 +18,17 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read \App\Models\PendaftaranSiswa $pendaftaran
  * @property-read \App\Models\PendaftaranSiswa $pendaftaranSiswa
  */
+use App\Traits\Auditable;
+
 class PembayaranPendaftaran extends Model
 {
+    use Auditable;
+
     protected $fillable = [
         'pendaftaran_siswa_id',
         'metode_pembayaran',
         'jumlah',
+        'jenis_bayar', // 'full' atau 'dp'
         'bukti_pembayaran',
         'status',
         'catatan',

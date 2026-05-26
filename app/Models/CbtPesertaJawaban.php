@@ -21,8 +21,12 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read \App\Models\CbtBankSoal $bankSoal
  * @property-read \App\Models\CbtOpsiJawaban|null $opsiJawaban
  */
+use App\Traits\Auditable;
+
 class CbtPesertaJawaban extends Model
 {
+    use Auditable;
+
     protected $table = 'cbt_peserta_jawabans';
     protected $guarded = [];
 
@@ -47,5 +51,15 @@ class CbtPesertaJawaban extends Model
     public function opsiJawaban(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(CbtOpsiJawaban::class, 'cbt_opsi_jawaban_id');
+    }
+
+    public function getJawabanTeksAttribute()
+    {
+        return $this->attributes['jawaban_essay'] ?? null;
+    }
+
+    public function setJawabanTeksAttribute($value)
+    {
+        $this->attributes['jawaban_essay'] = $value;
     }
 }

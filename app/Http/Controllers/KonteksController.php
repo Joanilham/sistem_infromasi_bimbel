@@ -38,7 +38,11 @@ class KonteksController extends Controller
     {
         $user = $request->user();
         $request->validate([
-            'kantor_id' => ['nullable', 'integer', 'exists:kantors,id'],
+            'kantor_id' => ['nullable', function($attribute, $value, $fail) {
+                if ($value !== 'all' && !in_array($value, \App\Models\Kantor::pluck('id')->toArray())) {
+                    $fail('Cabang/Kantor tidak valid.');
+                }
+            }],
             'periode_id' => ['nullable', 'integer', 'exists:periodes,id'],
             'redirect' => ['nullable', 'string']
         ]);
@@ -49,12 +53,18 @@ class KonteksController extends Controller
         if (!$isSuperAdmin) {
             // Jika bukan Super Admin, paksa kantor_id ke yang terdaftar di user record (atau kantor pertama jika kosong)
             $kantorId = $user->kantor_id ?: (\App\Models\Kantor::first()->id ?? null);
-        }
-
-        if ($kantorId) {
-            $request->session()->put('kantor_id', $kantorId);
+            if ($kantorId) {
+                $request->session()->put('kantor_id', $kantorId);
+            } else {
+                $request->session()->forget('kantor_id');
+            }
         } else {
-            $request->session()->forget('kantor_id');
+            // Superadmin bisa pilih 'all' (semua cabang)
+            if ($kantorId === 'all' || !$kantorId) {
+                $request->session()->put('kantor_id', 'all');
+            } else {
+                $request->session()->put('kantor_id', $kantorId);
+            }
         }
 
         if ($request->filled('periode_id')) {

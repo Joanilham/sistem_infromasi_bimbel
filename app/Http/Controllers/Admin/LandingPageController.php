@@ -18,7 +18,7 @@ class LandingPageController extends Controller
     public function index()
     {
         $master = Master::first() ?? new Master();
-        $pakets = PaketBimbingan::inContext()->orderBy('urutan')->get();
+        $pakets = PaketBimbingan::orderBy('urutan')->get();
         $testimonials = Testimonial::latest()->get();
         $faqs = Faq::orderBy('urutan')->get();
         $galleries = \App\Models\Gallery::inContext()->orderBy('urutan')->get();
@@ -31,7 +31,7 @@ class LandingPageController extends Controller
         $validated = $request->validate([
             'judul'    => 'nullable|string|max:255',
             'kategori' => 'nullable|string|max:50',
-            'foto'     => 'required|image|mimes:jpg,jpeg,png,webp|max:3072',
+            'foto'     => 'required|image|mimes:jpg,jpeg,png,webp|max:5120',
             'urutan'   => 'nullable|integer',
         ]);
 
@@ -66,7 +66,7 @@ class LandingPageController extends Controller
     {
         $validated = $request->validate([
             'nama_lembaga'   => 'nullable|string|max:255',
-            'logo'           => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'logo'           => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
             'wa_number'      => 'nullable|string|max:20',
             'wa_widget_status' => 'nullable|boolean',
             'wa_widget_message' => 'nullable|string|max:255',
@@ -96,7 +96,12 @@ class LandingPageController extends Controller
                 $validated['hero_image'] = $this->compressAndStore($request->file('hero_image'), 'landing', 70);
             }
 
-            $master->update($validated);
+            if (isset($validated['hero_overlay_opacity'])) {
+                $validated['hero_overlay_opacity'] = $validated['hero_overlay_opacity'] / 100;
+            }
+
+            $master->fill($validated);
+            $master->save();
 
             return back()->with('success', 'Konfigurasi Landing Page berhasil diperbarui.');
         } catch (\Exception $e) {
@@ -115,7 +120,7 @@ class LandingPageController extends Controller
             'posisi' => 'nullable|string|max:255',
             'ulasan' => 'required|string',
             'bintang'=> 'required|integer|min:1|max:5',
-            'foto'   => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'foto'   => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
         ]);
 
         try {

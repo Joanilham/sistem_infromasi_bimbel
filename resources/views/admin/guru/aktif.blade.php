@@ -29,12 +29,7 @@
         </div>
     </div>
 
-    @if(session('success'))
-        <div class="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800 text-emerald-800 dark:text-emerald-400 rounded-3xl px-8 py-4 text-sm font-bold flex items-center gap-3">
-            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-            {{ session('success') }}
-        </div>
-    @endif
+
 
     {{-- Table Card --}}
     <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] border border-slate-100 dark:border-zinc-800 shadow-sm overflow-hidden">
@@ -150,7 +145,7 @@
                     @forelse($gurus as $i => $guru)
                         <tr class="hover:bg-indigo-50/50 dark:hover:bg-indigo-900/10 transition-all even:bg-slate-50/50 dark:even:bg-zinc-800/30">
                             <td class="px-4 py-3 text-slate-500 font-bold text-xs border border-slate-200 dark:border-zinc-800 text-center">
-                                #{{ $guru->id }}
+                                #{{ str_pad((method_exists($gurus, 'firstItem') ? $gurus->firstItem() : 1) + $i, 3, '0', STR_PAD_LEFT) }}
                             </td>
                             <td class="px-4 py-3 border border-slate-200 dark:border-zinc-800">
                                 <div class="flex items-center gap-3">

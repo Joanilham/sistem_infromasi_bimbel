@@ -29,7 +29,7 @@
                 <select name="kantor_id" class="form-control" required>
                     <option value="">— Pilih Kantor / Cabang —</option>
                     @foreach($kantors as $kantor)
-                    <option value="{{ $kantor->id }}" {{ old('kantor_id') == $kantor->id ? 'selected' : '' }}>
+                    <option value="{{ $kantor->id }}" {{ old('kantor_id', Session::get('daftar_kantor_id')) == $kantor->id ? 'selected' : '' }}>
                         {{ $kantor->nama_kantor }}
                         @if($kantor->alamat) – {{ Str::limit($kantor->alamat, 40) }}@endif
                     </option>
@@ -47,12 +47,12 @@
         <div class="form-grid full">
             <div class="form-group">
                 <label>Email <span class="req">*</span></label>
-                <input type="email" name="email" class="form-control" value="{{ old('email') }}" placeholder="contoh: genius@gmail.com" required>
+                <input type="email" name="email" class="form-control" value="{{ old('email', Session::get('daftar_email')) }}" placeholder="contoh: genius@gmail.com" required>
                 @error('email')<span class="invalid-feedback">{{ $message }}</span>@enderror
             </div>
             <div class="form-group">
                 <label>Password <span class="req">*</span></label>
-                <input type="password" name="password" id="reg-password" class="form-control" placeholder="Minimal 8 karakter (Huruf besar, kecil, angka, simbol)" required>
+                <input type="password" name="password" id="reg-password" class="form-control" value="{{ old('password', Session::get('daftar_password')) }}" placeholder="Minimal 8 karakter (Huruf besar, kecil, angka, simbol)" required>
                 <div class="pw-strength-bar" style="height: 6px; background: #E2E8F0; border-radius: 4px; margin-top: 8px; overflow: hidden;">
                     <div id="pw-fill" style="height: 100%; width: 0%; transition: all 0.3s ease;"></div>
                 </div>
@@ -63,7 +63,7 @@
             </div>
             <div class="form-group">
                 <label>Konfirmasi Password <span class="req">*</span></label>
-                <input type="password" name="password_confirmation" id="reg-password-confirm" class="form-control" placeholder="Ulangi password" required>
+                <input type="password" name="password_confirmation" id="reg-password-confirm" class="form-control" value="{{ old('password_confirmation', Session::get('daftar_password')) }}" placeholder="Ulangi password" required>
             </div>
         </div>
 
@@ -73,8 +73,8 @@
         </div>
 
         <div class="btn-row">
-            <a href="{{ route('welcome') }}" class="btn btn-secondary">← Kembali</a>
-            <button type="submit" class="btn btn-primary" @if($kantors->isEmpty()) disabled @endif>Lanjut →</button>
+            <a href="{{ route('welcome') }}" class="btn btn-secondary">Kembali</a>
+            <button type="submit" class="btn btn-primary" @if($kantors->isEmpty()) disabled @endif>Lanjut</button>
         </div>
     </form>
 </div>

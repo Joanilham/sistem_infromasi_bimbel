@@ -11,21 +11,16 @@
             <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Manajemen Pengguna</h1>
             <p class="text-slate-500 dark:text-slate-400 mt-2 text-sm font-medium">Kelola hak akses dan akun administrator serta admin cabang sistem.</p>
         </div>
-        <button onclick="document.getElementById('modal-create').classList.remove('hidden')"
+        <a href="{{ route('pengguna.create') }}"
            class="inline-flex items-center gap-3 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs px-8 py-4 rounded-2xl shadow-xl shadow-indigo-500/20 transition-all active:scale-95 group shrink-0">
             <svg class="w-5 h-5 transition-transform group-hover:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
             </svg>
             Tambah Pengguna
-        </button>
+        </a>
     </div>
 
-    @if(session('success'))
-        <div class="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800 text-emerald-800 dark:text-emerald-400 rounded-3xl px-8 py-4 text-sm font-bold flex items-center gap-3">
-            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-            {{ session('success') }}
-        </div>
-    @endif
+
 
     {{-- Table Card --}}
     <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] border border-slate-100 dark:border-zinc-800 shadow-sm overflow-hidden">
@@ -66,7 +61,7 @@
                     <tr>
                         <th class="px-4 py-3 text-left w-24 border border-white/20">
                             <a href="{{ request()->fullUrlWithQuery(['sort' => 'id', 'order' => request('sort') == 'id' && request('order') == 'asc' ? 'desc' : 'asc']) }}" class="flex items-center justify-between group">
-                                No (ID)
+                                No.
                                 <span class="transition-all {{ request('sort') == 'id' ? 'opacity-100' : 'opacity-30 group-hover:opacity-100' }}">
                                     @if(request('sort') == 'id' && request('order') == 'asc')
                                         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 15l7-7 7 7"/></svg>
@@ -130,18 +125,13 @@
                             </td>
                             <td class="px-4 py-3 border border-slate-200 dark:border-zinc-800">
                                 <div class="flex items-center justify-center gap-2">
-                                    <button type="button" onclick="editPengguna(this)"
-                                        data-id="{{ $p->id }}"
-                                        data-name="{{ $p->name }}"
-                                        data-username="{{ $p->username }}"
-                                        data-email="{{ $p->email }}"
-                                        data-level="{{ $p->level }}"
+                                    <a href="{{ route('pengguna.edit', $p->id) }}"
                                         class="inline-flex items-center justify-center w-8 h-8 rounded bg-amber-50 dark:bg-amber-900/10 text-amber-600 dark:text-amber-400 hover:bg-amber-100 transition-all"
                                         title="Edit Data">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                         </svg>
-                                    </button>
+                                    </a>
                                     @include('admin.pengguna.delete')
                                 </div>
                             </td>
@@ -177,7 +167,5 @@
 
 </div>
 
-@include('admin.pengguna.create')
-@include('admin.pengguna.edit')
-@include('admin.pengguna.script')
+
 @endsection

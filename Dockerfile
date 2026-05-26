@@ -12,6 +12,9 @@ RUN apt-get update && apt-get install -y \
 # Add OPcache configuration
 COPY docker/php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 
+# Add Upload Limits configuration
+COPY docker/php/uploads.ini /usr/local/etc/php/conf.d/uploads.ini
+
 # Add PHP-FPM configuration
 COPY docker/php/www.conf /usr/local/etc/php-fpm.d/www.conf
 

@@ -6,38 +6,38 @@
 <div class="space-y-8 pb-20" x-data="{ filterStatus: 'semua' }">
 
     {{-- Hero Section --}}
-    <div class="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#388782] via-[#206D6C] to-[#0F5253] p-8 md:p-12 shadow-2xl shadow-teal-900/20">
+    <div class="relative overflow-hidden rounded-[2rem] sm:rounded-[2.5rem] bg-gradient-to-br from-[#388782] via-[#206D6C] to-[#0F5253] p-6 sm:p-8 md:p-12 shadow-2xl shadow-teal-900/20">
         {{-- Decorative elements --}}
         <div class="absolute -right-20 -top-20 h-96 w-96 rounded-full bg-white/10 blur-3xl pointer-events-none"></div>
         <div class="absolute -bottom-20 -left-20 h-80 w-80 rounded-full bg-emerald-400/10 blur-3xl pointer-events-none"></div>
         <div class="absolute inset-0 opacity-[0.03]" style="background-image: radial-gradient(circle, #fff 1px, transparent 1px); background-size: 32px 32px;"></div>
         
-        <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-10">
+        <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6 md:gap-10">
             <div class="max-w-xl">
-                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-[#A2D5CB] text-[10px] font-bold uppercase tracking-[0.2em] mb-6">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-[#A2D5CB] text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.15em] mb-4 sm:mb-6">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                     CBT Assessment Center
                 </div>
-                <h1 class="text-4xl md:text-5xl font-black text-white leading-tight mb-5 tracking-tight">
+                <h1 class="text-2xl sm:text-4xl md:text-5xl font-black text-white leading-tight mb-3 sm:mb-5 tracking-tight">
                     Pusat Ujian <span class="text-[#A2D5CB]">Online</span>
                 </h1>
-                <p class="text-[#A2D5CB] text-lg font-medium opacity-90 leading-relaxed max-w-lg">
+                <p class="text-[#A2D5CB] text-xs sm:text-sm md:text-lg font-medium opacity-90 leading-relaxed max-w-lg mb-0">
                     Selesaikan ujianmu tepat waktu untuk mendapatkan hasil terbaik. Pantau jadwal dan riwayat nilaimu secara real-time.
                 </p>
             </div>
 
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 shrink-0">
-                <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-[2rem] p-6 text-center min-w-[130px] transition-transform hover:-translate-y-1">
-                    <div class="text-4xl font-black text-white mb-1 leading-none">{{ $ujianAktif->count() }}</div>
-                    <div class="text-[10px] font-black uppercase tracking-widest text-[#A2D5CB] opacity-80">Aktif</div>
+            <div class="grid grid-cols-3 gap-2 sm:gap-4 shrink-0 w-full lg:w-auto">
+                <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl sm:rounded-[2rem] p-3 sm:p-6 text-center min-w-[70px] sm:min-w-[130px] transition-transform hover:-translate-y-1">
+                    <div class="text-xl sm:text-4xl font-black text-white mb-0.5 sm:mb-1 leading-none">{{ $ujianAktif->count() }}</div>
+                    <div class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-[#A2D5CB] opacity-80">Aktif</div>
                 </div>
-                <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-[2rem] p-6 text-center min-w-[130px] transition-transform hover:-translate-y-1">
-                    <div class="text-4xl font-black text-white mb-1 leading-none">{{ $ujianMendatang->count() }}</div>
-                    <div class="text-[10px] font-black uppercase tracking-widest text-[#A2D5CB] opacity-80">Jadwal</div>
+                <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl sm:rounded-[2rem] p-3 sm:p-6 text-center min-w-[70px] sm:min-w-[130px] transition-transform hover:-translate-y-1">
+                    <div class="text-xl sm:text-4xl font-black text-white mb-0.5 sm:mb-1 leading-none">{{ $ujianMendatang->count() }}</div>
+                    <div class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-[#A2D5CB] opacity-80">Jadwal</div>
                 </div>
-                <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-[2rem] p-6 text-center min-w-[130px] col-span-2 sm:col-span-1 transition-transform hover:-translate-y-1">
-                    <div class="text-4xl font-black text-white mb-1 leading-none">{{ $ujianSelesai->count() }}</div>
-                    <div class="text-[10px] font-black uppercase tracking-widest text-[#A2D5CB] opacity-80">Selesai</div>
+                <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl sm:rounded-[2rem] p-3 sm:p-6 text-center min-w-[70px] sm:min-w-[130px] transition-transform hover:-translate-y-1">
+                    <div class="text-xl sm:text-4xl font-black text-white mb-0.5 sm:mb-1 leading-none">{{ $ujianSelesai->count() }}</div>
+                    <div class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-[#A2D5CB] opacity-80">Selesai</div>
                 </div>
             </div>
         </div>
@@ -130,18 +130,18 @@
     </div>
 
     @if($ujianAktif->isEmpty() && $ujianMendatang->isEmpty() && $ujianSelesai->isEmpty())
-        <div class="bg-white dark:bg-zinc-900 rounded-[3rem] border border-slate-200 dark:border-zinc-800 p-16 text-center shadow-sm relative overflow-hidden">
+        <div class="bg-white dark:bg-zinc-900 rounded-[2rem] sm:rounded-[3rem] border border-slate-200 dark:border-zinc-800 p-8 sm:p-16 text-center shadow-sm relative overflow-hidden">
             <div class="absolute -top-24 -left-24 w-80 h-80 bg-teal-500/5 rounded-full blur-3xl pointer-events-none"></div>
             <div class="absolute -bottom-24 -right-24 w-80 h-80 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none"></div>
             
             <div class="relative z-10">
-                <div class="w-24 h-24 rounded-[2rem] mx-auto mb-8 flex items-center justify-center bg-slate-50 dark:bg-zinc-800 text-[#388782] shadow-inner">
-                    <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                <div class="w-16 h-16 sm:w-24 sm:h-24 rounded-2xl sm:rounded-[2rem] mx-auto mb-6 sm:mb-8 flex items-center justify-center bg-slate-50 dark:bg-zinc-800 text-[#388782] shadow-inner">
+                    <svg class="w-8 h-8 sm:w-12 sm:h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                 </div>
-                <h3 class="font-black text-3xl text-slate-800 dark:text-slate-100 mb-3 tracking-tight">Belum Ada Ujian</h3>
-                <p class="text-slate-400 dark:text-slate-500 max-w-sm mx-auto font-medium leading-relaxed">Ujian yang ditugaskan oleh guru atau lembaga akan muncul di halaman ini secara otomatis.</p>
-                <div class="mt-8 flex justify-center">
-                    <a href="{{ route('siswa.dashboard') }}" class="px-8 py-3 rounded-2xl bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-300 font-bold text-sm hover:bg-slate-200 dark:hover:bg-zinc-700 transition-colors">Kembali ke Dashboard</a>
+                <h3 class="font-black text-xl sm:text-3xl text-slate-800 dark:text-slate-100 mb-2 sm:mb-3 tracking-tight">Belum Ada Ujian</h3>
+                <p class="text-slate-400 dark:text-slate-500 text-xs sm:text-base max-w-sm mx-auto font-medium leading-relaxed">Ujian yang ditugaskan oleh guru atau lembaga akan muncul di halaman ini secara otomatis.</p>
+                <div class="mt-6 sm:mt-8 flex justify-center">
+                    <a href="{{ route('siswa.dashboard') }}" class="px-6 py-2.5 sm:px-8 sm:py-3 rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-300 font-bold text-xs sm:text-sm hover:bg-slate-200 dark:hover:bg-zinc-700 transition-colors">Kembali ke Dashboard</a>
                 </div>
             </div>
         </div>

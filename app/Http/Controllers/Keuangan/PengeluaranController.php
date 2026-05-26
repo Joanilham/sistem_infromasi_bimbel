@@ -10,6 +10,11 @@ use Illuminate\Support\Facades\Auth;
 
 class PengeluaranController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('ensure_role:super admin')->only(['edit', 'update', 'destroy']);
+    }
+
     public function index(Request $request)
     {
         $search    = $request->input('search', '');
@@ -20,22 +25,61 @@ class PengeluaranController extends Controller
         $sort      = in_array($request->input('sort'), ['id', 'tanggal', 'nominal', 'keterangan']) ? $request->input('sort') : 'tanggal';
         $order     = $request->input('order', 'desc') === 'asc' ? 'asc' : 'desc';
 
-        $pengeluaran = Pengeluaran::with('kategori')
+        $user = Auth::user();
+        $isSuperAdmin = strtolower($user->level) === 'super admin';
+
+        if ($isSuperAdmin) {
+            // Super Admin can filter by request parameters, fallback to session if not specified in request
+            $kantorId = $request->has('kantor_id') ? $request->input('kantor_id') : session('kantor_id');
+        } else {
+            // Branch Admin is forced to their own branch
+            $kantorId = session('kantor_id');
+        }
+
+        $query = Pengeluaran::with('kategori')
+            ->when($kantorId, fn($q) => $q->whereHas('user', fn($qu) => $qu->where('kantor_id', $kantorId)))
             ->when($search, fn($q) =>
-                $q->where('keterangan', 'like', "%{$search}%")
-                  ->orWhereHas('kategori', fn($q2) => $q2->where('nama', 'like', "%{$search}%"))
+                $q->where(function($sub) use ($search) {
+                    $sub->where('keterangan', 'like', "%{$search}%")
+                       ->orWhereHas('kategori', fn($q2) => $q2->where('nama', 'like', "%{$search}%"));
+                })
             )
             ->when($kategoriId, fn($q) => $q->where('kategori_id', $kategoriId))
             ->when($startDate, fn($q) => $q->whereDate('tanggal', '>=', $startDate))
+            ->when($endDate, fn($q) => $q->whereDate('tanggal', '<=', $endDate));
+
+        // Total Cabang Ini (filtered by current active branch)
+        $totalCabangIni = Pengeluaran::when($kantorId, fn($q) => $q->whereHas('user', fn($qu) => $qu->where('kantor_id', $kantorId)))
+            ->when($startDate, fn($q) => $q->whereDate('tanggal', '>=', $startDate))
             ->when($endDate, fn($q) => $q->whereDate('tanggal', '<=', $endDate))
-            ->orderBy($sort, $order)
+            ->sum('nominal');
+
+        // Total Seluruh Cabang (nationwide aggregate)
+        $totalSeluruhCabang = Pengeluaran::when($startDate, fn($q) => $q->whereDate('tanggal', '>=', $startDate))
+            ->when($endDate, fn($q) => $q->whereDate('tanggal', '<=', $endDate))
+            ->sum('nominal');
+
+        $pengeluaran = $query->orderBy($sort, $order)
             ->orderBy('id', 'desc')
             ->paginate($perPage)
             ->withQueryString();
 
         $kategoris = KategoriPengeluaran::orderBy('nama')->get();
+        $kantors = $isSuperAdmin ? \App\Models\Kantor::orderBy('nama_kantor')->get() : collect();
 
-        return view('keuangan.pengeluaran.index', compact('pengeluaran', 'kategoris', 'search', 'perPage', 'kategoriId', 'startDate', 'endDate', 'sort', 'order'));
+        $selectedKantorName = 'Semua Cabang';
+        if ($kantorId) {
+            $selectedKantorObj = \App\Models\Kantor::find($kantorId);
+            $selectedKantorName = $selectedKantorObj ? $selectedKantorObj->nama_kantor : 'Semua Cabang';
+        } elseif (!$isSuperAdmin && $user->kantor) {
+            $selectedKantorName = $user->kantor->nama_kantor;
+        }
+
+        return view('keuangan.pengeluaran.index', compact(
+            'pengeluaran', 'kategoris', 'kantors', 'kantorId', 'isSuperAdmin',
+            'search', 'perPage', 'kategoriId', 'startDate', 'endDate', 'sort', 'order',
+            'totalCabangIni', 'totalSeluruhCabang', 'selectedKantorName'
+        ));
     }
 
     public function store(Request $request)
@@ -53,20 +97,12 @@ class PengeluaranController extends Controller
 
     public function edit(Pengeluaran $pengeluaran)
     {
-        if (strtolower(Auth::user()->level) !== 'super admin') {
-            abort(403, 'Hanya Super Admin yang berwenang mengubah transaksi.');
-        }
-
         $kategoris = KategoriPengeluaran::orderBy('nama')->get();
         return view('keuangan.pengeluaran.edit', compact('pengeluaran', 'kategoris'));
     }
 
     public function update(Request $request, Pengeluaran $pengeluaran)
     {
-        if (strtolower(Auth::user()->level) !== 'super admin') {
-            abort(403, 'Hanya Super Admin yang berwenang mengubah transaksi.');
-        }
-
         $validated = $request->validate([
             'tanggal'     => 'required|date',
             'kategori_id' => 'required|exists:kategori_pengeluaran,id',
@@ -80,10 +116,6 @@ class PengeluaranController extends Controller
 
     public function destroy(Pengeluaran $pengeluaran)
     {
-        if (strtolower(Auth::user()->level) !== 'super admin') {
-            abort(403, 'Hanya Super Admin yang berwenang menghapus transaksi.');
-        }
-
         $pengeluaran->delete();
         return back()->with('success', 'Pengeluaran dihapus.');
     }

@@ -208,17 +208,17 @@
 
         {{-- Switch View Mode Premium untuk Siswa --}}
         <div x-data="{ viewMode: 'list', activeDay: '{{ $hariIni }}' }">
-            <div class="flex items-center justify-between mb-5 px-1">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-5 px-1">
                 <h3 class="text-sm font-black uppercase tracking-widest text-[#388782] dark:text-[#A2D5CB]">Struktur Jadwal Mingguan</h3>
-                <div class="flex items-center bg-slate-100 dark:bg-zinc-800 p-1 rounded-2xl border border-slate-200/50 dark:border-zinc-700/50 shadow-inner">
+                <div class="flex w-full sm:w-auto items-center bg-slate-100 dark:bg-zinc-800 p-1 rounded-2xl border border-slate-200/50 dark:border-zinc-700/50 shadow-inner">
                     <button @click="viewMode = 'list'" 
-                        :class="viewMode === 'list' ? 'bg-white dark:bg-zinc-750 text-[#388782] dark:text-white shadow-sm' : 'text-slate-450 hover:text-slate-700 dark:text-slate-400'"
-                        class="inline-flex items-center gap-1.5 font-black text-[10px] uppercase tracking-wider px-4 py-2.5 rounded-xl transition-all">
+                        :class="viewMode === 'list' ? 'bg-white dark:bg-zinc-700 text-[#388782] dark:text-white shadow-sm' : 'text-slate-450 hover:text-slate-700 dark:text-slate-400'"
+                        class="flex-1 sm:flex-none justify-center inline-flex items-center gap-1.5 font-black text-[10px] uppercase tracking-wider px-4 py-2.5 rounded-xl transition-all">
                         List Harian
                     </button>
                     <button @click="viewMode = 'calendar'" 
-                        :class="viewMode === 'calendar' ? 'bg-white dark:bg-zinc-750 text-[#388782] dark:text-white shadow-sm' : 'text-slate-450 hover:text-slate-700 dark:text-slate-400'"
-                        class="inline-flex items-center gap-1.5 font-black text-[10px] uppercase tracking-wider px-4 py-2.5 rounded-xl transition-all">
+                        :class="viewMode === 'calendar' ? 'bg-white dark:bg-zinc-700 text-[#388782] dark:text-white shadow-sm' : 'text-slate-450 hover:text-slate-700 dark:text-slate-400'"
+                        class="flex-1 sm:flex-none justify-center inline-flex items-center gap-1.5 font-black text-[10px] uppercase tracking-wider px-4 py-2.5 rounded-xl transition-all">
                         Kalender Grid
                     </button>
                 </div>
