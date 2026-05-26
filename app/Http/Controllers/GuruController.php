@@ -6,9 +6,12 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use App\Traits\ExportsExcel;
 
 class GuruController extends Controller
 {
+    use ExportsExcel;
+
     /**
      * Display a listing of active guru.
      */
@@ -20,7 +23,7 @@ class GuruController extends Controller
         $sort       = in_array($request->input('sort'), ['id', 'name', 'matapelajaran']) ? $request->input('sort') : 'id';
         $order      = in_array($request->input('order'), ['asc', 'desc']) ? $request->input('order') : 'desc';
 
-        $gurus = User::where('level', 'guru')
+        $gurus = User::where('level', 'Guru')
             ->where('status', 'Aktif')
             ->inContext()
             ->when($search, function ($q) use ($search) {
@@ -35,7 +38,7 @@ class GuruController extends Controller
             ->paginate($perPage)
             ->withQueryString();
 
-        $daftarMapel = User::where('level', 'guru')->inContext()->whereNotNull('matapelajaran')->distinct()->pluck('matapelajaran');
+        $daftarMapel = User::where('level', 'Guru')->inContext()->whereNotNull('matapelajaran')->distinct()->pluck('matapelajaran');
 
         return view('admin.guru.aktif', compact('gurus', 'daftarMapel', 'search', 'perPage'));
     }
@@ -51,7 +54,7 @@ class GuruController extends Controller
         $sort       = in_array($request->input('sort'), ['id', 'name', 'tanggal_keluar']) ? $request->input('sort') : 'tanggal_keluar';
         $order      = in_array($request->input('order'), ['asc', 'desc']) ? $request->input('order') : 'desc';
 
-        $gurus = User::where('level', 'guru')
+        $gurus = User::where('level', 'Guru')
             ->where('status', 'Keluar')
             ->inContext()
             ->when($search, function ($q) use ($search) {
@@ -97,7 +100,7 @@ class GuruController extends Controller
         ]);
 
         $validated['password']  = Hash::make($validated['password']);
-        $validated['level']     = 'guru';
+        $validated['level']     = 'Guru';
         $validated['status']    = 'Aktif';
         $validated['is_active'] = true;
         $validated['username']  = $request->email;
@@ -109,7 +112,7 @@ class GuruController extends Controller
                 'periode_id' => session('periode_id'),
             ]);
 
-            $this->clearGuruCache();
+            \App\Services\CacheService::clearGuruCache();
 
             return redirect()->route('manajemen-guru.index')->with('success', 'Guru berhasil ditambahkan.');
         } catch (\Exception $e) {
@@ -123,7 +126,7 @@ class GuruController extends Controller
      */
     public function edit(string $id)
     {
-        $guru = User::where('level', 'guru')->findOrFail($id);
+        $guru = User::where('level', 'Guru')->findOrFail($id);
         return view('admin.guru.edit', compact('guru'));
     }
 
@@ -132,10 +135,7 @@ class GuruController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $guru = User::where('level', 'guru')->findOrFail($id);
-
-        // Debug: log request data
-        \Illuminate\Support\Facades\Log::info('Guru update request:', $request->all());
+        $guru = User::where('level', 'Guru')->findOrFail($id);
 
         // Fallback: jika status tidak ada, gunakan status saat ini dari database
         if (!$request->has('status') || empty($request->status)) {
@@ -171,13 +171,14 @@ class GuruController extends Controller
 
         try {
             $validated['username'] = $validated['email'];
+            $validated['is_active'] = ($validated['status'] === 'Aktif');
             unset($validated['password_confirmation']);
             $guru->update($validated);
 
             // Debug: log after update
             \Illuminate\Support\Facades\Log::info('Guru updated successfully:', ['id' => $guru->id, 'status' => $guru->fresh()->status]);
 
-            $this->clearGuruCache();
+            \App\Services\CacheService::clearGuruCache();
 
             return redirect()->route('manajemen-guru.index')->with('success', 'Data guru berhasil diperbarui.');
         } catch (\Exception $e) {
@@ -191,10 +192,10 @@ class GuruController extends Controller
      */
     public function destroy(string $id)
     {
-        $guru = User::where('level', 'guru')->inContext()->findOrFail($id);
+        $guru = User::where('level', 'Guru')->inContext()->findOrFail($id);
         $guru->delete();
 
-        $this->clearGuruCache();
+        \App\Services\CacheService::clearGuruCache();
 
         return redirect()->back()->with('success', 'Guru berhasil dihapus.');
     }
@@ -204,140 +205,45 @@ class GuruController extends Controller
      */
     public function export()
     {
-        $gurus = User::where('level', 'guru')
+        $gurus = User::where('level', 'Guru')
             ->where('status', 'Aktif')
             ->inContext()
             ->latest()
             ->get();
 
         $filename = 'Guru_Aktif_' . date('d-m-Y') . '.xls';
-
-        $x    = fn($v) => htmlspecialchars((string) ($v ?? ''), ENT_XML1, 'UTF-8');
-        $bold = fn($v) => '<Cell ss:StyleID="s_head"><Data ss:Type="String">' . $x($v) . '</Data></Cell>';
-
-        $xml  = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
-        $xml .= '<?mso-application progid="Excel.Sheet"?>' . "\n";
-        $xml .= '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"'
-            . ' xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"'
-            . ' xmlns:o="urn:schemas-microsoft-com:office:office">'  . "\n";
-
-        $xml .= '<Styles>
-  <Style ss:ID="Default">
-    <Alignment ss:Vertical="Center"/>
-    <Font ss:FontName="Calibri" ss:Size="11"/>
-  </Style>
-  <Style ss:ID="s_title">
-    <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
-    <Font ss:FontName="Calibri" ss:Size="14" ss:Bold="1" ss:Color="#FFFFFF"/>
-    <Interior ss:Color="#059669" ss:Pattern="Solid"/>
-    <Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="2" ss:Color="#6EE7B7"/></Borders>
-  </Style>
-  <Style ss:ID="s_info">
-    <Alignment ss:Vertical="Center"/>
-    <Font ss:FontName="Calibri" ss:Size="10" ss:Italic="1" ss:Color="#374151"/>
-    <Interior ss:Color="#ECFDF5" ss:Pattern="Solid"/>
-  </Style>
-  <Style ss:ID="s_head">
-    <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/>
-    <Font ss:FontName="Calibri" ss:Size="10" ss:Bold="1" ss:Color="#FFFFFF"/>
-    <Interior ss:Color="#059669" ss:Pattern="Solid"/>
-    <Borders>
-      <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#047857"/>
-      <Border ss:Position="Right"  ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#047857"/>
-    </Borders>
-  </Style>
-  <Style ss:ID="s_data">
-    <Alignment ss:Vertical="Center"/>
-    <Font ss:FontName="Calibri" ss:Size="10"/>
-    <Borders>
-      <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E5E7EB"/>
-      <Border ss:Position="Right"  ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E5E7EB"/>
-    </Borders>
-  </Style>
-  <Style ss:ID="s_data2">
-    <Alignment ss:Vertical="Center"/>
-    <Font ss:FontName="Calibri" ss:Size="10"/>
-    <Interior ss:Color="#ECFDF5" ss:Pattern="Solid"/>
-    <Borders>
-      <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E5E7EB"/>
-      <Border ss:Position="Right"  ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E5E7EB"/>
-    </Borders>
-  </Style>
-  <Style ss:ID="s_text">
-    <Alignment ss:Vertical="Center"/>
-    <Font ss:FontName="Calibri" ss:Size="10"/>
-    <NumberFormat ss:Format="@"/>
-    <Borders>
-      <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E5E7EB"/>
-      <Border ss:Position="Right"  ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E5E7EB"/>
-    </Borders>
-  </Style>
-  <Style ss:ID="s_text2">
-    <Alignment ss:Vertical="Center"/>
-    <Font ss:FontName="Calibri" ss:Size="10"/>
-    <NumberFormat ss:Format="@"/>
-    <Interior ss:Color="#ECFDF5" ss:Pattern="Solid"/>
-    <Borders>
-      <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E5E7EB"/>
-      <Border ss:Position="Right"  ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E5E7EB"/>
-    </Borders>
-  </Style>
-</Styles>' . "\n";
-
         $headers = ['No', 'Nama Lengkap', 'Alamat', 'NIP', 'Mata Pelajaran', 'No. Telp', 'Email'];
         $cols    = count($headers);
 
-        $xml .= '<Worksheet ss:Name="Guru Aktif">' . "\n";
-        $xml .= '<Table ss:DefaultRowHeight="18">' . "\n";
+        $xml = $this->xmlOpen('Guru Aktif', $cols, '#059669', '#059669', '#ECFDF5');
 
         $widths = [30, 150, 180, 80, 150, 80, 180];
+        $xml .= '<Worksheet ss:Name="Guru Aktif"><Table ss:DefaultRowHeight="18">';
         foreach ($widths as $w) {
             $xml .= '<Column ss:Width="' . $w . '"/>' . "\n";
         }
 
-        // Title row
-        $xml .= '<Row ss:Height="28">'
-            . '<Cell ss:StyleID="s_title" ss:MergeAcross="' . ($cols - 1) . '">'
-            . '<Data ss:Type="String">DATA GURU AKTIF — GENIUS EDUCATION</Data>'
-            . '</Cell></Row>' . "\n";
+        $xml .= $this->xmlTitleRow('DATA GURU AKTIF — GENIUS EDUCATION', $cols);
+        $xml .= $this->xmlInfoRow('Tanggal Export: ' . date('d-m-Y H:i:s'), $cols);
+        $xml .= $this->xmlHeaderRow($headers);
 
-        // Info row
-        $xml .= '<Row ss:Height="20">'
-            . '<Cell ss:StyleID="s_info" ss:MergeAcross="' . ($cols - 1) . '">'
-            . '<Data ss:Type="String">Tanggal Export: ' . date('d-m-Y H:i:s') . '</Data>'
-            . '</Cell></Row>' . "\n";
-
-        // Header row
-        $xml .= '<Row ss:Height="22">';
-        foreach ($headers as $header) {
-            $xml .= $bold($header);
-        }
-        $xml .= '</Row>' . "\n";
-
-        // Data rows
         foreach ($gurus as $index => $guru) {
             $style = $index % 2 === 0 ? 's_data' : 's_data2';
             $textStyle = $index % 2 === 0 ? 's_text' : 's_text2';
 
             $xml .= '<Row ss:Height="18">';
-            $xml .= '<Cell ss:StyleID="' . $style . '"><Data ss:Type="Number">' . ($index + 1) . '</Data></Cell>';
-            $xml .= '<Cell ss:StyleID="' . $textStyle . '"><Data ss:Type="String">' . $x($guru->name) . '</Data></Cell>';
-            $xml .= '<Cell ss:StyleID="' . $textStyle . '"><Data ss:Type="String">' . $x($guru->alamat) . '</Data></Cell>';
-            $xml .= '<Cell ss:StyleID="' . $textStyle . '"><Data ss:Type="String">' . $x($guru->nip) . '</Data></Cell>';
-            $xml .= '<Cell ss:StyleID="' . $textStyle . '"><Data ss:Type="String">' . $x($guru->matapelajaran) . '</Data></Cell>';
-            $xml .= '<Cell ss:StyleID="' . $textStyle . '"><Data ss:Type="String">' . $x($guru->no_telp) . '</Data></Cell>';
-            $xml .= '<Cell ss:StyleID="' . $textStyle . '"><Data ss:Type="String">' . $x($guru->email) . '</Data></Cell>';
+            $xml .= $this->xmlNum($index + 1, $style);
+            $xml .= $this->xmlStr($guru->name, $textStyle);
+            $xml .= $this->xmlStr($guru->alamat, $textStyle);
+            $xml .= $this->xmlStr($guru->nip, $textStyle);
+            $xml .= $this->xmlStr($guru->matapelajaran, $textStyle);
+            $xml .= $this->xmlStr($guru->no_telp, $textStyle);
+            $xml .= $this->xmlStr($guru->email, $textStyle);
             $xml .= '</Row>' . "\n";
         }
 
-        $xml .= '</Table>' . "\n";
-        $xml .= '</Worksheet>' . "\n";
-        $xml .= '</Workbook>' . "\n";
-
-        return response($xml, 200, [
-            'Content-Type' => 'application/vnd.ms-excel',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-        ]);
+        $xml .= '</Table></Worksheet></Workbook>';
+        return $this->xlsResponse($xml, $filename);
     }
 
     /**
@@ -345,153 +251,48 @@ class GuruController extends Controller
      */
     public function exportKeluar()
     {
-        $gurus = User::where('level', 'guru')
+        $gurus = User::where('level', 'Guru')
             ->where('status', 'Keluar')
             ->inContext()
             ->orderBy('tanggal_keluar', 'desc')
             ->get();
 
         $filename = 'Guru_Keluar_' . date('d-m-Y') . '.xls';
-
-        $x    = fn($v) => htmlspecialchars((string) ($v ?? ''), ENT_XML1, 'UTF-8');
-        $bold = fn($v) => '<Cell ss:StyleID="s_head"><Data ss:Type="String">' . $x($v) . '</Data></Cell>';
-
-        $xml  = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
-        $xml .= '<?mso-application progid="Excel.Sheet"?>' . "\n";
-        $xml .= '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"'
-            . ' xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"'
-            . ' xmlns:o="urn:schemas-microsoft-com:office:office">'  . "\n";
-
-        $xml .= '<Styles>
-  <Style ss:ID="Default">
-    <Alignment ss:Vertical="Center"/>
-    <Font ss:FontName="Calibri" ss:Size="11"/>
-  </Style>
-  <Style ss:ID="s_title">
-    <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
-    <Font ss:FontName="Calibri" ss:Size="14" ss:Bold="1" ss:Color="#FFFFFF"/>
-    <Interior ss:Color="#991B1B" ss:Pattern="Solid"/>
-    <Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="2" ss:Color="#FCA5A5"/></Borders>
-  </Style>
-  <Style ss:ID="s_info">
-    <Alignment ss:Vertical="Center"/>
-    <Font ss:FontName="Calibri" ss:Size="10" ss:Italic="1" ss:Color="#374151"/>
-    <Interior ss:Color="#FEF2F2" ss:Pattern="Solid"/>
-  </Style>
-  <Style ss:ID="s_head">
-    <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/>
-    <Font ss:FontName="Calibri" ss:Size="10" ss:Bold="1" ss:Color="#FFFFFF"/>
-    <Interior ss:Color="#DC2626" ss:Pattern="Solid"/>
-    <Borders>
-      <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#B91C1C"/>
-      <Border ss:Position="Right"  ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#B91C1C"/>
-    </Borders>
-  </Style>
-  <Style ss:ID="s_data">
-    <Alignment ss:Vertical="Center"/>
-    <Font ss:FontName="Calibri" ss:Size="10"/>
-    <Borders>
-      <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E5E7EB"/>
-      <Border ss:Position="Right"  ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E5E7EB"/>
-    </Borders>
-  </Style>
-  <Style ss:ID="s_data2">
-    <Alignment ss:Vertical="Center"/>
-    <Font ss:FontName="Calibri" ss:Size="10"/>
-    <Interior ss:Color="#FEF2F2" ss:Pattern="Solid"/>
-    <Borders>
-      <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E5E7EB"/>
-      <Border ss:Position="Right"  ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E5E7EB"/>
-    </Borders>
-  </Style>
-  <Style ss:ID="s_text">
-    <Alignment ss:Vertical="Center"/>
-    <Font ss:FontName="Calibri" ss:Size="10"/>
-    <NumberFormat ss:Format="@"/>
-    <Borders>
-      <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E5E7EB"/>
-      <Border ss:Position="Right"  ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E5E7EB"/>
-    </Borders>
-  </Style>
-  <Style ss:ID="s_text2">
-    <Alignment ss:Vertical="Center"/>
-    <Font ss:FontName="Calibri" ss:Size="10"/>
-    <NumberFormat ss:Format="@"/>
-    <Interior ss:Color="#FEF2F2" ss:Pattern="Solid"/>
-    <Borders>
-      <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E5E7EB"/>
-      <Border ss:Position="Right"  ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E5E7EB"/>
-    </Borders>
-  </Style>
-</Styles>' . "\n";
-
         $headers = ['No', 'Nama Lengkap', 'Alamat', 'NIP', 'Mata Pelajaran', 'No. Telp', 'Email', 'Tanggal Keluar', 'Alasan Keluar'];
         $cols    = count($headers);
 
-        $xml .= '<Worksheet ss:Name="Guru Keluar">' . "\n";
-        $xml .= '<Table ss:DefaultRowHeight="18">' . "\n";
+        $xml = $this->xmlOpen('Guru Keluar', $cols, '#991B1B', '#DC2626', '#FEF2F2');
 
         $widths = [30, 140, 150, 80, 130, 80, 150, 100, 180];
+        $xml .= '<Worksheet ss:Name="Guru Keluar"><Table ss:DefaultRowHeight="18">';
         foreach ($widths as $w) {
             $xml .= '<Column ss:Width="' . $w . '"/>' . "\n";
         }
 
-        // Title row
-        $xml .= '<Row ss:Height="28">'
-            . '<Cell ss:StyleID="s_title" ss:MergeAcross="' . ($cols - 1) . '">'
-            . '<Data ss:Type="String">DATA GURU KELUAR — GENIUS EDUCATION</Data>'
-            . '</Cell></Row>' . "\n";
+        $xml .= $this->xmlTitleRow('DATA GURU KELUAR — GENIUS EDUCATION', $cols);
+        $xml .= $this->xmlInfoRow('Tanggal Export: ' . date('d-m-Y H:i:s'), $cols);
+        $xml .= $this->xmlHeaderRow($headers);
 
-        // Info row
-        $xml .= '<Row ss:Height="20">'
-            . '<Cell ss:StyleID="s_info" ss:MergeAcross="' . ($cols - 1) . '">'
-            . '<Data ss:Type="String">Tanggal Export: ' . date('d-m-Y H:i:s') . '</Data>'
-            . '</Cell></Row>' . "\n";
-
-        // Header row
-        $xml .= '<Row ss:Height="22">';
-        foreach ($headers as $header) {
-            $xml .= $bold($header);
-        }
-        $xml .= '</Row>' . "\n";
-
-        // Data rows
         foreach ($gurus as $index => $guru) {
             $style = $index % 2 === 0 ? 's_data' : 's_data2';
             $textStyle = $index % 2 === 0 ? 's_text' : 's_text2';
 
             $xml .= '<Row ss:Height="18">';
-            $xml .= '<Cell ss:StyleID="' . $style . '"><Data ss:Type="Number">' . ($index + 1) . '</Data></Cell>';
-            $xml .= '<Cell ss:StyleID="' . $textStyle . '"><Data ss:Type="String">' . $x($guru->name) . '</Data></Cell>';
-            $xml .= '<Cell ss:StyleID="' . $textStyle . '"><Data ss:Type="String">' . $x($guru->alamat) . '</Data></Cell>';
-            $xml .= '<Cell ss:StyleID="' . $textStyle . '"><Data ss:Type="String">' . $x($guru->nip) . '</Data></Cell>';
-            $xml .= '<Cell ss:StyleID="' . $textStyle . '"><Data ss:Type="String">' . $x($guru->matapelajaran) . '</Data></Cell>';
-            $xml .= '<Cell ss:StyleID="' . $textStyle . '"><Data ss:Type="String">' . $x($guru->no_telp) . '</Data></Cell>';
-            $xml .= '<Cell ss:StyleID="' . $textStyle . '"><Data ss:Type="String">' . $x($guru->email) . '</Data></Cell>';
-            $xml .= '<Cell ss:StyleID="' . $textStyle . '"><Data ss:Type="String">' . $x($guru->tanggal_keluar) . '</Data></Cell>';
-            $xml .= '<Cell ss:StyleID="' . $textStyle . '"><Data ss:Type="String">' . $x($guru->alasan_keluar) . '</Data></Cell>';
+            $xml .= $this->xmlNum($index + 1, $style);
+            $xml .= $this->xmlStr($guru->name, $textStyle);
+            $xml .= $this->xmlStr($guru->alamat, $textStyle);
+            $xml .= $this->xmlStr($guru->nip, $textStyle);
+            $xml .= $this->xmlStr($guru->matapelajaran, $textStyle);
+            $xml .= $this->xmlStr($guru->no_telp, $textStyle);
+            $xml .= $this->xmlStr($guru->email, $textStyle);
+            $xml .= $this->xmlStr($guru->tanggal_keluar, $textStyle);
+            $xml .= $this->xmlStr($guru->alasan_keluar, $textStyle);
             $xml .= '</Row>' . "\n";
         }
 
-        $xml .= '</Table>' . "\n";
-        $xml .= '</Worksheet>' . "\n";
-        $xml .= '</Workbook>' . "\n";
-
-        return response($xml, 200, [
-            'Content-Type' => 'application/vnd.ms-excel',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-        ]);
+        $xml .= '</Table></Worksheet></Workbook>';
+        return $this->xlsResponse($xml, $filename);
     }
 
-    /**
-     * Clear cache for guru data.
-     */
-    private function clearGuruCache(): void
-    {
-        $kantorId  = session('kantor_id');
-        $periodeId = session('periode_id');
 
-        \Illuminate\Support\Facades\Cache::forget("data_gurus_aktif_{$kantorId}_{$periodeId}");
-        \Illuminate\Support\Facades\Cache::forget("data_gurus_keluar_{$kantorId}_{$periodeId}");
-    }
 }

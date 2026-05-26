@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\Auditable;
 
 class PendaftaranSiswa extends Model
 {
+    use Auditable;
+
     protected $fillable = [
         'email', 'password',
         'email_verification_token', 'email_verified_at',
@@ -33,7 +36,7 @@ class PendaftaranSiswa extends Model
 
     public function paketBimbingan(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(PaketBimbingan::class, 'paket_bimbingan_id');
+        return $this->belongsTo(PaketBimbingan::class, 'paket_bimbingan_id')->withTrashed();
     }
 
     public function kelompokBelajar(): \Illuminate\Database\Eloquent\Relations\BelongsTo

@@ -83,13 +83,26 @@ class CbtSiswaController extends Controller
      */
     public function riwayat()
     {
+        $user = Auth::user();
+        $pesertaDidik = $user ? $user->pesertaDidik : null;
+        $pembayaranBelumLunas = false;
+        $kekurangan = 0;
+
+        if ($pesertaDidik) {
+            $pembayaran = $pesertaDidik->pembayaran()->first();
+            if ($pembayaran && !$pembayaran->lunas && !$pembayaran->dispensasi) {
+                $pembayaranBelumLunas = true;
+                $kekurangan = $pembayaran->kekurangan;
+            }
+        }
+
         $pesertas = CbtPeserta::where('user_id', Auth::id())
             ->with(['ujian'])
             ->whereIn('status', ['selesai', 'timeout'])
             ->orderBy('waktu_selesai', 'desc')
-            ->paginate(10);
+            ->paginate(15);
 
-        return view('siswa.cbt.riwayat', compact('pesertas'));
+        return view('siswa.cbt.riwayat', compact('pesertas', 'pembayaranBelumLunas', 'kekurangan'));
     }
 
     /**
@@ -323,6 +336,15 @@ class CbtSiswaController extends Controller
 
         if ($sesi->user_id !== Auth::id()) {
             abort(403);
+        }
+
+        // Lock check
+        $pesertaDidik = Auth::user()->pesertaDidik;
+        if ($pesertaDidik) {
+            $pembayaran = $pesertaDidik->pembayaran()->first();
+            if ($pembayaran && !$pembayaran->lunas && !$pembayaran->dispensasi) {
+                return redirect()->route('siswa.ujian.riwayat')->with('error', '⚠️ Silakan melunasi tagihan Anda untuk melihat hasil & analisis ujian.');
+            }
         }
 
         return view('siswa.cbt.hasil', compact('sesi'));

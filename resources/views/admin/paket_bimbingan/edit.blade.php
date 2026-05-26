@@ -39,17 +39,37 @@
                 <input type="text" name="harga_coret" value="{{ old('harga_coret', $paketBimbingan->harga_coret) }}" class="nominal-input" placeholder="750.000">
             </div>
 
+            {{-- TAMBAHAN: Kolom DP Minimal --}}
             <div class="pd-field">
-                <label>Durasi Jumlah</label>
-                <input type="number" name="durasi_jumlah" value="{{ old('durasi_jumlah', $paketBimbingan->durasi_jumlah) }}" placeholder="6">
+                <label>Minimal DP (%) <span>*</span></label>
+                <input type="number" name="dp_persen_minimal" value="{{ old('dp_persen_minimal', $paketBimbingan->dp_persen_minimal ?? 10) }}" min="1" max="100" required placeholder="10">
+                <small style="font-size: 0.7rem; color: #6b7280; margin-top: 4px; display: block;">Persentase DP wajib saat mendaftar.</small>
+            </div>
+
+            {{-- TAMBAHAN: Pengaturan Cicilan --}}
+            <div class="pd-field">
+                <label>Bisa Dicicil?</label>
+                <select name="bisa_dicicil" style="margin-bottom: 0;">
+                    <option value="1" {{ old('bisa_dicicil', $paketBimbingan->bisa_dicicil) ? 'selected' : '' }}>Ya, Bisa Dicicil</option>
+                    <option value="0" {{ !old('bisa_dicicil', $paketBimbingan->bisa_dicicil) ? 'selected' : '' }}>Tidak (Hanya Lunas)</option>
+                </select>
             </div>
 
             <div class="pd-field">
-                <label>Durasi Satuan</label>
-                <select name="durasi_satuan">
-                    <option value="Bulan" {{ old('durasi_satuan', $paketBimbingan->durasi_satuan) == 'Bulan' ? 'selected' : '' }}>Bulan</option>
-                    <option value="Tahun" {{ old('durasi_satuan', $paketBimbingan->durasi_satuan) == 'Tahun' ? 'selected' : '' }}>Tahun</option>
-                </select>
+                <label>Maksimal Cicilan (Tenor) <span>*</span></label>
+                <input type="number" name="max_cicilan" value="{{ old('max_cicilan', $paketBimbingan->max_cicilan ?? 1) }}" min="1" required placeholder="Misal: 6">
+                <small style="font-size: 0.7rem; color: #6b7280; margin-top: 4px; display: block;">Berapa kali cicilan maksimal? (Misal: 6)</small>
+            </div>
+
+            <div class="pd-field">
+                <label>Durasi Paket (Masa Aktif)</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="number" name="durasi_jumlah" value="{{ old('durasi_jumlah', $paketBimbingan->durasi_jumlah) }}" placeholder="Angka (Misal: 6)" style="flex: 1; margin-bottom: 0;">
+                    <select name="durasi_satuan" style="flex: 1; margin-bottom: 0;">
+                        <option value="Bulan" {{ old('durasi_satuan', $paketBimbingan->durasi_satuan) == 'Bulan' ? 'selected' : '' }}>Bulan</option>
+                        <option value="Tahun" {{ old('durasi_satuan', $paketBimbingan->durasi_satuan) == 'Tahun' ? 'selected' : '' }}>Tahun</option>
+                    </select>
+                </div>
             </div>
 
             <div class="pd-field full">

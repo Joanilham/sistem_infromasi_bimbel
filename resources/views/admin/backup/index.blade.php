@@ -261,9 +261,9 @@
                         Download
                     </a>
                     
-                    <form action="{{ route('admin.backup.restore', $backup->filename) }}" method="POST" class="inline">
+                    <form action="{{ route('admin.backup.restore', $backup->filename) }}" method="POST" class="inline" id="form-restore-{{ $loop->index }}">
                         @csrf
-                        <button type="submit" onclick="return confirm('PERINGATAN KRITIS: Mengembalikan database akan menimpa seluruh data saat ini secara permanen! Pastikan Anda telah mengunduh backup terkini terlebih dahulu untuk menghindari kehilangan data yang tidak terduga. Apakah Anda yakin ingin melakukan restore sekarang?')"
+                        <button type="button" onclick="Swal.fire({title: 'Restore Database?', text: 'PERINGATAN KRITIS: Mengembalikan database akan menimpa seluruh data saat ini secara permanen! Pastikan Anda telah mengunduh backup terkini.', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d97706', cancelButtonColor: '#64748b', confirmButtonText: 'Ya, Restore!', cancelButtonText: 'Batal', background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#ffffff', color: document.documentElement.classList.contains('dark') ? '#f8fafc' : '#0f172a', customClass: {popup: 'rounded-2xl border border-slate-100 dark:border-slate-700'}}).then((result) => { if (result.isConfirmed) document.getElementById('form-restore-{{ $loop->index }}').submit(); })"
                             class="inline-flex items-center gap-1.5 bg-amber-50 dark:bg-amber-900/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 text-amber-700 dark:text-amber-400 text-xs font-bold px-4 py-2 rounded-xl transition-all">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 6.253M12 7V12l3 3" /></svg>
                             Restore
@@ -273,7 +273,7 @@
                     <form action="{{ route('admin.backup.destroy', $backup->filename) }}" method="POST" class="inline">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" onclick="return confirm('Yakin ingin menghapus backup ini? Tindakan ini tidak bisa dibatalkan.')"
+                        <button type="submit" onclick="event.preventDefault(); confirmDelete('Hapus Backup?', 'Tindakan ini tidak bisa dibatalkan.', this.closest('form'))"
                             class="inline-flex items-center gap-1.5 bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 text-red-700 dark:text-red-400 text-xs font-bold px-4 py-2 rounded-xl transition-all">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                             Hapus

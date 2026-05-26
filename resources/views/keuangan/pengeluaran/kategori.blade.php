@@ -122,7 +122,7 @@
                             </td>
                             <td class="px-6 py-5">
                                 <div class="flex items-center justify-center">
-                                    <form action="{{ route('keuangan.pengeluaran.kategori.destroy', $k->id) }}" method="POST" onsubmit="return confirm('Hapus kategori ini?')">
+                                    <form action="{{ route('keuangan.pengeluaran.kategori.destroy', $k->id) }}" method="POST" onsubmit="event.preventDefault(); confirmDelete('Hapus Kategori?', 'Kategori yang dihapus tidak dapat dikembalikan!', this)">
                                         @csrf @method('DELETE')
                                         <button type="submit" 
                                             class="w-10 h-10 flex items-center justify-center rounded-xl bg-rose-50 dark:bg-rose-900/20 text-rose-600 hover:bg-rose-600 hover:text-white transition-all active:scale-90 shadow-sm hover:shadow-rose-500/20"

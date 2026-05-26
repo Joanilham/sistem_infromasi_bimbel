@@ -26,9 +26,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\CbtBankSoal[] $bankSoals
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\CbtUjianSoal[] $ujianSoals
  */
+use App\Traits\Auditable;
+
 class CbtUjian extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, Auditable;
 
     protected $table = 'cbt_ujians';
     protected $guarded = [];

@@ -20,18 +20,7 @@
         </button>
     </div>
 
-    @if(session('success'))
-        <div class="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800 text-emerald-800 dark:text-emerald-400 rounded-3xl px-8 py-4 text-sm font-bold flex items-center gap-3">
-            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-            {{ session('success') }}
-        </div>
-    @endif
-    @if(session('error'))
-        <div class="bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-800 text-rose-800 dark:text-rose-400 rounded-3xl px-8 py-4 text-sm font-bold flex items-center gap-3">
-            <span class="w-2 h-2 rounded-full bg-rose-500"></span>
-            {{ session('error') }}
-        </div>
-    @endif
+
 
     {{-- Table Card --}}
     <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] border border-slate-100 dark:border-zinc-800 shadow-sm overflow-hidden">
@@ -72,7 +61,7 @@
                     <tr>
                         <th class="px-4 py-3 text-left w-24 border border-white/20">
                             <a href="{{ request()->fullUrlWithQuery(['sort' => 'id', 'order' => request('sort') == 'id' && request('order') == 'asc' ? 'desc' : 'asc']) }}" class="flex items-center justify-between group">
-                                No (ID)
+                                No.
                                 <span class="transition-all {{ request('sort') == 'id' ? 'opacity-100' : 'opacity-30 group-hover:opacity-100' }}">
                                     @if(request('sort') == 'id' && request('order') == 'asc')
                                         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 15l7-7 7 7"/></svg>

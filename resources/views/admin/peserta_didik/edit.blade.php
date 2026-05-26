@@ -62,7 +62,7 @@
                 <input type="tel" name="no_telepon"
                     value="{{ old('no_telepon', $pesertaDidik->no_telepon) }}"
                     placeholder="08xxxxxxxxxx"
-                    inputmode="numeric" pattern="[0-9]*"
+                    inputmode="numeric" pattern="[0-9]{8,12}" maxlength="12"
                     oninput="this.value=this.value.replace(/[^0-9]/g,'')">
             </div>
             <div class="pd-field full">
@@ -155,7 +155,7 @@
                 <input type="tel" name="no_telepon_ayah"
                     value="{{ old('no_telepon_ayah', $pesertaDidik->no_telepon_ayah) }}"
                     placeholder="08xxxxxxxxxx"
-                    inputmode="numeric" pattern="[0-9]*"
+                    inputmode="numeric" pattern="[0-9]{8,12}" maxlength="12"
                     oninput="this.value=this.value.replace(/[^0-9]/g,'')">
             </div>
             <div class="pd-field">
@@ -171,7 +171,7 @@
                 <input type="tel" name="no_telepon_ibu"
                     value="{{ old('no_telepon_ibu', $pesertaDidik->no_telepon_ibu) }}"
                     placeholder="08xxxxxxxxxx"
-                    inputmode="numeric" pattern="[0-9]*"
+                    inputmode="numeric" pattern="[0-9]{8,12}" maxlength="12"
                     oninput="this.value=this.value.replace(/[^0-9]/g,'')">
             </div>
         </div>

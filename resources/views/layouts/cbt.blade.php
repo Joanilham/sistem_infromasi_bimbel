@@ -29,5 +29,6 @@
         @endif
         @yield('content')
     </main>
+    @include('components.autosave-script')
 </body>
 </html>

@@ -19,13 +19,13 @@ class MasterController extends Controller
     public function update(Request $request)
     {
         $validated = $request->validate([
-            'nama_lembaga'   => 'nullable|string|max:255',
-            'alamat_lembaga' => 'nullable|string',
-            'wa_url'         => 'nullable|url|max:255',
-            'instance_id'    => 'nullable|string|max:255',
-            'wa_token'       => 'nullable|string|max:255',
-            'api_key'        => 'nullable|string|max:255',
-            'logo'           => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'nama_lembaga'      => 'nullable|string|max:255',
+            'alamat_lembaga'    => 'nullable|string',
+            'wa_url'            => 'nullable|url|max:255',
+            'instance_id'       => 'nullable|string|max:255',
+            'wa_token'          => 'nullable|string|max:255',
+            'api_key'           => 'nullable|string|max:255',
+            'logo'              => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
         ]);
 
         try {
@@ -49,6 +49,9 @@ class MasterController extends Controller
             }
 
             $master->save();
+            
+            // Hapus cache agar logo dan data master langsung ter-update di seluruh sistem
+            \Illuminate\Support\Facades\Cache::forget('global_master');
 
             return redirect()->route('master.index')->with('success', 'Data Master berhasil diperbarui.');
         } catch (\Exception $e) {

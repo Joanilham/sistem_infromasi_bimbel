@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class AuthController extends Controller
 {
@@ -27,47 +28,54 @@ class AuthController extends Controller
         }
 
         if ($pendaftaran) {
-            // Jika admin sudah menerima (status = diverifikasi), akun User sudah dibuat
-            // → lewati semua pengecekan pendaftaran, biarkan Auth::attempt yang menangani
-            if ($pendaftaran->status === 'diverifikasi') {
-                // Lanjut ke Auth::attempt di bawah
-            }
-            // Jika belum diverifikasi email (status masih menunggu & email belum diklik)
-            elseif (!$pendaftaran->isEmailVerified()) {
-                return back()->withErrors([
-                    'email' => '⚠️ Email Anda belum diverifikasi. Silakan cek kotak masuk email dan klik link verifikasi.',
-                ])->with('warning_type', 'email_not_verified')
-                  ->onlyInput('email');
-            }
-            // Email sudah diverifikasi siswa tapi admin belum memproses
-            elseif ($pendaftaran->status === 'menunggu') {
-                return back()->withErrors([
-                    'email' => '⏳ Pendaftaran Anda sedang dalam proses verifikasi oleh admin. Mohon tunggu konfirmasi.',
-                ])->onlyInput('email');
-            }
-            // Ditolak admin
-            elseif ($pendaftaran->status === 'ditolak') {
+            // Kita hanya perlu mencegah login jika pendaftaran DITOLAK MUTLAK oleh admin
+            if ($pendaftaran->status === 'ditolak') {
                 $catatan = $pendaftaran->catatan_admin
                     ? ' Catatan admin: ' . $pendaftaran->catatan_admin
                     : ' Hubungi administrator untuk informasi lebih lanjut.';
                 return back()->withErrors([
-                    'email' => '❌ Pendaftaran Anda ditolak.' . $catatan,
+                    'email' => 'Pendaftaran Anda ditolak.' . $catatan,
                 ])->onlyInput('email');
             }
         }
 
         // Ambil hanya email + password untuk Auth::attempt
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-            // Cek apakah akun aktif
+            
+            // Pengecekan is_active (Banned)
             if (!Auth::user()->is_active) {
                 Auth::logout();
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
 
                 return back()->withErrors([
-                    'email' => 'Akun Anda tidak aktif. Hubungi administrator.',
+                    'email' => 'Akun Anda telah dinonaktifkan. Hubungi administrator.',
                 ])->onlyInput('email');
             }
+
+            // ── Batasan Sesi: Maks 2 Perangkat Sekaligus (OPSI B: BLOKIR KERAS) ──
+            // Hitung sesi aktif milik user ini, KECUALI sesi yang baru saja dibuat.
+            $userId = Auth::id();
+            $currentSessionId = session()->getId();
+            $sessionLifetimeSeconds = config('session.lifetime') * 60; // Default 15 menit
+
+            $activeSessionCount = \Illuminate\Support\Facades\DB::table('sessions')
+                ->where('user_id', $userId)
+                ->where('id', '!=', $currentSessionId) // Mengecualikan sesi percobaan login ini
+                ->where('last_activity', '>=', now()->timestamp - $sessionLifetimeSeconds)
+                ->count();
+
+            // Jika sudah ada 2 sesi AKTIF di perangkat lain, tolak login ini
+            if ($activeSessionCount >= 2) {
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                return back()->withErrors([
+                    'email' => 'Akun ini sedang aktif di 2 perangkat lain. Silakan logout dari perangkat lain, atau tunggu 15 menit jika Anda lupa logout.',
+                ])->onlyInput('email');
+            }
+            // ──────────────────────────────────────────────────────────────────
 
             $request->session()->regenerate();
 

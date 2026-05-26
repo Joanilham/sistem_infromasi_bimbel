@@ -4,8 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+use App\Traits\Auditable;
+
 class KategoriPengeluaran extends Model
 {
+    use Auditable;
+
     protected $table = 'kategori_pengeluaran';
     protected $fillable = ['nama'];
 

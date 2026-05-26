@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\HasContextScope;
+use App\Traits\Auditable;
 
 /**
  * @property int $id
@@ -39,7 +41,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class PesertaDidik extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, HasContextScope, Auditable;
 
     protected $fillable = [
         'kantor_id',
@@ -87,24 +89,7 @@ class PesertaDidik extends Model
     }
 
     // ─── Scopes ────────────────────────────────────────────────────
-    /**
-     * Filter berdasarkan sessi Konteks (Kantor dan Periode).
-     */
-    public function scopeInContext(Builder $query): Builder
-    {
-        $kantorId = session('kantor_id');
-        $periodeId = session('periode_id');
-
-        // Jika tidak ada konteks di session, jangan tampilkan data apapun untuk keamanan
-        // Kecuali jika memang sistem didesain untuk melihat data global (biasanya Super Admin)
-        // Namun sesuai permintaan User, kita harus isolasi ketat.
-        if (!$kantorId || !$periodeId) {
-            return $query->whereRaw('1 = 0'); 
-        }
-
-        return $query->where('kantor_id', $kantorId)
-                     ->where('periode_id', $periodeId);
-    }
+    // scopeInContext() disediakan oleh HasContextScope trait
 
     /**
      * Hanya peserta dengan status Aktif.
@@ -146,5 +131,71 @@ class PesertaDidik extends Model
     public function pembayaran(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(PembayaranSiswa::class, 'peserta_didik_id');
+    }
+
+    /**
+     * Get the payment and expiry status for the student.
+     * Centralized logic to prevent duplication across controllers, middleware, and layouts.
+     */
+    public function getStatusPembayaran(): array
+    {
+        $pembayaran = $this->pembayaran()->first();
+        
+        $status = [
+            'is_overdue' => false,
+            'is_expiring' => false,
+            'sisa_hari' => 0,
+            'is_locked' => false,
+            'kekurangan' => 0,
+        ];
+
+        if (!$pembayaran) {
+            return $status;
+        }
+
+        $status['kekurangan'] = $pembayaran->kekurangan;
+
+        // Admin dispensasi: if true, bypass all restrictions
+        if ($pembayaran->dispensasi) {
+            return $status;
+        }
+
+        if ($pembayaran->lunas) {
+            return $status;
+        }
+
+        // 1. Overdue check
+        if ($pembayaran->batas_waktu && $pembayaran->batas_waktu->isPast()) {
+            $status['is_overdue'] = true;
+            $status['is_locked'] = true;
+        }
+
+        // 2. Expiring package check (<= 30 days active duration remaining)
+        if ($this->paketBimbingan) {
+            $paket = $this->paketBimbingan;
+            $durasiJumlah = $paket->durasi_jumlah;
+            $durasiSatuan = strtolower($paket->durasi_satuan);
+            $startDate = $this->created_at;
+            $expiredDate = null;
+
+            if ($durasiJumlah && $durasiSatuan) {
+                if ($durasiSatuan === 'bulan') {
+                    $expiredDate = $startDate->copy()->addMonths($durasiJumlah);
+                } elseif ($durasiSatuan === 'tahun') {
+                    $expiredDate = $startDate->copy()->addYears($durasiJumlah);
+                }
+            }
+
+            if ($expiredDate) {
+                $sisaHari = (int) now()->diffInDays($expiredDate, false);
+                $status['sisa_hari'] = $sisaHari;
+                if ($sisaHari <= 30) {
+                    $status['is_expiring'] = true;
+                    $status['is_locked'] = true;
+                }
+            }
+        }
+
+        return $status;
     }
 }

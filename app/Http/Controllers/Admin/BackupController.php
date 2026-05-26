@@ -10,6 +10,15 @@ use Illuminate\Support\Facades\Log;
 class BackupController extends Controller
 {
     /**
+     * Proteksi akses: hanya Super Admin yang diizinkan.
+     * Middleware ini berlaku untuk SEMUA method di controller ini.
+     */
+    public function __construct()
+    {
+        $this->middleware('ensure_role:Super Admin');
+    }
+
+    /**
      * Direktori penyimpanan backup di storage/app/backups
      * (Direktori ini berada di LUAR folder publik, tidak bisa diakses langsung via browser)
      */
@@ -20,16 +29,6 @@ class BackupController extends Controller
      */
     protected string $settingsFile = 'backup_settings.json';
 
-    /**
-     * Memastikan hanya Super Admin yang diizinkan mengakses modul ini
-     */
-    protected function checkAccess()
-    {
-        if (!auth()->check() || strtolower(auth()->user()->level) !== 'super admin') {
-            Log::warning("Percobaan akses tidak sah ke modul Backup Database oleh: " . (auth()->user()->email ?? 'Guest IP ' . request()->ip()));
-            abort(403, 'Akses ditolak. Fitur ini hanya dapat diakses oleh Super Admin.');
-        }
-    }
 
     /**
      * Mengambil daftar frekuensi backup otomatis saat ini
@@ -60,7 +59,6 @@ class BackupController extends Controller
      */
     public function toggle(Request $request)
     {
-        $this->checkAccess();
 
         $request->validate([
             'backup_frequencies' => 'nullable|array',
@@ -78,7 +76,9 @@ class BackupController extends Controller
         ]));
 
         $freqString = count($frequencies) > 0 ? implode(', ', array_map('strtoupper', $frequencies)) : 'NONAKTIF';
-        Log::info("Pengaturan frekuensi backup otomatis diubah menjadi: {$freqString} (Waktu: {$backupTime}) oleh Super Admin ID " . auth()->id());
+        $logMsg = "Pengaturan frekuensi backup otomatis diubah menjadi: {$freqString} (Waktu: {$backupTime})";
+        Log::info($logMsg . " oleh Super Admin ID " . auth()->id());
+        \App\Models\AuditLog::logSystemEvent('Ubah Pengaturan Backup', 'SystemSettings', null, ['frekuensi' => $freqString, 'waktu' => $backupTime]);
 
         return back()->with('success', 'Pengaturan frekuensi backup otomatis berhasil diperbarui!');
     }
@@ -88,7 +88,6 @@ class BackupController extends Controller
      */
     public function index()
     {
-        $this->checkAccess();
 
         $backups = $this->getBackupList();
         $backupFrequencies = $this->getBackupFrequencies();
@@ -102,7 +101,6 @@ class BackupController extends Controller
      */
     public function create(Request $request)
     {
-        $this->checkAccess();
 
         try {
             // Jalankan command Artisan secara langsung dengan paksa (force) dan tipe manual
@@ -115,6 +113,7 @@ class BackupController extends Controller
             $backups = $this->getBackupList();
             $latestFile = count($backups) > 0 ? $backups[0]->filename : 'baru';
 
+            \App\Models\AuditLog::logSystemEvent('Buat Backup Database', 'SystemBackup', null, ['filename' => $latestFile]);
             return back()->with('success', "Backup berhasil dibuat: {$latestFile}");
 
         } catch (\Exception $e) {
@@ -128,7 +127,6 @@ class BackupController extends Controller
      */
     public function upload(Request $request)
     {
-        $this->checkAccess();
 
         $request->validate([
             'backup_file' => 'required|file|max:102400', // max 100MB
@@ -157,6 +155,7 @@ class BackupController extends Controller
             $file->storeAs($this->backupDir, $filename);
 
             Log::info("File backup di-upload secara sah oleh Super Admin ID " . auth()->id() . ": {$filename}");
+            \App\Models\AuditLog::logSystemEvent('Upload Backup Database', 'SystemBackup', null, ['filename' => $filename]);
             return back()->with('success', "File backup '{$filename}' berhasil di-upload!");
 
         } catch (\Exception $e) {
@@ -170,7 +169,6 @@ class BackupController extends Controller
      */
     public function restore(string $filename)
     {
-        $this->checkAccess();
 
         // Proteksi Directory Traversal & Batasan Ekstensi
         if (str_contains($filename, '/') || str_contains($filename, '\\') || !str_ends_with(strtolower($filename), '.sql')) {
@@ -202,6 +200,7 @@ class BackupController extends Controller
             \Illuminate\Support\Facades\Artisan::call('optimize:clear');
 
             Log::info("Restore DB sukses dilaksanakan oleh Super Admin ID " . auth()->id() . ": {$filename}");
+            \App\Models\AuditLog::logSystemEvent('Restore Database', 'SystemBackup', ['status' => 'sebelum_restore'], ['filename' => $filename, 'status' => 'sukses_restore']);
             return back()->with('success', "Database berhasil di-restore dari file: {$filename}");
 
         } catch (\Exception $e) {
@@ -215,7 +214,6 @@ class BackupController extends Controller
      */
     public function download(string $filename)
     {
-        $this->checkAccess();
 
         // Proteksi Directory Traversal & Batasan Ekstensi
         if (str_contains($filename, '/') || str_contains($filename, '\\') || !str_ends_with(strtolower($filename), '.sql')) {
@@ -230,6 +228,7 @@ class BackupController extends Controller
         }
 
         Log::info("File backup diunduh oleh Super Admin ID " . auth()->id() . ": {$filename}");
+        \App\Models\AuditLog::logSystemEvent('Download Backup Database', 'SystemBackup', null, ['filename' => $filename]);
         return response()->download($path);
     }
 
@@ -238,8 +237,6 @@ class BackupController extends Controller
      */
     public function destroy(string $filename)
     {
-        $this->checkAccess();
-
         // Proteksi Directory Traversal & Batasan Ekstensi
         if (str_contains($filename, '/') || str_contains($filename, '\\') || !str_ends_with(strtolower($filename), '.sql')) {
             Log::warning("Percobaan serangan Directory Traversal pada Hapus DB: {$filename} oleh User ID " . auth()->id());
@@ -254,6 +251,7 @@ class BackupController extends Controller
 
         Storage::delete($path);
         Log::info("Backup dihapus secara sah oleh Super Admin ID " . auth()->id() . ": {$filename}");
+        \App\Models\AuditLog::logSystemEvent('Hapus Backup Database', 'SystemBackup', ['filename' => $filename], null);
 
         return back()->with('success', "Backup {$filename} berhasil dihapus.");
     }

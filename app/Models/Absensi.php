@@ -4,8 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+use App\Traits\Auditable;
+
 class Absensi extends Model
 {
+    use Auditable;
+
     protected $fillable = [
         'peserta_didik_id',
         'tanggal',

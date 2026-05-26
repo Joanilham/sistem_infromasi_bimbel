@@ -19,8 +19,12 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read \App\Models\CbtUjian $ujian
  * @property-read \App\Models\User $user
  */
+use App\Traits\Auditable;
+
 class CbtPeserta extends Model
 {
+    use Auditable;
+
     protected $table = 'cbt_pesertas';
     protected $guarded = [];
 

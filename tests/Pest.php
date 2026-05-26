@@ -1,5 +1,20 @@
 <?php
 
+// Define global mocks if imagewebp is not available to allow tests to run on any environment
+if (!function_exists('imagewebp')) {
+    function imagewebp($image, $tempPath = null, $quality = 75) {
+        if ($tempPath) {
+            file_put_contents($tempPath, 'fake-webp-content');
+        }
+        return true;
+    }
+}
+if (!function_exists('imagecreatefromwebp')) {
+    function imagecreatefromwebp($path) {
+        return tmpfile();
+    }
+}
+
 /*
 |--------------------------------------------------------------------------
 | Test Case
@@ -12,7 +27,7 @@
 */
 
 pest()->extend(Tests\TestCase::class)
- // ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
+    ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
     ->in('Feature');
 
 /*

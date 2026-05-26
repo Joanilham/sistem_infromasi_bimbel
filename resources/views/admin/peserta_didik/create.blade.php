@@ -18,8 +18,10 @@
                 <input type="text" name="nama_lengkap" required value="{{ old('nama_lengkap') }}" placeholder="Nama lengkap peserta didik">
             </div>
             <div class="pd-field">
-                <label>No. Induk <span>*</span></label>
-                <input type="text" name="nomor_induk" required value="{{ old('nomor_induk') }}" placeholder="NISN">
+                <label>NISN <span>*</span></label>
+                <input type="text" name="nisn" required value="{{ old('nisn') }}" placeholder="10 digit angka"
+                    inputmode="numeric" pattern="[0-9]{10}" maxlength="10"
+                    oninput="this.value=this.value.replace(/[^0-9]/g,'')">
             </div>
             <div class="pd-field">
                 <label>Jenis Kelamin <span>*</span></label>
@@ -49,7 +51,7 @@
             <div class="pd-field">
                 <label>No. Telepon</label>
                 <input type="tel" name="no_telepon" value="{{ old('no_telepon') }}" placeholder="08xxxxxxxxxx"
-                    inputmode="numeric" pattern="[0-9]*"
+                    inputmode="numeric" pattern="[0-9]{8,12}" maxlength="12"
                     oninput="this.value=this.value.replace(/[^0-9]/g,'')">
             </div>
             <div class="pd-field full">
@@ -107,7 +109,7 @@
             <div class="pd-field">
                 <label>No. Telepon Ayah</label>
                 <input type="tel" name="no_telepon_ayah" value="{{ old('no_telepon_ayah') }}" placeholder="08xxxxxxxxxx"
-                    inputmode="numeric" pattern="[0-9]*"
+                    inputmode="numeric" pattern="[0-9]{8,12}" maxlength="12"
                     oninput="this.value=this.value.replace(/[^0-9]/g,'')">
             </div>
             <div class="pd-field">
@@ -121,7 +123,7 @@
             <div class="pd-field">
                 <label>No. Telepon Ibu</label>
                 <input type="tel" name="no_telepon_ibu" value="{{ old('no_telepon_ibu') }}" placeholder="08xxxxxxxxxx"
-                    inputmode="numeric" pattern="[0-9]*"
+                    inputmode="numeric" pattern="[0-9]{8,12}" maxlength="12"
                     oninput="this.value=this.value.replace(/[^0-9]/g,'')">
             </div>
         </div>

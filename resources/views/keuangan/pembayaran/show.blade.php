@@ -10,13 +10,18 @@
     $terbayar   = $pembayaran->total_terbayar;
     $kekurangan = $pembayaran->kekurangan;
     $lunas      = $pembayaran->lunas;
+
+    // Cari pendaftaran awal untuk ambil bukti pembayaran
+    $userModel = \App\Models\User::where('peserta_didik_id', $pesertaDidik->id)->first();
+    $pendaftaranAwal = $userModel ? \App\Models\PendaftaranSiswa::where('email', $userModel->email)->first() : null;
+    $buktiPendaftaran = $pendaftaranAwal?->pembayaran?->bukti_pembayaran;
 @endphp
 <div class="space-y-6">
     {{-- Header --}}
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
             <a href="{{ route('keuangan.pembayaran.index') }}" class="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-indigo-600 mb-3 transition">
-                ← Kembali ke Daftar Siswa
+                Kembali ke Daftar Siswa
             </a>
             <h1 class="text-2xl font-black text-slate-900 dark:text-white">{{ $pesertaDidik->nama_lengkap }}</h1>
             <p class="text-slate-500 text-sm mt-0.5">No. Induk: <span class="font-mono font-bold">{{ $pesertaDidik->nomor_induk ?? '-' }}</span></p>
@@ -27,14 +32,63 @@
         </span>
     </div>
 
-    @if(session('success'))
-        <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 text-green-800 dark:text-green-400 rounded-2xl px-6 py-4 text-sm font-bold">
-            ✓ {{ session('success') }}
-        </div>
-    @endif
-    @if($errors->any())
-        <div class="bg-red-50 border border-red-200 text-red-800 rounded-2xl px-6 py-4 text-sm font-bold">
-            <ul class="list-disc list-inside space-y-1">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul>
+
+
+    @php
+        $pendingTransaksis = $pembayaran->transaksi->where('status', 'PENDING');
+    @endphp
+
+    @if($pendingTransaksis->count() > 0)
+        <div class="space-y-4 mb-6">
+            @foreach($pendingTransaksis as $pt)
+                <div class="bg-amber-50/60 dark:bg-zinc-900 border border-amber-200 dark:border-zinc-800 rounded-[2rem] p-6 shadow-sm flex flex-col md:flex-row gap-6 items-start md:items-center justify-between">
+                    <div class="flex-1 space-y-2">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300 text-[10px] font-bold uppercase tracking-wider">
+                            <span>⚠ Menunggu Verifikasi Pembayaran</span>
+                        </div>
+                        <h3 class="text-base font-black text-slate-800 dark:text-white">
+                            Konfirmasi Transfer dari Siswa
+                        </h3>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs mt-2">
+                            <div>
+                                <span class="text-slate-400 block font-semibold mb-0.5">Bank Tujuan</span>
+                                <span class="font-bold text-slate-700 dark:text-slate-200">{{ $pt->bankTujuan?->nama_bank ?? 'Bank' }} - {{ $pt->bankTujuan?->nomor_rekening ?? '-' }}</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block font-semibold mb-0.5">Nominal Klaim</span>
+                                <span class="font-bold text-slate-750 dark:text-slate-200">Rp {{ number_format($pt->nominal, 0, ',', '.') }}</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block font-semibold mb-0.5">Tanggal Transfer</span>
+                                <span class="font-bold text-slate-700 dark:text-slate-200">{{ \Carbon\Carbon::parse($pt->tanggal)->format('d/m/Y') }}</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block font-semibold mb-0.5">Catatan Siswa</span>
+                                <span class="font-bold text-slate-700 dark:text-slate-200 italic">"{{ $pt->catatan_siswa ?? '-' }}"</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row items-center gap-3 shrink-0 w-full md:w-auto">
+                        @if($pt->bukti_pembayaran)
+                            <button type="button" onclick="openBuktiModal('{{ asset('storage/' . $pt->bukti_pembayaran) }}')" class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold shadow-sm hover:bg-slate-50 transition">
+                                <svg class="w-4 h-4 text-[#388782]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                Bukti Transfer
+                            </button>
+                        @endif
+
+                        <button type="button" onclick="openVerifikasiModal('{{ $pt->id }}', '{{ $pt->nominal }}', 'TRANSFER')" class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-[#388782] hover:bg-[#206D6C] text-white rounded-xl text-xs font-bold shadow-sm transition">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            Verifikasi
+                        </button>
+
+                        <button type="button" onclick="openTolakModal('{{ $pt->id }}')" class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-sm transition">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            Tolak
+                        </button>
+                    </div>
+                </div>
+            @endforeach
         </div>
     @endif
 
@@ -115,6 +169,7 @@
                     <span>Jatuh Tempo</span>
                     <span>{{ $pembayaran->batas_waktu?->format('d/m/Y') ?? 'Belum Diatur' }}</span>
                 </div>
+                {{-- Bagian Bukti Pendaftaran dipindahkan ke kolom Riwayat Transaksi --}}
             </div>
         </div>
 
@@ -124,10 +179,15 @@
                 <span class="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 flex items-center justify-center">Rp</span>
                 Bayar Sekarang
             </h2>
-            <form action="{{ route('keuangan.pembayaran.transaksi.store', $pembayaran->id) }}" method="POST" class="space-y-3">
+            <form id="form-catat-pembayaran" action="{{ route('keuangan.pembayaran.transaksi.store', $pembayaran->id) }}" method="POST" class="space-y-3">
                 @csrf
+                @if(!$lunas)
+                    <div class="text-[10px] text-amber-600 dark:text-amber-400 font-bold mb-1">
+                        Sisa Tagihan: Rp {{ number_format($kekurangan, 0, ',', '.') }},-
+                    </div>
+                @endif
                 <div class="relative">
-                    <input type="number" name="nominal" min="1" required placeholder="Nominal Rp" class="w-full rounded-xl border-slate-200 dark:border-zinc-700 dark:bg-zinc-950 text-sm px-4 py-2 focus:ring-indigo-500">
+                    <input type="text" name="nominal" id="catat-nominal" required inputmode="numeric" placeholder="Nominal Rp" class="w-full rounded-xl border-slate-200 dark:border-zinc-700 dark:bg-zinc-950 text-sm px-4 py-2 focus:ring-indigo-500">
                 </div>
                 <div class="flex gap-2">
                     <select name="tipe_pembayaran" class="flex-1 rounded-xl border-slate-200 dark:border-zinc-700 dark:bg-zinc-950 text-xs px-3 py-2 focus:ring-indigo-500">
@@ -160,6 +220,19 @@
                     <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Batas Waktu</label>
                     <input type="date" name="batas_waktu" value="{{ old('batas_waktu', $pembayaran->batas_waktu?->format('Y-m-d')) }}" class="w-full rounded-lg border-slate-200 dark:border-zinc-700 dark:bg-zinc-950 text-xs px-3 py-2">
                 </div>
+                
+                {{-- Toggle Dispensasi --}}
+                <div class="flex items-center justify-between p-3.5 rounded-2xl bg-amber-50/50 dark:bg-amber-950/20 border border-amber-100 dark:border-amber-900/30">
+                    <div class="space-y-0.5">
+                        <label for="dispensasi" class="block text-xs font-black text-amber-800 dark:text-amber-400">Dispensasi Akses</label>
+                        <span class="block text-[9px] text-amber-600 dark:text-amber-500 font-medium">Bypass semua blokir jika overdue / belum lunas</span>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer select-none">
+                        <input type="checkbox" name="dispensasi" id="dispensasi" value="1" {{ old('dispensasi', $pembayaran->dispensasi) ? 'checked' : '' }} class="sr-only peer">
+                        <div class="w-10 h-6 bg-slate-200 dark:bg-zinc-800 rounded-full peer peer-focus:ring-2 peer-focus:ring-amber-300 dark:peer-focus:ring-amber-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-amber-500"></div>
+                    </label>
+                </div>
+
                 <button type="submit" class="w-full bg-slate-800 dark:bg-zinc-700 text-white font-black py-2.5 rounded-xl text-xs hover:bg-slate-900 transition">Update Data</button>
             </form>
         </div>
@@ -170,6 +243,28 @@
                     <h2 class="font-black text-slate-900 dark:text-white text-sm">Riwayat Transaksi</h2>
                     <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{{ $pembayaran->transaksi->count() }} Transaksi</span>
                 </div>
+                
+                @if($buktiPendaftaran)
+                <div class="px-6 py-4 border-b border-slate-100 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-800/30">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Bukti Pembayaran Pendaftaran Awal</span>
+                            @php $ext = pathinfo($buktiPendaftaran, PATHINFO_EXTENSION); @endphp
+                            @if(in_array(strtolower($ext), ['jpg','jpeg','png']))
+                                <button type="button" onclick="openBuktiModal('{{ asset('storage/' . $buktiPendaftaran) }}')" class="text-xs font-bold text-indigo-600 hover:text-indigo-700 underline flex items-center gap-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                    Lihat Bukti Foto
+                                </button>
+                            @else
+                                <a href="{{ asset('storage/' . $buktiPendaftaran) }}" target="_blank" class="text-xs font-bold text-indigo-600 hover:text-indigo-700 underline flex items-center gap-1">
+                                    Lihat Dokumen PDF
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                @endif
+                
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">
                         <thead class="bg-slate-50 dark:bg-zinc-800/50 text-[10px] uppercase tracking-wider text-slate-500 font-black">
@@ -179,39 +274,49 @@
                                 <th class="px-6 py-3 text-right">Nominal</th>
                                 <th class="px-6 py-3 text-left">No. Kwitansi</th>
                                 <th class="px-6 py-3 text-left">Tipe</th>
-                                <th class="px-6 py-3 text-center">Opsi</th>
+                                <th class="px-6 py-3 text-center">Status</th>
+                                <th class="px-6 py-3 text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 dark:divide-zinc-800">
-                            @forelse($pembayaran->transaksi->sortByDesc('tanggal') as $i => $t)
+                            @forelse($pembayaran->transaksi->sortByDesc('tanggal') as $t)
                                 <tr class="hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition">
-                                    <td class="px-6 py-3 text-slate-400 font-bold">{{ $i + 1 }}</td>
-                                    <td class="px-6 py-3 font-medium text-slate-700 dark:text-slate-300">{{ $t->tanggal->format('d/m/Y') }}</td>
-                                    <td class="px-6 py-3 text-right font-black text-emerald-600">Rp {{ number_format($t->nominal,0,',','.') }}</td>
-                                    <td class="px-6 py-3 font-mono text-[10px] text-slate-500">{{ $t->no_kwitansi }}</td>
+                                    <td class="px-6 py-3 text-slate-400 font-bold">{{ $pembayaran->transaksi->count() - $loop->index }}</td>
+                                    <td class="px-6 py-3 font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap">{{ $t->tanggal->format('d/m/Y') }}</td>
+                                    <td class="px-6 py-3 text-right font-black text-emerald-600 whitespace-nowrap">Rp {{ number_format($t->nominal,0,',','.') }}</td>
+                                    <td class="px-6 py-3 font-mono text-[10px] text-slate-500 whitespace-nowrap">
+                                        {{ str_starts_with($t->no_kwitansi, 'PENDING/') ? '-' : $t->no_kwitansi }}
+                                    </td>
                                     <td class="px-6 py-3">
                                         <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase {{ $t->tipe_pembayaran === 'TUNAI' ? 'bg-slate-100 text-slate-600 dark:bg-zinc-700' : 'bg-blue-100 text-blue-600 dark:bg-blue-900/30' }}">
                                             {{ $t->tipe_pembayaran }}
                                         </span>
                                     </td>
                                     <td class="px-6 py-3 text-center">
-                                        @if(strtolower(auth()->user()->level) === 'super admin')
-                                            <div class="flex items-center justify-center gap-2">
-                                                <a href="{{ route('keuangan.transaksi.edit', $t->id) }}" 
-                                                    class="inline-flex items-center justify-center w-8 h-8 rounded bg-amber-50 dark:bg-amber-900/10 text-amber-600 dark:text-amber-400 hover:bg-amber-100 transition-all"
-                                                    title="Edit Transaksi">
-                                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                                                </a>
-                                                <form action="{{ route('keuangan.transaksi.destroy', $t->id) }}" method="POST" onsubmit="return confirm('Hapus transaksi ini?')">
-                                                    @csrf @method('DELETE')
-                                                    <button type="submit" class="inline-flex items-center justify-center w-8 h-8 rounded bg-rose-50 dark:bg-rose-900/10 text-rose-600 dark:text-rose-400 hover:bg-rose-100 transition-all" title="Hapus">
-                                                        <svg class="w-4 h-4 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                                    </button>
-                                                </form>
-                                            </div>
+                                        @if($t->status === 'PENDING')
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-yellow-100 text-yellow-800 dark:bg-yellow-950/30 dark:text-yellow-400">Menunggu</span>
+                                        @elseif($t->status === 'SUKSES')
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-400">Berhasil</span>
                                         @else
-                                            <span class="text-xs text-slate-400 dark:text-slate-500 italic">No Action</span>
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 dark:bg-rose-950/30 dark:text-rose-400" title="{{ $t->catatan_siswa }}">Ditolak</span>
                                         @endif
+                                    </td>
+                                    <td class="px-6 py-3 text-center">
+                                        <div class="flex flex-col items-center justify-center gap-1.5">
+                                            @if($t->bukti_pembayaran)
+                                                <button type="button" onclick="openBuktiModal('{{ asset('storage/' . $t->bukti_pembayaran) }}')" class="text-[10px] font-bold text-blue-600 hover:text-blue-700 underline whitespace-nowrap">
+                                                    Lihat Bukti
+                                                </button>
+                                            @else
+                                                <span class="text-[10px] text-slate-300">-</span>
+                                            @endif
+                                            
+                                            @if($t->status === 'SUKSES')
+                                                <a href="{{ route('keuangan.transaksi.struk', $t->id) }}" target="_blank" class="text-[10px] font-bold text-[#388782] hover:text-[#206D6C] underline whitespace-nowrap">
+                                                    Cetak Struk
+                                                </a>
+                                            @endif
+                                        </div>
                                     </td>
                                 </tr>
                             @empty
@@ -224,4 +329,225 @@
         </div>
     </div>
 </div>
+
+{{-- MODAL BUKTI TRANSFER --}}
+<div id="modal-bukti" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-all duration-300">
+    <div class="relative max-w-2xl w-[90%] bg-white dark:bg-zinc-900 rounded-3xl p-6 shadow-2xl scale-95 transition-all duration-300" id="modal-bukti-box">
+        <button type="button" onclick="closeBuktiModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-500 hover:text-slate-800 dark:hover:text-white flex items-center justify-center transition font-bold text-lg">&times;</button>
+        <div class="flex items-center gap-4 mb-4">
+            <h3 class="text-lg font-black text-slate-800 dark:text-white">Bukti Pembayaran</h3>
+            <div class="flex gap-2">
+                <button type="button" onclick="zoomBuktiImage(0.2)" class="px-3 py-1.5 bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-300 text-xs font-bold rounded-lg hover:bg-slate-200 dark:hover:bg-zinc-700 transition flex items-center gap-1.5" title="Perbesar">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" /></svg>
+                </button>
+                <button type="button" onclick="zoomBuktiImage(-0.2)" class="px-3 py-1.5 bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-300 text-xs font-bold rounded-lg hover:bg-slate-200 dark:hover:bg-zinc-700 transition flex items-center gap-1.5" title="Perkecil">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7" /></svg>
+                </button>
+                <button type="button" onclick="rotateBuktiImage()" class="px-3 py-1.5 bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-300 text-xs font-bold rounded-lg hover:bg-slate-200 dark:hover:bg-zinc-700 transition flex items-center gap-1.5" title="Putar">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                </button>
+            </div>
+        </div>
+        <div class="rounded-2xl overflow-auto border border-slate-100 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-950 flex items-center justify-center relative max-h-[70vh]">
+            <img src="" id="bukti-img-preview" class="w-auto object-contain transition-transform duration-300 cursor-move" alt="Bukti Transfer">
+        </div>
+    </div>
+</div>
+
+{{-- MODAL VERIFIKASI PEMBAYARAN --}}
+<div id="modal-verifikasi" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-all duration-300">
+    <div class="relative max-w-md w-[90%] bg-white dark:bg-zinc-900 rounded-3xl p-6 shadow-2xl scale-95 transition-all duration-300" id="modal-verifikasi-box">
+        <button type="button" onclick="closeVerifikasiModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-500 hover:text-slate-800 dark:hover:text-white flex items-center justify-center transition font-bold text-lg">&times;</button>
+        <h3 class="text-lg font-black text-slate-800 dark:text-white mb-2">Verifikasi Pembayaran</h3>
+        <p class="text-xs text-slate-400 mb-4 leading-relaxed">
+            Periksa kembali nominal uang yang masuk di mutasi bank. Anda dapat menyesuaikan nominal di bawah ini jika terdapat perbedaan.
+        </p>
+
+        {{-- Sisa Tagihan Info --}}
+        <div class="mb-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 rounded-2xl p-4 flex items-center justify-between">
+            <span class="text-xs font-bold text-amber-800 dark:text-amber-300">Sisa Tagihan Siswa</span>
+            <span class="font-black text-amber-900 dark:text-amber-200 text-sm">
+                Rp {{ number_format($kekurangan, 0, ',', '.') }},-
+            </span>
+        </div>
+
+        <form id="form-verifikasi" method="POST" class="space-y-4">
+            @csrf
+            <div>
+                <label for="modal-verif-nominal" class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nominal Terverifikasi (Rp)</label>
+                <input type="text" name="nominal" id="modal-verif-nominal" required inputmode="numeric" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#388782] focus:border-transparent text-sm">
+            </div>
+            <div>
+                <label for="modal-verif-tipe" class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tipe Pembayaran</label>
+                <select name="tipe_pembayaran" id="modal-verif-tipe" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#388782] focus:border-transparent text-sm">
+                    <option value="TRANSFER">TRANSFER</option>
+                    <option value="TUNAI">TUNAI</option>
+                </select>
+            </div>
+            <div class="flex gap-3 pt-2">
+                <button type="button" onclick="closeVerifikasiModal()" class="flex-1 py-2.5 border border-slate-200 dark:border-zinc-700 text-slate-500 dark:text-slate-300 rounded-xl text-xs font-bold hover:bg-slate-50 dark:hover:bg-zinc-800 transition">Batal</button>
+                <button type="submit" class="flex-1 py-2.5 bg-[#388782] hover:bg-[#206D6C] text-white rounded-xl text-xs font-bold shadow-md shadow-[#388782]/20 transition">Verifikasi & Setujui</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{-- MODAL TOLAK PEMBAYARAN --}}
+<div id="modal-tolak" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-all duration-300">
+    <div class="relative max-w-md w-[90%] bg-white dark:bg-zinc-900 rounded-3xl p-6 shadow-2xl scale-95 transition-all duration-300" id="modal-tolak-box">
+        <button type="button" onclick="closeTolakModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-500 hover:text-slate-800 dark:hover:text-white flex items-center justify-center transition font-bold text-lg">&times;</button>
+        <h3 class="text-lg font-black text-slate-800 dark:text-white mb-2 text-rose-600">Tolak Pengajuan Pembayaran</h3>
+        <p class="text-xs text-slate-400 mb-4 leading-relaxed">
+            Berikan alasan penolakan agar siswa dapat mengetahui kendala pada pengajuan pembayarannya.
+        </p>
+        <form id="form-tolak" method="POST" class="space-y-4">
+            @csrf
+            <div>
+                <label for="modal-tolak-catatan" class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Alasan Penolakan (Opsional)</label>
+                <textarea name="catatan_penolakan" id="modal-tolak-catatan" rows="3" placeholder="Contoh: Bukti transfer buram atau tidak valid" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent text-sm"></textarea>
+            </div>
+            <div class="flex gap-3 pt-2">
+                <button type="button" onclick="closeTolakModal()" class="flex-1 py-2.5 border border-slate-200 dark:border-zinc-700 text-slate-500 dark:text-slate-300 rounded-xl text-xs font-bold hover:bg-slate-50 dark:hover:bg-zinc-800 transition">Batal</button>
+                <button type="submit" class="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-md shadow-rose-900/20 transition">Tolak Pengajuan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const baseVerifikasiUrl = "{{ route('keuangan.transaksi.verifikasi', ':id') }}";
+    const baseTolakUrl = "{{ route('keuangan.transaksi.tolak', ':id') }}";
+    
+    let currentRotation = 0;
+    let currentScale = 1;
+
+    function applyImageTransform() {
+        const img = document.getElementById('bukti-img-preview');
+        img.style.transform = `rotate(${currentRotation}deg) scale(${currentScale})`;
+    }
+
+    function rotateBuktiImage() {
+        currentRotation += 90;
+        if (currentRotation >= 360) currentRotation = 0;
+        applyImageTransform();
+    }
+
+    function zoomBuktiImage(factor) {
+        currentScale += factor;
+        if (currentScale < 0.5) currentScale = 0.5;
+        if (currentScale > 3) currentScale = 3;
+        applyImageTransform();
+    }
+
+    function openBuktiModal(src) {
+        currentRotation = 0;
+        currentScale = 1;
+        const m = document.getElementById('modal-bukti');
+        const box = document.getElementById('modal-bukti-box');
+        const img = document.getElementById('bukti-img-preview');
+        applyImageTransform();
+        img.src = src;
+        m.classList.remove('opacity-0', 'pointer-events-none');
+        box.classList.remove('scale-95');
+    }
+    function closeBuktiModal() {
+        const m = document.getElementById('modal-bukti');
+        const box = document.getElementById('modal-bukti-box');
+        m.classList.add('opacity-0', 'pointer-events-none');
+        box.classList.add('scale-95');
+    }
+
+    // Fungsi Format Rupiah (Thousand Separator)
+    function formatRupiah(angka) {
+        var number_string = angka.replace(/[^,\d]/g, '').toString(),
+            split = number_string.split(','),
+            sisa = split[0].length % 3,
+            rupiah = split[0].substr(0, sisa),
+            ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+
+        if (ribuan) {
+            var separator = sisa ? '.' : '';
+            rupiah += separator + ribuan.join('.');
+        }
+
+        rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
+        return rupiah;
+    }
+
+    function openVerifikasiModal(id, nominal, tipe) {
+        const m = document.getElementById('modal-verifikasi');
+        const box = document.getElementById('modal-verifikasi-box');
+        const form = document.getElementById('form-verifikasi');
+        const inputNominal = document.getElementById('modal-verif-nominal');
+        const selectTipe = document.getElementById('modal-verif-tipe');
+
+        form.action = baseVerifikasiUrl.replace(':id', id);
+        inputNominal.value = formatRupiah(nominal.toString());
+        selectTipe.value = tipe;
+
+        m.classList.remove('opacity-0', 'pointer-events-none');
+        box.classList.remove('scale-95');
+    }
+    function closeVerifikasiModal() {
+        const m = document.getElementById('modal-verifikasi');
+        const box = document.getElementById('modal-verifikasi-box');
+        m.classList.add('opacity-0', 'pointer-events-none');
+        box.classList.add('scale-95');
+    }
+
+    function openTolakModal(id) {
+        const m = document.getElementById('modal-tolak');
+        const box = document.getElementById('modal-tolak-box');
+        const form = document.getElementById('form-tolak');
+
+        form.action = baseTolakUrl.replace(':id', id);
+
+        m.classList.remove('opacity-0', 'pointer-events-none');
+        box.classList.remove('scale-95');
+    }
+    function closeTolakModal() {
+        const m = document.getElementById('modal-tolak');
+        const box = document.getElementById('modal-tolak-box');
+        m.classList.add('opacity-0', 'pointer-events-none');
+        box.classList.add('scale-95');
+    }
+
+    // Event listener format rupiah nominal konfirmasi keuangan (admin)
+    const verifNominalInput = document.getElementById('modal-verif-nominal');
+    if (verifNominalInput) {
+        verifNominalInput.addEventListener('input', function(e) {
+            this.value = formatRupiah(this.value);
+        });
+    }
+
+    // Bersihkan titik sebelum submit form verifikasi keuangan (admin)
+    const formVerif = document.getElementById('form-verifikasi');
+    if (formVerif) {
+        formVerif.addEventListener('submit', function(e) {
+            const input = document.getElementById('modal-verif-nominal');
+            if (input) {
+                input.value = input.value.replace(/\./g, '');
+            }
+        });
+    }
+
+    // Event listener format rupiah nominal pencatatan keuangan baru
+    const catatNominalInput = document.getElementById('catat-nominal');
+    if (catatNominalInput) {
+        catatNominalInput.addEventListener('input', function(e) {
+            this.value = formatRupiah(this.value);
+        });
+    }
+
+    // Bersihkan titik sebelum submit form catat pembayaran
+    const formCatat = document.getElementById('form-catat-pembayaran');
+    if (formCatat) {
+        formCatat.addEventListener('submit', function(e) {
+            const input = document.getElementById('catat-nominal');
+            if (input) {
+                input.value = input.value.replace(/\./g, '');
+            }
+        });
+    }
+</script>
 @endsection

@@ -1,3 +1,20 @@
+/.env
+/vendor
+/node_modules
+/public/storage
+/storage/*.key
+/storage/*.sqlite
+/storage/framework/cache/data
+/storage/debugbar
+/storage/logs/*.log
+/bootstrap/cache/*.php
+.idea
+.vscode
+.DS_Store
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+/.phpunit.result.cache
 # OS generated files
 .DS_Store
 .DS_Store?
@@ -26,6 +43,7 @@ Thumbs.db
 /storage/framework/views/*
 /storage/logs/*
 /bootstrap/cache/*
+!.gitignore
 !/bootstrap/cache/.gitignore
 
 # User uploads
@@ -40,7 +58,7 @@ docker-compose.override.yml
 /vendor
 /node_modules
 
-# Sensitive / Database files
+# Sensitive, Databases, and Compressed Backups
 *.sqlite
 *.sqlite3
 *.db
@@ -48,6 +66,12 @@ docker-compose.override.yml
 *.sql.gz
 *.bak
 *.backup
+*.zip
+*.rar
+*.7z
+*.tar
+*.gz
+*.tgz
 /database/database.sqlite
 /database/database.sqlite-journal
 /auth.json
@@ -61,7 +85,6 @@ Homestead.yaml
 *.p12
 *.pfx
 *.pub
-/storage/*.key
 
 # IDE & Editor files
 /.fleet
@@ -73,11 +96,6 @@ Homestead.yaml
 .history/
 *.swp
 *~
-.DS_Store
-Thumbs.db
-.phpunit.result.cache
-/.vscode
-/.idea
 
 # Logs and temporary files
 *.log
@@ -93,17 +111,22 @@ peserta.html
 temp.html
 test.php
 
-# sprint documentations
+# Sprint documentations
 Sprint_4.md
 Sprint_selesai.md
 sprint-spec.md
 pembayaran.md
 
-# Deployment
-/public/storage
-/public/hot
-/storage/*.key
-.phpunit.result.cache
-Homestead.json
-Homestead.yaml
-auth.json
+# Project Structure Documentation
+struktur.txt
+struktur_file.txt
+struktur_folder.txt
+struktur-folder.txt
+struktur-file.txt
+struktur-project.txt
+struktur_project.txt
+structure.txt
+folder_structure.txt
+struktur.md
+struktur_file.md
+struktur-file.md

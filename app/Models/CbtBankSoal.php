@@ -26,9 +26,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\CbtBab|null $bab
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\CbtOpsiJawaban[] $opsiJawabans
  */
+use App\Traits\Auditable;
+
 class CbtBankSoal extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, Auditable;
 
     protected $table = 'cbt_bank_soals';
     protected $guarded = [];

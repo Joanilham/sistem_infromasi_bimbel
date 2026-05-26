@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+/* ── Nonaktifkan dark mode sepenuhnya ──────────────────────────────────────
+   Tailwind v4: override @variant dark agar tidak pernah aktif.
+   Semua class dark:* di template tidak akan berpengaruh apapun.
+   ─────────────────────────────────────────────────────────────────────── */
+@variant dark (&:where(.dark, .dark *));
+
 /* =====================================================
    SIDEBAR LAYOUT SYSTEM
    ===================================================== */
@@ -61,16 +67,7 @@
         --teal-900: #043639;
     }
 
-    .dark {
-        --bg-main: #020617;
-        --bg-card: #0f172a;
-        --border-color: #1e293b;
-        --text-primary: #f8fafc;
-        --text-secondary: #cbd5e1;
-        --text-muted: #64748b;
-        --primary: #78BBB0;
-        --primary-hover: #55A199;
-    }
+
 
     body {
         font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;

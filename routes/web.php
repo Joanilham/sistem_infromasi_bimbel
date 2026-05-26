@@ -99,7 +99,7 @@ Route::middleware('auth')->group(function () {
             });
 
             $totalPesertaAktif = \Illuminate\Support\Facades\Cache::rememberForever("dash_total_peserta_{$kantorId}_{$periodeId}", fn() => \App\Models\PesertaDidik::aktif()->inContext()->count());
-            $totalPaketAktif   = \Illuminate\Support\Facades\Cache::rememberForever("dash_total_paket_{$kantorId}_{$periodeId}", fn() => \App\Models\PaketBimbingan::inContext()->count());
+            $totalPaketAktif   = \Illuminate\Support\Facades\Cache::rememberForever("dash_total_paket_{$kantorId}_{$periodeId}", fn() => \App\Models\PaketBimbingan::count());
             $totalTenagaPengajar = \App\Models\User::where('level', 'guru')->inContext()->count();
 
             $selectedKantor  = session('kantor_id')  ? Kantor::find(session('kantor_id'))  : null;
@@ -155,6 +155,12 @@ Route::middleware('auth')->group(function () {
                 ->when($filterKantorId, fn($q) => $q->where('kantor_id', $filterKantorId))
                 ->latest()
                 ->limit(10)
+                ->get();
+
+            // 5 Aktivitas Terbaru untuk Activity Log Widget di Dashboard
+            $recentAuditLogs = \App\Models\AuditLog::with('user:id,name,level')
+                ->latest()
+                ->limit(5)
                 ->get();
 
             // --- DATA UNTUK GRAFIK (PESERTA DIDIK & KEUANGAN) ---
@@ -281,6 +287,7 @@ Route::middleware('auth')->group(function () {
                 'pembayaranBelumDikonfirmasi',
                 'tagihanJatuhTempoCount',
                 'recentPendaftaran',
+                'recentAuditLogs',
                 'chartLabels',
                 'chartPesertaMasuk',
                 'chartPesertaKeluar',
@@ -297,90 +304,125 @@ Route::middleware('auth')->group(function () {
         Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
 
-        // Verifikasi Pendaftaran Siswa (Bisa diakses Super Admin & Admin)
-        Route::get('/admin/pendaftaran', [App\Http\Controllers\PendaftaranController::class, 'adminIndex'])->name('admin.pendaftaran.index');
-        Route::get('/admin/pendaftaran/{pendaftaran}', [App\Http\Controllers\PendaftaranController::class, 'adminShow'])->name('admin.pendaftaran.show');
-        Route::post('/admin/pendaftaran/{pendaftaran}/verifikasi', [App\Http\Controllers\PendaftaranController::class, 'adminVerifikasi'])->name('admin.pendaftaran.verifikasi');
+        // Verifikasi Pendaftaran Siswa (Bisa diakses Admin dengan hak kelola peserta)
+        Route::middleware('check_permission:manage_peserta_didik')->group(function () {
+            Route::get('/admin/pendaftaran', [App\Http\Controllers\PendaftaranController::class, 'adminIndex'])->name('admin.pendaftaran.index');
+            Route::get('/admin/pendaftaran/{pendaftaran}', [App\Http\Controllers\PendaftaranController::class, 'adminShow'])->name('admin.pendaftaran.show');
+            Route::post('/admin/pendaftaran/{pendaftaran}/verifikasi', [App\Http\Controllers\PendaftaranController::class, 'adminVerifikasi'])->name('admin.pendaftaran.verifikasi');
+        });
+
+        // Audit Logs
+        Route::get('/admin/audit-logs', [\App\Http\Controllers\Admin\AuditLogController::class, 'index'])->name('admin.audit-logs.index');
+        Route::delete('/admin/audit-logs/{id}', [\App\Http\Controllers\Admin\AuditLogController::class, 'destroy'])->name('admin.audit-logs.destroy');
 
         // ----------------------------------------------------------
-        // KHUSUS ADMINISTRATOR
+        // KHUSUS ADMINISTRATOR (Dan Admin dengan akses spesifik)
         // ----------------------------------------------------------
-        Route::middleware('ensure_role:Super Admin')->group(function () {
-            Route::resource('kantor', \App\Http\Controllers\KantorController::class);
-            Route::patch('/kantor/{id}/restore', [\App\Http\Controllers\KantorController::class, 'restore'])->name('kantor.restore');
-            Route::resource('periode', \App\Http\Controllers\PeriodeController::class);
-            Route::patch('/periode/{id}/restore', [\App\Http\Controllers\PeriodeController::class, 'restore'])->name('periode.restore');
-            Route::resource('pengguna', \App\Http\Controllers\PenggunaController::class);
-            Route::patch('/pengguna/{id}/toggle-active', [\App\Http\Controllers\PenggunaController::class, 'toggleActive'])->name('pengguna.toggle-active');
-            Route::get('/master', [\App\Http\Controllers\MasterController::class, 'index'])->name('master.index');
-            Route::put('/master', [\App\Http\Controllers\MasterController::class, 'update'])->name('master.update');
-            Route::post('/master/test-wa', [\App\Http\Controllers\MasterController::class, 'testWhatsApp'])->name('master.test.wa');
+        Route::middleware(['ensure_role:Super Admin,Admin'])->group(function () {
+            Route::middleware('check_permission:manage_bank')->group(function () {
+                Route::resource('bank', \App\Http\Controllers\BankController::class);
+            });
+            
+            Route::middleware('check_permission:manage_kantor')->group(function () {
+                Route::resource('kantor', \App\Http\Controllers\KantorController::class);
+                Route::patch('/kantor/{id}/restore', [\App\Http\Controllers\KantorController::class, 'restore'])->name('kantor.restore');
+            });
+            
+            Route::middleware('check_permission:manage_periode')->group(function () {
+                Route::resource('periode', \App\Http\Controllers\PeriodeController::class);
+                Route::patch('/periode/{id}/restore', [\App\Http\Controllers\PeriodeController::class, 'restore'])->name('periode.restore');
+            });
+            
+            Route::middleware('check_permission:manage_pengguna')->group(function () {
+                Route::resource('pengguna', \App\Http\Controllers\PenggunaController::class);
+                Route::patch('/pengguna/{id}/toggle-active', [\App\Http\Controllers\PenggunaController::class, 'toggleActive'])->name('pengguna.toggle-active');
+            });
+            
+            Route::middleware('check_permission:manage_master')->group(function () {
+                Route::get('/master', [\App\Http\Controllers\MasterController::class, 'index'])->name('master.index');
+                Route::put('/master', [\App\Http\Controllers\MasterController::class, 'update'])->name('master.update');
+                Route::post('/master/test-wa', [\App\Http\Controllers\MasterController::class, 'testWhatsApp'])->name('master.test.wa');
+            });
 
             // Landing Page Management
-            Route::get('/admin/landing-page', [\App\Http\Controllers\Admin\LandingPageController::class, 'index'])->name('admin.landing-page.index');
-            Route::post('/admin/landing-page/general', [\App\Http\Controllers\Admin\LandingPageController::class, 'updateGeneral'])->name('admin.landing-page.update-general');
-            Route::post('/admin/landing-page/testimonial', [\App\Http\Controllers\Admin\LandingPageController::class, 'storeTestimonial'])->name('admin.landing-page.testimonial.store');
-            Route::delete('/admin/landing-page/testimonial/{testimonial}', [\App\Http\Controllers\Admin\LandingPageController::class, 'destroyTestimonial'])->name('admin.landing-page.testimonial.destroy');
-            Route::post('/admin/landing-page/faq', [\App\Http\Controllers\Admin\LandingPageController::class, 'storeFaq'])->name('admin.landing-page.faq.store');
-            Route::delete('/admin/landing-page/faq/{faq}', [\App\Http\Controllers\Admin\LandingPageController::class, 'destroyFaq'])->name('admin.landing-page.faq.destroy');
-            
-            // Gallery
-            Route::post('/admin/landing-page/gallery', [\App\Http\Controllers\Admin\LandingPageController::class, 'storeGallery'])->name('admin.landing-page.gallery.store');
-            Route::delete('/admin/landing-page/gallery/{gallery}', [\App\Http\Controllers\Admin\LandingPageController::class, 'destroyGallery'])->name('admin.landing-page.gallery.destroy');
+            Route::middleware('check_permission:manage_landing_page')->group(function () {
+                Route::get('/admin/landing-page', [\App\Http\Controllers\Admin\LandingPageController::class, 'index'])->name('admin.landing-page.index');
+                Route::post('/admin/landing-page/general', [\App\Http\Controllers\Admin\LandingPageController::class, 'updateGeneral'])->name('admin.landing-page.update-general');
+                Route::post('/admin/landing-page/testimonial', [\App\Http\Controllers\Admin\LandingPageController::class, 'storeTestimonial'])->name('admin.landing-page.testimonial.store');
+                Route::delete('/admin/landing-page/testimonial/{testimonial}', [\App\Http\Controllers\Admin\LandingPageController::class, 'destroyTestimonial'])->name('admin.landing-page.testimonial.destroy');
+                Route::post('/admin/landing-page/faq', [\App\Http\Controllers\Admin\LandingPageController::class, 'storeFaq'])->name('admin.landing-page.faq.store');
+                Route::delete('/admin/landing-page/faq/{faq}', [\App\Http\Controllers\Admin\LandingPageController::class, 'destroyFaq'])->name('admin.landing-page.faq.destroy');
+                
+                // Gallery
+                Route::post('/admin/landing-page/gallery', [\App\Http\Controllers\Admin\LandingPageController::class, 'storeGallery'])->name('admin.landing-page.gallery.store');
+                Route::delete('/admin/landing-page/gallery/{gallery}', [\App\Http\Controllers\Admin\LandingPageController::class, 'destroyGallery'])->name('admin.landing-page.gallery.destroy');
+            });
 
             // Backup Database
-            Route::get('/admin/backup', [\App\Http\Controllers\Admin\BackupController::class, 'index'])->name('admin.backup.index');
-            Route::post('/admin/backup', [\App\Http\Controllers\Admin\BackupController::class, 'create'])->name('admin.backup.create');
-            Route::get('/admin/backup/download/{filename}', [\App\Http\Controllers\Admin\BackupController::class, 'download'])->name('admin.backup.download');
-            Route::delete('/admin/backup/{filename}', [\App\Http\Controllers\Admin\BackupController::class, 'destroy'])->name('admin.backup.destroy');
-            Route::post('/admin/backup/upload', [\App\Http\Controllers\Admin\BackupController::class, 'upload'])->name('admin.backup.upload');
-            Route::post('/admin/backup/restore/{filename}', [\App\Http\Controllers\Admin\BackupController::class, 'restore'])->name('admin.backup.restore');
-            Route::post('/admin/backup/toggle', [\App\Http\Controllers\Admin\BackupController::class, 'toggle'])->name('admin.backup.toggle');
+            Route::middleware('check_permission:manage_backup')->group(function () {
+                Route::get('/admin/backup', [\App\Http\Controllers\Admin\BackupController::class, 'index'])->name('admin.backup.index');
+                Route::post('/admin/backup', [\App\Http\Controllers\Admin\BackupController::class, 'create'])->name('admin.backup.create');
+                Route::get('/admin/backup/download/{filename}', [\App\Http\Controllers\Admin\BackupController::class, 'download'])->name('admin.backup.download');
+                Route::delete('/admin/backup/{filename}', [\App\Http\Controllers\Admin\BackupController::class, 'destroy'])->name('admin.backup.destroy');
+                Route::post('/admin/backup/upload', [\App\Http\Controllers\Admin\BackupController::class, 'upload'])->name('admin.backup.upload');
+                Route::post('/admin/backup/restore/{filename}', [\App\Http\Controllers\Admin\BackupController::class, 'restore'])->name('admin.backup.restore');
+                Route::post('/admin/backup/toggle', [\App\Http\Controllers\Admin\BackupController::class, 'toggle'])->name('admin.backup.toggle');
+            });
         });
 
         // ----------------------------------------------------------
         // ADMINISTRATOR & STAFF: Fitur Operasional (wajib konteks)
         // ----------------------------------------------------------
         Route::middleware('konteks')->group(function () {
-            Route::resource('paket-bimbingan', \App\Http\Controllers\PaketBimbinganController::class)->except(['show']);
-            Route::get('/peserta-didik/export', [\App\Http\Controllers\PesertaDidikController::class, 'export'])->name('peserta-didik.export');
-            Route::get('/peserta-didik/keluar', [\App\Http\Controllers\PesertaDidikController::class, 'keluar'])->name('peserta-didik.keluar');
-            Route::get('/peserta-didik/keluar/export', [\App\Http\Controllers\PesertaDidikController::class, 'exportKeluar'])->name('peserta-didik.keluar.export');
-            Route::get('/peserta-didik/{id}/edit', [\App\Http\Controllers\PesertaDidikController::class, 'edit'])->name('peserta-didik.edit');
-            Route::resource('peserta-didik', \App\Http\Controllers\PesertaDidikController::class)->except(['edit', 'show']);
-            Route::resource('kelompok-belajar', \App\Http\Controllers\KelompokBelajarController::class)->except(['create', 'edit', 'show']);
-            Route::get('/guru/export', [\App\Http\Controllers\GuruController::class, 'export'])->name('manajemen-guru.export');
-            Route::get('/guru/keluar', [\App\Http\Controllers\GuruController::class, 'keluar'])->name('manajemen-guru.keluar');
-            Route::get('/guru/keluar/export', [\App\Http\Controllers\GuruController::class, 'exportKeluar'])->name('manajemen-guru.keluar.export');
-            Route::get('/guru/{id}/edit', [\App\Http\Controllers\GuruController::class, 'edit'])->name('manajemen-guru.edit');
-            Route::resource('guru', \App\Http\Controllers\GuruController::class)->except(['edit', 'show'])->names([
-                'index'   => 'manajemen-guru.index',
-                'create'  => 'manajemen-guru.create',
-                'store'   => 'manajemen-guru.store',
-                'update'  => 'manajemen-guru.update',
-                'destroy' => 'manajemen-guru.destroy',
-            ]);
+            Route::middleware('check_permission:manage_paket_bimbingan')->group(function () {
+                Route::resource('paket-bimbingan', \App\Http\Controllers\PaketBimbinganController::class)->except(['show']);
+            });
+            Route::middleware('check_permission:manage_peserta_didik')->group(function () {
+                Route::get('/peserta-didik/export', [\App\Http\Controllers\PesertaDidikController::class, 'export'])->name('peserta-didik.export');
+                Route::get('/peserta-didik/keluar', [\App\Http\Controllers\PesertaDidikController::class, 'keluar'])->name('peserta-didik.keluar');
+                Route::get('/peserta-didik/keluar/export', [\App\Http\Controllers\PesertaDidikController::class, 'exportKeluar'])->name('peserta-didik.keluar.export');
+                Route::get('/peserta-didik/{id}/edit', [\App\Http\Controllers\PesertaDidikController::class, 'edit'])->name('peserta-didik.edit');
+                Route::resource('peserta-didik', \App\Http\Controllers\PesertaDidikController::class)->except(['edit', 'show']);
+                Route::resource('kelompok-belajar', \App\Http\Controllers\KelompokBelajarController::class)->except(['create', 'edit', 'show']);
+            });
+            Route::middleware('check_permission:manage_guru')->group(function () {
+                Route::get('/guru/export', [\App\Http\Controllers\GuruController::class, 'export'])->name('manajemen-guru.export');
+                Route::get('/guru/keluar', [\App\Http\Controllers\GuruController::class, 'keluar'])->name('manajemen-guru.keluar');
+                Route::get('/guru/keluar/export', [\App\Http\Controllers\GuruController::class, 'exportKeluar'])->name('manajemen-guru.keluar.export');
+                Route::get('/guru/{id}/edit', [\App\Http\Controllers\GuruController::class, 'edit'])->name('manajemen-guru.edit');
+                Route::resource('guru', \App\Http\Controllers\GuruController::class)->except(['edit', 'show'])->names([
+                    'index'   => 'manajemen-guru.index',
+                    'create'  => 'manajemen-guru.create',
+                    'store'   => 'manajemen-guru.store',
+                    'update'  => 'manajemen-guru.update',
+                    'destroy' => 'manajemen-guru.destroy',
+                ]);
+            });
 
             // Absensi — Halaman Scan
-            Route::get('/absensi/masuk',  [\App\Http\Controllers\AbsensiController::class, 'scanMasukPage'])->name('absensi.scan.masuk.page');
-            Route::get('/absensi/pulang', [\App\Http\Controllers\AbsensiController::class, 'scanPulangPage'])->name('absensi.scan.pulang.page');
-            Route::get('/absensi/rekap',  [\App\Http\Controllers\AbsensiController::class, 'rekap'])->name('absensi.rekap');
-            // Absensi — API Scan (JSON)
-            Route::post('/absensi/scan-masuk',  [\App\Http\Controllers\AbsensiController::class, 'scanMasuk'])->name('absensi.scan.masuk');
-            Route::post('/absensi/scan-pulang', [\App\Http\Controllers\AbsensiController::class, 'scanPulang'])->name('absensi.scan.pulang');
-            // Absensi — Export
-            Route::get('/absensi/export/rekap', [\App\Http\Controllers\AbsensiController::class, 'exportRekap'])->name('absensi.export.rekap');
+            Route::middleware('check_permission:manage_absensi')->group(function () {
+                Route::get('/absensi/masuk',  [\App\Http\Controllers\AbsensiController::class, 'scanMasukPage'])->name('absensi.scan.masuk.page');
+                Route::get('/absensi/pulang', [\App\Http\Controllers\AbsensiController::class, 'scanPulangPage'])->name('absensi.scan.pulang.page');
+                Route::get('/absensi/rekap',  [\App\Http\Controllers\AbsensiController::class, 'rekap'])->name('absensi.rekap');
+                // Absensi — API Scan (JSON)
+                Route::post('/absensi/scan-masuk',  [\App\Http\Controllers\AbsensiController::class, 'scanMasuk'])->name('absensi.scan.masuk');
+                Route::post('/absensi/scan-pulang', [\App\Http\Controllers\AbsensiController::class, 'scanPulang'])->name('absensi.scan.pulang');
+                // Absensi — Export
+                Route::get('/absensi/export/rekap', [\App\Http\Controllers\AbsensiController::class, 'exportRekap'])->name('absensi.export.rekap');
+            });
 
             // ── Manajemen Jadwal (Admin) ──
-            Route::get('/admin/jadwal', [\App\Http\Controllers\Admin\JadwalController::class, 'index'])->name('admin.jadwal.index');
-            Route::post('/admin/jadwal', [\App\Http\Controllers\Admin\JadwalController::class, 'store'])->name('admin.jadwal.store');
-            Route::put('/admin/jadwal/{id}', [\App\Http\Controllers\Admin\JadwalController::class, 'update'])->name('admin.jadwal.update');
-            Route::delete('/admin/jadwal/{id}', [\App\Http\Controllers\Admin\JadwalController::class, 'destroy'])->name('admin.jadwal.destroy');
-            Route::get('/admin/jadwal/konflik', [\App\Http\Controllers\Admin\JadwalController::class, 'konflik'])->name('admin.jadwal.konflik');
-            Route::post('/admin/jadwal/duplikasi', [\App\Http\Controllers\Admin\JadwalController::class, 'duplikasi'])->name('admin.jadwal.duplikasi');
+            Route::middleware('check_permission:manage_jadwal')->group(function () {
+                Route::get('/admin/jadwal', [\App\Http\Controllers\Admin\JadwalController::class, 'index'])->name('admin.jadwal.index');
+                Route::post('/admin/jadwal', [\App\Http\Controllers\Admin\JadwalController::class, 'store'])->name('admin.jadwal.store');
+                Route::put('/admin/jadwal/{id}', [\App\Http\Controllers\Admin\JadwalController::class, 'update'])->name('admin.jadwal.update');
+                Route::delete('/admin/jadwal/{id}', [\App\Http\Controllers\Admin\JadwalController::class, 'destroy'])->name('admin.jadwal.destroy');
+                Route::get('/admin/jadwal/konflik', [\App\Http\Controllers\Admin\JadwalController::class, 'konflik'])->name('admin.jadwal.konflik');
+                Route::post('/admin/jadwal/duplikasi', [\App\Http\Controllers\Admin\JadwalController::class, 'duplikasi'])->name('admin.jadwal.duplikasi');
+            });
 
             // ── Keuangan ──────────────────────────────────────────────────
-            Route::prefix('keuangan')->name('keuangan.')->group(function () {
+            Route::middleware('check_permission:manage_keuangan')->prefix('keuangan')->name('keuangan.')->group(function () {
 
                 // Pembayaran Siswa
                 Route::get('/pembayaran', [\App\Http\Controllers\Keuangan\PembayaranController::class, 'index'])->name('pembayaran.index');
@@ -390,6 +432,9 @@ Route::middleware('auth')->group(function () {
                 Route::get('/transaksi/{transaksiPembayaran}/edit', [\App\Http\Controllers\Keuangan\PembayaranController::class, 'editTransaksi'])->name('transaksi.edit');
                 Route::put('/transaksi/{transaksiPembayaran}', [\App\Http\Controllers\Keuangan\PembayaranController::class, 'updateTransaksi'])->name('transaksi.update');
                 Route::delete('/transaksi/{transaksiPembayaran}', [\App\Http\Controllers\Keuangan\PembayaranController::class, 'destroyTransaksi'])->name('transaksi.destroy');
+                Route::post('/transaksi/{transaksiPembayaran}/verifikasi', [\App\Http\Controllers\Keuangan\PembayaranController::class, 'verifikasiTransaksi'])->name('transaksi.verifikasi');
+                Route::post('/transaksi/{transaksiPembayaran}/tolak', [\App\Http\Controllers\Keuangan\PembayaranController::class, 'tolakTransaksi'])->name('transaksi.tolak');
+                Route::get('/transaksi/{transaksiPembayaran}/struk', [\App\Http\Controllers\Keuangan\PembayaranController::class, 'strukTransaksi'])->name('transaksi.struk');
 
                 // Pemasukan — static routes FIRST, parameter routes AFTER
                 Route::get('/pemasukan', [\App\Http\Controllers\Keuangan\PemasukanController::class, 'index'])->name('pemasukan.index');

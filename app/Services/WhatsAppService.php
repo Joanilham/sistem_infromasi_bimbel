@@ -73,4 +73,17 @@ class WhatsAppService
             return ['status' => 'error', 'message' => 'Exception: ' . $e->getMessage()];
         }
     }
+
+    public static function sendAsync($phone, $message)
+    {
+        if (empty($phone)) return;
+        
+        dispatch(function () use ($phone, $message) {
+            try {
+                (new self())->sendMessage($phone, $message);
+            } catch (\Exception $e) {
+                Log::error("Gagal kirim WA async: " . $e->getMessage());
+            }
+        })->afterResponse();
+    }
 }

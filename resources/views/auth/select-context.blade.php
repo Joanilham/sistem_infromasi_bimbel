@@ -6,7 +6,7 @@
     <title>Pilih Ruang Kerja - Genius Education</title>
     
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
+    <link rel="icon" type="image/x-icon" href="{{ isset($masterData) && $masterData->logo ? Storage::url($masterData->logo) : asset('favicon.png') }}">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
@@ -119,6 +119,28 @@
                                  x-transition:leave-end="opacity-0 scale-95"
                                  class="absolute z-50 mt-3 w-full rounded-3xl dropdown-glass p-2 shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-white/20 ring-1 ring-black ring-opacity-5 overflow-hidden focus:outline-none" style="display: none;">
                                 <div class="max-h-60 overflow-y-auto custom-scrollbar space-y-1">
+                                    <div @click="selected = 'all'; selectedLabel = 'Semua Cabang (Akses Global)'; open = false"
+                                         class="group flex items-center gap-4 px-4 py-3.5 text-sm rounded-2xl cursor-pointer transition-all duration-200"
+                                         :class="selected == 'all' ? 'bg-slate-800 text-white shadow-lg shadow-slate-200' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'">
+                                         <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-100 bg-white/50 shadow-sm group-hover:border-slate-300 group-hover:bg-white transition-all duration-200"
+                                              :class="selected == 'all' ? 'bg-white/20 border-white/20' : ''">
+                                             <svg class="h-5 w-5" :class="selected == 'all' ? 'text-white' : 'text-slate-500 group-hover:text-slate-800'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                             </svg>
+                                         </div>
+                                         <div class="flex flex-col">
+                                             <span class="font-bold">Semua Cabang (Akses Global)</span>
+                                             <span class="text-[10px] opacity-70" :class="selected == 'all' ? 'text-white' : 'text-slate-400'">Akses semua data secara menyeluruh</span>
+                                         </div>
+                                         <span x-show="selected == 'all'" class="ml-auto" x-transition>
+                                             <div class="bg-white rounded-full p-1">
+                                                 <svg class="h-3 w-3 text-slate-800" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4">
+                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                                 </svg>
+                                             </div>
+                                         </span>
+                                    </div>
+
                                     @foreach($kantors as $kantor)
                                         <div @click="selected = '{{ $kantor->id }}'; selectedLabel = '{{ $kantor->nama_kantor }}'; open = false"
                                              class="group flex items-center gap-4 px-4 py-3.5 text-sm rounded-2xl cursor-pointer transition-all duration-200"

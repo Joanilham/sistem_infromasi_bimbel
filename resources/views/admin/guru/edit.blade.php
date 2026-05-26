@@ -47,10 +47,10 @@
                 <label>No. Telp</label>
                 <input type="tel" name="no_telp" value="{{ old('no_telp', $guru->no_telp) }}" placeholder="08xxxxxxxxxx"
                     inputmode="numeric"
-                    pattern="[0-9]{8,15}"
-                    maxlength="15"
+                    pattern="[0-9]{8,12}"
+                    maxlength="12"
                     oninput="this.value=this.value.replace(/[^0-9]/g,'')"
-                    title="Hanya boleh angka (8-15 digit)">
+                    title="Hanya boleh angka (Maksimal 12 digit)">
             </div>
             <div class="pd-field full">
                 <label>Alamat</label>

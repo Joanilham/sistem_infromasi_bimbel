@@ -7,6 +7,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Dashboard') - Genius Education</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ isset($masterData) && $masterData->logo ? Storage::url($masterData->logo) : asset('favicon.png') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,14 +17,19 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.tailwindcss.min.css">
 
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- TomSelect CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+    <style>
+        .ts-control { border-radius: 0.75rem !important; border: 1px solid #e2e8f0 !important; padding: 0.625rem 0.875rem !important; font-size: 0.875rem !important; box-shadow: none !important; }
+        .ts-dropdown { border-radius: 0.75rem !important; border: 1px solid #e2e8f0 !important; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important; font-size: 0.875rem !important; }
+        .ts-dropdown .active { background-color: #EEF2FF !important; color: #4F46E5 !important; }
+        .dark .ts-control { background-color: #18181b !important; border-color: #27272a !important; color: #f4f4f5 !important; }
+        .dark .ts-dropdown { background-color: #18181b !important; border-color: #27272a !important; color: #f4f4f5 !important; }
+        .dark .ts-dropdown .active { background-color: #27272a !important; color: #818cf8 !important; }
+        .dark .ts-control input { color: #f4f4f5 !important; }
+    </style>
 
-    <script>
-        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
-    </script>
     @stack('head')
 </head>
 
@@ -104,6 +111,29 @@
 
     @include('layouts.admin.scripts')
     @stack('modals')
+    @include('components.autosave-script')
+
+    {{-- Auto Logout setelah 30 menit tidak aktif --}}
+    @auth
+        @include('components.idle-timer')
+    @endauth
+
+    @stack('scripts')
+    
+    <!-- TomSelect JS -->
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('select').forEach((el) => {
+                if (el.classList.contains('no-tomselect')) return;
+                new TomSelect(el, {
+                    create: false,
+                    sortField: null,
+                    plugins: ['dropdown_input'],
+                });
+            });
+        });
+    </script>
 </body>
 
 </html>

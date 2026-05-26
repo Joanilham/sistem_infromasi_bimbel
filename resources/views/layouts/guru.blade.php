@@ -7,21 +7,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Dashboard Guru') - Genius Education</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ isset($masterData) && $masterData->logo ? Storage::url($masterData->logo) : asset('favicon.png') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- TomSelect CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
     <style>
+        .ts-control { border-radius: 0.75rem !important; border: 1px solid #e2e8f0 !important; padding: 0.625rem 0.875rem !important; font-size: 0.875rem !important; box-shadow: none !important; }
+        .ts-dropdown { border-radius: 0.75rem !important; border: 1px solid #e2e8f0 !important; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important; font-size: 0.875rem !important; }
+        .ts-dropdown .active { background-color: #EEF2FF !important; color: #4F46E5 !important; }
+        .dark .ts-control { background-color: #18181b !important; border-color: #27272a !important; color: #f4f4f5 !important; }
+        .dark .ts-dropdown { background-color: #18181b !important; border-color: #27272a !important; color: #f4f4f5 !important; }
+        .dark .ts-dropdown .active { background-color: #27272a !important; color: #818cf8 !important; }
+        .dark .ts-control input { color: #f4f4f5 !important; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
-    <script>
-        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
-    </script>
 </head>
 <body class="bg-slate-50 dark:bg-slate-900 flex h-screen overflow-hidden text-slate-800 dark:text-slate-100">
 
@@ -99,6 +104,49 @@
         </main>
     </div>
 
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Global Delete Confirmation Script -->
+    <script>
+        function confirmDelete(title, text, formElement) {
+            Swal.fire({
+                title: title || 'Apakah Anda yakin?',
+                text: text || "Data yang dihapus tidak dapat direstore!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#4f46e5', // Indigo 600
+                cancelButtonColor: '#ef4444', // Red 500
+                confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal',
+                background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#ffffff',
+                color: document.documentElement.classList.contains('dark') ? '#f8fafc' : '#0f172a',
+                customClass: {
+                    popup: 'rounded-2xl border border-slate-100 dark:border-slate-700',
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    formElement.submit();
+                }
+            })
+        }
+    </script>
+
     @stack('scripts')
+    
+    <!-- TomSelect JS -->
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('select').forEach((el) => {
+                if (el.classList.contains('no-tomselect')) return;
+                new TomSelect(el, {
+                    create: false,
+                    sortField: null,
+                    plugins: ['dropdown_input'],
+                });
+            });
+        });
+    </script>
 </body>
 </html>

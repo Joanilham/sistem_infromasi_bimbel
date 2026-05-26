@@ -1,3 +1,13 @@
+@php
+    $user = Auth::user();
+    $pesertaDidik = $user ? $user->pesertaDidik : null;
+    $pembayaranOverdue = false;
+    
+    if ($pesertaDidik) {
+        $statusPembayaran = $pesertaDidik->getStatusPembayaran();
+        $pembayaranOverdue = $statusPembayaran['is_locked'];
+    }
+@endphp
 <!DOCTYPE html>
 <html lang="id" x-data="{ 
     sidebarOpen: window.innerWidth >= 1024
@@ -11,13 +21,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script>
-        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
-    </script>
     <style>
         :root {
             --primary: #4318FF;
@@ -32,19 +35,14 @@
             --danger: #EE5D50;
             --border-color: #E2E8F0;
         }
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --primary-light: rgba(67, 24, 255, 0.15);
-                --text-main: #FFFFFF;
-                --text-muted: #A3AED0;
-                --bg-body: #080E29;
-                --white: #111C44;
-                --sidebar-bg: #111C44;
-                --danger: #EE5D50;
-                --border-color: rgba(255, 255, 255, 0.1);
-            }
-        }
+        
+        /* TomSelect Styles */
+        .ts-control { border-radius: 0.75rem !important; border: 1px solid #e2e8f0 !important; padding: 0.625rem 0.875rem !important; font-size: 0.875rem !important; box-shadow: none !important; }
+        .ts-dropdown { border-radius: 0.75rem !important; border: 1px solid #e2e8f0 !important; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important; font-size: 0.875rem !important; }
+        .ts-dropdown .active { background-color: #EEF2FF !important; color: #4318FF !important; }
+
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
         html, body { overflow-x: hidden; max-width: 100vw; }
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -115,11 +113,7 @@
             z-index: 60;
             overflow: hidden;
         }
-        @media (prefers-color-scheme: dark) {
-            .profile-popover {
-                box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
-            }
-        }
+
         .profile-popover-item {
             display: flex;
             align-items: center;
@@ -176,6 +170,8 @@
             .main-content.sidebar-open { margin-left: 0; }
         }
     </style>
+    <!-- TomSelect CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
     @stack('head')
 </head>
 <body>
@@ -192,6 +188,26 @@
             GeniusEdu
         </a>
         <ul class="sidebar-menu">
+            @if($pembayaranOverdue)
+            <li>
+                <a href="javascript:void(0)" onclick="alert('⚠️ Akses ditangguhkan! Tagihan paket Anda belum dilunasi dan durasi bimbingan hampir habis / terlampaui. Silakan melunasi tagihan di menu Pembayaran.')" class="sidebar-link" style="opacity: 0.55; cursor: not-allowed;">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="javascript:void(0)" onclick="alert('⚠️ Akses ditangguhkan! Tagihan paket Anda belum dilunasi dan durasi bimbingan hampir habis / terlampaui. Silakan melunasi tagihan di menu Pembayaran.')" class="sidebar-link" style="opacity: 0.55; cursor: not-allowed;">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    Ujian Online
+                </a>
+            </li>
+            <li>
+                <a href="javascript:void(0)" onclick="alert('⚠️ Akses ditangguhkan! Tagihan paket Anda belum dilunasi dan durasi bimbingan hampir habis / terlampaui. Silakan melunasi tagihan di menu Pembayaran.')" class="sidebar-link" style="opacity: 0.55; cursor: not-allowed;">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    Nilai Saya
+                </a>
+            </li>
+            @else
             <li>
                 <a href="{{ route('siswa.dashboard') }}" class="sidebar-link {{ request()->routeIs('siswa.dashboard') ? 'active' : '' }}">
                     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
@@ -210,6 +226,7 @@
                     Nilai Saya
                 </a>
             </li>
+            @endif
         </ul>
         <div class="sidebar-footer mt-auto pt-4 px-1">
             <p class="text-[10px] font-bold uppercase tracking-wider mb-2" style="color: var(--sidebar-text); opacity: 0.75;">Akun</p>
@@ -309,29 +326,67 @@
 
     {{-- BOTTOM NAV MOBILE --}}
     <nav class="bottom-nav">
-        <a href="{{ route('siswa.dashboard') }}" class="bnav-item {{ request()->routeIs('siswa.dashboard') ? 'active' : '' }}">
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-            Home
-        </a>
-        <a href="{{ route('siswa.ujian.index') }}" class="bnav-item {{ request()->routeIs('siswa.ujian.*') ? 'active' : '' }}">
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-            Ujian
-        </a>
-        <a href="{{ route('siswa.qr.show') }}" class="bnav-item bnav-fab">
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
-        </a>
-        <a href="{{ route('siswa.hasil.index') }}" class="bnav-item {{ request()->routeIs('siswa.hasil.*') ? 'active' : '' }}">
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-            Nilai
-        </a>
-        <a href="{{ route('siswa.profile.edit') }}" class="bnav-item {{ request()->routeIs('siswa.profile.*') ? 'active' : '' }}">
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-            Profil
-        </a>
+        @if($pembayaranOverdue)
+            <a href="javascript:void(0)" onclick="alert('⚠️ Akses ditangguhkan! Tagihan paket Anda belum dilunasi dan durasi bimbingan hampir habis / terlampaui. Silakan melunasi tagihan di menu Pembayaran.')" class="bnav-item" style="opacity: 0.5; cursor: not-allowed;">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                Home
+            </a>
+            <a href="javascript:void(0)" onclick="alert('⚠️ Akses ditangguhkan! Tagihan paket Anda belum dilunasi dan durasi bimbingan hampir habis / terlampaui. Silakan melunasi tagihan di menu Pembayaran.')" class="bnav-item" style="opacity: 0.5; cursor: not-allowed;">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                Ujian
+            </a>
+            <a href="javascript:void(0)" onclick="alert('⚠️ Akses ditangguhkan! Tagihan paket Anda belum dilunasi dan durasi bimbingan hampir habis / terlampaui. Silakan melunasi tagihan di menu Pembayaran.')" class="bnav-item bnav-fab" style="opacity: 0.5; cursor: not-allowed; background: var(--text-muted);">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+            </a>
+            <a href="javascript:void(0)" onclick="alert('⚠️ Akses ditangguhkan! Tagihan paket Anda belum dilunasi dan durasi bimbingan hampir habis / terlampaui. Silakan melunasi tagihan di menu Pembayaran.')" class="bnav-item" style="opacity: 0.5; cursor: not-allowed;">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                Nilai
+            </a>
+            <a href="javascript:void(0)" onclick="alert('⚠️ Akses ditangguhkan! Tagihan paket Anda belum dilunasi dan durasi bimbingan hampir habis / terlampaui. Silakan melunasi tagihan di menu Pembayaran.')" class="bnav-item" style="opacity: 0.5; cursor: not-allowed;">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                Profil
+            </a>
+        @else
+            <a href="{{ route('siswa.dashboard') }}" class="bnav-item {{ request()->routeIs('siswa.dashboard') ? 'active' : '' }}">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                Home
+            </a>
+            <a href="{{ route('siswa.ujian.index') }}" class="bnav-item {{ request()->routeIs('siswa.ujian.*') ? 'active' : '' }}">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                Ujian
+            </a>
+            <a href="{{ route('siswa.qr.show') }}" class="bnav-item bnav-fab">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+            </a>
+            <a href="{{ route('siswa.hasil.index') }}" class="bnav-item {{ request()->routeIs('siswa.hasil.*') ? 'active' : '' }}">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                Nilai
+            </a>
+            <a href="{{ route('siswa.profile.edit') }}" class="bnav-item {{ request()->routeIs('siswa.profile.*') ? 'active' : '' }}">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                Profil
+            </a>
+        @endif
     </nav>
 
 </div>
 
 @stack('scripts')
+@include('components.autosave-script')
+
+<!-- TomSelect JS -->
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('select').forEach((el) => {
+            if (el.classList.contains('no-tomselect')) return;
+            new TomSelect(el, {
+                create: false,
+                sortField: null,
+                plugins: ['dropdown_input'],
+            });
+        });
+    });
+</script>
 </body>
 </html>

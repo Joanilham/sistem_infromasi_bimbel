@@ -4,8 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+use App\Traits\Auditable;
+
 class CbtPembahasan extends Model
 {
+    use Auditable;
+
     protected $table = 'cbt_pembahasans';
     protected $guarded = [];
 

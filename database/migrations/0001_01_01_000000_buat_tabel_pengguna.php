@@ -27,7 +27,7 @@ return new class extends Migration
             $table->string('matapelajaran')->nullable();
             $table->string('nip')->nullable();
             $table->string('no_telp')->nullable();
-            $table->enum('status', ['Aktif', 'Nonaktif'])->nullable();
+            $table->string('status')->nullable()->default('Aktif');
             $table->date('tanggal_keluar')->nullable();
             $table->text('alasan_keluar')->nullable();
             

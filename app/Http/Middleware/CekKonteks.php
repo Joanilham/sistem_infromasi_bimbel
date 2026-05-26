@@ -18,7 +18,8 @@ class CekKonteks
         if (!$request->session()->has('kantor_id') || !$request->session()->has('periode_id')) {
             $user = $request->user();
             if ($user && in_array(strtolower($user->level), ['super admin', 'admin'])) {
-                $kantorId = $user->kantor_id ?: (\App\Models\Kantor::first()->id ?? null);
+                $isSuperAdmin = strtolower($user->level) === 'super admin';
+                $kantorId = $isSuperAdmin ? 'all' : ($user->kantor_id ?: (\App\Models\Kantor::first()->id ?? null));
                 $periodeId = $user->periode_id ?: (\App\Models\Periode::where('is_active', true)->first()->id ?? (\App\Models\Periode::first()->id ?? null));
 
                 if ($kantorId && $periodeId) {

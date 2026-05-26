@@ -52,7 +52,7 @@ class TagihanController extends Controller
             ['path' => $request->url(), 'query' => $request->query()]
         );
 
-        $pakets = \App\Models\PaketBimbingan::inContext()->get();
+        $pakets = \App\Models\PaketBimbingan::get();
         return view('keuangan.tagihan.index', compact('tagihan', 'search', 'perPage', 'pakets'));
     }
 }

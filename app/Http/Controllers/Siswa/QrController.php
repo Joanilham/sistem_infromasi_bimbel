@@ -13,7 +13,7 @@ class QrController extends Controller
     {
         $peserta = $this->getPeserta();
         $absensiToday = \App\Models\Absensi::where('peserta_didik_id', $peserta->id)
-            ->where('tanggal', now()->toDateString())
+            ->whereDate('tanggal', now()->toDateString())
             ->first();
             
         return view('siswa.qr', compact('peserta', 'absensiToday'));
@@ -24,7 +24,7 @@ class QrController extends Controller
     {
         $peserta = $this->getPeserta();
         $absensi = \App\Models\Absensi::where('peserta_didik_id', $peserta->id)
-            ->where('tanggal', now()->toDateString())
+            ->whereDate('tanggal', now()->toDateString())
             ->first();
 
         return response()->json([
@@ -59,6 +59,29 @@ class QrController extends Controller
     // ── Shared: Validate QR token, return NISN or null ────────
     public static function validateToken(string $raw): ?string
     {
+        // ── Format dari Mobile App: ABSEN-SISWA-{id}-{email}-{timestamp} ──
+        if (str_starts_with($raw, 'ABSEN-SISWA-')) {
+            if (preg_match('/^ABSEN-SISWA-(\d+)-(.+)-(\d+)$/', $raw, $matches)) {
+                $userId = $matches[1];
+                $timeBlock = (int) $matches[3];
+
+                // Cek window waktu: max 2 blok = 60 detik toleransi
+                $currentBlock = (int) floor(time() / 30);
+                if (abs($currentBlock - $timeBlock) > 2) {
+                    return null; // Token kedaluwarsa
+                }
+
+                $user = \App\Models\User::find($userId);
+                if ($user && $user->peserta_didik_id) {
+                    $peserta = \App\Models\PesertaDidik::find($user->peserta_didik_id);
+                    if ($peserta) {
+                        return $peserta->nisn;
+                    }
+                }
+            }
+            return null; // Format tidak valid atau user tidak ditemukan
+        }
+
         $parts = explode('|', $raw);
 
         // Jika hanya plain NISN (misalnya dari barcode scanner atau input manual)

@@ -5,9 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use App\Traits\Auditable;
+
 class PembayaranSiswa extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, Auditable;
 
     protected $table = 'pembayaran_siswa';
 
@@ -19,6 +21,7 @@ class PembayaranSiswa extends Model
         'biaya_pendaftaran',
         'total_harus_dibayar',
         'batas_waktu',
+        'dispensasi',
     ];
 
     protected $casts = [
@@ -27,6 +30,7 @@ class PembayaranSiswa extends Model
         'diskon_nominal'      => 'integer',
         'biaya_pendaftaran'   => 'integer',
         'total_harus_dibayar' => 'integer',
+        'dispensasi'          => 'boolean',
     ];
 
     public function pesertaDidik()
@@ -44,7 +48,7 @@ class PembayaranSiswa extends Model
      */
     public function getTotalTerbayarAttribute(): int
     {
-        return (int) $this->transaksi->sum('nominal');
+        return (int) $this->transaksi->where('status', 'SUKSES')->sum('nominal');
     }
 
     /**

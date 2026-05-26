@@ -3,15 +3,22 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\Auditable;
 
 class PaketBimbingan extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'kantor_id', 
         'periode_id', 
         'nama_paket', 
         'nominal', 
         'harga_coret',
+        'dp_persen_minimal',
+        'bisa_dicicil',
+        'max_cicilan',
         'durasi_jumlah',
         'durasi_satuan',
         'deskripsi',
@@ -24,18 +31,8 @@ class PaketBimbingan extends Model
         'urutan'
     ];
 
-    public function scopeInContext($query)
-    {
-        $kantorId = session('kantor_id');
-        $periodeId = session('periode_id');
-
-        if (!$kantorId || !$periodeId) {
-            return $query->whereRaw('1 = 0');
-        }
-
-        return $query->where('kantor_id', $kantorId)
-                     ->where('periode_id', $periodeId);
-    }
+    // HasContextScope sudah dihapus agar paket benar-benar jadi milik Pusat (Global)
+    use Auditable;
 
     public function kantor()
     {

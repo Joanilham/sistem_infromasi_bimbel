@@ -11,15 +11,16 @@
     <style>
         :root {
             --primary: #388782;
-            --primary-light: #e6f4f2;
-            --secondary: #dbecea;
+            --primary-hover: #2d6e6a;
+            --primary-light: #f0fdfa;
+            --secondary: #e2e8f0;
             --text-main: #0f172a;
             --text-muted: #64748b;
-            --bg-body: #f8fafc;
-            --white: #FFFFFF;
-            --danger: #EE5D50;
-            --success: #01B574;
-            --warning: #FFCE20;
+            --bg-body: linear-gradient(135deg, #f0fdfa 0%, #f8fafc 100%);
+            --white: #ffffff;
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -38,13 +39,24 @@
         /* ── Card utama ─────────────────────────────── */
         .qr-card {
             background: var(--white);
-            border: 1px solid var(--secondary);
+            border: 1px solid rgba(56, 135, 130, 0.1);
             border-radius: 28px;
             padding: 2.5rem 2rem;
             width: 100%;
             max-width: 380px;
             text-align: center;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+            box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Decorative top accent line */
+        .qr-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--primary) 0%, #51b3ac 100%);
         }
 
         /* ── Header ─────────────────────────────────── */
@@ -54,14 +66,14 @@
             text-transform: uppercase;
             letter-spacing: 0.1em;
             color: var(--primary);
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
         }
         .student-name {
-            font-size: 1.3rem;
+            font-size: 1.35rem;
             font-weight: 800;
             color: var(--text-main);
-            margin-bottom: 0.2rem;
-            line-height: 1.2;
+            margin-bottom: 0.3rem;
+            line-height: 1.3;
         }
         .student-nisn {
             font-size: 0.85rem;
@@ -74,26 +86,43 @@
         .qr-box {
             position: relative;
             margin: 2rem 0;
-            background: var(--bg-body);
+            background: #f1f5f9;
             padding: 1.5rem;
             border-radius: 24px;
-            box-shadow: inset 0 2px 10px rgba(0,0,0,0.02);
+            box-shadow: inset 0 2px 8px rgba(15, 23, 42, 0.05);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 250px;
         }
         .qr-wrap {
             background: var(--white);
-            border-radius: 18px;
+            border-radius: 20px;
             padding: 1.25rem;
-            display: inline-flex;
+            display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
-            transition: opacity 0.3s;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08);
         }
-        .qr-wrap.expired { opacity: 0.3; filter: blur(3px); }
-        #qr-canvas img, #qr-canvas canvas {
-            border-radius: 8px;
-            display: block;
+        .qr-wrap.expired { 
+            opacity: 0.2; 
+            filter: blur(4px); 
+        }
+
+        /* ── Fix layout shift/offset canvas vs img ──── */
+        #qr-canvas {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 200px;
+            height: 200px;
+        }
+        #qr-canvas canvas, #qr-canvas img {
+            border-radius: 12px;
+            width: 200px;
+            height: 200px;
         }
 
         /* ── Status/Countdown ───────────────────────── */
@@ -112,28 +141,30 @@
             flex-shrink: 0;
         }
         @keyframes pulse-dot {
-            0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(1, 181, 116, 0.4); }
-            50%       { opacity: 0.6; transform: scale(0.8); box-shadow: 0 0 0 6px rgba(1, 181, 116, 0); }
+            0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            50%       { opacity: 0.6; transform: scale(0.8); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
         }
         .status-text {
             font-size: 0.8rem;
             font-weight: 700;
             color: var(--success);
+            transition: color 0.3s;
         }
         .status-text.warning { color: var(--warning); }
         .status-text.expired { color: var(--danger); }
 
-        /* ── Countdown ring ─────────────────────────── */
+        /* ── Countdown Progress Bar ─────────────────── */
         .countdown-wrap {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
+            gap: 0.75rem;
             margin-top: 0.75rem;
+            padding: 0 0.5rem;
         }
         .countdown-bar-bg {
             flex: 1;
-            height: 6px;
+            height: 8px;
             background: var(--secondary);
             border-radius: 99px;
             overflow: hidden;
@@ -147,10 +178,10 @@
         .countdown-bar.warning { background: var(--warning); }
         .countdown-bar.danger  { background: var(--danger); }
         .countdown-num {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             font-weight: 800;
             color: var(--text-muted);
-            min-width: 28px;
+            min-width: 24px;
             text-align: right;
         }
 
@@ -159,13 +190,14 @@
             position: absolute;
             inset: 0;
             border-radius: 24px;
-            background: rgba(255,255,255,0.85);
+            background: rgba(255, 255, 255, 0.9);
             display: none;
             align-items: center;
             justify-content: center;
             flex-direction: column;
-            gap: 0.5rem;
+            gap: 0.75rem;
             backdrop-filter: blur(4px);
+            z-index: 10;
         }
         .refresh-overlay.show { display: flex; }
         .spinner {
@@ -182,16 +214,17 @@
         .info-strip {
             margin-top: 1.5rem;
             padding: 1rem;
-            background: #FFFBEB;
+            background: #fffbeb;
+            border: 1px solid rgba(245, 158, 11, 0.2);
             border-radius: 16px;
             font-size: 0.8rem;
-            color: #B45309;
+            color: #b45309;
             font-weight: 600;
             line-height: 1.5;
             text-align: left;
             display: flex; gap: 10px; align-items: flex-start;
         }
-        .info-strip svg { width: 24px; height: 24px; flex-shrink: 0; color: #D97706; }
+        .info-strip svg { width: 20px; height: 20px; flex-shrink: 0; color: #d97706; }
 
         /* ── Back button ────────────────────────────── */
         .btn-back {
@@ -204,13 +237,92 @@
             font-weight: 700;
             color: var(--text-muted);
             text-decoration: none;
-            padding: 14px 20px;
+            padding: 12px 20px;
             border-radius: 16px;
-            background: var(--bg-body);
-            transition: all 0.2s;
+            background: #f8fafc;
+            border: 1px solid var(--secondary);
+            transition: all 0.2s ease;
             width: 100%;
         }
-        .btn-back:hover { background: var(--secondary); color: var(--text-main); }
+        .btn-back:hover { 
+            background: var(--primary-light); 
+            color: var(--primary); 
+            border-color: rgba(56, 135, 130, 0.2);
+            transform: translateY(-1px);
+        }
+        .btn-back svg {
+            transition: transform 0.2s ease;
+        }
+        .btn-back:hover svg {
+            transform: translateX(-3px);
+        }
+
+        /* ── Overlay Locked Premium ───────────────────── */
+        .locked-overlay {
+            position: absolute;
+            inset: 0;
+            border-radius: 24px;
+            background: rgba(254, 243, 199, 0.95); /* Amber 50 light */
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            backdrop-filter: blur(8px);
+            z-index: 20;
+            border: 2px solid rgba(245, 158, 11, 0.3);
+            animation: fadeIn 0.4s ease-out;
+        }
+        .locked-overlay.show { display: flex; }
+        
+        .lock-icon-wrapper {
+            background: rgba(245, 158, 11, 0.1);
+            padding: 1rem;
+            border-radius: 50%;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(245, 158, 11, 0.25);
+        }
+        
+        .locked-title {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #78350f;
+            margin-bottom: 0.5rem;
+        }
+        
+        .locked-text {
+            font-size: 0.8rem;
+            color: #92400e;
+            font-weight: 600;
+            line-height: 1.4;
+            margin-bottom: 1.25rem;
+            text-align: center;
+        }
+        
+        .btn-pay-now {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 14px;
+            background: #d97706;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
+        }
+        .btn-pay-now:hover {
+            background: #b45309;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(217, 119, 6, 0.4);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
     </style>
 </head>
 <body>
@@ -230,6 +342,20 @@
         <div class="refresh-overlay" id="refresh-overlay">
             <div class="spinner"></div>
             <div class="refresh-text">Memperbarui QR...</div>
+        </div>
+
+        {{-- Overlay Locked --}}
+        <div class="locked-overlay" id="locked-overlay">
+            <div class="lock-icon-wrapper">
+                <svg class="w-12 h-12 text-amber-500 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                </svg>
+            </div>
+            <div class="locked-title">Akses QR Terkunci</div>
+            <div class="locked-text" id="locked-text">⚠️ Batas waktu jatuh tempo pembayaran telah terlewati. Silakan selesaikan pembayaran tagihan Anda.</div>
+            <a href="{{ route('siswa.pembayaran.index') }}" class="btn-pay-now">
+                Bayar Tagihan Sekarang
+            </a>
         </div>
     </div>
 
@@ -277,6 +403,18 @@ async function loadToken() {
         const res  = await fetch(TOKEN_URL, {
             headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }
         });
+
+        if (res.status === 403) {
+            const data = await res.json();
+            showLockedOverlay(data.message || '⚠️ Akses ditangguhkan! Silakan lunasi tagihan Anda.');
+            showRefreshing(false);
+            return;
+        }
+
+        if (!res.ok) {
+            throw new Error('Server error');
+        }
+
         const data = await res.json();
 
         buildQr(data.qr_content);
@@ -290,18 +428,54 @@ async function loadToken() {
     }
 }
 
+// ── Tampilkan Overlay Terkunci Premium ────────────────────────
+function showLockedOverlay(msg) {
+    clearInterval(tickTimer);
+    document.getElementById('locked-text').textContent = msg;
+    document.getElementById('locked-overlay').classList.add('show');
+    document.getElementById('qr-wrap').classList.add('expired');
+    
+    const dot = document.getElementById('dot-live');
+    if (dot) {
+        dot.style.background = 'var(--danger)';
+        dot.style.animation = 'none';
+    }
+    
+    setStatus('Akses Terkunci', 'expired');
+    document.getElementById('countdown-bar').style.width = '0%';
+    document.getElementById('countdown-num').textContent = '—';
+}
+
 // ── Buat QR code ──────────────────────────────────────────────
 function buildQr(content) {
     const el = document.getElementById('qr-canvas');
-    el.innerHTML = '';
-    qrInstance = new QRCode(el, {
-        text:           content,
-        width:          200,
-        height:         200,
-        colorDark:      '#0f172a',
-        colorLight:     '#ffffff',
-        correctLevel:   QRCode.CorrectLevel.H
-    });
+    
+    if (typeof QRCode === 'undefined') {
+        el.innerHTML = '';
+        // Dynamic bulletproof fallback using QR Code Generator API if Cloudflare CDN is blocked
+        const img = document.createElement('img');
+        img.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&color=0f172a&bgcolor=ffffff&data=${encodeURIComponent(content)}`;
+        img.alt = 'QR Absensi';
+        img.className = 'w-[200px] h-[200px] rounded-xl';
+        img.style.display = 'block';
+        el.appendChild(img);
+        qrInstance = null;
+    } else {
+        if (qrInstance) {
+            qrInstance.clear();
+            qrInstance.makeCode(content);
+        } else {
+            el.innerHTML = '';
+            qrInstance = new QRCode(el, {
+                text:           content,
+                width:          200,
+                height:         200,
+                colorDark:      '#0f172a',
+                colorLight:     '#ffffff',
+                correctLevel:   QRCode.CorrectLevel.H
+            });
+        }
+    }
 }
 
 // ── Countdown ticker ──────────────────────────────────────────
@@ -364,6 +538,13 @@ setInterval(async () => {
         const res = await fetch('{{ route("siswa.qr.status") }}', {
             headers: { 'Accept': 'application/json' }
         });
+        
+        if (res.status === 403) {
+            const data = await res.json();
+            showLockedOverlay(data.message || '⚠️ Akses ditangguhkan! Silakan lunasi tagihan Anda.');
+            return;
+        }
+        
         if (!res.ok) return;
         const data = await res.json();
         

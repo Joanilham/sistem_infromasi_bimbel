@@ -20,12 +20,7 @@
         </button>
     </div>
 
-    @if(session('success'))
-        <div class="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800 text-emerald-800 dark:text-emerald-400 rounded-3xl px-8 py-4 text-sm font-bold flex items-center gap-3">
-            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-            {{ session('success') }}
-        </div>
-    @endif
+
 
     {{-- Table Card --}}
     <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] border border-slate-100 dark:border-zinc-800 shadow-sm overflow-hidden">
@@ -94,6 +89,7 @@
                                 </span>
                             </a>
                         </th>
+                        <th class="px-4 py-3 text-center border border-white/20">Jumlah Siswa</th>
                         <th class="px-4 py-3 text-center w-40 border border-white/20">Opsi Kelola</th>
                     </tr>
                 </thead>
@@ -117,6 +113,13 @@
                                 </div>
                             </td>
 
+                            {{-- Jumlah Siswa --}}
+                            <td class="px-4 py-3 text-center border border-slate-200 dark:border-zinc-800">
+                                <span class="px-3 py-1 text-[11px] font-bold rounded-full bg-indigo-50 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800/50">
+                                    {{ $kelompok->peserta_didiks_count ?? 0 }} Siswa
+                                </span>
+                            </td>
+
                             {{-- Opsi --}}
                             <td class="px-4 py-3 border border-slate-200 dark:border-zinc-800">
                                 <div class="flex items-center justify-center gap-2">
@@ -135,7 +138,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="3" class="px-8 py-24 text-center border border-slate-200 dark:border-zinc-800">
+                            <td colspan="4" class="px-8 py-24 text-center border border-slate-200 dark:border-zinc-800">
                                 <div class="w-20 h-20 bg-slate-50 dark:bg-zinc-800 rounded-[2rem] flex items-center justify-center mx-auto mb-6 text-4xl shadow-inner">
                                     👥
                                 </div>

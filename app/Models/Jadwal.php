@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Builder;
+use App\Traits\HasContextScope;
+
+use App\Traits\Auditable;
 
 class Jadwal extends Model
 {
@@ -23,19 +26,10 @@ class Jadwal extends Model
     // ── Daftar hari yang valid ──────────────────────────────────
     const HARI_LIST = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
 
+    use HasContextScope, Auditable;
+
     // ── Scopes ──────────────────────────────────────────────────
-    public function scopeInContext(Builder $query): Builder
-    {
-        $kantorId = session('kantor_id');
-        $periodeId = session('periode_id');
-
-        if (!$kantorId || !$periodeId) {
-            return $query->whereRaw('1 = 0');
-        }
-
-        return $query->where('kantor_id', $kantorId)
-                     ->where('periode_id', $periodeId);
-    }
+    // scopeInContext() disediakan oleh HasContextScope trait
 
     // ── Relationships ───────────────────────────────────────────
     public function guru(): BelongsTo
