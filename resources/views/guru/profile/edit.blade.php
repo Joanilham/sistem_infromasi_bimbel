@@ -31,9 +31,7 @@
                             @if($user->photo)
                                 <img src="{{ asset('storage/' . $user->photo) }}" alt="Foto Profil" class="w-full h-full object-cover" x-show="!preview">
                             @else
-                                <div class="w-full h-full bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center text-white text-3xl font-bold" x-show="!preview">
-                                    {{ strtoupper(substr($user->name, 0, 1)) }}
-                                </div>
+                                <img src="https://ui-avatars.com/api/?name={{ urlencode(trim($user->name)) }}&background=4318FF&color=fff&size=256&bold=true&format=svg" alt="Foto Profil" class="w-full h-full object-cover" x-show="!preview">
                             @endif
                             <img :src="preview" alt="Preview" class="w-full h-full object-cover" x-show="preview" x-cloak>
                         </div>
@@ -149,22 +147,29 @@
                 @csrf
                 @method('PATCH')
 
-                <div class="px-4 py-5 sm:p-6 space-y-4">
-                    <div>
+                <div class="px-4 py-5 sm:p-6 space-y-4" x-data="{ show: false }">
+                    <div x-data="{}">
                         <label for="current_password" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Kata Sandi Saat Ini</label>
-                        <input type="password" name="current_password" id="current_password" class="mt-2 block w-full border border-slate-300 dark:border-slate-700 rounded-lg shadow-sm focus:ring-slate-500 focus:border-slate-500 sm:text-sm px-4 py-2.5 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white transition-colors">
+                        <input :type="show ? 'text' : 'password'" name="current_password" id="current_password" class="mt-2 block w-full border border-slate-300 dark:border-slate-700 rounded-lg shadow-sm focus:ring-slate-500 focus:border-slate-500 sm:text-sm px-4 py-2.5 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white transition-colors">
                         @error('current_password') <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
                     </div>
 
-                    <div>
+                    <div x-data="{}">
                         <label for="password" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Kata Sandi Baru</label>
-                        <input type="password" name="password" id="password" class="mt-2 block w-full border border-slate-300 dark:border-slate-700 rounded-lg shadow-sm focus:ring-slate-500 focus:border-slate-500 sm:text-sm px-4 py-2.5 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white transition-colors">
+                        <input :type="show ? 'text' : 'password'" name="password" id="password" class="mt-2 block w-full border border-slate-300 dark:border-slate-700 rounded-lg shadow-sm focus:ring-slate-500 focus:border-slate-500 sm:text-sm px-4 py-2.5 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white transition-colors">
                         @error('password') <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
                     </div>
 
-                    <div>
+                    <div x-data="{}">
                         <label for="password_confirmation" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Konfirmasi Kata Sandi</label>
-                        <input type="password" name="password_confirmation" id="password_confirmation" class="mt-2 block w-full border border-slate-300 dark:border-slate-700 rounded-lg shadow-sm focus:ring-slate-500 focus:border-slate-500 sm:text-sm px-4 py-2.5 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white transition-colors">
+                        <input :type="show ? 'text' : 'password'" name="password_confirmation" id="password_confirmation" class="mt-2 block w-full border border-slate-300 dark:border-slate-700 rounded-lg shadow-sm focus:ring-slate-500 focus:border-slate-500 sm:text-sm px-4 py-2.5 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white transition-colors">
+                    </div>
+
+                    <div class="pt-2">
+                        <label class="inline-flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" x-model="show" class="w-4 h-4 rounded border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 focus:ring-slate-500 bg-white dark:bg-slate-800">
+                            <span class="text-sm font-medium text-slate-700 dark:text-slate-300 select-none">Tampilkan Semua Sandi</span>
+                        </label>
                     </div>
                 </div>
 

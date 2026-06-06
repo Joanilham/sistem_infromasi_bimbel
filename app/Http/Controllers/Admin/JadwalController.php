@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Jadwal;
-use App\Models\KelompokBelajar;
-use App\Models\CbtMapel;
-use App\Models\Periode;
+use App\Models\Akademik\Jadwal;
+use App\Models\Akademik\KelompokBelajar;
+use App\Models\CBT\CbtMapel;
+use App\Models\MasterData\Periode;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -36,6 +36,18 @@ class JadwalController extends Controller
             'jadwals', 'guruList', 'rombelList', 'mapelList',
             'filterGuru', 'filterRombel'
         ));
+    }
+
+    /**
+     * Form tambah jadwal.
+     */
+    public function create()
+    {
+        $guruList   = User::where('level', 'guru')->where('is_active', true)->orderBy('name')->get();
+        $rombelList = KelompokBelajar::inContext()->orderBy('nama_kelompok')->get();
+        $hariList   = Jadwal::HARI_LIST;
+
+        return view('admin.jadwal.create', compact('guruList', 'rombelList', 'hariList'));
     }
 
     /**
@@ -73,6 +85,20 @@ class JadwalController extends Controller
         }
 
         return redirect()->route('admin.jadwal.index')->with('success', $msg);
+    }
+
+    /**
+     * Form edit jadwal.
+     */
+    public function edit($id)
+    {
+        $jadwal = Jadwal::inContext()->findOrFail($id);
+        
+        $guruList   = User::where('level', 'guru')->where('is_active', true)->orderBy('name')->get();
+        $rombelList = KelompokBelajar::inContext()->orderBy('nama_kelompok')->get();
+        $hariList   = Jadwal::HARI_LIST;
+
+        return view('admin.jadwal.edit', compact('jadwal', 'guruList', 'rombelList', 'hariList'));
     }
 
     /**
@@ -137,17 +163,8 @@ class JadwalController extends Controller
 
         $konflikList = [];
 
-        foreach ($jadwals as $idx => $jadwal) {
-            $overlaps = Jadwal::where('guru_id', $jadwal->guru_id)
-                ->where('hari', $jadwal->hari)
-                ->where('periode_id', $jadwal->periode_id)
-                ->where('id', '!=', $jadwal->id)
-                ->where(function ($q) use ($jadwal) {
-                    $q->where('jam_mulai', '<', $jadwal->jam_selesai)
-                      ->where('jam_selesai', '>', $jadwal->jam_mulai);
-                })
-                ->with(['rombel', 'mataPelajaran'])
-                ->get();
+        foreach ($jadwals as $jadwal) {
+            $overlaps = $this->findOverlaps($jadwals, $jadwal);
 
             if ($overlaps->isNotEmpty()) {
                 $konflikList[] = [
@@ -185,19 +202,21 @@ class JadwalController extends Controller
             return back()->with('error', 'Tidak ada jadwal di periode saat ini untuk diduplikasi.');
         }
 
-        $count = 0;
-        foreach ($jadwals as $jadwal) {
-            // Cek apakah sudah ada duplikat
-            $exists = Jadwal::where('kantor_id', $currentKantorId)
-                ->where('periode_id', $targetPeriodeId)
-                ->where('guru_id', $jadwal->guru_id)
-                ->where('hari', $jadwal->hari)
-                ->where('jam_mulai', $jadwal->jam_mulai)
-                ->where('jam_selesai', $jadwal->jam_selesai)
-                ->exists();
+        // Ambil semua jadwal di target periode untuk bulk checking
+        $existingJadwals = Jadwal::where('kantor_id', $currentKantorId)
+            ->where('periode_id', $targetPeriodeId)
+            ->get(['guru_id', 'hari', 'jam_mulai', 'jam_selesai'])
+            ->map(fn($j) => "{$j->guru_id}-{$j->hari}-{$j->jam_mulai}-{$j->jam_selesai}")
+            ->flip();
 
-            if (!$exists) {
-                Jadwal::create([
+        $inserts = [];
+        $now = now();
+
+        foreach ($jadwals as $jadwal) {
+            $key = "{$jadwal->guru_id}-{$jadwal->hari}-{$jadwal->jam_mulai}-{$jadwal->jam_selesai}";
+            
+            if (!$existingJadwals->has($key)) {
+                $inserts[] = [
                     'guru_id'           => $jadwal->guru_id,
                     'rombel_id'         => $jadwal->rombel_id,
                     'mata_pelajaran_id' => $jadwal->mata_pelajaran_id,
@@ -207,9 +226,16 @@ class JadwalController extends Controller
                     'ruangan'           => $jadwal->ruangan,
                     'kantor_id'         => $currentKantorId,
                     'periode_id'        => $targetPeriodeId,
-                ]);
-                $count++;
+                    'created_at'        => $now,
+                    'updated_at'        => $now,
+                ];
+                $existingJadwals->put($key, true); // cegah duplikasi dalam batch yg sama
             }
+        }
+
+        $count = count($inserts);
+        if ($count > 0) {
+            Jadwal::insert($inserts);
         }
 
         return back()->with('success', "Berhasil menduplikasi {$count} jadwal ke periode tujuan.");
@@ -230,4 +256,20 @@ class JadwalController extends Controller
             })
             ->get();
     }
+
+    /**
+     * Filter the schedules collection to find overlapping schedules for a specific schedule.
+     */
+    private function findOverlaps($jadwals, $jadwal)
+    {
+        return $jadwals->filter(function ($item) use ($jadwal) {
+            return $item->guru_id === $jadwal->guru_id
+                && $item->hari === $jadwal->hari
+                && $item->periode_id === $jadwal->periode_id
+                && $item->id !== $jadwal->id
+                && $item->jam_mulai < $jadwal->jam_selesai
+                && $item->jam_selesai > $jadwal->jam_mulai;
+        })->values();
+    }
 }
+

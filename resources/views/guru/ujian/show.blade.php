@@ -75,7 +75,7 @@
     <div class="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-slate-200 dark:border-zinc-800">
         <div class="p-5 border-b border-slate-100 dark:border-zinc-800 flex justify-between items-center">
             <h3 class="font-semibold text-slate-800 dark:text-white text-sm">Daftar Soal ({{ $ujian->ujianSoals->count() }})</h3>
-            <a href="{{ route('guru.ujian.soal', $ujian->id) }}" class="text-xs text-indigo-600 dark:text-indigo-400 hover:underline font-medium">Kelola Soal →</a>
+            <a href="{{ route('guru.ujian.soal', $ujian->id) }}" class="text-xs text-indigo-600 dark:text-indigo-400 hover:underline font-medium">Kelola Soal</a>
         </div>
         @forelse($ujian->ujianSoals as $idx => $us)
         <div class="px-5 py-3 border-b border-slate-50 dark:border-zinc-800/50 text-sm flex gap-3 items-start">
@@ -84,7 +84,7 @@
             <span class="text-xs text-slate-400 shrink-0">{{ $us->bankSoal->tipe_soal_label }}</span>
         </div>
         @empty
-        <div class="p-8 text-center text-sm text-slate-400 dark:text-slate-500">Belum ada soal. <a href="{{ route('guru.ujian.soal', $ujian->id) }}" class="text-indigo-600 dark:text-indigo-400 hover:underline">Tambah sekarang →</a></div>
+        <div class="p-8 text-center text-sm text-slate-400 dark:text-slate-500">Belum ada soal. <a href="{{ route('guru.ujian.soal', $ujian->id) }}" class="text-indigo-600 dark:text-indigo-400 hover:underline">Tambah sekarang</a></div>
         @endforelse
     </div>
 
@@ -92,7 +92,7 @@
     <div class="flex flex-wrap gap-3 pt-2">
         <a href="{{ route('guru.ujian.soal', $ujian->id) }}" class="px-5 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-colors shadow-sm">Kelola Soal</a>
         <a href="{{ route('guru.ujian.peserta', $ujian->id) }}" class="px-5 py-2.5 bg-violet-600 text-white rounded-xl text-sm font-semibold hover:bg-violet-700 transition-colors shadow-sm">Atur Peserta</a>
-        <form method="POST" action="{{ route('guru.ujian.destroy', $ujian->id) }}" onsubmit="return confirm('Yakin hapus ujian ini?')" class="ml-auto">
+        <form method="POST" action="{{ route('guru.ujian.destroy', $ujian->id) }}" onsubmit="event.preventDefault(); confirmDelete('Hapus Ujian?', 'Ujian yang dihapus tidak dapat dikembalikan!', this)" class="ml-auto">
             @csrf @method('DELETE')
             <button type="submit" class="px-5 py-2.5 border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 rounded-xl text-sm font-medium hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">Hapus Ujian</button>
         </form>

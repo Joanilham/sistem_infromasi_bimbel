@@ -2,7 +2,7 @@
 
 namespace App\Observers;
 
-use App\Models\Kantor;
+use App\Models\MasterData\Kantor;
 use Illuminate\Support\Facades\Cache;
 
 class KantorObserver
@@ -19,3 +19,4 @@ class KantorObserver
     public function restored(Kantor $kantor): void { $this->clearCache(); }
     public function forceDeleted(Kantor $kantor): void { $this->clearCache(); }
 }
+

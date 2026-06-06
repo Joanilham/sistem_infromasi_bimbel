@@ -3,109 +3,167 @@
 @section('title', 'Tambah Paket Bimbingan')
 
 @section('content')
-<div class="pd-form-wrap">
-    <h2 style="font-size:1.05rem;font-weight:700;color:#111827;margin-bottom:4px;">Tambah Paket Bimbingan</h2>
-    <p style="font-size:.78rem;color:#6b7280;margin-bottom:0;">Buat paket bimbingan baru untuk ditampilkan di landing page dan sistem pendaftaran.</p>
+<div class="max-w-4xl mx-auto space-y-6">
+
+    {{-- Header --}}
+    <div class="flex items-center gap-4 mb-6">
+        <a href="{{ route('paket-bimbingan.index') }}" class="w-10 h-10 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 flex items-center justify-center text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all shadow-sm">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+        </a>
+        <div>
+            <h1 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Tambah Paket Bimbingan</h1>
+            <p class="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">Buat paket bimbingan baru untuk ditampilkan di landing page.</p>
+        </div>
+    </div>
 
     @if ($errors->any())
-    <div class="pd-error">
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
+        <div class="bg-rose-50 dark:bg-rose-900/30 border border-rose-200 dark:border-rose-900/50 rounded-[2rem] p-6 mb-6">
+            <div class="flex items-center gap-3 mb-3 text-rose-600 dark:text-rose-400 font-black">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                Ada kesalahan pada input:
+            </div>
+            <ul class="list-disc list-inside text-rose-500 dark:text-rose-400 text-sm font-bold ml-2 space-y-1">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
     @endif
 
-    <form action="{{ route('paket-bimbingan.store') }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('paket-bimbingan.store') }}" method="POST" enctype="multipart/form-data" class="bg-white dark:bg-zinc-900 rounded-[2.5rem] border border-slate-100 dark:border-zinc-800 shadow-sm overflow-hidden flex flex-col">
         @csrf
 
-        {{-- ── SECTION 1: Informasi Dasar ────────────────── --}}
-        <div class="pd-section-title">Informasi Dasar</div>
-        <div class="pd-grid">
-            <div class="pd-field full">
-                <label>Nama Paket <span>*</span></label>
-                <input type="text" name="nama_paket" value="{{ old('nama_paket') }}" required placeholder="Misal: Paket Intensif UTBK 2024">
-            </div>
+        <div class="p-8 space-y-10 flex-1">
+            
+            {{-- Section 1: Informasi Dasar --}}
+            <div class="space-y-6">
+                <h3 class="text-xs font-black uppercase tracking-widest text-indigo-500 flex items-center gap-2">
+                    <span class="w-6 h-6 rounded bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center">1</span> Informasi Dasar
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2 md:col-span-2">
+                        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Nama Paket <span class="text-rose-500">*</span></label>
+                        <input type="text" name="nama_paket" value="{{ old('nama_paket') }}" required placeholder="Misal: Paket Intensif UTBK 2024" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Harga Promo (Rp) <span class="text-rose-500">*</span></label>
+                        <input type="text" name="nominal" value="{{ old('nominal') }}" required placeholder="500.000" class="nominal-input w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Harga Coret (Rp)</label>
+                        <input type="text" name="harga_coret" value="{{ old('harga_coret') }}" placeholder="750.000" class="nominal-input w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Minimal DP (%) <span class="text-rose-500">*</span></label>
+                        <input type="number" name="dp_persen_minimal" value="{{ old('dp_persen_minimal', 10) }}" min="1" max="100" required placeholder="10" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
+                        <p class="text-[10px] font-bold text-slate-400 mt-1 ml-1">Persentase DP wajib saat mendaftar.</p>
+                    </div>
 
-            <div class="pd-field">
-                <label>Harga Promo (Rp) <span>*</span></label>
-                <input type="text" name="nominal" value="{{ old('nominal') }}" required class="nominal-input" placeholder="500.000">
+                    <div class="space-y-2">
+                        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Bisa Dicicil?</label>
+                        <select name="bisa_dicicil" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
+                            <option value="1" {{ old('bisa_dicicil') == '1' ? 'selected' : '' }}>Ya, Bisa Dicicil</option>
+                            <option value="0" {{ old('bisa_dicicil') == '0' ? 'selected' : '' }}>Tidak (Hanya Lunas)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Maksimal Cicilan (Tenor) <span class="text-rose-500">*</span></label>
+                        <input type="number" name="max_cicilan" value="{{ old('max_cicilan', 1) }}" min="1" required placeholder="Misal: 6" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Durasi Paket</label>
+                        <div class="flex gap-4">
+                            <input type="number" name="durasi_jumlah" value="{{ old('durasi_jumlah') }}" placeholder="Misal: 6" class="w-2/3 bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
+                            <select name="durasi_satuan" class="w-1/3 bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
+                                <option value="Bulan" {{ old('durasi_satuan') == 'Bulan' ? 'selected' : '' }}>Bulan</option>
+                                <option value="Tahun" {{ old('durasi_satuan') == 'Tahun' ? 'selected' : '' }}>Tahun</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2 md:col-span-2">
+                        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Label Badge</label>
+                        <input type="text" name="label_populer" value="{{ old('label_populer') }}" placeholder="Misal: Best Seller / Promo" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
+                    </div>
+                </div>
             </div>
-
-            <div class="pd-field">
-                <label>Harga Asli / Coret (Rp)</label>
-                <input type="text" name="harga_coret" value="{{ old('harga_coret') }}" class="nominal-input" placeholder="750.000">
+            
+            <hr class="border-slate-100 dark:border-zinc-800">
+            
+            {{-- Section 2: Detail & Keunggulan --}}
+            <div class="space-y-6">
+                <h3 class="text-xs font-black uppercase tracking-widest text-emerald-500 flex items-center gap-2">
+                    <span class="w-6 h-6 rounded bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center">2</span> Detail & Keunggulan
+                </h3>
+                
+                <div class="space-y-6">
+                    <div class="space-y-2">
+                        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Deskripsi Singkat</label>
+                        <textarea name="deskripsi" rows="3" placeholder="Jelaskan secara singkat tentang paket ini..." class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">{{ old('deskripsi') }}</textarea>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Benefit / Fasilitas (Satu per baris)</label>
+                        <textarea name="benefits" rows="4" placeholder="Contoh:&#10;Modul Lengkap PDF&#10;Tryout Berkala&#10;Grup Konsultasi WA" class="font-mono w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">{{ old('benefits') }}</textarea>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Target Peserta</label>
+                            <input type="text" name="target_peserta" value="{{ old('target_peserta') }}" placeholder="Misal: Siswa SMA / Mahasiswa" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Fasilitas Tambahan</label>
+                            <input type="text" name="fasilitas" value="{{ old('fasilitas') }}" placeholder="Misal: AC, WiFi, Snack" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
+                        </div>
+                    </div>
+                </div>
             </div>
-
-            <div class="pd-field">
-                <label>Durasi Jumlah</label>
-                <input type="number" name="durasi_jumlah" value="{{ old('durasi_jumlah') }}" placeholder="6">
+            
+            <hr class="border-slate-100 dark:border-zinc-800">
+            
+            {{-- Section 3: Media & Pengaturan --}}
+            <div class="space-y-6">
+                <h3 class="text-xs font-black uppercase tracking-widest text-amber-500 flex items-center gap-2">
+                    <span class="w-6 h-6 rounded bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center">3</span> Media & Pengaturan
+                </h3>
+                
+                <div class="space-y-4">
+                    <div class="space-y-2">
+                        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Gambar Paket</label>
+                        <input type="file" name="gambar_paket" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100 transition-all dark:file:bg-indigo-900/30 dark:file:text-indigo-400">
+                    </div>
+                    
+                    <div class="pt-4 pb-2">
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <div class="relative flex items-center justify-center">
+                                <input type="checkbox" name="is_featured" value="1" {{ old('is_featured') ? 'checked' : '' }} class="peer sr-only">
+                                <div class="w-12 h-6 bg-slate-200 dark:bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600 transition-colors"></div>
+                            </div>
+                            <span class="text-sm font-bold text-slate-700 dark:text-slate-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">Tampilkan sebagai Unggulan di Landing Page</span>
+                        </label>
+                    </div>
+                </div>
             </div>
-
-            <div class="pd-field">
-                <label>Durasi Satuan</label>
-                <select name="durasi_satuan">
-                    <option value="Bulan" {{ old('durasi_satuan') == 'Bulan' ? 'selected' : '' }}>Bulan</option>
-                    <option value="Tahun" {{ old('durasi_satuan') == 'Tahun' ? 'selected' : '' }}>Tahun</option>
-                </select>
-            </div>
-
-            <div class="pd-field full">
-                <label>Label Badge</label>
-                <input type="text" name="label_populer" value="{{ old('label_populer') }}" placeholder="Misal: Best Seller / Promo">
-            </div>
+            
         </div>
 
-        {{-- ── SECTION 2: Detail & Keunggulan ────────────────── --}}
-        <div class="pd-section-title">Detail & Keunggulan</div>
-        <div class="pd-grid">
-            <div class="pd-field full">
-                <label>Deskripsi Singkat</label>
-                <textarea name="deskripsi" placeholder="Jelaskan secara singkat tentang paket ini...">{{ old('deskripsi') }}</textarea>
-            </div>
-
-            <div class="pd-field full">
-                <label>Benefit / Fasilitas (Satu per baris)</label>
-                <textarea name="benefits" rows="4" style="font-family: monospace;" placeholder="Contoh:&#10;Modul Lengkap PDF&#10;Tryout Berkala&#10;Grup Konsultasi WA">{{ old('benefits') }}</textarea>
-            </div>
-
-            <div class="pd-field">
-                <label>Target Peserta</label>
-                <input type="text" name="target_peserta" value="{{ old('target_peserta') }}" placeholder="Misal: Siswa SMA / Mahasiswa">
-            </div>
-
-            <div class="pd-field">
-                <label>Fasilitas Tambahan</label>
-                <input type="text" name="fasilitas" value="{{ old('fasilitas') }}" placeholder="Misal: AC, WiFi, Co-working Space">
-            </div>
-        </div>
-
-        {{-- ── SECTION 3: Media & Pengaturan ────────────────── --}}
-        <div class="pd-section-title">Media & Pengaturan</div>
-        <div class="pd-grid">
-            <div class="pd-field">
-                <label>Gambar Paket</label>
-                <input type="file" name="gambar_paket">
-            </div>
-
-            <div class="pd-field" style="justify-content: center; padding-top: 20px;">
-                <label style="display: flex; align-items: center; cursor: pointer; gap: 8px; font-weight: 600;">
-                    <input type="checkbox" name="is_featured" value="1" {{ old('is_featured') ? 'checked' : '' }} style="width: auto; margin-right: 4px;">
-                    Tampilkan sebagai Unggulan di Landing Page
-                </label>
-            </div>
-        </div>
-
-        <div class="pd-btns">
-            <a href="{{ route('paket-bimbingan.index') }}" class="pd-btn-back">Batal</a>
-            <button type="submit" class="pd-btn-save">Simpan</button>
+        <div class="px-8 py-6 bg-slate-50 dark:bg-zinc-950 border-t border-slate-200 dark:border-zinc-800 flex items-center justify-end gap-4">
+            <a href="{{ route('paket-bimbingan.index') }}" class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-2xl transition-all">Batal</a>
+            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-black uppercase tracking-widest px-8 py-4 rounded-2xl shadow-xl shadow-indigo-500/20 transition-all active:scale-95">Simpan Data</button>
         </div>
     </form>
 </div>
 @endsection
 
-@section('scripts')
+@push('scripts')
 <script>
     function formatRupiah(angka, prefix) {
         if (!angka) return '';
@@ -116,7 +174,7 @@
             ribuan = split[0].substr(sisa).match(/\d{3}/gi);
 
         if (ribuan) {
-            separator = sisa ? '.' : '';
+            let separator = sisa ? '.' : '';
             rupiah += separator + ribuan.join('.');
         }
 
@@ -134,4 +192,4 @@
         });
     });
 </script>
-@endsection
+@endpush

@@ -10,7 +10,16 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- TomSelect CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
     <style>
+        /* TomSelect Styles */
+        .ts-control { border-radius: 0.75rem !important; border: 1.5px solid #E2E8F0 !important; padding: 0.75rem 1rem !important; font-size: 0.95rem !important; box-shadow: none !important; background: #FAFBFC !important; }
+        .ts-control.focus { border-color: #4F46E5 !important; box-shadow: 0 0 0 4px rgba(79,70,229,0.1) !important; background: white !important; }
+        .ts-dropdown { border-radius: 0.75rem !important; border: 1px solid #e2e8f0 !important; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important; font-size: 0.95rem !important; }
+        .ts-dropdown .active { background-color: #EEF2FF !important; color: #4F46E5 !important; }
+
         [x-cloak] { display: none !important; }
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -102,19 +111,63 @@
         @media (max-width: 600px) {
             .form-grid { grid-template-columns: 1fr; }
             .card { padding: 22px 16px; }
+            
+            /* Responsive Header Fix */
+            .top-bar {
+                padding: 12px 16px;
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .logo {
+                flex-shrink: 0;
+            }
+            .logo-icon { width: 28px; height: 28px; border-radius: 8px; }
+            .logo-icon svg { width: 16px; height: 16px; }
+            .logo-text { font-size: 0.9rem; }
+            
+            .top-bar-right {
+                font-size: 0.75rem;
+                text-align: right;
+                max-width: 150px;
+                line-height: 1.4;
+            }
+            .stepper-wrap { padding: 16px 10px; }
+            .step-circle { width: 30px; height: 30px; font-size: 0.8rem; }
+            .step-label { font-size: 0.65rem; }
+
+            /* Responsive Buttons */
+            .btn-row {
+                flex-direction: row;
+                gap: 8px;
+                justify-content: space-between;
+            }
+            .btn {
+                width: auto;
+                flex: 1;
+                padding: 12px 10px;
+                font-size: 0.85rem;
+                justify-content: center;
+            }
         }
     </style>
     @yield('extra_style')
+    <link rel="stylesheet" href="{{ asset('css/loading.css') }}">
 </head>
 <body>
 <div class="top-bar">
     <a href="{{ route('welcome') }}" class="logo">
-        <div class="logo-icon">
-            <svg fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-        </div>
-        <span class="logo-text">Genius<span>Edu</span></span>
+        @if(isset($masterData) && $masterData->logo)
+            <img src="{{ Storage::url($masterData->logo) }}" alt="Logo" style="height: 36px; width: auto; object-fit: contain;">
+        @else
+            <div class="logo-icon">
+                <svg fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+            </div>
+        @endif
+        <span class="logo-text">{{ $masterData->nama_lembaga ?? 'Genius Education' }}</span>
     </a>
-    <div class="top-bar-right">Sudah punya akun? <a href="{{ route('login') }}">Masuk di sini</a></div>
+    <div class="top-bar-right">Sudah punya akun? <a href="{{ route('login') }}">Masuk</a></div>
 </div>
 
 <div class="stepper-wrap">
@@ -152,5 +205,23 @@
 <div class="main">
     @yield('content')
 </div>
+
+<!-- TomSelect JS -->
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('select').forEach((el) => {
+            if (el.classList.contains('no-tomselect')) return;
+            new TomSelect(el, {
+                create: false,
+                sortField: null,
+                plugins: ['dropdown_input'],
+            });
+        });
+    });
+</script>
+
+@include('components.autosave-script')
+    @include('components.loading-overlay')
 </body>
 </html>

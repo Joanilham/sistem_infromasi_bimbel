@@ -11,7 +11,9 @@ use Illuminate\Session\TokenMismatchException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
+        channels: __DIR__.'/../routes/channels.php',
         web: __DIR__ . '/../routes/web.php',
+        api: __DIR__ . '/../routes/api.php',
         commands: __DIR__ . '/../routes/console.php',
         health: '/up',
     )
@@ -29,6 +31,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'role'        => \App\Http\Middleware\RoleMiddleware::class,
             'ensure_role' => \App\Http\Middleware\EnsureCorrectRole::class,
             'konteks'     => \App\Http\Middleware\CekKonteks::class,
+            'check_payment'=> \App\Http\Middleware\CheckPaymentStatus::class,
+            'check_permission' => \App\Http\Middleware\CheckPermission::class,
         ]);
 
         // Pengecualian CSRF untuk endpoint scanner QR & logout (menghindari error 419 via Ngrok/AJAX)

@@ -52,9 +52,15 @@ class EnsureCorrectRole
         $userRoleLower = strtolower($user->level);
 
         // Jika role user tidak ada di daftar yang diizinkan
-        if (!in_array($userRoleLower, $allowedRoles)) {
+        if (!in_array($userRoleLower, $allowedRoles, true)) {
             // Redirect ke dashboard sesuai role mereka
             $redirectRoute = $this->roleRedirectMap[$userRoleLower] ?? 'dashboard';
+
+            \Illuminate\Support\Facades\Log::info('EnsureCorrectRole Blocked:', [
+                'user_role' => $userRoleLower,
+                'allowed' => $allowedRoles,
+                'route' => $request->route()->getName(),
+            ]);
 
             return redirect()
                 ->route($redirectRoute)

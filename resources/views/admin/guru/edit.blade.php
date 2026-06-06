@@ -1,122 +1,128 @@
 @extends('layouts.admin')
 
-@section('title', 'Edit Guru')
+@section('title', 'Edit Data Guru')
 
 @section('content')
-<div class="pd-form-wrap">
-    <h2 style="font-size:1.05rem;font-weight:700;color:#111827;margin-bottom:4px;">Edit Data Guru</h2>
-    <p style="font-size:.78rem;color:#6b7280;margin-bottom:0;">Perbarui data guru dengan lengkap dan benar.</p>
+<div class="space-y-6">
+    {{-- Header --}}
+    <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-zinc-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+        <div>
+            <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Edit Data Guru</h1>
+            <p class="text-slate-500 dark:text-slate-400 mt-2 text-sm font-medium">Ubah informasi tenaga pengajar pada sistem.</p>
+        </div>
+        <a href="{{ url()->previous() == route('manajemen-guru.edit', $guru->id) ? route('manajemen-guru.index') : url()->previous() }}" class="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-slate-50 dark:bg-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-700 text-slate-500 dark:text-slate-400 transition-all">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+        </a>
+    </div>
 
-    <form action="{{ route('manajemen-guru.update', $guru->id) }}" method="POST" id="guruForm">
-        @csrf
-        @method('PUT')
-
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const statusSelect = document.querySelector('select[name="status"]');
-                const keluarFields = document.getElementById('keluarFields');
+    {{-- Form Card --}}
+    <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] border border-slate-100 dark:border-zinc-800 shadow-sm overflow-hidden max-w-5xl mx-auto" x-data="{ status: '{{ old('status', $guru->status ?? 'Aktif') }}' }">
+        <form action="{{ route('manajemen-guru.update', $guru->id) }}" method="POST">
+            @csrf
+            @method('PUT')
+            <div class="p-8 sm:p-10 space-y-10">
                 
-                function toggleKeluarFields() {
-                    if (statusSelect && keluarFields) {
-                        keluarFields.style.display = statusSelect.value === 'Keluar' ? 'block' : 'none';
-                    }
-                }
-                
-                if (statusSelect) {
-                    statusSelect.addEventListener('change', toggleKeluarFields);
-                    toggleKeluarFields();
-                }
-            });
-        </script>
-
-        {{-- ── SECTION 1: Data Pribadi ────────────────── --}}
-        <div class="pd-section-title">Data Pribadi</div>
-        <div class="pd-grid">
-            <div class="pd-field full">
-                <label>Nama Lengkap <span>*</span></label>
-                <input type="text" name="name" required value="{{ old('name', $guru->name) }}" placeholder="Nama lengkap guru">
-            </div>
-            <div class="pd-field">
-                <label>NIP</label>
-                <input type="text" name="nip" value="{{ old('nip', $guru->nip) }}" placeholder="Nomor Induk Pegawai"
-                    inputmode="numeric"
-                    oninput="this.value=this.value.replace(/[^0-9]/g,'')"
-                    maxlength="20">
-            </div>
-            <div class="pd-field">
-                <label>No. Telp</label>
-                <input type="tel" name="no_telp" value="{{ old('no_telp', $guru->no_telp) }}" placeholder="08xxxxxxxxxx"
-                    inputmode="numeric"
-                    pattern="[0-9]{8,15}"
-                    maxlength="15"
-                    oninput="this.value=this.value.replace(/[^0-9]/g,'')"
-                    title="Hanya boleh angka (8-15 digit)">
-            </div>
-            <div class="pd-field full">
-                <label>Alamat</label>
-                <textarea name="alamat" placeholder="Alamat lengkap guru">{{ old('alamat', $guru->alamat) }}</textarea>
-            </div>
-        </div>
-
-        {{-- ── SECTION 2: Data Kepegawaian ───────────── --}}
-        <div class="pd-section-title">Data Kepegawaian</div>
-        <div class="pd-grid">
-            <div class="pd-field full">
-                <label>Mata Pelajaran <span>*</span></label>
-                <input type="text" name="matapelajaran" required value="{{ old('matapelajaran', $guru->matapelajaran) }}" placeholder="Mata pelajaran yang diajarkan">
-            </div>
-            <div class="pd-field">
-                <label>Status: <span>*</span></label>
-                <select name="status" id="statusSelect">
-                    <option value="Aktif" {{ old('status', $guru->status ?? 'Aktif') === 'Aktif' ? 'selected' : '' }}>Aktif</option>
-                    <option value="Keluar" {{ old('status', $guru->status ?? 'Aktif') === 'Keluar' ? 'selected' : '' }}>Keluar</option>
-                </select>
-            </div>
-        </div>
-
-        {{-- Conditional: fields Keluar --}}
-        <div id="keluarFields"
-            style="margin-top:1.2rem; padding:1.2rem; background:#fef2f2; border:1px solid #fecaca; border-radius:8px; display: {{ old('status', $guru->status ?? 'Aktif') === 'Keluar' ? 'block' : 'none' }}">
-            <div style="font-size:.78rem; font-weight:700; color:#dc2626; text-transform:uppercase; margin-bottom:1rem; letter-spacing:0.05em">Informasi Keluar</div>
-            <div class="pd-grid">
-                <div class="pd-field">
-                    <label>Tanggal Keluar: <span style="color:#ef4444">*</span></label>
-                    <input type="date" name="tanggal_keluar"
-                        value="{{ old('tanggal_keluar', $guru->tanggal_keluar) }}"
-                        :required="statusKeluar === 'Keluar'"
-                        style="border-color:#fca5a5">
+                {{-- Data Pribadi --}}
+                <div class="space-y-4">
+                    <h3 class="text-xs font-black uppercase tracking-widest text-indigo-500 flex items-center gap-2 border-b border-slate-100 dark:border-zinc-800 pb-2">
+                        Data Pribadi
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div class="space-y-2 sm:col-span-2">
+                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Nama Lengkap <span class="text-rose-500">*</span></label>
+                            <input type="text" name="name" required value="{{ old('name', $guru->name) }}" placeholder="Nama lengkap guru" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-3 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Jenis Kelamin</label>
+                            <select name="jenis_kelamin" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-3 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
+                                <option value="">Pilih Jenis Kelamin</option>
+                                <option value="Laki-Laki" {{ old('jenis_kelamin', $guru->jenis_kelamin) == 'Laki-Laki' ? 'selected' : '' }}>Laki-Laki</option>
+                                <option value="Perempuan" {{ old('jenis_kelamin', $guru->jenis_kelamin) == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">NIP</label>
+                            <input type="text" name="nip" value="{{ old('nip', $guru->nip) }}" placeholder="Nomor Induk Pegawai" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'')" maxlength="20" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-3 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">No. Telp</label>
+                            <input type="tel" name="no_telp" value="{{ old('no_telp', $guru->no_telp) }}" placeholder="08xxxxxxxxxx" inputmode="numeric" pattern="[0-9]{8,12}" maxlength="12" oninput="this.value=this.value.replace(/[^0-9]/g,'')" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-3 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
+                        </div>
+                        <div class="space-y-2 sm:col-span-2">
+                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Alamat Lengkap</label>
+                            <textarea name="alamat" rows="2" placeholder="Alamat lengkap guru" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-3 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white custom-scrollbar">{{ old('alamat', $guru->alamat) }}</textarea>
+                        </div>
+                    </div>
                 </div>
-                <div class="pd-field full">
-                    <label>Alasan Keluar: <span style="color:#ef4444">*</span></label>
-                    <textarea name="alasan_keluar" rows="2"
-                        :required="statusKeluar === 'Keluar'"
-                        placeholder="Tuliskan alasan guru keluar..."
-                        style="border-color:#fca5a5">{{ old('alasan_keluar', $guru->alasan_keluar) }}</textarea>
+
+                {{-- Data Kepegawaian --}}
+                <div class="space-y-4">
+                    <h3 class="text-xs font-black uppercase tracking-widest text-emerald-500 flex items-center gap-2 border-b border-slate-100 dark:border-zinc-800 pb-2">
+                        Data Kepegawaian
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Mata Pelajaran <span class="text-rose-500">*</span></label>
+                            <input type="text" name="matapelajaran" required value="{{ old('matapelajaran', $guru->matapelajaran) }}" placeholder="Mata pelajaran" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-3 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Status Kepegawaian <span class="text-rose-500">*</span></label>
+                            <select name="status" x-model="status" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-3 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
+                                <option value="Aktif">Aktif</option>
+                                <option value="Keluar">Keluar</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    {{-- Keluar Section --}}
+                    <div x-show="status === 'Keluar'" x-collapse>
+                        <div class="p-6 bg-rose-50 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-900/50 rounded-2xl space-y-6 mt-4">
+                            <h4 class="text-[10px] font-black text-rose-600 dark:text-rose-500 uppercase tracking-widest border-b border-rose-200/50 pb-2">Informasi Keluar</h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <div class="space-y-2">
+                                    <label class="block text-[10px] font-black text-rose-500 uppercase tracking-widest ml-1">Tanggal Keluar <span class="text-rose-500">*</span></label>
+                                    <input type="date" name="tanggal_keluar" :required="status === 'Keluar'" value="{{ old('tanggal_keluar', $guru->tanggal_keluar) }}" class="w-full bg-white dark:bg-zinc-950 border-rose-200 dark:border-rose-900/50 rounded-2xl text-sm font-bold py-3 px-4 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all text-slate-800 dark:text-white">
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="block text-[10px] font-black text-rose-500 uppercase tracking-widest ml-1">Alasan Keluar <span class="text-rose-500">*</span></label>
+                                    <textarea name="alasan_keluar" :required="status === 'Keluar'" rows="2" placeholder="Tuliskan alasan keluar..." class="w-full bg-white dark:bg-zinc-950 border-rose-200 dark:border-rose-900/50 rounded-2xl text-sm font-bold py-3 px-4 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all text-slate-800 dark:text-white custom-scrollbar">{{ old('alasan_keluar', $guru->alasan_keluar) }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
 
-        {{-- ── SECTION 3: Akun ───────────────────────── --}}
-        <div class="pd-section-title">Akun Login</div>
-        <div class="pd-grid">
-            <div class="pd-field full">
-                <label>Email <span>*</span></label>
-                <input type="email" name="email" required value="{{ old('email', $guru->email) }}" placeholder="Email aktif untuk login">
-            </div>
-            <div class="pd-field">
-                <label>Password <span class="text-slate-400 font-normal">(Kosongkan jika tidak ingin mengubah)</span></label>
-                <input type="password" name="password" placeholder="Minimal 8 karakter">
-            </div>
-            <div class="pd-field">
-                <label>Konfirmasi Password</label>
-                <input type="password" name="password_confirmation" placeholder="Ulangi password di atas">
-            </div>
-        </div>
+                {{-- Akun Login --}}
+                <div class="space-y-4">
+                    <h3 class="text-xs font-black uppercase tracking-widest text-amber-500 flex items-center gap-2 border-b border-slate-100 dark:border-zinc-800 pb-2">
+                        Akun Login
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div class="space-y-2 sm:col-span-2">
+                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Email <span class="text-rose-500">*</span></label>
+                            <input type="email" name="email" required value="{{ old('email', $guru->email) }}" placeholder="Email aktif" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-3 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Password</label>
+                            <input type="password" name="password" placeholder="Kosongkan jika tidak ingin mengubah password" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-3 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Konfirmasi Password</label>
+                            <input type="password" name="password_confirmation" placeholder="Ulangi password baru (jika diubah)" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-3 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
+                        </div>
+                    </div>
+                </div>
 
-        <div class="pd-btns">
-            <a href="{{ route('manajemen-guru.index') }}" class="pd-btn-back">Batal</a>
-            <button type="submit" class="pd-btn-save">Simpan</button>
-        </div>
-    </form>
+            </div>
+            
+            {{-- Footer --}}
+            <div class="px-8 sm:px-10 py-6 bg-slate-50 dark:bg-zinc-950 border-t border-slate-200 dark:border-zinc-800 flex items-center justify-end gap-4">
+                <a href="{{ url()->previous() == route('manajemen-guru.edit', $guru->id) ? route('manajemen-guru.index') : url()->previous() }}" class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-2xl transition-all">Batal</a>
+                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-black uppercase tracking-widest px-8 py-4 rounded-2xl shadow-xl shadow-indigo-500/20 transition-all active:scale-95">Simpan Perubahan</button>
+            </div>
+        </form>
+    </div>
 </div>
 @endsection

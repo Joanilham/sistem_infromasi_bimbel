@@ -1,12 +1,13 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+use App\Models\System\Gallery;
 
 use App\Http\Controllers\Controller;
-use App\Models\Master;
-use App\Models\PaketBimbingan;
-use App\Models\Testimonial;
-use App\Models\Faq;
+use App\Models\MasterData\Master;
+use App\Models\Akademik\PaketBimbingan;
+use App\Models\System\Testimonial;
+use App\Models\System\Faq;
 use App\Traits\HandlesImageUpload;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -18,10 +19,10 @@ class LandingPageController extends Controller
     public function index()
     {
         $master = Master::first() ?? new Master();
-        $pakets = PaketBimbingan::inContext()->orderBy('urutan')->get();
+        $pakets = PaketBimbingan::orderBy('urutan')->get();
         $testimonials = Testimonial::latest()->get();
         $faqs = Faq::orderBy('urutan')->get();
-        $galleries = \App\Models\Gallery::inContext()->orderBy('urutan')->get();
+        $galleries = \App\Models\System\Gallery::inContext()->orderBy('urutan')->get();
         
         return view('admin.landing_page.index', compact('master', 'pakets', 'testimonials', 'faqs', 'galleries'));
     }
@@ -31,7 +32,7 @@ class LandingPageController extends Controller
         $validated = $request->validate([
             'judul'    => 'nullable|string|max:255',
             'kategori' => 'nullable|string|max:50',
-            'foto'     => 'required|image|mimes:jpg,jpeg,png,webp|max:3072',
+            'foto'     => 'required|image|mimes:jpg,jpeg,png,webp|max:5120',
             'urutan'   => 'nullable|integer',
         ]);
 
@@ -41,14 +42,14 @@ class LandingPageController extends Controller
                 $validated['foto'] = $this->compressAndStore($request->file('foto'), 'gallery', 75);
             }
 
-            \App\Models\Gallery::create($validated);
+            \App\Models\System\Gallery::create($validated);
             return back()->with('success', 'Foto berhasil ditambahkan ke gallery.');
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal mengunggah foto.');
         }
     }
 
-    public function destroyGallery(\App\Models\Gallery $gallery)
+    public function destroyGallery(\App\Models\System\Gallery $gallery)
     {
         try {
             if ($gallery->foto) Storage::disk('public')->delete($gallery->foto);
@@ -66,7 +67,7 @@ class LandingPageController extends Controller
     {
         $validated = $request->validate([
             'nama_lembaga'   => 'nullable|string|max:255',
-            'logo'           => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'logo'           => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
             'wa_number'      => 'nullable|string|max:20',
             'wa_widget_status' => 'nullable|boolean',
             'wa_widget_message' => 'nullable|string|max:255',
@@ -96,7 +97,12 @@ class LandingPageController extends Controller
                 $validated['hero_image'] = $this->compressAndStore($request->file('hero_image'), 'landing', 70);
             }
 
-            $master->update($validated);
+            if (isset($validated['hero_overlay_opacity'])) {
+                $validated['hero_overlay_opacity'] = $validated['hero_overlay_opacity'] / 100;
+            }
+
+            $master->fill($validated);
+            $master->save();
 
             return back()->with('success', 'Konfigurasi Landing Page berhasil diperbarui.');
         } catch (\Exception $e) {
@@ -115,7 +121,7 @@ class LandingPageController extends Controller
             'posisi' => 'nullable|string|max:255',
             'ulasan' => 'required|string',
             'bintang'=> 'required|integer|min:1|max:5',
-            'foto'   => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'foto'   => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
         ]);
 
         try {
@@ -159,3 +165,5 @@ class LandingPageController extends Controller
         return back()->with('success', 'FAQ berhasil dihapus.');
     }
 }
+
+

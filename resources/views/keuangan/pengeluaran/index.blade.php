@@ -3,18 +3,14 @@
 @section('title', 'Pengeluaran')
 
 @section('content')
-<div class="space-y-6">
+<div class="space-y-6" x-data="ajaxTable()">
 
     {{-- Header --}}
-    <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-zinc-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+    <div class="bg-white dark:bg-zinc-900 rounded-3xl p-6 sm:p-8 border border-slate-100 dark:border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div>
-            <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Pengeluaran</h1>
-            <p class="text-slate-500 dark:text-slate-400 mt-2 text-sm font-medium">Catatan seluruh pengeluaran operasional dan biaya lainnya.</p>
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Pengeluaran</h1>
+            <p class="text-slate-500 dark:text-slate-400 mt-2 text-sm">Catatan seluruh pengeluaran operasional dan biaya lainnya.</p>
         </div>
-        <a href="{{ route('keuangan.pengeluaran.kategori.index') }}" 
-           class="inline-flex items-center gap-3 bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-slate-300 text-[10px] font-black uppercase tracking-widest px-8 py-4 rounded-2xl transition-all active:scale-95 shadow-sm border border-slate-200/50 dark:border-zinc-700/50">
-            🗂 Kelola Kategori
-        </a>
     </div>
 
     @if(session('success'))
@@ -24,47 +20,93 @@
         </div>
     @endif
 
-    {{-- Form Tambah Card --}}
-    <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-zinc-800 shadow-sm relative overflow-hidden group">
-        <div class="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-150 duration-700"></div>
-        <h2 class="text-xs font-black text-slate-400 uppercase tracking-[0.3em] mb-8 flex items-center gap-3">
-            <span class="w-8 h-[2px] bg-rose-500"></span>
-            Catat Pengeluaran Baru
-        </h2>
-        <form action="{{ route('keuangan.pengeluaran.store') }}" method="POST" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 relative">
-            @csrf
-            <div class="space-y-3">
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Tanggal Transaksi</label>
-                <input type="date" name="tanggal" value="{{ old('tanggal', date('Y-m-d')) }}" required 
-                    class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all">
-            </div>
-            <div class="space-y-3">
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Kategori Pengeluaran</label>
-                <select name="kategori_id" required 
-                    class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all">
-                    <option value="">-- Pilih --</option>
-                    @foreach($kategoris as $k)
-                        <option value="{{ $k->id }}" {{ old('kategori_id') == $k->id ? 'selected' : '' }}>{{ $k->nama }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="space-y-3">
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nominal (IDR)</label>
-                <div class="relative">
-                    <span class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-sm">Rp</span>
-                    <input type="number" name="nominal" value="{{ old('nominal') }}" min="1" required placeholder="0" 
-                        class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-black py-4 pl-12 pr-5 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all">
+    {{-- Arus Kas Summary Cards --}}
+    <div id="ajax-summary-cards" class="grid grid-cols-1 {{ $selectedKantorName == 'Semua Cabang' ? 'md:grid-cols-2' : '' }} gap-6">
+        {{-- Card 1: Pengeluaran Cabang Ini --}}
+        <div class="bg-rose-600 dark:bg-rose-900 border border-rose-500/50 dark:border-rose-800 rounded-3xl p-6 text-white flex items-center justify-between overflow-hidden relative">
+            <div class="relative z-10">
+                <div class="text-[10px] font-bold uppercase tracking-widest text-rose-200">Pengeluaran - {{ $selectedKantorName }}</div>
+                <div class="text-3xl sm:text-4xl font-bold mt-2">Rp {{ number_format($totalCabangIni, 0, ',', '.') }}</div>
+                <div class="text-xs text-rose-200 mt-2 flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                    Cabang: {{ $selectedKantorName }}
                 </div>
             </div>
-            <div class="space-y-3">
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Keterangan Pengeluaran</label>
-                <input type="text" name="keterangan" value="{{ old('keterangan') }}" placeholder="Contoh: Bayar Listrik…" 
-                    class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all">
+            <div class="w-14 h-14 flex items-center justify-center rounded-2xl bg-white/10 text-white shrink-0 text-2xl">
+                🏢
             </div>
-            <div class="sm:col-span-2 lg:col-span-4 flex justify-end pt-4 border-t border-slate-50 dark:border-zinc-800 mt-2">
-                <button type="submit" class="bg-rose-600 hover:bg-rose-700 text-white font-black text-sm px-12 py-4 rounded-2xl shadow-xl shadow-rose-500/20 transition-all active:scale-95 flex items-center gap-3 group">
-                    <svg class="w-5 h-5 transition-transform group-hover:rotate-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+        </div>
+
+        @if($selectedKantorName == 'Semua Cabang')
+        {{-- Card 2: Pengeluaran Seluruh Cabang --}}
+        <div class="bg-amber-500 dark:bg-amber-800 border border-amber-400/50 dark:border-amber-700 rounded-3xl p-6 text-white flex items-center justify-between overflow-hidden relative">
+            <div class="relative z-10">
+                <div class="text-[10px] font-bold uppercase tracking-widest text-amber-100">Pengeluaran Seluruh Cabang</div>
+                <div class="text-3xl sm:text-4xl font-bold mt-2">Rp {{ number_format($totalSeluruhCabang, 0, ',', '.') }}</div>
+                <div class="text-xs text-amber-100 mt-2 flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
+                    Akumulasi nasional (seluruh cabang)
+                </div>
+            </div>
+            <div class="w-14 h-14 flex items-center justify-center rounded-2xl bg-white/10 text-white shrink-0 text-2xl">
+                🌍
+            </div>
+        </div>
+        @endif
+    </div>
+
+    {{-- Form Tambah Card --}}
+    <div class="bg-white dark:bg-zinc-900 rounded-3xl p-6 sm:p-8 border border-slate-100 dark:border-zinc-800">
+        <div class="flex items-center gap-3 mb-6">
+            <div class="w-8 h-0.5 bg-rose-500"></div>
+            <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Catat Pengeluaran Baru</h2>
+        </div>
+        <form action="{{ route('keuangan.pengeluaran.store') }}" method="POST" class="space-y-6">
+            @csrf
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-2">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tanggal Transaksi</label>
+                    <input type="date" name="tanggal" value="{{ old('tanggal', date('Y-m-d')) }}" required 
+                        class="w-full bg-slate-50 dark:bg-zinc-950 border border-slate-100 dark:border-zinc-800 rounded-xl text-sm py-3 px-4 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none transition-colors">
+                </div>
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between">
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Kategori Pengeluaran</label>
+                        <a href="{{ route('keuangan.pengeluaran.kategori.index') }}" 
+                           class="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-white hover:text-white bg-rose-500 hover:bg-rose-600 dark:bg-rose-600 dark:hover:bg-rose-700 transition-colors px-3 py-1.5 rounded-lg shadow-sm">
+                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            Kelola Kategori
+                        </a>
+                    </div>
+                    <select name="kategori_id" required 
+                        class="no-tomselect w-full bg-slate-50 dark:bg-zinc-950 border border-slate-100 dark:border-zinc-800 rounded-xl text-sm py-3 px-4 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none transition-colors">
+                        <option value="">-- Pilih --</option>
+                        @foreach($kategoris as $k)
+                            <option value="{{ $k->id }}" {{ old('kategori_id') == $k->id ? 'selected' : '' }}>{{ $k->nama }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="space-y-2">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Nominal (IDR)</label>
+                    <div class="relative">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-bold">Rp</span>
+                        <input type="number" name="nominal" value="{{ old('nominal') }}" min="1" required placeholder="0" 
+                            class="w-full bg-slate-50 dark:bg-zinc-950 border border-slate-100 dark:border-zinc-800 rounded-xl text-sm py-3 pl-10 pr-4 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none transition-colors">
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Keterangan Pengeluaran</label>
+                    <input type="text" name="keterangan" value="{{ old('keterangan') }}" placeholder="Contoh: Bayar Listrik…" 
+                        class="w-full bg-slate-50 dark:bg-zinc-950 border border-slate-100 dark:border-zinc-800 rounded-xl text-sm py-3 px-4 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none transition-colors">
+                </div>
+            </div>
+            <div class="flex justify-end pt-4 border-t border-slate-100 dark:border-zinc-800">
+                <button type="submit" class="bg-rose-600 hover:bg-rose-700 text-white text-sm px-8 py-3 rounded-xl transition-colors flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                     </svg>
                     Simpan Pengeluaran
                 </button>
@@ -73,72 +115,117 @@
     </div>
 
     {{-- Table Card --}}
-    <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] border border-slate-100 dark:border-zinc-800 shadow-sm overflow-hidden">
+    <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-slate-100 dark:border-zinc-800 overflow-hidden">
         
-        {{-- Toolbar --}}
-        <div class="p-6 flex flex-col lg:flex-row lg:items-end justify-between gap-6 border-b border-slate-100 dark:border-zinc-800 bg-slate-50/30 dark:bg-zinc-900/30">
-            <form method="GET" class="flex flex-col sm:flex-row sm:items-end gap-4 flex-1">
-                {{-- Per Page --}}
-                <div class="flex flex-col gap-1.5">
-                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Tampilkan</label>
-                    <select name="per_page" onchange="this.form.submit()" 
-                        class="bg-white dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-xs font-black py-2 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
-                        @foreach([10,25,50,100] as $n)<option value="{{ $n }}" {{ request('per_page', 10) == $n ? 'selected' : '' }}>{{ $n }}</option>@endforeach
-                    </select>
+        {{-- Toolbar Filter (Ala Manajemen Guru) --}}
+        <div class="p-6 border-b border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-900/50 relative">
+            
+            {{-- Loading Overlay --}}
+            <div x-show="isLoading" class="absolute inset-0 z-50 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-sm flex items-center justify-center transition-opacity duration-300" style="display: none;">
+                <div class="bg-white dark:bg-zinc-800 p-4 rounded-2xl shadow-xl border border-slate-100 dark:border-zinc-700 flex items-center gap-3">
+                    <svg class="animate-spin h-5 w-5 text-rose-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span class="text-sm font-bold text-slate-700 dark:text-slate-200">Memuat data...</span>
                 </div>
+            </div>
 
-                {{-- Kategori Filter --}}
-                <div class="flex flex-col gap-1.5">
-                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Kategori</label>
-                    <select name="kategori_id" onchange="this.form.submit()"
-                        class="bg-white dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-xs font-black py-2 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
-                        <option value="">Semua Kategori</option>
-                        @foreach($kategoris as $k)
-                            <option value="{{ $k->id }}" {{ request('kategori_id') == $k->id ? 'selected' : '' }}>{{ $k->nama }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                {{-- Rentang Tanggal --}}
-                <div class="flex flex-col gap-1.5">
-                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Dari Tanggal</label>
-                    <input type="date" name="start_date" value="{{ request('start_date') }}" onchange="this.form.submit()"
-                        class="bg-white dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-xs font-black py-2 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
-                </div>
-                <div class="flex flex-col gap-1.5">
-                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Sampai Tanggal</label>
-                    <input type="date" name="end_date" value="{{ request('end_date') }}" onchange="this.form.submit()"
-                        class="bg-white dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-xs font-black py-2 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
-                </div>
-
-                <div class="flex flex-col gap-1.5 flex-1 max-w-sm sm:ml-auto">
-                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Pencarian</label>
-                    <div class="flex gap-2">
-                        <div class="relative group flex-1">
-                            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari kategori / keterangan…"
-                                class="w-full bg-white dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-sm font-bold py-2.5 pl-11 pr-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
-                            <svg class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                            </svg>
+            <form @submit.prevent="fetchData" method="GET" class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                
+                {{-- Left: Dropdown Filters & Dates --}}
+                <div class="flex flex-wrap items-center gap-3">
+                    {{-- Per Page --}}
+                    <div class="flex items-stretch bg-white dark:bg-zinc-950 rounded-xl border border-slate-200 dark:border-zinc-800 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all overflow-hidden">
+                        <div class="px-3 py-2 bg-slate-50 dark:bg-zinc-900 border-r border-slate-200 dark:border-zinc-800 flex items-center justify-center">
+                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Lihat</span>
                         </div>
-                        <button type="submit" class="bg-slate-900 dark:bg-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 text-white font-black text-xs px-6 py-2.5 rounded-xl transition-all active:scale-95 shadow-lg shadow-slate-900/10">
-                            Cari
-                        </button>
-                        @if(request()->anyFilled(['search', 'kategori_id', 'start_date', 'end_date']))
-                            <a href="{{ route('keuangan.pengeluaran.index') }}" 
-                               class="bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 hover:bg-rose-100 p-2.5 rounded-xl transition-all"
-                               title="Reset Filter">
-                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </a>
-                        @endif
+                        <select name="per_page" @change="fetchData"
+                            class="no-tomselect bg-transparent border-none text-xs font-black focus:ring-0 py-2 pl-3 pr-8 text-slate-800 dark:text-white cursor-pointer h-full hover:bg-slate-50 dark:hover:bg-zinc-900/50 transition-colors">
+                            @foreach([10, 25, 50, 100] as $n)
+                                <option value="{{ $n }}" {{ request('per_page', 10) == $n ? 'selected' : '' }}>{{ $n }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    {{-- Cabang Filter --}}
+                    @if($isSuperAdmin)
+                    <div class="flex items-stretch bg-white dark:bg-zinc-950 rounded-xl border border-slate-200 dark:border-zinc-800 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all overflow-hidden">
+                        <div class="px-3 py-2 bg-slate-50 dark:bg-zinc-900 border-r border-slate-200 dark:border-zinc-800 flex items-center justify-center">
+                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Cabang</span>
+                        </div>
+                        <select name="kantor_id" @change="fetchData"
+                            class="no-tomselect bg-transparent border-none text-xs font-bold focus:ring-0 py-2 pl-3 pr-8 text-slate-800 dark:text-white cursor-pointer h-full hover:bg-slate-50 dark:hover:bg-zinc-900/50 transition-colors max-w-[150px] truncate">
+                            <option value="">Semua Cabang</option>
+                            @foreach($kantors as $kantor)
+                                <option value="{{ $kantor->id }}" {{ $kantorId == $kantor->id ? 'selected' : '' }}>{{ $kantor->nama_kantor }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    @endif
+
+                    {{-- Kategori Filter --}}
+                    <div class="flex items-stretch bg-white dark:bg-zinc-950 rounded-xl border border-slate-200 dark:border-zinc-800 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all overflow-hidden hidden sm:flex">
+                        <div class="px-3 py-2 bg-slate-50 dark:bg-zinc-900 border-r border-slate-200 dark:border-zinc-800 flex items-center justify-center">
+                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Kategori</span>
+                        </div>
+                        <select name="kategori_id" @change="fetchData"
+                            class="no-tomselect bg-transparent border-none text-xs font-bold focus:ring-0 py-2 pl-3 pr-8 text-slate-800 dark:text-white cursor-pointer h-full hover:bg-slate-50 dark:hover:bg-zinc-900/50 transition-colors max-w-[150px] truncate">
+                            <option value="">Semua Kategori</option>
+                            @foreach($kategoris as $k)
+                                <option value="{{ $k->id }}" {{ request('kategori_id') == $k->id ? 'selected' : '' }}>{{ $k->nama }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    {{-- Tanggal Start Filter --}}
+                    <div class="flex items-stretch bg-white dark:bg-zinc-950 rounded-xl border border-slate-200 dark:border-zinc-800 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all overflow-hidden hidden lg:flex">
+                        <div class="px-3 py-2 bg-slate-50 dark:bg-zinc-900 border-r border-slate-200 dark:border-zinc-800 flex items-center justify-center">
+                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Mulai</span>
+                        </div>
+                        <input type="date" name="start_date" value="{{ request('start_date') }}"
+                            class="bg-transparent border-none text-xs font-bold focus:ring-0 py-2 px-3 text-slate-800 dark:text-white h-full hover:bg-slate-50 dark:hover:bg-zinc-900/50 transition-colors">
+                    </div>
+
+                    {{-- Tanggal End Filter --}}
+                    <div class="flex items-stretch bg-white dark:bg-zinc-950 rounded-xl border border-slate-200 dark:border-zinc-800 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all overflow-hidden hidden lg:flex">
+                        <div class="px-3 py-2 bg-slate-50 dark:bg-zinc-900 border-r border-slate-200 dark:border-zinc-800 flex items-center justify-center">
+                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Sampai</span>
+                        </div>
+                        <input type="date" name="end_date" value="{{ request('end_date') }}"
+                            class="bg-transparent border-none text-xs font-bold focus:ring-0 py-2 px-3 text-slate-800 dark:text-white h-full hover:bg-slate-50 dark:hover:bg-zinc-900/50 transition-colors">
                     </div>
                 </div>
+
+                {{-- Right: Search & Reset --}}
+                <div class="flex items-center gap-2 w-full md:w-auto">
+                    <div class="relative group flex-1 md:w-64">
+                        <input type="text" name="search" value="{{ request('search') }}"
+                            placeholder="Cari kategori / keterangan..."
+                            class="w-full bg-white dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-sm font-bold py-2.5 pl-10 pr-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-sm">
+                        <svg class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                    </div>
+                    <button type="submit"
+                        class="bg-rose-600 hover:bg-rose-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-sm shadow-rose-500/30">
+                        Filter
+                    </button>
+                    @if(request()->anyFilled(['kantor_id', 'kategori_id', 'search', 'start_date', 'end_date']))
+                        <a href="{{ route('keuangan.pengeluaran.index') }}"
+                           class="flex items-center gap-2 bg-slate-100 dark:bg-zinc-800 hover:bg-rose-100 dark:hover:bg-rose-900/40 text-slate-600 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 px-4 py-2.5 rounded-xl text-sm font-bold transition-all"
+                           title="Reset Filter">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                            Clear
+                        </a>
+                    @endif
+                </div>
+
             </form>
         </div>
-
-        <div class="overflow-x-auto">
+        <div id="ajax-table-body" class="overflow-x-auto" @click="if($event.target.closest('th a')) { navigate($event, $event.target.closest('a').href) }">
             <table class="w-full text-sm border-collapse border border-slate-200 dark:border-zinc-800">
                 <thead class="bg-indigo-600 dark:bg-indigo-900/80 text-[10px] uppercase tracking-widest text-white font-black">
                     <tr>
@@ -218,7 +305,7 @@
                                             title="Edit">
                                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                         </a>
-                                        <form action="{{ route('keuangan.pengeluaran.destroy', $p->id) }}" method="POST" onsubmit="return confirm('Hapus data ini?')">
+                                        <form action="{{ route('keuangan.pengeluaran.destroy', $p->id) }}" method="POST" onsubmit="event.preventDefault(); confirmDelete('Hapus Data?', 'Data ini tidak dapat dikembalikan!', this)">
                                             @csrf @method('DELETE')
                                             <button type="submit" class="inline-flex items-center justify-center w-8 h-8 rounded bg-rose-50 dark:bg-rose-900/10 text-rose-600 dark:text-rose-400 hover:bg-rose-100 transition-all" title="Hapus">
                                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
@@ -246,7 +333,8 @@
         </div>
 
         {{-- Footer Pagination --}}
-        <div class="px-8 py-6 border-t border-slate-100 dark:border-zinc-800 bg-slate-50/30 dark:bg-zinc-900/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div id="ajax-pagination" class="px-8 py-6 border-t border-slate-100 dark:border-zinc-800 bg-slate-50/30 dark:bg-zinc-900/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+             @click="if($event.target.closest('nav[role=navigation] a')) { navigate($event, $event.target.closest('a').href) }">
             <p class="text-xs text-slate-500 dark:text-slate-400 font-bold">
                 Menampilkan <span class="text-slate-900 dark:text-white">{{ $pengeluaran->firstItem() ?? 0 }}</span> – <span class="text-slate-900 dark:text-white">{{ $pengeluaran->lastItem() ?? 0 }}</span> dari <span class="text-slate-900 dark:text-white">{{ $pengeluaran->total() ?? 0 }}</span> Transaksi
             </p>

@@ -3,7 +3,7 @@
 @section('title', 'Rekap Absensi')
 
 @section('content')
-<div class="space-y-6">
+<div class="space-y-6" x-data="ajaxTable()">
 
     {{-- Header --}}
     <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-zinc-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6">
@@ -28,13 +28,25 @@
     </div>
 
     {{-- Filter Card --}}
-    <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-zinc-800 shadow-sm relative overflow-hidden group">
+    <div class="bg-white dark:bg-zinc-900 rounded-3xl p-8 lg:p-10 border border-slate-100 dark:border-zinc-800 shadow-sm mb-8 relative overflow-hidden group">
         <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-150 duration-700"></div>
-        <form method="GET" class="flex flex-col lg:flex-row items-end gap-6 relative">
+
+        {{-- Loading Overlay --}}
+        <div x-show="isLoading" class="absolute inset-0 z-50 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-sm flex items-center justify-center transition-opacity duration-300" style="display: none;">
+            <div class="bg-white dark:bg-zinc-800 p-4 rounded-2xl shadow-xl border border-slate-100 dark:border-zinc-700 flex items-center gap-3">
+                <svg class="animate-spin h-5 w-5 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span class="text-sm font-bold text-slate-700 dark:text-slate-200">Memuat data...</span>
+            </div>
+        </div>
+
+        <form @submit.prevent="fetchData" method="GET" class="flex flex-col lg:flex-row items-end gap-6 relative">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
                 <div class="space-y-2">
                     <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Bulan</label>
-                    <select name="bulan" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-3 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
+                    <select name="bulan" @change="fetchData" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-3 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
                         @foreach(range(1, 12) as $m)
                             <option value="{{ $m }}" {{ $bulan == $m ? 'selected' : '' }}>
                                 {{ \Carbon\Carbon::create()->month($m)->translatedFormat('F') }}
@@ -44,7 +56,7 @@
                 </div>
                 <div class="space-y-2">
                     <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Tahun</label>
-                    <select name="tahun" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-3 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
+                    <select name="tahun" @change="fetchData" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-3 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
                         @php $yNow = date('Y'); @endphp
                         @for($y = $yNow - 2; $y <= $yNow + 1; $y++)
                             <option value="{{ $y }}" {{ $tahun == $y ? 'selected' : '' }}>{{ $y }}</option>
@@ -53,7 +65,7 @@
                 </div>
                 <div class="space-y-2">
                     <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Paket Program</label>
-                    <select name="paket_id" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-3 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
+                    <select name="paket_id" @change="fetchData" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-3 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
                         <option value="">Semua Paket</option>
                         @foreach($pakets as $p)
                             <option value="{{ $p->id }}" {{ request('paket_id') == $p->id ? 'selected' : '' }}>{{ $p->nama_paket }}</option>
@@ -62,7 +74,7 @@
                 </div>
                 <div class="space-y-2">
                     <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Kelompok Belajar</label>
-                    <select name="kelompok_id" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-3 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
+                    <select name="kelompok_id" @change="fetchData" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-3 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
                         <option value="">Semua Kelompok</option>
                         @foreach($kelompoks as $k)
                             <option value="{{ $k->id }}" {{ request('kelompok_id') == $k->id ? 'selected' : '' }}>{{ $k->nama_kelompok }}</option>
@@ -72,12 +84,13 @@
             </div>
             
             <div class="flex gap-2 w-full lg:w-auto">
-                <button type="submit" class="flex-1 lg:flex-none bg-slate-900 dark:bg-white dark:text-slate-900 text-white font-black text-xs px-10 py-4 rounded-2xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-all active:scale-95 shadow-lg shadow-slate-900/10 uppercase tracking-widest">
-                    Tampilkan
+                <button type="submit" class="flex-1 lg:flex-none bg-slate-900 dark:bg-white dark:text-slate-900 text-white font-black text-xs px-10 py-4 rounded-2xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-all active:scale-95 shadow-lg shadow-slate-900/10 uppercase tracking-widest shrink-0">
+                    Filter
                 </button>
                 @if(request()->anyFilled(['paket_id', 'kelompok_id']))
-                    <a href="{{ route('absensi.rekap') }}" class="bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 hover:bg-rose-100 p-4 rounded-2xl transition-all" title="Reset Filter">
+                    <a href="{{ route('absensi.rekap') }}" class="flex items-center gap-2 bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/40 px-6 py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all shrink-0" title="Reset Filter">
                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
+                        Clear
                     </a>
                 @endif
             </div>
@@ -98,14 +111,14 @@
     </div>
 
     {{-- Table Card --}}
-    <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] border border-slate-100 dark:border-zinc-800 shadow-sm overflow-hidden">
-        <div class="overflow-x-auto">
+    <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-100 dark:border-zinc-800 shadow-sm overflow-hidden">
+        <div id="ajax-table-body" class="overflow-x-auto" @click="if($event.target.closest('th a')) { navigate($event, $event.target.closest('a').href) }">
             <table class="w-full text-sm border-collapse border border-slate-200 dark:border-zinc-800">
                 <thead class="bg-indigo-600 dark:bg-indigo-900/80 text-[10px] uppercase tracking-widest text-white font-black">
                     <tr>
                         <th class="px-4 py-3 text-left w-28 border border-white/20">
                             <a href="{{ request()->fullUrlWithQuery(['sort' => 'id', 'order' => request('sort') == 'id' && request('order') == 'asc' ? 'desc' : 'asc']) }}" class="flex items-center justify-between group">
-                                No (ID)
+                                No.
                                 <span class="transition-all {{ request('sort') == 'id' ? 'opacity-100' : 'opacity-30 group-hover:opacity-100' }}">
                                     @if(request('sort') == 'id' && request('order') == 'asc')
                                         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 15l7-7 7 7"/></svg>
@@ -136,13 +149,15 @@
                         <th class="px-4 py-3 text-center border border-white/20">Sakit</th>
                         <th class="px-4 py-3 text-center border border-white/20">Alpha</th>
                         <th class="px-4 py-3 text-center w-40 border border-white/20">Tingkat Kehadiran</th>
+                        <th class="px-4 py-3 text-center w-24 border border-white/20">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white dark:bg-zinc-900">
                     @forelse($pesertaDidiks as $p)
                         @php
-                            $total = $p->total_hadir + $p->total_izin + $p->total_sakit + $p->total_alpha;
-                            $percent = $total > 0 ? round(($p->total_hadir / $total) * 100) : 0;
+                            $target = $p->target_days ?? 1;
+                            $percent = round(($p->total_hadir / $target) * 100);
+                            if ($percent > 100) $percent = 100;
                         @endphp
                         <tr class="rekap-row hover:bg-indigo-50/50 dark:hover:bg-indigo-900/10 transition-all even:bg-slate-50/50 dark:even:bg-zinc-800/30"
                             data-nama="{{ strtolower($p->nama_lengkap) }}" data-nisn="{{ $p->nisn }}">
@@ -150,15 +165,15 @@
                                 #{{ str_pad($loop->iteration, 3, '0', STR_PAD_LEFT) }}
                             </td>
                             <td class="px-4 py-3 border border-slate-200 dark:border-zinc-800">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center shrink-0 ring-1 ring-indigo-100 transition-all">
-                                        <span class="font-black text-xs">{{ substr($p->nama_lengkap, 0, 1) }}</span>
+                                <a href="{{ route('absensi.detail', ['id' => $p->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="flex items-center gap-3 group/link block">
+                                    <div class="w-10 h-10 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center shrink-0 ring-1 ring-indigo-100 transition-all group-hover/link:bg-indigo-600 group-hover/link:text-white group-hover/link:ring-indigo-600">
+                                        <span class="font-black text-xs transition-colors">{{ substr($p->nama_lengkap, 0, 1) }}</span>
                                     </div>
                                     <div>
-                                        <p class="font-bold text-slate-900 dark:text-white leading-tight transition-colors">{{ $p->nama_lengkap }}</p>
+                                        <p class="font-bold text-slate-900 dark:text-white leading-tight transition-colors group-hover/link:text-indigo-600 dark:group-hover/link:text-indigo-400">{{ $p->nama_lengkap }}</p>
                                         <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">{{ $p->nisn }}</p>
                                     </div>
-                                </div>
+                                </a>
                             </td>
                             <td class="px-4 py-3 text-center border border-slate-200 dark:border-zinc-800">
                                 <span class="inline-flex items-center justify-center min-w-[2.5rem] px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 font-black text-xs ring-1 ring-emerald-100 shadow-sm">
@@ -189,10 +204,18 @@
                                     <span class="text-[9px] font-black {{ $percent >= 90 ? 'text-emerald-600' : ($percent >= 70 ? 'text-indigo-600' : 'text-rose-600') }} tracking-widest uppercase">{{ $percent }}% HADIR</span>
                                 </div>
                             </td>
+                            <td class="px-4 py-3 text-center border border-slate-200 dark:border-zinc-800">
+                                <a href="{{ route('absensi.detail', ['id' => $p->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="inline-flex items-center justify-center px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-600 text-indigo-600 hover:text-white text-xs font-bold transition-all shadow-sm">
+                                    <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                    </svg>
+                                    Edit
+                                </a>
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-8 py-24 text-center border border-slate-200 dark:border-zinc-800">
+                            <td colspan="8" class="px-8 py-24 text-center border border-slate-200 dark:border-zinc-800">
                                 <div class="w-20 h-20 bg-slate-50 dark:bg-zinc-800 rounded-[2rem] flex items-center justify-center mx-auto mb-6 text-4xl shadow-inner">
                                     📅
                                 </div>

@@ -1,10 +1,11 @@
 <?php
 
 namespace App\Services;
+use App\Models\System\Message;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use App\Models\Master;
+use App\Models\MasterData\Master;
 
 class WhatsAppService
 {
@@ -73,4 +74,19 @@ class WhatsAppService
             return ['status' => 'error', 'message' => 'Exception: ' . $e->getMessage()];
         }
     }
+
+    public static function sendAsync($phone, $message)
+    {
+        if (empty($phone)) return;
+        
+        dispatch(function () use ($phone, $message) {
+            try {
+                (new self())->sendMessage($phone, $message);
+            } catch (\Exception $e) {
+                Log::error("Gagal kirim WA async: " . $e->getMessage());
+            }
+        })->afterResponse();
+    }
 }
+
+

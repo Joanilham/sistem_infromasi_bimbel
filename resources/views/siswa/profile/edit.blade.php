@@ -8,18 +8,6 @@
     <h2 style="font-size: 1.5rem; font-weight: 800; color: var(--text-main); margin-bottom: 8px;">Pengaturan Akun</h2>
     <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 28px;">Kelola informasi profil, foto, dan kata sandi Anda.</p>
 
-    @if(session('success'))
-        <div style="padding: 16px 20px; border-radius: 16px; margin-bottom: 24px; font-size: 0.9rem; font-weight: 600; display: flex; gap: 12px; align-items: center; background: #E6F8F1; color: #01B574; border: 1px solid #A7F3D0;">
-            <svg style="width: 24px; height: 24px; flex-shrink: 0;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-            <div>{{ session('success') }}</div>
-        </div>
-    @endif
-    @if($errors->any() && !session('success'))
-        <div style="padding: 16px 20px; border-radius: 16px; margin-bottom: 24px; font-size: 0.9rem; font-weight: 600; display: flex; gap: 12px; align-items: center; background: #FDE8E8; color: #EE5D50; border: 1px solid #FECACA;">
-            <svg style="width: 24px; height: 24px; flex-shrink: 0;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-            <div>Mohon periksa kembali form pengisian di bawah.</div>
-        </div>
-    @endif
 
     {{-- Foto Profil --}}
     <div style="background: var(--white); border-radius: 24px; padding: 32px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); border: 1px solid var(--border-color); margin-bottom: 24px;" x-data="{ preview: null }">
@@ -39,9 +27,7 @@
                 @if($user->photo)
                     <img src="{{ asset('storage/' . $user->photo) }}" alt="Foto Profil" style="width: 100%; height: 100%; object-fit: cover;" x-show="!preview">
                 @else
-                    <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #4318FF, #8F9BFA); display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem; font-weight: 800;" x-show="!preview">
-                        {{ strtoupper(substr($user->name, 0, 1)) }}
-                    </div>
+                    <img src="https://ui-avatars.com/api/?name={{ urlencode(trim($user->name)) }}&background=4318FF&color=fff&size=256&bold=true&format=svg" alt="Foto Profil" style="width: 100%; height: 100%; object-fit: cover;" x-show="!preview">
                 @endif
                 <img :src="preview" alt="Preview" style="width: 100%; height: 100%; object-fit: cover;" x-show="preview" x-cloak>
             </div>
@@ -125,21 +111,30 @@
             @csrf
             @method('patch')
 
-            <div style="margin-bottom: 24px;">
-                <label style="display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 10px;">Kata Sandi Saat Ini</label>
-                <input type="password" name="current_password" required style="width: 100%; padding: 16px 20px; border-radius: 16px; border: 1px solid var(--border-color); background: var(--bg-body); font-size: 0.95rem; color: var(--text-main); font-weight: 500; font-family: inherit; transition: all 0.2s; outline: none;">
-                @error('current_password') <span style="color: #EE5D50; font-size: 0.8rem; font-weight: 600; margin-top: 6px; display: block;">{{ $message }}</span> @enderror
-            </div>
+            <div x-data="{ show: false }">
+                <div style="margin-bottom: 24px;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 10px;">Kata Sandi Saat Ini</label>
+                    <input :type="show ? 'text' : 'password'" name="current_password" required style="width: 100%; padding: 16px 20px; border-radius: 16px; border: 1px solid var(--border-color); background: var(--bg-body); font-size: 0.95rem; color: var(--text-main); font-weight: 500; font-family: inherit; transition: all 0.2s; outline: none;">
+                    @error('current_password') <span style="color: #EE5D50; font-size: 0.8rem; font-weight: 600; margin-top: 6px; display: block;">{{ $message }}</span> @enderror
+                </div>
 
-            <div style="margin-bottom: 24px;">
-                <label style="display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 10px;">Kata Sandi Baru</label>
-                <input type="password" name="password" required style="width: 100%; padding: 16px 20px; border-radius: 16px; border: 1px solid var(--border-color); background: var(--bg-body); font-size: 0.95rem; color: var(--text-main); font-weight: 500; font-family: inherit; transition: all 0.2s; outline: none;">
-                @error('password') <span style="color: #EE5D50; font-size: 0.8rem; font-weight: 600; margin-top: 6px; display: block;">{{ $message }}</span> @enderror
-            </div>
+                <div style="margin-bottom: 24px;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 10px;">Kata Sandi Baru</label>
+                    <input :type="show ? 'text' : 'password'" name="password" required style="width: 100%; padding: 16px 20px; border-radius: 16px; border: 1px solid var(--border-color); background: var(--bg-body); font-size: 0.95rem; color: var(--text-main); font-weight: 500; font-family: inherit; transition: all 0.2s; outline: none;">
+                    @error('password') <span style="color: #EE5D50; font-size: 0.8rem; font-weight: 600; margin-top: 6px; display: block;">{{ $message }}</span> @enderror
+                </div>
 
-            <div style="margin-bottom: 24px;">
-                <label style="display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 10px;">Konfirmasi Kata Sandi Baru</label>
-                <input type="password" name="password_confirmation" required style="width: 100%; padding: 16px 20px; border-radius: 16px; border: 1px solid var(--border-color); background: var(--bg-body); font-size: 0.95rem; color: var(--text-main); font-weight: 500; font-family: inherit; transition: all 0.2s; outline: none;">
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 10px;">Konfirmasi Kata Sandi Baru</label>
+                    <input :type="show ? 'text' : 'password'" name="password_confirmation" required style="width: 100%; padding: 16px 20px; border-radius: 16px; border: 1px solid var(--border-color); background: var(--bg-body); font-size: 0.95rem; color: var(--text-main); font-weight: 500; font-family: inherit; transition: all 0.2s; outline: none;">
+                </div>
+
+                <div style="margin-bottom: 24px;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" x-model="show" style="width: 18px; height: 18px; border-radius: 4px; accent-color: var(--text-main); cursor: pointer;">
+                        <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-main);">Tampilkan Semua Sandi</span>
+                    </label>
+                </div>
             </div>
 
             <button type="submit" style="width: 100%; padding: 18px; border-radius: 16px; border: none; background: var(--text-main); color: white; font-size: 1rem; font-weight: 800; font-family: inherit; cursor: pointer; transition: all 0.2s; box-shadow: 0 10px 20px rgba(43, 54, 116, 0.2); display: flex; align-items: center; justify-content: center; gap: 10px;">

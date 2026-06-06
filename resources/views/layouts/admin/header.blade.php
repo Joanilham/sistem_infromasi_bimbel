@@ -1,4 +1,4 @@
-<header class="bg-white dark:bg-zinc-900 backdrop-blur-sm border-b border-slate-200 dark:border-zinc-800 sticky top-0 z-20 transition-colors duration-200">
+<header class="bg-white dark:bg-zinc-900 backdrop-blur-sm border-b border-slate-200 dark:border-zinc-800 sticky top-0 z-20">
     <div class="px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-20">
             <div class="flex items-center gap-2 sm:gap-3 min-w-0">
@@ -22,25 +22,22 @@
                     $isSuperAdmin = auth()->check() && strtolower(auth()->user()->level) === 'super admin';
                     $filterKantorId = $isSuperAdmin ? null : $kId;
 
-                    $pendaftaranMenunggu = \App\Models\PendaftaranSiswa::where('status', 'menunggu')
+                    $pendaftaranMenunggu = \App\Models\Pendaftaran\PendaftaranSiswa::where('status', 'menunggu')
                         ->when($filterKantorId, fn($q) => $q->where('kantor_id', $filterKantorId))->count();
 
-                    $pembayaranBelumDikonfirmasi = \App\Models\PembayaranPendaftaran::where('status', 'menunggu')
+                    $pembayaranBelumDikonfirmasi = \App\Models\Keuangan\PembayaranPendaftaran::where('status', 'menunggu')
                         ->whereHas('pendaftaranSiswa', fn($q) => $q->when($filterKantorId, fn($q2) => $q2->where('kantor_id', $filterKantorId)))->count();
 
-                    $transferSppCount = ($kId && $pId) ? \App\Models\TransaksiPembayaran::where('tipe_pembayaran', 'TRANSFER')
+                    $transferSppCount = ($kId && $pId) ? \App\Models\Keuangan\TransaksiPembayaran::where('tipe_pembayaran', 'TRANSFER')
                         ->whereHas('pembayaranSiswa.pesertaDidik', fn($q) => $q->inContext())
                         ->where('created_at', '>=', \Carbon\Carbon::now()->subDays(30))
                         ->count() : 0;
 
                     $tagihanJatuhTempoCount = 0;
                     if ($kId && $pId) {
-                        $tagihanRaw = \App\Models\PembayaranSiswa::with('transaksi')
+                        $tagihanRaw = \App\Models\Keuangan\PembayaranSiswa::with('transaksi')
                             ->whereHas('pesertaDidik', fn($q) => $q->inContext()->aktif())
-                            ->where(function($q) {
-                                $q->where('batas_waktu', '<=', \Carbon\Carbon::now()->addDays(31))
-                                  ->orWhereNull('batas_waktu');
-                            })
+                            ->where('batas_waktu', '<=', \Carbon\Carbon::now()->addDays(31))
                             ->get();
                         $tagihanJatuhTempoCount = $tagihanRaw->filter(fn($p) => $p->kekurangan > 0)->count();
                     }
@@ -98,6 +95,15 @@
                             </svg>
                             Edit Profile
                         </a>
+
+                        @if(auth()->check() && in_array(strtolower(auth()->user()->level), ['super admin', 'admin', 'administrator']))
+                        <a href="{{ route('konteks.select') }}" class="flex items-center px-4 py-2.5 text-sm text-slate-700 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-700 hover:text-indigo-600 transition-colors">
+                            <svg class="mr-3 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                            </svg>
+                            Ganti Cabang / Periode
+                        </a>
+                        @endif
 
                         <div class="border-t border-slate-50 my-1"></div>
 

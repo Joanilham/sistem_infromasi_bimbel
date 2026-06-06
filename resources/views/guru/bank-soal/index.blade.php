@@ -3,7 +3,7 @@
 @section('title', 'Bank Soal')
 
 @section('content')
-<div class="space-y-6">
+<div class="space-y-6" x-data="ajaxTable()">
 
     {{-- Header --}}
     <div class="bg-gradient-to-br from-white to-[#78BBB0]/20 dark:from-zinc-900 dark:to-[#388782]/30 rounded-xl shadow-sm border border-slate-100 dark:border-[#388782]/30 p-6">
@@ -84,9 +84,21 @@
     </div>
 
     {{-- Filter & Search --}}
-    <div class="bg-gradient-to-br from-white to-[#78BBB0]/20 dark:from-zinc-900 dark:to-[#388782]/30 rounded-xl shadow-sm border border-slate-100 dark:border-[#388782]/30 p-5"
+    <div class="bg-gradient-to-br from-white to-[#78BBB0]/20 dark:from-zinc-900 dark:to-[#388782]/30 rounded-xl shadow-sm border border-slate-100 dark:border-[#388782]/30 p-5 relative"
          x-data="{ showFilters: {{ request()->hasAny(['mapel','bab','tipe','kesulitan']) ? 'true' : 'false' }} }">
-        <form method="GET" action="{{ route('guru.bank-soal.index') }}">
+         
+        {{-- Loading Overlay --}}
+        <div x-show="isLoading" class="absolute inset-0 z-50 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-sm flex items-center justify-center transition-opacity duration-300 rounded-xl" style="display: none;">
+            <div class="bg-white dark:bg-zinc-800 p-4 rounded-2xl shadow-xl border border-slate-100 dark:border-zinc-700 flex items-center gap-3">
+                <svg class="animate-spin h-5 w-5 text-[#388782]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span class="text-sm font-bold text-slate-700 dark:text-slate-200">Memuat data...</span>
+            </div>
+        </div>
+
+        <form @submit.prevent="fetchData" method="GET" action="{{ route('guru.bank-soal.index') }}">
             <div class="flex flex-col sm:flex-row gap-3">
                 {{-- Search --}}
                 <div class="relative flex-1">
@@ -97,23 +109,33 @@
                         class="w-full pl-10 pr-4 py-2.5 border border-slate-200 dark:border-zinc-700 rounded-xl text-sm bg-slate-50 dark:bg-zinc-800 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent placeholder-slate-400 dark:placeholder-slate-500">
                 </div>
                 <button type="button" @click="showFilters = !showFilters"
-                    class="px-4 py-2.5 border border-slate-200 dark:border-zinc-700 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-zinc-800 flex items-center gap-2 transition-colors">
+                    class="px-4 py-2.5 border border-slate-200 dark:border-zinc-700 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-zinc-800 flex items-center gap-2 transition-colors shrink-0">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
                     </svg>
-                    Filter
+                    <span class="hidden sm:inline">Advanced</span>
                 </button>
                 <button type="submit"
-                    class="px-5 py-2.5 bg-[#388782] text-white rounded-xl text-sm font-semibold hover:bg-[#206D6C] transition-colors shadow-sm">
-                    Cari
+                    class="px-5 py-2.5 bg-[#388782] hover:bg-[#206D6C] text-white rounded-xl text-sm font-bold transition-colors shadow-sm shadow-[#388782]/30 shrink-0">
+                    Filter
                 </button>
+                @if(request()->anyFilled(['search','mapel','bab','tipe','kesulitan']))
+                    <a href="{{ route('guru.bank-soal.index') }}" 
+                       class="flex items-center gap-2 bg-slate-100 dark:bg-zinc-800 hover:bg-rose-100 dark:hover:bg-rose-900/40 text-slate-600 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 px-4 py-2.5 rounded-xl text-sm font-bold transition-all shrink-0"
+                       title="Reset Filter">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                        Clear
+                    </a>
+                @endif
             </div>
 
             {{-- Filter Dropdowns --}}
             <div x-show="showFilters" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-4 pt-4 border-t border-slate-100 dark:border-zinc-800">
                 <div>
                     <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Mata Pelajaran</label>
-                    <select name="mapel" class="w-full border border-slate-200 dark:border-zinc-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-zinc-800 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500">
+                    <select name="mapel" @change="fetchData" class="w-full border border-slate-200 dark:border-zinc-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-zinc-800 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500">
                         <option value="">Semua</option>
                         @foreach($mapels as $m)
                         <option value="{{ $m->id }}" {{ request('mapel') == $m->id ? 'selected' : '' }}>{{ $m->nama }}</option>
@@ -122,7 +144,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Topik / Bab</label>
-                    <select name="bab" class="w-full border border-slate-200 dark:border-zinc-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-zinc-800 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500">
+                    <select name="bab" @change="fetchData" class="w-full border border-slate-200 dark:border-zinc-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-zinc-800 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500">
                         <option value="">Semua</option>
                         @foreach($babs as $b)
                         <option value="{{ $b->id }}" {{ request('bab') == $b->id ? 'selected' : '' }}>{{ $b->nama }}</option>
@@ -131,7 +153,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Tipe Soal</label>
-                    <select name="tipe" class="w-full border border-slate-200 dark:border-zinc-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-zinc-800 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500">
+                    <select name="tipe" @change="fetchData" class="w-full border border-slate-200 dark:border-zinc-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-zinc-800 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500">
                         <option value="">Semua</option>
                         <option value="pg" {{ request('tipe') == 'pg' ? 'selected' : '' }}>Pilihan Ganda</option>
                         <option value="essay" {{ request('tipe') == 'essay' ? 'selected' : '' }}>Essay</option>
@@ -139,7 +161,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Tingkat Kesulitan</label>
-                    <select name="kesulitan" class="w-full border border-slate-200 dark:border-zinc-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-zinc-800 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500">
+                    <select name="kesulitan" @change="fetchData" class="w-full border border-slate-200 dark:border-zinc-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-zinc-800 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500">
                         <option value="">Semua</option>
                         <option value="easy" {{ request('kesulitan') == 'easy' ? 'selected' : '' }}>Mudah</option>
                         <option value="medium" {{ request('kesulitan') == 'medium' ? 'selected' : '' }}>Sedang</option>
@@ -148,17 +170,11 @@
                 </div>
             </div>
 
-            @if(request()->hasAny(['search','mapel','bab','tipe','kesulitan']))
-            <div class="mt-3">
-                <a href="{{ route('guru.bank-soal.index') }}" class="text-xs text-[#388782] dark:text-[#A2D5CB] hover:underline font-medium">
-                    ✕ Reset semua filter
-                </a>
-            </div>
-            @endif
         </form>
     </div>
 
     {{-- Daftar Soal --}}
+    <div id="ajax-table-body" @click="if($event.target.closest('th a')) { navigate($event, $event.target.closest('a').href) }; if($event.target.closest('nav[role=navigation] a')) { navigate($event, $event.target.closest('a').href) }">
     @if($soals->isEmpty())
     <div class="bg-gradient-to-br from-white to-[#78BBB0]/20 dark:from-zinc-900 dark:to-[#388782]/30 rounded-xl shadow-sm border border-slate-100 dark:border-[#388782]/30 p-16 text-center">
         <div class="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-emerald-100 to-green-50 dark:from-emerald-900/30 dark:to-green-900/20 flex items-center justify-center">
@@ -262,7 +278,7 @@
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                 </a>
                 <form action="{{ route('guru.bank-soal.destroy', $soal->id) }}" method="POST" class="inline"
-                    onsubmit="return confirm('Yakin hapus soal ini? Tindakan ini tidak dapat dibatalkan.')">
+                    onsubmit="event.preventDefault(); confirmDelete('Hapus Soal?', 'Tindakan ini tidak dapat dibatalkan!', this)">
                     @csrf
                     @method('DELETE')
                     <button type="submit"
@@ -276,9 +292,10 @@
     </div>
 
     {{-- Pagination --}}
-    <div class="flex justify-center">
+    <div class="flex justify-center mt-6">
         {{ $soals->links() }}
     </div>
     @endif
+    </div>
 </div>
 @endsection

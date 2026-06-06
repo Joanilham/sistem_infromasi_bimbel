@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Http\Middleware;
+use App\Models\MasterData\Periode;
+use App\Models\MasterData\Kantor;
 
 use Closure;
 use Illuminate\Http\Request;
@@ -18,8 +20,9 @@ class CekKonteks
         if (!$request->session()->has('kantor_id') || !$request->session()->has('periode_id')) {
             $user = $request->user();
             if ($user && in_array(strtolower($user->level), ['super admin', 'admin'])) {
-                $kantorId = $user->kantor_id ?: (\App\Models\Kantor::first()->id ?? null);
-                $periodeId = $user->periode_id ?: (\App\Models\Periode::where('is_active', true)->first()->id ?? (\App\Models\Periode::first()->id ?? null));
+                $isSuperAdmin = strtolower($user->level) === 'super admin';
+                $kantorId = $isSuperAdmin ? 'all' : ($user->kantor_id ?: (\App\Models\MasterData\Kantor::first()->id ?? null));
+                $periodeId = $user->periode_id ?: (\App\Models\MasterData\Periode::where('is_active', true)->first()->id ?? (\App\Models\MasterData\Periode::first()->id ?? null));
 
                 if ($kantorId && $periodeId) {
                     $request->session()->put('kantor_id', $kantorId);
@@ -35,3 +38,5 @@ class CekKonteks
         return $next($request);
     }
 }
+
+

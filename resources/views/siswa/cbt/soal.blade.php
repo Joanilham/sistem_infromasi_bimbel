@@ -222,6 +222,7 @@
         }
         #autosave-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     </style>
+    <link rel="stylesheet" href="{{ asset('css/loading.css') }}">
 </head>
 <body class="no-scrollbar">
 
@@ -261,7 +262,7 @@
         <div class="nav-grid">
             @foreach($semuaJawaban as $nav)
             @php
-                $isDijawab = $nav->cbt_opsi_jawaban_id || $nav->jawaban_teks;
+                $isDijawab = $nav->cbt_opsi_jawaban_id || $nav->jawaban_essay;
                 $isRagu = $nav->ragu_ragu;
                 $isActive = $nav->urutan == $no;
             @endphp
@@ -304,7 +305,7 @@
                         </span>
                     @endif
                 </div>
-                <div class="soal-text">{!! nl2br(e($jawabanSaatIni->bankSoal->pertanyaan)) !!}
+                <div class="soal-text">{!! \App\Helpers\HtmlSanitizer::clean($jawabanSaatIni->bankSoal->pertanyaan) !!}
                     @if($jawabanSaatIni->bankSoal->file_media)
                         <img src="{{ asset('storage/' . $jawabanSaatIni->bankSoal->file_media) }}" alt="Media Soal">
                     @endif
@@ -332,14 +333,14 @@
                     <label class="option-label {{ $savedOpsi == $opsi->id ? 'selected' : '' }}" onclick="selectOption(this)">
                         <input type="radio" name="cbt_opsi_jawaban_id" value="{{ $opsi->id }}" {{ $savedOpsi == $opsi->id ? 'checked' : '' }} onchange="autoSave()">
                         <div class="option-mark">{{ $letters[$i] ?? ($i+1) }}</div>
-                        <div class="option-text">{!! nl2br(e($opsi->teks_opsi)) !!}</div>
+                        <div class="option-text">{!! \App\Helpers\HtmlSanitizer::clean($opsi->teks_opsi) !!}</div>
                     </label>
                     @endforeach
                 </div>
                 @else
                 {{-- Essay --}}
                 <div class="essay-wrapper">
-                    <textarea name="jawaban_teks" class="essay-box" placeholder="Tuliskan jawaban Anda secara lengkap di sini..." oninput="debounceAutoSave()">{{ $jawabanSaatIni->jawaban_teks ?? '' }}</textarea>
+                    <textarea name="jawaban_essay" class="essay-box" placeholder="Tuliskan jawaban Anda secara lengkap di sini..." oninput="debounceAutoSave()">{{ $jawabanSaatIni->jawaban_essay ?? '' }}</textarea>
                 </div>
                 @endif
             </div>
@@ -382,7 +383,7 @@
         <h3 class="text-2xl font-black text-slate-800 dark:text-slate-100 mb-2 tracking-tight">Kumpulkan Ujian?</h3>
         <p class="text-slate-400 dark:text-slate-500 mb-10 font-medium leading-relaxed" id="modal-info">
             @php 
-                $dijawabCount = $semuaJawaban->filter(fn($j) => $j->cbt_opsi_jawaban_id || $j->jawaban_teks)->count(); 
+                $dijawabCount = $semuaJawaban->filter(fn($j) => $j->cbt_opsi_jawaban_id || $j->jawaban_essay)->count(); 
             @endphp
             Anda telah menjawab <span class="text-slate-800 dark:text-slate-200 font-bold">{{ $dijawabCount }} dari {{ $totalSoal }}</span> soal. Pastikan semua jawaban sudah benar sebelum mengakhiri sesi.
         </p>
@@ -486,11 +487,22 @@ function autoSave() {
             'X-Requested-With': 'XMLHttpRequest', 
             'Accept': 'application/json' 
         }
-    }).then(res => res.json())
+    }).then(res => {
+          if (res.status === 419 || res.status === 401) {
+              alert('⚠️ Sesi Anda telah berakhir / kedaluwarsa. Halaman akan memuat ulang agar Anda dapat masuk kembali dan melanjutkan ujian.');
+              window.location.reload();
+              return;
+          }
+          if (!res.ok) throw new Error('Simpan jawaban gagal.');
+          return res.json();
+      })
       .then(res => {
-          if(res.status === 'saved') {
+          if(res && res.status === 'saved') {
               showToast();
           }
+      })
+      .catch(err => {
+          console.error('Error saving answer:', err);
       });
 }
 
@@ -499,6 +511,15 @@ function showToast() {
     toast.classList.add('show');
     setTimeout(() => toast.classList.remove('show'), 2000);
 }
+
+// Keep-Alive Ping (Perpanjang sesi Laravel siswa secara otomatis setiap 5 menit)
+setInterval(() => {
+    fetch(window.location.href, {
+        method: 'HEAD',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    }).catch(err => console.warn('Keep-alive ping failed:', err));
+}, 300000); // 5 menit
 </script>
+    @include('components.loading-overlay')
 </body>
 </html>

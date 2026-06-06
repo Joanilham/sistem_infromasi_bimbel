@@ -1,76 +1,55 @@
 <?php
 
 namespace App\Http\Controllers\Siswa;
+use App\Models\Akademik\PesertaDidik;
 
 use App\Http\Controllers\Controller;
-use App\Models\CbtUjian;
-use App\Models\CbtPeserta;
-use App\Models\CbtPesertaJawaban;
-use App\Models\CbtUjianAssign;
+use App\Models\CBT\CbtUjian;
+use App\Models\CBT\CbtPeserta;
+use App\Models\CBT\CbtPesertaJawaban;
+use App\Models\CBT\CbtUjianAssign;
+use App\Services\CbtService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class CbtSiswaController extends Controller
 {
+    public function __construct(protected CbtService $cbtService)
+    {}
     /**
      * S3-F1: Daftar Ujian Tersedia
      */
     public function index()
     {
-        /** @var \App\Models\User $user */
         $user = Auth::user();
         $pesertaDidik = $user->pesertaDidik;
         $kelompokId = $pesertaDidik ? $pesertaDidik->kelompok_belajar_id : null;
 
         // Cari ID ujian yang di-assign ke siswa ini (personal atau kelas)
-        $assignedUjianIds = CbtUjianAssign::where(function($q) use ($user, $kelompokId) {
-            $q->where('tipe_assign', 'user')->where('assign_id', $user->id);
-            if ($kelompokId) {
-                $q->orWhere(function($sq) use ($kelompokId) {
-                    $sq->where('tipe_assign', 'kelas')->where('assign_id', $kelompokId);
-                });
-            }
-        })->pluck('cbt_ujian_id')->toArray();
+        $assignedUjianIds = $this->getAssignedUjianIds($user->id, $kelompokId);
 
-        // S3-F1: Daftar Ujian Aktif
+        // S3-F1: Daftar Ujian Selesai / Lewat Waktu
+        $ujianSelesaiIds = $this->getUjianSelesaiIds($user->id, $assignedUjianIds);
+
+        // S3-F1: Daftar Ujian Aktif (exclude selesai)
         $ujianAktif = CbtUjian::whereIn('id', $assignedUjianIds)
             ->aktif()
             ->orderBy('waktu_mulai', 'asc')
-            ->get();
+            ->get()
+            ->reject(fn($ujian) => in_array($ujian->id, $ujianSelesaiIds));
 
-        // S3-F1: Daftar Ujian Mendatang
+        // S3-F1: Daftar Ujian Mendatang (exclude selesai)
         $ujianMendatang = CbtUjian::whereIn('id', $assignedUjianIds)
             ->mendatang()
             ->orderBy('waktu_mulai', 'asc')
-            ->get();
+            ->get()
+            ->reject(fn($ujian) => in_array($ujian->id, $ujianSelesaiIds));
 
-        // S3-F1: Ujian Selesai (sudah disubmit siswa ATAU waktu sudah lewat)
-        $ujianSelesaiIds = CbtPeserta::where('user_id', $user->id)
-            ->whereIn('status', ['selesai', 'timeout'])
-            ->pluck('cbt_ujian_id')
-            ->toArray();
-            
-        $ujianLewatIds = CbtUjian::whereIn('id', $assignedUjianIds)
-            ->whereNotNull('waktu_selesai')
-            ->where('waktu_selesai', '<', now())
-            ->pluck('id')
-            ->toArray();
-
-        $allSelesaiIds = array_unique(array_merge($ujianSelesaiIds, $ujianLewatIds));
-
-        $ujianSelesai = CbtUjian::whereIn('id', $allSelesaiIds)
+        // S3-F1: Daftar Ujian Selesai (Detail)
+        $ujianSelesai = CbtUjian::whereIn('id', $ujianSelesaiIds)
             ->orderBy('waktu_selesai', 'desc')
             ->get();
-
-        // Singkirkan ujian aktif/mendatang jika user sudah menyelesaikannya
-        $ujianAktif = $ujianAktif->reject(function($ujian) use ($ujianSelesaiIds) {
-            return in_array($ujian->id, $ujianSelesaiIds);
-        });
-
-        $ujianMendatang = $ujianMendatang->reject(function($ujian) use ($ujianSelesaiIds) {
-            return in_array($ujian->id, $ujianSelesaiIds);
-        });
 
         // Ambil data sesi untuk passing ke view
         $sesis = CbtPeserta::where('user_id', $user->id)->get()->keyBy('cbt_ujian_id');
@@ -83,13 +62,26 @@ class CbtSiswaController extends Controller
      */
     public function riwayat()
     {
+        $user = Auth::user();
+        $pesertaDidik = $user ? $user->pesertaDidik : null;
+        $pembayaranBelumLunas = false;
+        $kekurangan = 0;
+
+        if ($pesertaDidik) {
+            $pembayaran = $pesertaDidik->pembayaran()->first();
+            if ($pembayaran && !$pembayaran->lunas && !$pembayaran->dispensasi) {
+                $pembayaranBelumLunas = true;
+                $kekurangan = $pembayaran->kekurangan;
+            }
+        }
+
         $pesertas = CbtPeserta::where('user_id', Auth::id())
             ->with(['ujian'])
             ->whereIn('status', ['selesai', 'timeout'])
             ->orderBy('waktu_selesai', 'desc')
-            ->get();
+            ->paginate(15);
 
-        return view('siswa.cbt.riwayat', compact('pesertas'));
+        return view('siswa.cbt.riwayat', compact('pesertas', 'pembayaranBelumLunas', 'kekurangan'));
     }
 
     /**
@@ -137,6 +129,10 @@ class CbtSiswaController extends Controller
             return back()->with('error', 'Ujian belum aktif atau sudah berakhir.');
         }
 
+        if ($ujian->ujianSoals->isEmpty()) {
+            return back()->with('error', 'Ujian belum memiliki soal.');
+        }
+
         if ($ujian->token) {
             $request->validate(['token' => 'required|string']);
             if ($request->token !== $ujian->token) {
@@ -159,52 +155,14 @@ class CbtSiswaController extends Controller
             return redirect()->route('siswa.ujian.index')->with('error', 'Anda telah mencapai batas maksimal percobaan untuk ujian ini.');
         }
 
-        $attemptKe = CbtPeserta::where('cbt_ujian_id', $ujian->id)->where('user_id', Auth::id())->count() + 1;
-
-        DB::beginTransaction();
         try {
-            // Buat Sesi Peserta
-            $sesi = CbtPeserta::create([
-                'cbt_ujian_id' => $ujian->id,
-                'user_id'      => Auth::id(),
-                'waktu_mulai'  => now(),
-                'status'       => 'mengerjakan',
-                'attempt_ke'   => $attemptKe,
-                'session_token'=> session()->getId(),
-                'ip_address'   => $request->ip(),
+            $sesi = $this->cbtService->initiateSesi($ujian, Auth::id(), [
+                'session_token' => session()->getId(),
+                'ip_address'    => $request->ip(),
             ]);
 
-            // Siapkan Soal (Randomisasi jika diset)
-            $ujianSoals = $ujian->ujianSoals;
-            if ($ujian->acak_soal) {
-                $ujianSoals = $ujianSoals->shuffle();
-            }
-
-            $urutan = 1;
-            foreach ($ujianSoals as $us) {
-                /** @var \App\Models\CbtUjianSoal $us */
-                $opsi = $us->bankSoal->opsiJawabans;
-                $urutanOpsi = null;
-                
-                if ($ujian->acak_opsi && $us->bankSoal->tipe_soal === 'pg' && $opsi->count() > 0) {
-                    $urutanOpsi = $opsi->shuffle()->pluck('id')->toArray();
-                } elseif ($us->bankSoal->tipe_soal === 'pg' && $opsi->count() > 0) {
-                    $urutanOpsi = $opsi->pluck('id')->toArray();
-                }
-
-                CbtPesertaJawaban::create([
-                    'cbt_peserta_id'   => $sesi->id,
-                    'cbt_bank_soal_id' => $us->bankSoal->id,
-                    'urutan'           => $urutan++,
-                    'opsi_order'       => $urutanOpsi,
-                    'ragu_ragu'        => false,
-                ]);
-            }
-
-            DB::commit();
             return redirect()->route('siswa.ujian.soal', [$sesi->id, 1]);
         } catch (\Exception $e) {
-            DB::rollBack();
             return back()->with('error', 'Gagal memulai ujian: ' . $e->getMessage());
         }
     }
@@ -214,7 +172,7 @@ class CbtSiswaController extends Controller
      */
     public function soal($id, $no)
     {
-        /** @var \App\Models\CbtPeserta $sesi */
+        /** @var \App\Models\CBT\CbtPeserta $sesi */
         $sesi = CbtPeserta::with(['ujian'])->findOrFail($id);
 
         if ($sesi->user_id !== Auth::id()) {
@@ -233,7 +191,7 @@ class CbtSiswaController extends Controller
         // Load semua jawaban untuk navigasi grid
         $semuaJawaban = CbtPesertaJawaban::where('cbt_peserta_id', $sesi->id)
             ->orderBy('urutan')
-            ->get(['id', 'urutan', 'cbt_opsi_jawaban_id', 'jawaban_teks', 'ragu_ragu']);
+            ->get(['id', 'urutan', 'cbt_opsi_jawaban_id', 'jawaban_essay', 'ragu_ragu']);
 
         $totalSoal = $semuaJawaban->count();
         if ($no < 1 || $no > $totalSoal) {
@@ -274,8 +232,8 @@ class CbtSiswaController extends Controller
 
         if ($request->has('cbt_opsi_jawaban_id')) {
             $jawaban->cbt_opsi_jawaban_id = $request->cbt_opsi_jawaban_id;
-        } elseif ($request->has('jawaban_teks')) {
-            $jawaban->jawaban_teks = $request->jawaban_teks;
+        } elseif ($request->has('jawaban_essay')) {
+            $jawaban->jawaban_essay = $request->jawaban_essay;
         }
 
         if ($request->has('ragu_ragu')) {
@@ -325,6 +283,15 @@ class CbtSiswaController extends Controller
             abort(403);
         }
 
+        // Lock check
+        $pesertaDidik = Auth::user()->pesertaDidik;
+        if ($pesertaDidik) {
+            $pembayaran = $pesertaDidik->pembayaran()->first();
+            if ($pembayaran && !$pembayaran->lunas && !$pembayaran->dispensasi) {
+                return redirect()->route('siswa.ujian.riwayat')->with('error', '⚠️ Silakan melunasi tagihan Anda untuk melihat hasil & analisis ujian.');
+            }
+        }
+
         return view('siswa.cbt.hasil', compact('sesi'));
     }
 
@@ -332,53 +299,38 @@ class CbtSiswaController extends Controller
 
     private function prosesSubmit(CbtPeserta $sesi, $status)
     {
-        if (in_array($sesi->status, ['selesai', 'timeout'])) {
-            return redirect()->route('siswa.ujian.hasil', $sesi->id);
-        }
+        return $this->cbtService->gradeAndSubmit($sesi, $status)
+            ? redirect()->route('siswa.ujian.hasil', $sesi->id)->with('success', 'Ujian telah diselesaikan.')
+            : redirect()->route('siswa.ujian.hasil', $sesi->id);
+    }
 
-        $sesi->status = $status;
-        $sesi->waktu_selesai = now();
-
-        // Grading Otomatis (PG)
-        $jawabans = $sesi->jawabans()->with(['bankSoal.opsiJawabans'])->get();
-        $totalSkor = 0;
-        $totalBobot = 0;
-
-        foreach ($jawabans as $j) {
-            /** @var \App\Models\CbtPesertaJawaban $j */
-            $soal = $j->bankSoal;
-            // Ambil bobot dari tabel pivot ujian_soal
-            $ujianSoal = \App\Models\CbtUjianSoal::where('cbt_ujian_id', $sesi->cbt_ujian_id)
-                ->where('cbt_bank_soal_id', $soal->id)
-                ->first();
-            
-            $bobot = $ujianSoal ? $ujianSoal->bobot : 1;
-            $totalBobot += $bobot;
-
-            if ($soal->tipe_soal === 'pg') {
-                $kunci = $soal->opsiJawabans->where('is_benar', true)->first();
-                if ($kunci && $j->cbt_opsi_jawaban_id == $kunci->id) {
-                    $j->is_benar = true;
-                    $j->skor = $bobot;
-                    $totalSkor += $bobot;
-                } else {
-                    $j->is_benar = false;
-                    $j->skor = 0; // standard (bukan UTBK -1)
-                }
-                $j->save();
+    private function getAssignedUjianIds($userId, $kelompokId): array
+    {
+        return CbtUjianAssign::where(function($q) use ($userId, $kelompokId) {
+            $q->where('tipe_assign', 'user')->where('assign_id', $userId);
+            if ($kelompokId) {
+                $q->orWhere(function($sq) use ($kelompokId) {
+                    $sq->where('tipe_assign', 'kelas')->where('assign_id', $kelompokId);
+                });
             }
-        }
+        })->pluck('cbt_ujian_id')->toArray();
+    }
 
-        // Kalkulasi nilai akhir (skala 100)
-        if ($totalBobot > 0) {
-            $sesi->skor = ($totalSkor / $totalBobot) * 100;
-        } else {
-            $sesi->skor = 0;
-        }
-        
-        $sesi->save();
+    private function getUjianSelesaiIds($userId, array $assignedUjianIds): array
+    {
+        $ujianSelesaiIds = CbtPeserta::where('user_id', $userId)
+            ->whereIn('status', ['selesai', 'timeout'])
+            ->pluck('cbt_ujian_id')
+            ->toArray();
+            
+        $ujianLewatIds = CbtUjian::whereIn('id', $assignedUjianIds)
+            ->whereNotNull('waktu_selesai')
+            ->where('waktu_selesai', '<', now())
+            ->pluck('id')
+            ->toArray();
 
-        return redirect()->route('siswa.ujian.hasil', $sesi->id)
-            ->with('success', 'Ujian telah diselesaikan.');
+        return array_unique(array_merge($ujianSelesaiIds, $ujianLewatIds));
     }
 }
+
+
