@@ -97,14 +97,21 @@ class PembayaranController extends Controller
         $biaya   = $pembayaranSiswa->pesertaDidik->paketBimbingan?->nominal ?? 0;
         
         // Preserve existing values if not provided in the request
-        $diskon  = $request->has('diskon_nominal') ? ($validated['diskon_nominal'] ?? 0) : $pembayaranSiswa->diskon_nominal;
-        $biayaDaftar = $request->has('biaya_pendaftaran') ? ($validated['biaya_pendaftaran'] ?? 0) : $pembayaranSiswa->biaya_pendaftaran;
+        $diskon  = array_key_exists('diskon_nominal', $validated) ? (int)($validated['diskon_nominal'] ?? 0) : $pembayaranSiswa->diskon_nominal;
+        $biayaDaftar = array_key_exists('biaya_pendaftaran', $validated) ? (int)($validated['biaya_pendaftaran'] ?? 0) : $pembayaranSiswa->biaya_pendaftaran;
         
         $total   = $biaya - $diskon + $biayaDaftar;
 
-        $validated['dispensasi'] = $request->has('dispensasi') ? (bool) $request->dispensasi : false;
+        $updateData = $validated;
+        $updateData['diskon_nominal'] = $diskon;
+        $updateData['biaya_pendaftaran'] = $biayaDaftar;
+        $updateData['dispensasi'] = $request->has('dispensasi') ? (bool) $request->dispensasi : false;
 
-        $pembayaranSiswa->update(array_merge($validated, ['total_harus_dibayar' => max(0, $total)]));
+        if (array_key_exists('diskon_persen', $updateData)) {
+            $updateData['diskon_persen'] = (float)($updateData['diskon_persen'] ?? 0);
+        }
+
+        $pembayaranSiswa->update(array_merge($updateData, ['total_harus_dibayar' => max(0, $total)]));
 
         return back()->with('success', 'Data pembayaran berhasil diperbarui.');
     }

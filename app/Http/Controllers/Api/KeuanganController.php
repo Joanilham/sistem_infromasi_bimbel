@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use App\Models\Keuangan\PembayaranSiswa;
 use App\Models\Keuangan\TransaksiPembayaran;
 use App\Traits\ApiResponse;
+use App\Http\Resources\TransaksiPembayaranResource;
+use App\Http\Resources\BankResource;
 
 class KeuanganController extends Controller
 {
@@ -68,14 +70,18 @@ class KeuanganController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(15);
 
-        return $this->successResponse($transaksi, 'Riwayat pembayaran berhasil dimuat');
+        return $this->successResponse([
+            'data'         => TransaksiPembayaranResource::collection($transaksi->items()),
+            'current_page' => $transaksi->currentPage(),
+            'last_page'    => $transaksi->lastPage(),
+        ], 'Riwayat pembayaran berhasil dimuat');
     }
 
     public function bank()
     {
         // Assuming Bank model is App\Models\MasterData\Bank
         $banks = \App\Models\MasterData\Bank::where('is_active', true)->get();
-        return $this->successResponse($banks, 'Daftar bank tujuan berhasil dimuat');
+        return $this->successResponse(BankResource::collection($banks), 'Daftar bank tujuan berhasil dimuat');
     }
 
     public function bayar(Request $request)
@@ -131,7 +137,7 @@ class KeuanganController extends Controller
             'catatan_siswa' => 'Pembayaran via Aplikasi Mobile',
         ]);
 
-        return $this->successResponse($transaksi, 'Pengajuan pembayaran berhasil dikirim. Menunggu verifikasi admin.');
+        return $this->successResponse(new TransaksiPembayaranResource($transaksi), 'Pengajuan pembayaran berhasil dikirim. Menunggu verifikasi admin.');
     }
 }
 

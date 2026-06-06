@@ -58,6 +58,7 @@ class User extends Authenticatable
         'kantor_id',
         'periode_id',
         'permissions',
+        'is_featured',
     ];
 
     /**

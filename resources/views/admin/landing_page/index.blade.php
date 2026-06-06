@@ -39,6 +39,12 @@
         <button @click="tab = 'gallery'" :class="tab === 'gallery' ? 'bg-white dark:bg-zinc-700 shadow-sm text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-white'" class="px-5 py-2 rounded-md text-sm font-medium transition-all">
             Galeri
         </button>
+        <button @click="tab = 'features'" :class="tab === 'features' ? 'bg-white dark:bg-zinc-700 shadow-sm text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-white'" class="px-5 py-2 rounded-md text-sm font-medium transition-all">
+            Keunggulan
+        </button>
+        <button @click="tab = 'mitra'" :class="tab === 'mitra' ? 'bg-white dark:bg-zinc-700 shadow-sm text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-white'" class="px-5 py-2 rounded-md text-sm font-medium transition-all">
+            Mitra
+        </button>
     </div>
 
     <!-- General Settings Tab -->
@@ -88,8 +94,20 @@
                             <input type="text" name="wa_number" value="{{ old('wa_number', $master->wa_number) }}" class="w-full bg-white dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 rounded-lg text-sm py-2 px-3 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-all" placeholder="628123456789">
                         </div>
                         <div class="space-y-1.5">
-                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Instagram Profile URL</label>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Instagram URL</label>
                             <input type="text" name="instagram_url" value="{{ old('instagram_url', $master->instagram_url) }}" class="w-full bg-white dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 rounded-lg text-sm py-2 px-3 focus:ring-1 focus:ring-pink-500 focus:border-pink-500 transition-all" placeholder="https://instagram.com/...">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Facebook URL</label>
+                            <input type="text" name="facebook_url" value="{{ old('facebook_url', $master->facebook_url) }}" class="w-full bg-white dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 rounded-lg text-sm py-2 px-3 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all" placeholder="https://facebook.com/...">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">YouTube URL</label>
+                            <input type="text" name="youtube_url" value="{{ old('youtube_url', $master->youtube_url) }}" class="w-full bg-white dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 rounded-lg text-sm py-2 px-3 focus:ring-1 focus:ring-red-500 focus:border-red-500 transition-all" placeholder="https://youtube.com/...">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">TikTok URL</label>
+                            <input type="text" name="tiktok_url" value="{{ old('tiktok_url', $master->tiktok_url) }}" class="w-full bg-white dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 rounded-lg text-sm py-2 px-3 focus:ring-1 focus:ring-slate-500 focus:border-slate-500 transition-all" placeholder="https://tiktok.com/...">
                         </div>
 
                         <!-- WA Widget Settings -->
@@ -130,7 +148,17 @@
                             </div>
                             <div class="space-y-1.5">
                                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Deskripsi Sub-headline</label>
-                                <textarea name="hero_subtitle" rows="6" class="w-full bg-white dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 rounded-lg text-sm py-2 px-3 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all resize-none" placeholder="Deskripsikan visi utama lembaga Anda...">{{ old('hero_subtitle', $master->hero_subtitle) }}</textarea>
+                                <textarea name="hero_subtitle" rows="3" class="w-full bg-white dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 rounded-lg text-sm py-2 px-3 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all resize-none" placeholder="Deskripsikan visi utama lembaga Anda...">{{ old('hero_subtitle', $master->hero_subtitle) }}</textarea>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="space-y-1.5">
+                                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Teks Tombol CTA</label>
+                                    <input type="text" name="hero_cta_text" value="{{ old('hero_cta_text', $master->hero_cta_text) }}" class="w-full bg-white dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 rounded-lg text-sm py-2 px-3 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all" placeholder="Daftar Sekarang">
+                                </div>
+                                <div class="space-y-1.5">
+                                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Link Tombol CTA</label>
+                                    <input type="text" name="hero_cta_link" value="{{ old('hero_cta_link', $master->hero_cta_link) }}" class="w-full bg-white dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 rounded-lg text-sm py-2 px-3 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all" placeholder="/pendaftaran">
+                                </div>
                             </div>
                         </div>
                         <div class="space-y-4">
@@ -409,6 +437,108 @@
                     <div class="w-16 h-16 bg-slate-50 dark:bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-100 dark:border-zinc-700 text-3xl">📸</div>
                     <h3 class="font-semibold text-slate-900 dark:text-white text-lg">Galeri Masih Kosong</h3>
                     <p class="text-slate-500 text-sm mt-1">Unggah foto-foto kegiatan belajar mengajar untuk menarik minat.</p>
+                </div>
+            @endforelse
+        </div>
+    </div>
+
+    <!-- Features Tab -->
+    <div x-show="tab === 'features'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-6" x-cloak>
+        <div class="bg-white dark:bg-zinc-900 rounded-xl p-6 border border-slate-200 dark:border-zinc-800 shadow-sm">
+            <h2 class="text-sm font-semibold text-slate-900 dark:text-white mb-6">Tambah Keunggulan / Fitur Baru</h2>
+            <form action="{{ route('admin.landing-page.feature.store') }}" method="POST" enctype="multipart/form-data" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                @csrf
+                <div class="space-y-1.5">
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Judul Keunggulan</label>
+                    <input type="text" name="title" required class="w-full bg-white dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 rounded-lg text-sm py-2 px-3 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all" placeholder="Misal: Pengajar Profesional">
+                </div>
+                <div class="space-y-1.5">
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Ikon (Upload Gambar)</label>
+                    <input type="file" name="icon" class="block w-full text-sm text-slate-500 file:mr-4 file:py-1.5 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-medium file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 cursor-pointer mt-1 border border-slate-200 rounded-lg">
+                </div>
+                <div class="md:col-span-2 space-y-1.5">
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Deskripsi Singkat</label>
+                    <textarea name="description" rows="2" class="w-full bg-white dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 rounded-lg text-sm py-2 px-3 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all resize-none" placeholder="Jelaskan secara singkat..."></textarea>
+                </div>
+                <div class="md:col-span-2 flex justify-end">
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm px-6 py-2.5 rounded-lg shadow-sm transition-all flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        Tambahkan Keunggulan
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            @forelse($features ?? [] as $feature)
+                <div class="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-slate-200 dark:border-zinc-800 shadow-sm relative group">
+                    <form action="{{ route('admin.landing-page.feature.destroy', $feature) }}" method="POST" class="absolute top-4 right-4">
+                        @csrf @method('DELETE')
+                        <button type="submit" onclick="event.preventDefault(); confirmDelete('Hapus Keunggulan?', 'Item ini akan dihapus!', this.closest('form'))" class="w-8 h-8 bg-rose-50 text-rose-600 rounded-lg flex items-center justify-center hover:bg-rose-100 hover:text-rose-700 transition-colors shadow-sm">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                    </form>
+                    <div class="w-12 h-12 mb-4">
+                        @if($feature->icon)
+                            <img src="{{ asset('storage/' . $feature->icon) }}" class="w-full h-full object-contain">
+                        @else
+                            <div class="w-full h-full rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl">⭐</div>
+                        @endif
+                    </div>
+                    <h3 class="text-base font-semibold text-slate-900 dark:text-white mb-2">{{ $feature->title }}</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">{{ $feature->description }}</p>
+                </div>
+            @empty
+                <div class="col-span-full py-16 text-center bg-white dark:bg-zinc-900 rounded-xl border border-slate-200 dark:border-zinc-800 shadow-sm">
+                    <h3 class="font-semibold text-slate-900 dark:text-white text-lg">Belum Ada Keunggulan</h3>
+                    <p class="text-slate-500 text-sm mt-1">Tambahkan poin keunggulan lembaga Anda.</p>
+                </div>
+            @endforelse
+        </div>
+    </div>
+
+    <!-- Mitra Logo Tab -->
+    <div x-show="tab === 'mitra'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-6" x-cloak>
+        <div class="bg-white dark:bg-zinc-900 rounded-xl p-6 border border-slate-200 dark:border-zinc-800 shadow-sm">
+            <h2 class="text-sm font-semibold text-slate-900 dark:text-white mb-6">Tambah Logo Mitra / Alumni</h2>
+            <form action="{{ route('admin.landing-page.mitra.store') }}" method="POST" enctype="multipart/form-data" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                @csrf
+                <div class="space-y-1.5">
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Nama Instansi / PTN</label>
+                    <input type="text" name="name" required class="w-full bg-white dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 rounded-lg text-sm py-2 px-3 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all" placeholder="Misal: Universitas Indonesia">
+                </div>
+                <div class="space-y-1.5">
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Link Website (Opsional)</label>
+                    <input type="text" name="link" class="w-full bg-white dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 rounded-lg text-sm py-2 px-3 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all" placeholder="https://...">
+                </div>
+                <div class="md:col-span-2 space-y-1.5">
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Pilih Logo</label>
+                    <input type="file" name="logo" required class="block w-full text-sm text-slate-500 file:mr-4 file:py-1.5 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-medium file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 cursor-pointer mt-1 border border-slate-200 rounded-lg">
+                </div>
+                <div class="md:col-span-2 flex justify-end">
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm px-6 py-2.5 rounded-lg shadow-sm transition-all flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                        Unggah Logo
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
+            @forelse($mitras ?? [] as $mitra)
+                <div class="relative aspect-video rounded-xl bg-white border border-slate-200 shadow-sm flex items-center justify-center p-4 group">
+                    <img src="{{ asset('storage/' . $mitra->logo) }}" class="max-h-full max-w-full object-contain grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all">
+                    
+                    <form action="{{ route('admin.landing-page.mitra.destroy', $mitra) }}" method="POST" class="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        @csrf @method('DELETE')
+                        <button type="submit" class="w-6 h-6 rounded-full bg-rose-600 text-white flex items-center justify-center hover:bg-rose-700 shadow-sm" onclick="event.preventDefault(); confirmDelete('Hapus Logo?', 'Logo ini akan dihapus!', this.closest('form'))">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </form>
+                </div>
+            @empty
+                <div class="col-span-full py-16 text-center bg-white dark:bg-zinc-900 rounded-xl border border-slate-200 shadow-sm">
+                    <h3 class="font-semibold text-slate-900 dark:text-white text-lg">Belum Ada Logo Mitra</h3>
                 </div>
             @endforelse
         </div>

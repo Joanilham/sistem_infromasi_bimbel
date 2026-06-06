@@ -47,6 +47,13 @@ class Master extends Model
         'stats_modul',
         'stats_kepuasan',
         'dp_persen_minimal', 
+        'hero_cta_text',
+        'hero_cta_link',
+        'about_us',
+        'facebook_url',
+        'youtube_url',
+        'tiktok_url',
+        'whatsapp_number',
     ];
 
     protected $casts = [

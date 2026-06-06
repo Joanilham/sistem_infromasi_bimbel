@@ -16,8 +16,11 @@ Route::get('/', function () {
     $testimonials = \App\Models\System\Testimonial::where('is_active', true)->latest()->get();
     $faqs = \App\Models\System\Faq::where('is_active', true)->orderBy('urutan')->get();
     $galleries = \App\Models\System\Gallery::orderBy('urutan')->get();
+    $features = \App\Models\System\Feature::orderBy('order_num')->get();
+    $mitras = \App\Models\System\MitraLogo::orderBy('order_num')->get();
+    $featuredGurus = \App\Models\User::where('level', 'Guru')->where('is_featured', true)->get();
 
-    return view('welcome', compact('masterData', 'pakets', 'testimonials', 'faqs', 'galleries'));
+    return view('welcome', compact('masterData', 'pakets', 'testimonials', 'faqs', 'galleries', 'features', 'mitras', 'featuredGurus'));
 })->name('welcome');
 
 Route::get('/paket/{id}', function ($id) {
@@ -358,6 +361,14 @@ Route::middleware('auth')->group(function () {
                 // Gallery
                 Route::post('/admin/landing-page/gallery', [\App\Http\Controllers\Admin\LandingPageController::class, 'storeGallery'])->name('admin.landing-page.gallery.store');
                 Route::delete('/admin/landing-page/gallery/{gallery}', [\App\Http\Controllers\Admin\LandingPageController::class, 'destroyGallery'])->name('admin.landing-page.gallery.destroy');
+
+                // Feature
+                Route::post('/admin/landing-page/feature', [\App\Http\Controllers\Admin\LandingPageController::class, 'storeFeature'])->name('admin.landing-page.feature.store');
+                Route::delete('/admin/landing-page/feature/{feature}', [\App\Http\Controllers\Admin\LandingPageController::class, 'destroyFeature'])->name('admin.landing-page.feature.destroy');
+
+                // Mitra Logo
+                Route::post('/admin/landing-page/mitra', [\App\Http\Controllers\Admin\LandingPageController::class, 'storeMitra'])->name('admin.landing-page.mitra.store');
+                Route::delete('/admin/landing-page/mitra/{mitra}', [\App\Http\Controllers\Admin\LandingPageController::class, 'destroyMitra'])->name('admin.landing-page.mitra.destroy');
             });
 
             // Backup Database

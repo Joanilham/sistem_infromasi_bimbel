@@ -39,7 +39,7 @@
 
             <div class="pd-field">
                 <label>Nominal Pengeluaran (IDR) <span>*</span></label>
-                <input type="number" name="nominal" value="{{ old('nominal', $pengeluaran->nominal) }}" min="1" required placeholder="0">
+                <input type="text" inputmode="numeric" name="nominal" value="{{ old('nominal', $pengeluaran->nominal) }}" class="nominal-format" required placeholder="0">
             </div>
 
             <div class="pd-field full">

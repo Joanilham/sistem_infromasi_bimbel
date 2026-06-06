@@ -182,6 +182,7 @@
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // TomSelect Init
             document.querySelectorAll('select').forEach((el) => {
                 if (el.classList.contains('no-tomselect')) return;
                 new TomSelect(el, {
@@ -189,6 +190,46 @@
                     sortField: null,
                     plugins: ['dropdown_input'],
                 });
+            });
+
+            // Global Format Rupiah
+            function formatRupiah(value) {
+                if (!value) return '';
+                let number_string = value.toString().replace(/[^,\d]/g, '').toString(),
+                    split         = number_string.split(','),
+                    sisa          = split[0].length % 3,
+                    rupiah        = split[0].substr(0, sisa),
+                    ribuan        = split[0].substr(sisa).match(/\d{3}/gi);
+
+                if (ribuan) {
+                    let separator = sisa ? '.' : '';
+                    rupiah += separator + ribuan.join('.');
+                }
+
+                rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
+                return rupiah;
+            }
+
+            document.querySelectorAll('input.nominal-format, input.nominal-input, input[name="nominal"], input[name="biaya_pendaftaran"]').forEach(input => {
+                if(input.type === 'number') {
+                    input.type = 'text';
+                    input.setAttribute('inputmode', 'numeric');
+                }
+                
+                if(input.value) {
+                    input.value = formatRupiah(input.value);
+                }
+
+                input.addEventListener('input', function(e) {
+                    this.value = formatRupiah(this.value);
+                });
+                
+                const form = input.closest('form');
+                if (form) {
+                    form.addEventListener('submit', function() {
+                        input.value = input.value.replace(/\./g, '');
+                    });
+                }
             });
         });
     </script>

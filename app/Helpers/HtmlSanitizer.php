@@ -18,7 +18,7 @@ class HtmlSanitizer
     {
         if (empty(trim($html ?? ''))) {
             return '';
-/        }
+        }
 
         $dom = new DOMDocument();
         libxml_use_internal_errors(true);

@@ -10,6 +10,9 @@ use App\Models\CBT\CbtPeserta;
 use App\Models\CBT\CbtPesertaJawaban;
 use App\Services\CbtService;
 use App\Traits\ApiResponse;
+use App\Http\Resources\CbtUjianResource;
+use App\Http\Resources\CbtPesertaResource;
+use App\Http\Resources\CbtPesertaJawabanResource;
 
 class CbtApiController extends Controller
 {
@@ -42,7 +45,7 @@ class CbtApiController extends Controller
             $ujian->attempt_ke     = $peserta?->attempt_ke ?? 0;
         });
 
-        return $this->successResponse($ujianAktif, 'Daftar ujian berhasil dimuat');
+        return $this->successResponse(CbtUjianResource::collection($ujianAktif), 'Daftar ujian berhasil dimuat');
     }
 
 
@@ -84,9 +87,9 @@ class CbtApiController extends Controller
         }])->where('cbt_peserta_id', $peserta->id)->orderBy('urutan')->get();
 
         return $this->successResponse([
-            'ujian' => $ujian,
-            'peserta' => $peserta,
-            'soal' => $soal
+            'ujian'   => new CbtUjianResource($ujian),
+            'peserta' => new CbtPesertaResource($peserta),
+            'soal'    => CbtPesertaJawabanResource::collection($soal)
         ], 'Soal berhasil dimuat');
     }
 
@@ -129,7 +132,7 @@ class CbtApiController extends Controller
 
         $jawaban->save();
 
-        return $this->successResponse($jawaban, 'Jawaban berhasil disimpan');
+        return $this->successResponse(new CbtPesertaJawabanResource($jawaban), 'Jawaban berhasil disimpan');
     }
 
     public function selesaiUjian(Request $request, $id)
@@ -181,8 +184,8 @@ class CbtApiController extends Controller
         return $this->successResponse([
             'skor'    => $peserta->skor,
             'status'  => $peserta->status,
-            'soal'    => $soal,
-            'peserta' => $peserta,
+            'soal'    => CbtPesertaJawabanResource::collection($soal),
+            'peserta' => new CbtPesertaResource($peserta),
         ], 'Hasil ujian berhasil dimuat');
     }
 }

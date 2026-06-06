@@ -93,8 +93,7 @@
                     <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Nominal (IDR)</label>
                     <div class="relative">
                         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-bold">Rp</span>
-                        <input type="number" name="nominal" value="{{ old('nominal') }}" min="1" required placeholder="0" 
-                            class="w-full bg-slate-50 dark:bg-zinc-950 border border-slate-100 dark:border-zinc-800 rounded-xl text-sm py-3 pl-10 pr-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-colors">
+                        <input type="text" inputmode="numeric" name="nominal" value="{{ old('nominal') }}" required placeholder="0" class="nominal-format w-full bg-slate-50 dark:bg-zinc-950 border border-slate-100 dark:border-zinc-800 rounded-xl text-sm py-3 pl-10 pr-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-colors">
                     </div>
                 </div>
                 <div class="space-y-2">

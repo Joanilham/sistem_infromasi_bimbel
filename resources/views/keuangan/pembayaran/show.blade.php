@@ -188,13 +188,13 @@
                 @endif
                 <div class="relative mb-2">
                     <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tanggal Transaksi Pembayaran</label>
-                    <input type="date" name="tanggal" required value="{{ now()->format('Y-m-d') }}" class="w-full rounded-xl border-slate-200 dark:border-zinc-700 dark:bg-zinc-950 text-sm px-4 py-2 focus:ring-indigo-500">
+                    <input type="date" name="tanggal" required value="{{ now()->format('Y-m-d') }}" class="w-full rounded-xl border border-slate-200 dark:border-zinc-700 dark:bg-zinc-950 text-sm px-4 py-2 focus:ring-indigo-500">
                 </div>
                 <div class="relative mb-2">
-                    <input type="text" name="nominal" id="catat-nominal" required inputmode="numeric" placeholder="Nominal Rp" class="w-full rounded-xl border-slate-200 dark:border-zinc-700 dark:bg-zinc-950 text-sm px-4 py-2 focus:ring-indigo-500">
+                    <input type="text" name="nominal" id="catat-nominal" required inputmode="numeric" placeholder="Nominal Rp" class="w-full rounded-xl border border-slate-200 dark:border-zinc-700 dark:bg-zinc-950 text-sm px-4 py-2 focus:ring-indigo-500 nominal-format">
                 </div>
                 <div class="flex gap-2">
-                    <select name="tipe_pembayaran" class="flex-1 rounded-xl border-slate-200 dark:border-zinc-700 dark:bg-zinc-950 text-xs px-3 py-2 focus:ring-indigo-500">
+                    <select name="tipe_pembayaran" class="flex-1 rounded-xl border border-slate-200 dark:border-zinc-700 dark:bg-zinc-950 text-xs px-3 py-2 focus:ring-indigo-500">
                         <option value="TUNAI">TUNAI</option>
                         <option value="TRANSFER">TRANSFER</option>
                     </select>
@@ -213,16 +213,16 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Diskon (%)</label>
-                        <input type="number" name="diskon_persen" value="{{ old('diskon_persen', $pembayaran->diskon_persen) }}" min="0" max="100" step="0.01" class="w-full rounded-lg border-slate-200 dark:border-zinc-700 dark:bg-zinc-950 text-xs px-3 py-2">
+                        <input type="number" name="diskon_persen" value="{{ old('diskon_persen', $pembayaran->diskon_persen) }}" min="0" max="100" step="0.01" class="w-full rounded-lg border border-slate-200 dark:border-zinc-700 dark:bg-zinc-950 text-xs px-3 py-2">
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Daftar (Rp)</label>
-                        <input type="number" name="biaya_pendaftaran" value="{{ old('biaya_pendaftaran', $pembayaran->biaya_pendaftaran) }}" class="w-full rounded-lg border-slate-200 dark:border-zinc-700 dark:bg-zinc-950 text-xs px-3 py-2">
+                        <input type="text" inputmode="numeric" name="biaya_pendaftaran" value="{{ old('biaya_pendaftaran', $pembayaran->biaya_pendaftaran) }}" class="w-full rounded-lg border border-slate-200 dark:border-zinc-700 dark:bg-zinc-950 text-xs px-3 py-2 nominal-format">
                     </div>
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Batas Waktu (Jatuh Tempo)</label>
-                    <input type="date" name="batas_waktu" value="{{ old('batas_waktu', $pembayaran->batas_waktu?->format('Y-m-d')) }}" class="w-full rounded-lg border-slate-200 dark:border-zinc-700 dark:bg-zinc-950 text-xs px-3 py-2">
+                    <input type="date" name="batas_waktu" value="{{ old('batas_waktu', $pembayaran->batas_waktu?->format('Y-m-d')) }}" class="w-full rounded-lg border border-slate-200 dark:border-zinc-700 dark:bg-zinc-950 text-xs px-3 py-2">
                     <span class="block mt-1 text-[9px] text-slate-400 font-medium leading-tight">Tanggal kedaluwarsa paket atau batas akhir pelunasan tagihan.</span>
                 </div>
                 
@@ -390,7 +390,7 @@
                 </select>
             </div>
             <div class="flex gap-3 pt-2">
-                <button type="button" onclick="closeVerifikasiModal()" class="flex-1 py-2.5 border border-slate-200 dark:border-zinc-700 text-slate-500 dark:text-slate-300 rounded-xl text-xs font-bold hover:bg-slate-50 dark:hover:bg-zinc-800 transition">Batal</button>
+                <button type="button" onclick="closeVerifikasiModal()" class="flex-1 py-2.5 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-xs font-bold shadow-md shadow-rose-500/20 transition">Batal</button>
                 <button type="submit" class="flex-1 py-2.5 bg-[#388782] hover:bg-[#206D6C] text-white rounded-xl text-xs font-bold shadow-md shadow-[#388782]/20 transition">Verifikasi & Setujui</button>
             </div>
         </form>
@@ -412,7 +412,7 @@
                 <textarea name="catatan_penolakan" id="modal-tolak-catatan" rows="3" placeholder="Contoh: Bukti transfer buram atau tidak valid" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent text-sm"></textarea>
             </div>
             <div class="flex gap-3 pt-2">
-                <button type="button" onclick="closeTolakModal()" class="flex-1 py-2.5 border border-slate-200 dark:border-zinc-700 text-slate-500 dark:text-slate-300 rounded-xl text-xs font-bold hover:bg-slate-50 dark:hover:bg-zinc-800 transition">Batal</button>
+                <button type="button" onclick="closeTolakModal()" class="flex-1 py-2.5 bg-slate-500 hover:bg-slate-600 text-white rounded-xl text-xs font-bold shadow-md shadow-slate-500/20 transition">Batal</button>
                 <button type="submit" class="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-md shadow-rose-900/20 transition">Tolak Pengajuan</button>
             </div>
         </form>
@@ -544,16 +544,45 @@
         });
     }
 
-    // Bersihkan titik sebelum submit form catat pembayaran
-    const formCatat = document.getElementById('form-catat-pembayaran');
-    if (formCatat) {
-        formCatat.addEventListener('submit', function(e) {
-            const input = document.getElementById('catat-nominal');
-            if (input) {
-                input.value = input.value.replace(/\./g, '');
+        modalBox.classList.add('scale-95');
+    }
+
+    // FORMAT NOMINAL (Titik ribuan)
+    document.addEventListener('DOMContentLoaded', function() {
+        function formatRupiah(value) {
+            let number_string = value.replace(/[^,\d]/g, '').toString(),
+                split         = number_string.split(','),
+                sisa          = split[0].length % 3,
+                rupiah        = split[0].substr(0, sisa),
+                ribuan        = split[0].substr(sisa).match(/\d{3}/gi);
+
+            if (ribuan) {
+                let separator = sisa ? '.' : '';
+                rupiah += separator + ribuan.join('.');
+            }
+
+            rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
+            return rupiah;
+        }
+
+        const nominalInputs = document.querySelectorAll('input.nominal-format');
+        nominalInputs.forEach(input => {
+            if(input.value) {
+                input.value = formatRupiah(input.value);
+            }
+
+            input.addEventListener('input', function(e) {
+                this.value = formatRupiah(this.value);
+            });
+            
+            const form = input.closest('form');
+            if (form) {
+                form.addEventListener('submit', function() {
+                    input.value = input.value.replace(/\./g, '');
+                });
             }
         });
-    }
+    });
 </script>
 @endsection
 

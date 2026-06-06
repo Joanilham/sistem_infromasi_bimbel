@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use App\Models\Akademik\Jadwal;
 use App\Models\Akademik\Absensi;
 use App\Traits\ApiResponse;
+use App\Http\Resources\JadwalResource;
+use App\Http\Resources\AbsensiResource;
 
 class AkademikController extends Controller
 {
@@ -36,7 +38,12 @@ class AkademikController extends Controller
                 ->groupBy('hari');
         }
 
-        return $this->successResponse($jadwal, 'Jadwal berhasil dimuat');
+        // Map group ke dalam JadwalResource
+        $jadwalGrouped = $jadwal->map(function ($items) {
+            return JadwalResource::collection($items);
+        });
+
+        return $this->successResponse($jadwalGrouped, 'Jadwal berhasil dimuat');
     }
 
     public function absensi(Request $request)
@@ -52,7 +59,11 @@ class AkademikController extends Controller
             ->orderBy('tanggal', 'desc')
             ->paginate(20);
 
-        return $this->successResponse($absensi, 'Riwayat absensi berhasil dimuat');
+        return $this->successResponse([
+            'data'         => AbsensiResource::collection($absensi->items()),
+            'current_page' => $absensi->currentPage(),
+            'last_page'    => $absensi->lastPage(),
+        ], 'Riwayat absensi berhasil dimuat');
     }
 
     public function absensiToday(Request $request)
@@ -68,7 +79,10 @@ class AkademikController extends Controller
             ->whereDate('tanggal', $today)
             ->first();
 
-        return $this->successResponse($absensi, 'Status absensi hari ini dimuat');
+        return $this->successResponse(
+            $absensi ? new AbsensiResource($absensi) : null, 
+            'Status absensi hari ini dimuat'
+        );
     }
 }
 

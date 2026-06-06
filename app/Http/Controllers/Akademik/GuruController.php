@@ -72,6 +72,7 @@ class GuruController extends Controller
         $validated['status']    = 'Aktif';
         $validated['is_active'] = true;
         $validated['username']  = $request->email;
+        $validated['is_featured'] = $request->has('is_featured');
 
         try {
             unset($validated['password_confirmation']);
@@ -118,6 +119,8 @@ class GuruController extends Controller
         } else {
             unset($validated['password']);
         }
+
+        $validated['is_featured'] = $request->has('is_featured');
 
         try {
             $validated['username'] = $validated['email'];

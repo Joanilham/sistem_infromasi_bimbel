@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use App\Traits\ApiResponse;
+use App\Http\Resources\UserResource;
 
 class ProfileController extends Controller
 {
@@ -60,7 +61,7 @@ class ProfileController extends Controller
             }
         }
 
-        return $this->successResponse($user, 'Profil berhasil diperbarui');
+        return $this->successResponse(new UserResource($user), 'Profil berhasil diperbarui');
     }
 
     public function updatePhoto(Request $request)

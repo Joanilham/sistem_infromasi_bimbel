@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use App\Models\User;
+use App\Http\Resources\UserResource;
 
 class AuthController extends Controller
 {
@@ -34,12 +35,7 @@ class AuthController extends Controller
         $token = $user->createToken('mobile-app')->plainTextToken;
 
         return $this->successResponse([
-            'user'  => [
-                'id'    => $user->id,
-                'name'  => $user->name,
-                'email' => $user->email,
-                'level' => $user->level,
-            ],
+            'user'  => new UserResource($user),
             'token' => $token,
         ], 'Login berhasil');
     }
@@ -78,7 +74,7 @@ class AuthController extends Controller
             }
         }
 
-        return $this->successResponse($user);
+        return $this->successResponse(new UserResource($user));
     }
 }
 

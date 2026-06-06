@@ -79,14 +79,37 @@
                 {{ $masterData->hero_subtitle ?? 'Platform pembelajaran terintegrasi yang memudahkan manajemen pendaftaran, progres belajar, dan evaluasi hasil belajar.' }}
             </p>
             <div class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 px-4 sm:px-6" data-aos="fade-up" data-aos-delay="300">
-                <a href="#program" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-3 sm:px-10 sm:py-4 rounded-xl sm:rounded-2xl shadow-xl shadow-indigo-500/30 transition-all active:scale-95 flex items-center justify-center gap-2 sm:gap-3 text-sm sm:text-base">
-                    Pilih Program
+                <a href="{{ $masterData->hero_cta_link ?? '#program' }}" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-3 sm:px-10 sm:py-4 rounded-xl sm:rounded-2xl shadow-xl shadow-indigo-500/30 transition-all active:scale-95 flex items-center justify-center gap-2 sm:gap-3 text-sm sm:text-base">
+                    {{ $masterData->hero_cta_text ?? 'Pilih Program' }}
                     <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="M19 9l-7 7-7-7"/></svg>
                 </a>
                 <a href="#tentang" class="w-full sm:w-auto bg-white/10 hover:bg-white/20 border-2 border-white/20 text-white font-bold px-6 py-3 sm:px-10 sm:py-4 rounded-xl sm:rounded-2xl transition-all backdrop-blur-md flex items-center justify-center text-sm sm:text-base">Tentang Kami</a>
             </div>
         </div>
     </section>
+
+    <!-- Features Section -->
+    @if(isset($features) && $features->count() > 0)
+    <section class="py-16 sm:py-20 bg-white">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-12 sm:mb-16" data-aos="fade-up">
+                <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 mb-4">Mengapa Memilih Kami?</h2>
+                <p class="text-slate-500 font-medium text-sm sm:text-base">Keunggulan yang menjadikan kami pilihan terbaik untuk masa depan Anda.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                @foreach($features as $feature)
+                <div class="bg-slate-50 rounded-3xl p-8 border border-slate-100 hover:shadow-xl transition-all group" data-aos="fade-up" data-aos-delay="{{ $loop->iteration * 100 }}">
+                    <div class="w-14 h-14 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                        {!! $feature->icon !!}
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-3">{{ $feature->title }}</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">{{ $feature->description }}</p>
+                </div>
+                @endforeach
+            </div>
+        </div>
+    </section>
+    @endif
 
     <!-- Programs Section -->
     <section id="program" class="py-16 sm:py-20 bg-slate-50">
@@ -177,6 +200,34 @@
         </div>
     </section>
 
+    <!-- Guru Section -->
+    @if(isset($featuredGurus) && $featuredGurus->count() > 0)
+    <section class="py-16 sm:py-20 bg-slate-900 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 32px 32px;"></div>
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center max-w-3xl mx-auto mb-12 sm:mb-16" data-aos="fade-up">
+                <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black text-white mb-4">Pengajar Profesional</h2>
+                <p class="text-slate-400 font-medium text-sm sm:text-base">Didukung oleh tim pengajar yang ahli dan berpengalaman di bidangnya.</p>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+                @foreach($featuredGurus as $guru)
+                <div class="bg-slate-800 rounded-3xl p-6 border border-slate-700 text-center hover:bg-slate-700 transition-colors group" data-aos="fade-up" data-aos-delay="{{ $loop->iteration * 100 }}">
+                    <div class="w-24 h-24 mx-auto bg-indigo-500/20 rounded-full flex items-center justify-center mb-4 overflow-hidden border-2 border-indigo-500/30">
+                        @if($guru->foto)
+                            <img src="{{ asset('storage/' . $guru->foto) }}" alt="{{ $guru->name }}" class="w-full h-full object-cover">
+                        @else
+                            <span class="text-2xl font-black text-indigo-400">{{ substr($guru->name, 0, 1) }}</span>
+                        @endif
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-1 truncate">{{ $guru->name }}</h3>
+                    <p class="text-indigo-400 text-xs font-black uppercase tracking-wider">{{ $guru->matapelajaran ?? 'Pengajar' }}</p>
+                </div>
+                @endforeach
+            </div>
+        </div>
+    </section>
+    @endif
+
     <!-- About Section -->
     <section id="tentang" class="py-16 sm:py-24 bg-white overflow-hidden w-full">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -217,7 +268,23 @@
                 </div>
             </div>
         </div>
-    </section>    <!-- Footer Section -->
+    </section>
+
+    <!-- Mitra Logos Section -->
+    @if(isset($mitras) && $mitras->count() > 0)
+    <section class="py-12 bg-white border-t border-b border-slate-100">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p class="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-8">Telah Dipercaya Oleh</p>
+            <div class="flex flex-wrap justify-center items-center gap-8 sm:gap-16 opacity-60 hover:opacity-100 transition-opacity duration-500 grayscale hover:grayscale-0">
+                @foreach($mitras as $mitra)
+                    <img src="{{ asset('storage/' . $mitra->logo) }}" alt="{{ $mitra->name }}" class="h-10 sm:h-12 object-contain" title="{{ $mitra->name }}">
+                @endforeach
+            </div>
+        </div>
+    </section>
+    @endif
+
+    <!-- Footer Section -->
     <footer class="bg-slate-900 pt-16 sm:pt-24 pb-12 relative overflow-hidden w-full">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <!-- Mobile Back to Top Button -->

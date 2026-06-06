@@ -8,6 +8,8 @@ use App\Models\MasterData\Master;
 use App\Models\Akademik\PaketBimbingan;
 use App\Models\System\Testimonial;
 use App\Models\System\Faq;
+use App\Models\System\Feature;
+use App\Models\System\MitraLogo;
 use App\Traits\HandlesImageUpload;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -23,8 +25,10 @@ class LandingPageController extends Controller
         $testimonials = Testimonial::latest()->get();
         $faqs = Faq::orderBy('urutan')->get();
         $galleries = \App\Models\System\Gallery::inContext()->orderBy('urutan')->get();
+        $features = Feature::orderBy('order_num')->get();
+        $mitras = MitraLogo::orderBy('order_num')->get();
         
-        return view('admin.landing_page.index', compact('master', 'pakets', 'testimonials', 'faqs', 'galleries'));
+        return view('admin.landing_page.index', compact('master', 'pakets', 'testimonials', 'faqs', 'galleries', 'features', 'mitras'));
     }
 
     public function storeGallery(Request $request)
@@ -81,6 +85,11 @@ class LandingPageController extends Controller
             'stats_tutor'    => 'nullable|string|max:50',
             'stats_modul'    => 'nullable|string|max:50',
             'stats_kepuasan' => 'nullable|string|max:50',
+            'hero_cta_text'  => 'nullable|string|max:255',
+            'hero_cta_link'  => 'nullable|string|max:255',
+            'facebook_url'   => 'nullable|string|max:255',
+            'youtube_url'    => 'nullable|string|max:255',
+            'tiktok_url'     => 'nullable|string|max:255',
         ]);
 
         try {
@@ -163,6 +172,58 @@ class LandingPageController extends Controller
     {
         $faq->delete();
         return back()->with('success', 'FAQ berhasil dihapus.');
+    }
+
+    /**
+     * Keunggulan Management
+     */
+    public function storeFeature(Request $request)
+    {
+        $validated = $request->validate([
+            'title'       => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'icon'        => 'nullable|image|mimes:jpg,jpeg,png,webp,svg|max:5120',
+        ]);
+
+        if ($request->hasFile('icon')) {
+            $validated['icon'] = $this->compressAndStore($request->file('icon'), 'features', 80);
+        }
+
+        Feature::create($validated);
+        return back()->with('success', 'Keunggulan berhasil ditambahkan.');
+    }
+
+    public function destroyFeature(Feature $feature)
+    {
+        if ($feature->icon) Storage::disk('public')->delete($feature->icon);
+        $feature->delete();
+        return back()->with('success', 'Keunggulan berhasil dihapus.');
+    }
+
+    /**
+     * Mitra Logo Management
+     */
+    public function storeMitra(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'link' => 'nullable|string|max:255',
+            'logo' => 'required|image|mimes:jpg,jpeg,png,webp,svg|max:5120',
+        ]);
+
+        if ($request->hasFile('logo')) {
+            $validated['logo'] = $this->compressAndStore($request->file('logo'), 'mitras', 80);
+        }
+
+        MitraLogo::create($validated);
+        return back()->with('success', 'Logo Mitra berhasil ditambahkan.');
+    }
+
+    public function destroyMitra(MitraLogo $mitra)
+    {
+        if ($mitra->logo) Storage::disk('public')->delete($mitra->logo);
+        $mitra->delete();
+        return back()->with('success', 'Logo Mitra berhasil dihapus.');
     }
 }
 

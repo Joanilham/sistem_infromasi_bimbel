@@ -10,6 +10,9 @@ use App\Models\Akademik\Jadwal;
 use App\Models\System\Pengumuman;
 use App\Models\CBT\CbtUjian;
 use App\Traits\ApiResponse;
+use App\Http\Resources\PengumumanResource;
+use App\Http\Resources\JadwalResource;
+use App\Http\Resources\CbtUjianResource;
 
 class BerandaController extends Controller
 {
@@ -23,19 +26,13 @@ class BerandaController extends Controller
         $hariIni = Carbon::now()->locale('id')->isoFormat('dddd');
 
         // General Data for both
-        $pengumuman = Pengumuman::where('is_active', true)
+        $pengumumanData = Pengumuman::where('is_active', true)
             ->orderBy('created_at', 'desc')
             ->take(5)
-            ->get()
-            ->map(function ($p) {
-                if ($p->foto) {
-                    $p->foto = asset('storage/' . $p->foto);
-                }
-                return $p;
-            });
+            ->get();
 
         $data = [
-            'pengumuman' => $pengumuman,
+            'pengumuman' => PengumumanResource::collection($pengumumanData),
         ];
 
         // Specific Data based on User Role (Siswa vs Guru)
@@ -45,11 +42,12 @@ class BerandaController extends Controller
 
             // 1. Jadwal Pelajaran Hari Ini
             if (strtolower($user->status) === 'aktif' && $peserta->kelompok_belajar_id) {
-                $data['jadwal_hari_ini'] = Jadwal::with(['mataPelajaran', 'guru'])
+                $jadwalData = Jadwal::with(['mataPelajaran', 'guru'])
                     ->where('hari', $hariIni)
                     ->where('rombel_id', $peserta->kelompok_belajar_id)
                     ->orderBy('jam_mulai')
                     ->get();
+                $data['jadwal_hari_ini'] = JadwalResource::collection($jadwalData);
             } else {
                 $data['jadwal_hari_ini'] = [];
             }
@@ -70,10 +68,11 @@ class BerandaController extends Controller
 
             // 3. Ujian CBT Aktif
             if (strtolower($user->status) === 'aktif') {
-                $data['ujian_aktif'] = CbtUjian::aktif()
+                $ujianData = CbtUjian::aktif()
                     ->orderBy('waktu_mulai', 'asc')
                     ->take(3)
                     ->get(['id', 'judul', 'waktu_mulai', 'waktu_selesai', 'durasi']);
+                $data['ujian_aktif'] = CbtUjianResource::collection($ujianData);
             } else {
                 $data['ujian_aktif'] = [];
             }
@@ -81,11 +80,12 @@ class BerandaController extends Controller
             $data['role_view'] = 'siswa';
         } else {
             // Assume Guru or Admin (Focus on Guru)
-            $data['jadwal_hari_ini'] = Jadwal::with(['mataPelajaran', 'rombel'])
+            $jadwalData = Jadwal::with(['mataPelajaran', 'rombel'])
                 ->where('hari', $hariIni)
                 ->where('guru_id', $user->id)
                 ->orderBy('jam_mulai')
                 ->get();
+            $data['jadwal_hari_ini'] = JadwalResource::collection($jadwalData);
 
             $data['role_view'] = 'guru';
         }
