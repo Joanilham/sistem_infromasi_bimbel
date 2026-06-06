@@ -1,21 +1,25 @@
 <?php
 
 namespace App\Http\Controllers\Guru;
+use App\Models\MasterData\Bank;
 
 use App\Http\Controllers\Controller;
-use App\Models\CbtUjian;
-use App\Models\CbtUjianSoal;
-use App\Models\CbtUjianAssign;
-use App\Models\CbtBankSoal;
-use App\Models\CbtMapel;
-use App\Models\KelompokBelajar;
+use App\Models\CBT\CbtUjian;
+use App\Models\CBT\CbtUjianSoal;
+use App\Models\CBT\CbtUjianAssign;
+use App\Models\CBT\CbtBankSoal;
+use App\Models\CBT\CbtMapel;
+use App\Models\Akademik\KelompokBelajar;
 use App\Models\User;
+use App\Services\CbtService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class UjianController extends Controller
 {
+    public function __construct(protected CbtService $cbtService)
+    {}
     /**
      * Daftar ujian milik guru.
      */
@@ -202,22 +206,9 @@ class UjianController extends Controller
             'soal_ids.*' => 'exists:cbt_bank_soals,id',
         ]);
 
-        $lastUrutan = $ujian->ujianSoals()->max('urutan') ?? 0;
+        $added = $this->cbtService->addSoals($ujian, $request->soal_ids);
 
-        foreach ($request->soal_ids as $soalId) {
-            // Cek duplikat
-            if (!$ujian->ujianSoals()->where('cbt_bank_soal_id', $soalId)->exists()) {
-                $lastUrutan++;
-                CbtUjianSoal::create([
-                    'cbt_ujian_id'    => $ujian->id,
-                    'cbt_bank_soal_id' => $soalId,
-                    'bobot'           => 1,
-                    'urutan'          => $lastUrutan,
-                ]);
-            }
-        }
-
-        return back()->with('success', count($request->soal_ids) . ' soal ditambahkan ke ujian.');
+        return back()->with('success', $added . ' soal ditambahkan ke ujian.');
     }
 
     /**
@@ -243,11 +234,7 @@ class UjianController extends Controller
             'order.*' => 'integer',
         ]);
 
-        foreach ($request->order as $urutan => $ujianSoalId) {
-            CbtUjianSoal::where('id', $ujianSoalId)
-                ->where('cbt_ujian_id', $ujian->id)
-                ->update(['urutan' => $urutan + 1]);
-        }
+        $this->cbtService->reorderSoals($ujian, $request->order);
 
         return response()->json(['status' => 'ok']);
     }
@@ -285,27 +272,11 @@ class UjianController extends Controller
         // Hapus assign lama
         $ujian->assigns()->delete();
 
-        // Assign per kelompok belajar
-        if ($request->filled('kelompok_ids')) {
-            foreach ($request->kelompok_ids as $kelompokId) {
-                CbtUjianAssign::create([
-                    'cbt_ujian_id' => $ujian->id,
-                    'tipe_assign'  => 'kelas',
-                    'assign_id'    => $kelompokId,
-                ]);
-            }
-        }
-
-        // Assign per individu
-        if ($request->filled('siswa_ids')) {
-            foreach ($request->siswa_ids as $siswaId) {
-                CbtUjianAssign::create([
-                    'cbt_ujian_id' => $ujian->id,
-                    'tipe_assign'  => 'user',
-                    'assign_id'    => $siswaId,
-                ]);
-            }
-        }
+        $this->cbtService->setAssignees(
+            $ujian,
+            $request->input('kelompok_ids', []),
+            $request->input('siswa_ids', [])
+        );
 
         return redirect()->route('guru.ujian.show', $ujian->id)
             ->with('success', 'Peserta ujian berhasil diatur.');
@@ -359,10 +330,18 @@ class UjianController extends Controller
 
         $pesertas = $ujian->pesertas()
             ->with('user')
-            ->withCount('jawabans')
+            ->withCount(['jawabans as jawabans_count' => function($q) {
+                // Hanya hitung soal yang sudah dijawab (opsi dipilih atau essay diisi)
+                $q->where(function($sub) {
+                    $sub->whereNotNull('cbt_opsi_jawaban_id')
+                        ->orWhereNotNull('jawaban_essay');
+                });
+            }])
             ->orderBy('waktu_mulai', 'desc')
             ->get();
 
         return view('guru.ujian.monitoring', compact('ujian', 'pesertas'));
     }
 }
+
+

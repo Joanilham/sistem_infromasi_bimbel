@@ -30,8 +30,9 @@ class PruneAuditLogsCommand extends Command
 
         $this->info("Memulai pembersihan log audit yang lebih tua dari {$days} hari (sebelum {$dateLimit->toDateString()})...");
 
-        $deletedCount = \App\Models\AuditLog::where('created_at', '<', $dateLimit)->delete();
+        $deletedCount = \App\Models\System\AuditLog::where('created_at', '<', $dateLimit)->delete();
 
         $this->info("Pembersihan selesai! Berhasil menghapus {$deletedCount} log audit usang.");
     }
 }
+

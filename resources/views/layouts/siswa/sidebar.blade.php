@@ -1,11 +1,14 @@
 @php
     $user = Auth::user();
     $pesertaDidik = $user->pesertaDidik;
+    $isPending = $user->status !== 'aktif';
     $pembayaranOverdue = false;
     $pembayaranBelumLunas = false;
     $kekurangan = 0;
     
-    if ($pesertaDidik) {
+    if ($isPending) {
+        $pembayaranOverdue = true;
+    } elseif ($pesertaDidik) {
         $statusPembayaran = $pesertaDidik->getStatusPembayaran();
         $pembayaranOverdue = $statusPembayaran['is_locked'];
         $pembayaranBelumLunas = $statusPembayaran['kekurangan'] > 0;
@@ -52,6 +55,7 @@
         @endif
     </nav>
 
+    @if(!$isPending)
     <div class="mb-6">
         <h3 class="px-3 text-[10px] font-bold uppercase text-slate-400 dark:text-slate-500 tracking-widest mb-2">Menu Belajar</h3>
         <nav class="space-y-1">
@@ -131,6 +135,7 @@
             @endif
         </nav>
     </div>
+    @endif
 
     <div class="mb-6">
         <h3 class="px-3 text-[10px] font-bold uppercase text-slate-400 dark:text-slate-500 tracking-widest mb-2">Menu Keuangan</h3>
@@ -151,7 +156,7 @@
         <h3 class="px-3 text-[10px] font-bold uppercase text-slate-400 dark:text-slate-500 tracking-widest mb-2">Bantuan</h3>
         <nav class="space-y-1">
             @php
-                $master = \App\Models\Master::first();
+                $master = \App\Models\MasterData\Master::first();
                 $waNum = $master?->wa_number ?? '6281234567890';
                 $pesertaDidik = Auth::user()->pesertaDidik;
                 $pesanAduan = "Halo Admin, saya " . ($pesertaDidik?->nama_lengkap ?? Auth::user()->name) . " (NISN: " . ($pesertaDidik?->nisn ?? '-') . ") ingin mengajukan keluhan / aduan.";
@@ -170,3 +175,4 @@
     </div>
 
 </div>
+

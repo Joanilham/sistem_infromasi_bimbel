@@ -64,7 +64,7 @@
     {{-- SIDEBAR KANAN --}}
     <div class="space-y-5">
         {{-- Bukti Pembayaran --}}
-        <div class="bg-white dark:bg-zinc-900 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-zinc-800">
+        <div id="bukti-pembayaran" class="bg-white dark:bg-zinc-900 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-zinc-800 transition-all duration-700">
             <h3 class="text-xs font-bold uppercase tracking-widest text-indigo-500 mb-4">Bukti Pembayaran</h3>
             @if($pendaftaran->pembayaran)
                 <div class="text-sm space-y-2 mb-4">
@@ -406,6 +406,25 @@ document.getElementById('modal-konfirmasi').addEventListener('click', function(e
 // Tutup dengan tombol Escape
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') tutupModal();
+});
+// Cek fragment URL untuk UX Highlight
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.location.hash === '#bukti-pembayaran') {
+        const el = document.getElementById('bukti-pembayaran');
+        if (el) {
+            // Scroll ke elemen
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Beri efek highlight
+            el.classList.remove('border-slate-100', 'dark:border-zinc-800');
+            el.classList.add('border-rose-400', 'ring-4', 'ring-rose-100', 'dark:ring-rose-900/30', 'scale-[1.02]', 'shadow-lg');
+            
+            // Hilangkan efek setelah 3 detik
+            setTimeout(() => {
+                el.classList.remove('border-rose-400', 'ring-4', 'ring-rose-100', 'dark:ring-rose-900/30', 'scale-[1.02]', 'shadow-lg');
+                el.classList.add('border-slate-100', 'dark:border-zinc-800');
+            }, 3000);
+        }
+    }
 });
 </script>
 @endsection

@@ -13,7 +13,7 @@
 
     // Cari pendaftaran awal untuk ambil bukti pembayaran
     $userModel = \App\Models\User::where('peserta_didik_id', $pesertaDidik->id)->first();
-    $pendaftaranAwal = $userModel ? \App\Models\PendaftaranSiswa::where('email', $userModel->email)->first() : null;
+    $pendaftaranAwal = $userModel ? \App\Models\Pendaftaran\PendaftaranSiswa::where('email', $userModel->email)->first() : null;
     $buktiPendaftaran = $pendaftaranAwal?->pembayaran?->bukti_pembayaran;
 @endphp
 <div class="space-y-6">
@@ -186,7 +186,11 @@
                         Sisa Tagihan: Rp {{ number_format($kekurangan, 0, ',', '.') }},-
                     </div>
                 @endif
-                <div class="relative">
+                <div class="relative mb-2">
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tanggal Transaksi Pembayaran</label>
+                    <input type="date" name="tanggal" required value="{{ now()->format('Y-m-d') }}" class="w-full rounded-xl border-slate-200 dark:border-zinc-700 dark:bg-zinc-950 text-sm px-4 py-2 focus:ring-indigo-500">
+                </div>
+                <div class="relative mb-2">
                     <input type="text" name="nominal" id="catat-nominal" required inputmode="numeric" placeholder="Nominal Rp" class="w-full rounded-xl border-slate-200 dark:border-zinc-700 dark:bg-zinc-950 text-sm px-4 py-2 focus:ring-indigo-500">
                 </div>
                 <div class="flex gap-2">
@@ -217,8 +221,9 @@
                     </div>
                 </div>
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Batas Waktu</label>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Batas Waktu (Jatuh Tempo)</label>
                     <input type="date" name="batas_waktu" value="{{ old('batas_waktu', $pembayaran->batas_waktu?->format('Y-m-d')) }}" class="w-full rounded-lg border-slate-200 dark:border-zinc-700 dark:bg-zinc-950 text-xs px-3 py-2">
+                    <span class="block mt-1 text-[9px] text-slate-400 font-medium leading-tight">Tanggal kedaluwarsa paket atau batas akhir pelunasan tagihan.</span>
                 </div>
                 
                 {{-- Toggle Dispensasi --}}
@@ -551,3 +556,4 @@
     }
 </script>
 @endsection
+

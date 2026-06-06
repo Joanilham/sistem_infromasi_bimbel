@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Traits;
+use App\Models\MasterData\Periode;
+use App\Models\MasterData\Kantor;
 
 use Illuminate\Database\Eloquent\Builder;
 
@@ -37,3 +39,4 @@ trait HasContextScope
         return $query->where('periode_id', $periodeId);
     }
 }
+

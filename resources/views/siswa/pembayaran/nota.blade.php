@@ -3,259 +3,349 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nota Pembayaran - {{ $transaksi->no_kwitansi }}</title>
+    <title>Struk Pembayaran - {{ $transaksi->no_kwitansi }}</title>
+    @php
+        $master = \App\Models\MasterData\Master::first();
+        $logoUrl = $master && $master->logo ? asset('storage/' . $master->logo) : null;
+        $namaLembaga = $master->nama_lembaga ?? 'Bimbingan Belajar Genius Education';
+        $alamatLembaga = $master->alamat_lembaga ?? 'Jl. Pendidikan No. 1, Kota Belajar';
+        $waNumber = $master->wa_number ?? '';
+    @endphp
     <style>
-        body {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            color: #333;
-            margin: 0;
-            padding: 20px;
-            background-color: #f8f9fa;
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+        
+        :root {
+            --primary: #4f46e5;
+            --primary-light: #e0e7ff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border-color: #e5e7eb;
+            --bg-body: #f3f4f6;
         }
-        .nota-container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: #fff;
-            padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            font-size: 14px; 
+            margin: 0; 
+            padding: 40px 20px; 
+            background-color: var(--bg-body); 
+            display: flex; 
+            justify-content: center; 
+            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
         }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
+        .receipt-container { 
+            width: 100%; 
+            max-width: 480px; 
+            background: #fff; 
+            padding: 40px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
         }
-        .logo-section h1 {
-            margin: 0;
-            color: #2c3e50;
-            font-size: 28px;
+        .receipt-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #4f46e5, #ec4899);
         }
-        .logo-section p {
-            margin: 5px 0 0;
-            color: #7f8c8d;
-            font-size: 14px;
+        
+        .header { 
+            text-align: center; 
+            margin-bottom: 30px; 
         }
-        .nota-title {
-            text-align: right;
+        .header img {
+            max-height: 70px;
+            margin-bottom: 15px;
+            object-fit: contain;
         }
-        .nota-title h2 {
-            margin: 0;
-            color: #2c3e50;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-        .nota-title p {
-            margin: 5px 0 0;
-            font-weight: bold;
-            color: #e74c3c;
-        }
-        .info-section {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 30px;
-        }
-        .info-box {
-            width: 45%;
-        }
-        .info-box h3 {
-            font-size: 12px;
-            color: #7f8c8d;
-            text-transform: uppercase;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 5px;
-            margin-bottom: 10px;
-        }
-        .info-box p {
-            margin: 5px 0;
-            font-size: 14px;
-        }
-        .table-container {
-            margin-bottom: 30px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
-        th {
-            background-color: #f8f9fa;
-            color: #2c3e50;
-            font-weight: bold;
-            font-size: 13px;
+        .header h2 { 
+            margin: 0 0 5px 0; 
+            font-size: 22px; 
+            font-weight: 800;
+            letter-spacing: -0.5px;
             text-transform: uppercase;
         }
-        td {
-            font-size: 14px;
+        .header p { 
+            margin: 0; 
+            font-size: 13px; 
+            color: var(--text-muted); 
+            line-height: 1.5;
         }
-        .amount-col {
-            text-align: right;
-        }
-        .total-row td {
-            font-weight: bold;
-            font-size: 16px;
-            border-top: 2px solid #2c3e50;
-            border-bottom: none;
-        }
-        .footer {
-            margin-top: 50px;
-            display: flex;
-            justify-content: space-between;
-        }
-        .notes {
-            width: 60%;
-            font-size: 13px;
-            color: #7f8c8d;
-            font-style: italic;
-        }
-        .signature {
-            width: 30%;
-            text-align: center;
-        }
-        .signature p {
-            margin: 0 0 60px;
-            font-size: 14px;
-        }
-        .signature strong {
-            border-top: 1px solid #333;
-            padding-top: 5px;
-            display: block;
-        }
+        
         .status-badge {
             display: inline-block;
-            padding: 4px 10px;
-            border-radius: 4px;
+            background: #dcfce7;
+            color: #166534;
+            padding: 6px 12px;
+            border-radius: 20px;
             font-size: 12px;
-            font-weight: bold;
+            font-weight: 700;
+            margin-top: 15px;
             text-transform: uppercase;
-            background-color: #27ae60;
-            color: white;
-            margin-top: 10px;
+            letter-spacing: 1px;
+            border: 1px solid #bbf7d0;
         }
-        .status-pending { background-color: #f39c12; }
-        .status-batal { background-color: #e74c3c; }
-        
-        .print-btn {
-            display: block;
-            width: 200px;
-            margin: 20px auto;
-            padding: 10px 20px;
-            background-color: #3498db;
-            color: white;
-            text-align: center;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 16px;
-            text-decoration: none;
-        }
-        .print-btn:hover {
-            background-color: #2980b9;
+
+        .divider { 
+            border-bottom: 2px dashed var(--border-color); 
+            margin: 25px 0; 
         }
         
+        .section-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+
+        .row { 
+            display: flex; 
+            justify-content: space-between; 
+            margin-bottom: 12px; 
+            align-items: center;
+        }
+        .row .label { 
+            color: var(--text-muted); 
+            font-size: 13px;
+        }
+        .row .value { 
+            font-weight: 600; 
+            text-align: right; 
+            font-size: 14px;
+        }
+        
+        .total-box {
+            background: var(--bg-body);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 25px;
+        }
+        .total-row { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+        }
+        .total-row .label { 
+            font-size: 14px; 
+            font-weight: 700; 
+            color: var(--text-main);
+        }
+        .total-row .value { 
+            font-size: 24px; 
+            font-weight: 800; 
+            color: var(--primary);
+        }
+        
+        .footer { 
+            text-align: center; 
+            margin-top: 35px; 
+            font-size: 13px; 
+            color: var(--text-muted); 
+            line-height: 1.6;
+        }
+        .footer strong {
+            color: var(--text-main);
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        .btn-print { 
+            flex: 1;
+            padding: 14px; 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            font-size: 14px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            border-radius: 10px; 
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-print:hover {
+            background: #4338ca;
+            transform: translateY(-1px);
+        }
+        .btn-back { 
+            flex: 1;
+            padding: 14px; 
+            background: white; 
+            color: var(--text-main); 
+            border: 1px solid var(--border-color); 
+            font-size: 14px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            border-radius: 10px; 
+            text-decoration: none; 
+            text-align: center; 
+            transition: all 0.2s;
+        }
+        .btn-back:hover {
+            background: var(--bg-body);
+        }
+        
+        /* Print Styles Optimized for Thermal Printers & A4 */
         @media print {
-            body {
-                background-color: #fff;
-                padding: 0;
+            @page {
+                margin: 0; 
             }
-            .nota-container {
-                box-shadow: none;
-                padding: 0;
+            body { 
+                background-color: #fff; 
+                padding: 10px; 
+                color: #000; 
             }
-            .print-btn {
+            .receipt-container { 
+                box-shadow: none; 
+                border: none;
+                width: 100%; 
+                max-width: 80mm; 
+                padding: 0; 
+                margin: 0 auto; 
+            }
+            .receipt-container::before {
                 display: none;
+            }
+            .action-buttons { 
+                display: none; 
+            }
+            .total-box {
+                background: none;
+                border-top: 1px dashed #000;
+                border-bottom: 1px dashed #000;
+                border-radius: 0;
+                padding: 15px 0;
+                margin-top: 15px;
+            }
+            .header h2, .total-row .value, .footer strong {
+                color: #000 !important;
+            }
+            .header p, .row .label, .section-title, .footer {
+                color: #000 !important;
+            }
+            .status-badge {
+                border: 1px solid #000;
+                background: #fff;
+                color: #000;
+            }
+            .divider {
+                border-bottom: 1px dashed #000;
+            }
+            .total-row .label, .total-row .value {
+                color: #000 !important;
             }
         }
     </style>
 </head>
 <body>
-    @php
-        $master = \App\Models\Master::first();
-        $peserta = $transaksi->pembayaranSiswa->pesertaDidik;
-    @endphp
-
-    <button onclick="window.print()" class="print-btn">🖨️ Cetak Nota</button>
-
-    <div class="nota-container">
+    <div class="receipt-container">
         <div class="header">
-            <div class="logo-section">
-                <h1>{{ $master->nama_lembaga ?? 'GeniusEdu' }}</h1>
-                <p>{{ $master->alamat_lembaga ?? 'Alamat belum diatur' }}</p>
-                <p>WA: {{ $master->wa_number ?? '-' }}</p>
-            </div>
-            <div class="nota-title">
-                <h2>NOTA PEMBAYARAN</h2>
-                <p>{{ $transaksi->no_kwitansi }}</p>
-                
+            @if($logoUrl)
+                <img src="{{ $logoUrl }}" alt="Logo {{ $namaLembaga }}">
+            @else
+                <div style="font-size: 28px; font-weight: 900; color: var(--primary); margin-bottom: 5px; letter-spacing: -1px;">
+                    {{ substr($namaLembaga, 0, 1) }}
+                </div>
+            @endif
+            <h2>{{ $namaLembaga }}</h2>
+            <p>{{ $alamatLembaga }}</p>
+            @if($waNumber)
+                <p>WA: {{ $waNumber }}</p>
+            @endif
+            
+            <div style="margin-top: 15px;">
                 @if($transaksi->status == 'SUKSES')
-                    <span class="status-badge">LUNAS / BERHASIL</span>
+                    <div class="status-badge" style="background: #dcfce7; color: #166534; border: 1px solid #bbf7d0;">
+                        LUNAS / BERHASIL
+                    </div>
                 @elseif($transaksi->status == 'PENDING')
-                    <span class="status-badge status-pending">MENUNGGU VERIFIKASI</span>
+                    <div class="status-badge" style="background: #fef08a; color: #854d0e; border: 1px solid #fde047;">
+                        MENUNGGU VERIFIKASI
+                    </div>
                 @else
-                    <span class="status-badge status-batal">DITOLAK / BATAL</span>
+                    <div class="status-badge" style="background: #fee2e2; color: #991b1b; border: 1px solid #fecaca;">
+                        DITOLAK / BATAL
+                    </div>
                 @endif
             </div>
         </div>
-
-        <div class="info-section">
-            <div class="info-box">
-                <h3>Terima Dari</h3>
-                <p><strong>{{ $peserta->nama_lengkap }}</strong></p>
-                <p>NISN: {{ $peserta->nisn ?? '-' }}</p>
-                <p>Paket: {{ $peserta->paketBimbingan->nama_paket ?? '-' }}</p>
-            </div>
-            <div class="info-box" style="text-align: right;">
-                <h3>Detail Transaksi</h3>
-                <p>Tanggal: <strong>{{ \Carbon\Carbon::parse($transaksi->tanggal)->translatedFormat('d F Y') }}</strong></p>
-                <p>Metode: <strong>{{ $transaksi->tipe_pembayaran }}</strong></p>
-                <p>Penerima: <strong>{{ $transaksi->penerima }}</strong></p>
-            </div>
+        
+        <div class="section-title">Detail Transaksi</div>
+        
+        <div class="row">
+            <span class="label">No. Kwitansi</span>
+            <span class="value">{{ $transaksi->no_kwitansi }}</span>
         </div>
-
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Deskripsi Pembayaran</th>
-                        <th class="amount-col">Jumlah</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            Pembayaran {{ $transaksi->tipe_pembayaran }} 
-                            @if($transaksi->catatan_siswa)
-                                <br><small style="color: #7f8c8d;">Catatan: {{ $transaksi->catatan_siswa }}</small>
-                            @endif
-                        </td>
-                        <td class="amount-col">Rp {{ number_format($transaksi->nominal, 0, ',', '.') }}</td>
-                    </tr>
-                    <tr class="total-row">
-                        <td style="text-align: right;">TOTAL:</td>
-                        <td class="amount-col">Rp {{ number_format($transaksi->nominal, 0, ',', '.') }}</td>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="row">
+            <span class="label">Tanggal Bayar</span>
+            <span class="value">{{ \Carbon\Carbon::parse($transaksi->tanggal)->translatedFormat('d F Y') }}</span>
         </div>
-
+        <div class="row">
+            <span class="label">Metode Pembayaran</span>
+            <span class="value">{{ $transaksi->tipe_pembayaran }}</span>
+        </div>
+        <div class="row">
+            <span class="label">Penerima</span>
+            <span class="value">{{ $transaksi->penerima }}</span>
+        </div>
+        
+        <div class="divider"></div>
+        
+        <div class="section-title">Informasi Siswa</div>
+        
+        <div class="row">
+            <span class="label">Nama Siswa</span>
+            <span class="value">{{ $transaksi->pembayaranSiswa->pesertaDidik->nama_lengkap ?? '-' }}</span>
+        </div>
+        <div class="row">
+            <span class="label">Paket Bimbingan</span>
+            <span class="value">{{ $transaksi->pembayaranSiswa->pesertaDidik->paketBimbingan->nama_paket ?? '-' }}</span>
+        </div>
+        
+        <div class="total-box">
+            <div class="total-row">
+                <span class="label">TOTAL BAYAR</span>
+                <span class="value">Rp {{ number_format($transaksi->nominal, 0, ',', '.') }}</span>
+            </div>
+            
+            @if($transaksi->pembayaranSiswa && $transaksi->pembayaranSiswa->kekurangan > 0)
+                <div style="text-align: right; margin-top: 8px; font-size: 12px; color: #ef4444; font-weight: 600;">
+                    Sisa Tagihan: Rp {{ number_format($transaksi->pembayaranSiswa->kekurangan, 0, ',', '.') }}
+                </div>
+            @elseif($transaksi->pembayaranSiswa && $transaksi->pembayaranSiswa->kekurangan <= 0)
+                <div style="text-align: right; margin-top: 8px; font-size: 12px; color: #10b981; font-weight: 700;">
+                    LUNAS
+                </div>
+            @endif
+        </div>
+        
         <div class="footer">
-            <div class="notes">
-                <p><strong>Catatan:</strong></p>
-                <p>1. Simpan nota ini sebagai bukti pembayaran yang sah.</p>
-                <p>2. Pembayaran yang sudah dilakukan tidak dapat ditarik kembali kecuali ada perjanjian tertulis.</p>
-            </div>
-            <div class="signature">
-                <p>Tanda Terima,</p>
-                <br>
-                <strong>{{ $transaksi->penerima }}</strong>
-            </div>
+            <p>Terima kasih atas kepercayaan Anda.</p>
+            <p>Simpan struk ini sebagai bukti pembayaran yang sah dari <strong>{{ $namaLembaga }}</strong>.</p>
+        </div>
+
+        <div class="action-buttons">
+            <button onclick="window.close()" class="btn-back">Tutup Tab</button>
+            <button class="btn-print" onclick="window.print()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                    <rect x="6" y="14" width="12" height="8"></rect>
+                </svg>
+                Cetak Struk
+            </button>
         </div>
     </div>
 </body>

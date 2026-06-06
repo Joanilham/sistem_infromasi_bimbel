@@ -31,16 +31,21 @@
                     <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Mata Pelajaran</label>
                     <div class="flex gap-2">
                         <select name="cbt_mapel_id" x-model="mapelId" @change="loadBabs()"
-                            class="flex-1 border border-slate-200 dark:border-zinc-700 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-zinc-800 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                            class="no-tomselect flex-1 border border-slate-200 dark:border-zinc-700 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent {{ isset($mapel) ? 'bg-slate-50 dark:bg-zinc-800/50 text-slate-500 dark:text-slate-400 cursor-not-allowed' : 'bg-white dark:bg-zinc-800 text-slate-800 dark:text-white' }}"
+                            {{ isset($mapel) ? 'style="pointer-events:none;" tabindex="-1"' : '' }}>
+                            @if(!isset($mapel))
                             <option value="">-- Pilih Mapel --</option>
+                            @endif
                             @foreach($mapels as $m)
-                            <option value="{{ $m->id }}" {{ old('cbt_mapel_id') == $m->id ? 'selected' : '' }}>{{ $m->nama }}</option>
+                            <option value="{{ $m->id }}" {{ (isset($mapel) || old('cbt_mapel_id') == $m->id) ? 'selected' : '' }}>{{ $m->nama }}</option>
                             @endforeach
                         </select>
+                        @if(!isset($mapel))
                         <button type="button" @click="showAddMapel = true"
                             class="px-3 py-2.5 border border-dashed border-slate-300 dark:border-zinc-600 rounded-lg text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-300 dark:hover:border-indigo-600 transition-colors" title="Tambah Mapel">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                         </button>
+                        @endif
                     </div>
                     @error('cbt_mapel_id') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
                 </div>
@@ -50,7 +55,7 @@
                     <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Topik / Bab</label>
                     <div class="flex gap-2">
                         <select name="cbt_bab_id" x-model="babId"
-                            class="flex-1 border border-slate-200 dark:border-zinc-700 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-zinc-800 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                            class="no-tomselect flex-1 border border-slate-200 dark:border-zinc-700 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-zinc-800 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
                             <option value="">-- Pilih Topik --</option>
                             <template x-for="bab in babList" :key="bab.id">
                                 <option :value="bab.id" x-text="bab.nama"></option>
@@ -67,7 +72,7 @@
                 <div>
                     <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tipe Soal <span class="text-red-500">*</span></label>
                     <select name="tipe_soal" x-model="tipeSoal"
-                        class="w-full border border-slate-200 dark:border-zinc-700 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-zinc-800 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        class="no-tomselect w-full border border-slate-200 dark:border-zinc-700 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-zinc-800 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
                         <option value="pg">Pilihan Ganda</option>
                         <option value="benar_salah">Benar / Salah</option>
                         <option value="essay">Essay</option>
@@ -78,7 +83,7 @@
                 <div>
                     <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tingkat Kesulitan <span class="text-red-500">*</span></label>
                     <select name="tingkat_kesulitan"
-                        class="w-full border border-slate-200 dark:border-zinc-700 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-zinc-800 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        class="no-tomselect w-full border border-slate-200 dark:border-zinc-700 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-zinc-800 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
                         <option value="easy" {{ old('tingkat_kesulitan') == 'easy' ? 'selected' : '' }}>Mudah</option>
                         <option value="medium" {{ old('tingkat_kesulitan', 'medium') == 'medium' ? 'selected' : '' }}>Sedang</option>
                         <option value="hard" {{ old('tingkat_kesulitan') == 'hard' ? 'selected' : '' }}>Sulit</option>
@@ -219,7 +224,7 @@
 function soalForm() {
     return {
         tipeSoal: '{{ old("tipe_soal", "pg") }}',
-        mapelId: '{{ old("cbt_mapel_id", "") }}',
+        mapelId: '{{ old("cbt_mapel_id", isset($mapel) ? $mapel->id : "") }}',
         babId: '{{ old("cbt_bab_id", "") }}',
         babList: @json($babs),
         kunciJawaban: {{ old('kunci', 0) }},

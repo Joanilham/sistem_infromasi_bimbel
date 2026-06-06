@@ -6,18 +6,18 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
-use App\Models\Kantor;
-use App\Models\Periode;
-use App\Models\PesertaDidik;
-use App\Models\PaketBimbingan;
+use App\Models\MasterData\Kantor;
+use App\Models\MasterData\Periode;
+use App\Models\Akademik\PesertaDidik;
+use App\Models\Akademik\PaketBimbingan;
 use App\Models\User;
-use App\Models\PendaftaranSiswa;
-use App\Models\PembayaranPendaftaran;
-use App\Models\PembayaranSiswa;
-use App\Models\TransaksiPembayaran;
-use App\Models\Pemasukan;
-use App\Models\Pengeluaran;
-use App\Models\AuditLog;
+use App\Models\Pendaftaran\PendaftaranSiswa;
+use App\Models\Keuangan\PembayaranPendaftaran;
+use App\Models\Keuangan\PembayaranSiswa;
+use App\Models\Keuangan\TransaksiPembayaran;
+use App\Models\Keuangan\Pemasukan;
+use App\Models\Keuangan\Pengeluaran;
+use App\Models\System\AuditLog;
 
 class DashboardController extends Controller
 {
@@ -76,14 +76,14 @@ class DashboardController extends Controller
         // Tagihan Jatuh Tempo Count
         $tagihanJatuhTempoCount = 0;
         if ($kantorId && $periodeId) {
-            $tagihanRaw = PembayaranSiswa::with('transaksi')
+            $tagihanRaw = PembayaranSiswa::withSum(['transaksi' => fn($q) => $q->where('status', 'sukses')], 'nominal')
                 ->whereHas('pesertaDidik', fn($q) => $q->inContext()->aktif())
                 ->where(function($q) {
                     $q->where('batas_waktu', '<=', Carbon::now()->addDays(7))
                       ->orWhereNull('batas_waktu');
                 })
                 ->get();
-            $tagihanJatuhTempoCount = $tagihanRaw->filter(fn($p) => $p->kekurangan > 0)->count();
+            $tagihanJatuhTempoCount = $tagihanRaw->filter(fn($p) => $p->total_harus_dibayar - ($p->transaksi_sum_nominal ?? 0) > 0)->count();
         }
 
         // Lead Tracking: 10 Pendaftar Terbaru
@@ -95,6 +95,46 @@ class DashboardController extends Controller
             ->get();
 
         // --- DATA UNTUK GRAFIK (PESERTA DIDIK & KEUANGAN) ---
+        $chartData = $this->generateChartData($periodeId, $filterKantorId);
+        
+        $chartLabels        = $chartData['labels'];
+        $chartPesertaMasuk  = $chartData['pesertaMasuk'];
+        $chartPesertaKeluar = $chartData['pesertaKeluar'];
+        $chartUangMasuk     = $chartData['uangMasuk'];
+        $chartUangKeluar    = $chartData['uangKeluar'];
+
+        return view('dashboard', compact(
+            'totalPesertaAktif',
+            'listPesertaBaru',
+            'listPesertaKeluar',
+            'totalPaketAktif',
+            'totalTenagaPengajar',
+            'selectedKantor',
+            'selectedPeriode',
+            'kantors',
+            'periodes',
+            'pendaftaranMenunggu',
+            'pembayaranBelumDikonfirmasi',
+            'tagihanJatuhTempoCount',
+            'recentPendaftaran',
+            'recentAuditLogs',
+            'chartLabels',
+            'chartPesertaMasuk',
+            'chartPesertaKeluar',
+            'chartUangMasuk',
+            'chartUangKeluar'
+        ));
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // PRIVATE HELPERS
+    // ═══════════════════════════════════════════════════════
+
+    /**
+     * Generate data for Dashboard Charts (Peserta Didik & Keuangan).
+     */
+    private function generateChartData($periodeId, $filterKantorId): array
+    {
         $selectedPeriodeObj = $periodeId ? Periode::find($periodeId) : null;
         $yearStart = null;
         $yearEnd = null;
@@ -136,6 +176,9 @@ class DashboardController extends Controller
         $uangMasukData = array_fill_keys($monthsList, 0);
         $uangKeluarData = array_fill_keys($monthsList, 0);
 
+        $startDateStr = $yearStart === $yearEnd ? "{$yearStart}-01-01" : "{$yearStart}-07-01";
+        $endDateStr = $yearStart === $yearEnd ? "{$yearStart}-12-31" : "{$yearEnd}-06-30";
+
         // 1. Peserta Didik
         $pesertas = PesertaDidik::inContext()
             ->where('periode_id', $periodeId)
@@ -156,12 +199,12 @@ class DashboardController extends Controller
             }
         }
 
-        // 2. Keuangan - Transaksi Pembayaran Siswa (Uang Masuk)
+        // 2. Keuangan - Transaksi Pembayaran Siswa
         $transaksiSpp = TransaksiPembayaran::whereHas('pembayaranSiswa.pesertaDidik', function($q) use ($filterKantorId, $periodeId) {
                 $q->when($filterKantorId, fn($q2) => $q2->where('kantor_id', $filterKantorId))
                   ->when($periodeId, fn($q2) => $q2->where('periode_id', $periodeId));
             })
-            ->whereBetween('tanggal', [$yearStart === $yearEnd ? "{$yearStart}-01-01" : "{$yearStart}-07-01", $yearStart === $yearEnd ? "{$yearStart}-12-31" : "{$yearEnd}-06-30"])
+            ->whereBetween('tanggal', [$startDateStr, $endDateStr])
             ->get();
 
         foreach ($transaksiSpp as $t) {
@@ -173,9 +216,9 @@ class DashboardController extends Controller
             }
         }
 
-        // 3. Keuangan - Pemasukan Lainnya (Uang Masuk)
+        // 3. Keuangan - Pemasukan Lainnya
         $pemasukanLain = Pemasukan::when($filterKantorId, fn($q) => $q->whereHas('user', fn($qu) => $qu->where('kantor_id', $filterKantorId)))
-            ->whereBetween('tanggal', [$yearStart === $yearEnd ? "{$yearStart}-01-01" : "{$yearStart}-07-01", $yearStart === $yearEnd ? "{$yearStart}-12-31" : "{$yearEnd}-06-30"])
+            ->whereBetween('tanggal', [$startDateStr, $endDateStr])
             ->get();
 
         foreach ($pemasukanLain as $pl) {
@@ -187,9 +230,9 @@ class DashboardController extends Controller
             }
         }
 
-        // 4. Keuangan - Pengeluaran (Uang Keluar)
+        // 4. Keuangan - Pengeluaran
         $pengeluaranList = Pengeluaran::when($filterKantorId, fn($q) => $q->whereHas('user', fn($qu) => $qu->where('kantor_id', $filterKantorId)))
-            ->whereBetween('tanggal', [$yearStart === $yearEnd ? "{$yearStart}-01-01" : "{$yearStart}-07-01", $yearStart === $yearEnd ? "{$yearStart}-12-31" : "{$yearEnd}-06-30"])
+            ->whereBetween('tanggal', [$startDateStr, $endDateStr])
             ->get();
 
         foreach ($pengeluaranList as $pg) {
@@ -201,32 +244,13 @@ class DashboardController extends Controller
             }
         }
 
-        $chartLabels = $labels;
-        $chartPesertaMasuk = array_values($pesertaMasukData);
-        $chartPesertaKeluar = array_values($pesertaKeluarData);
-        $chartUangMasuk = array_values($uangMasukData);
-        $chartUangKeluar = array_values($uangKeluarData);
-
-        return view('dashboard', compact(
-            'totalPesertaAktif',
-            'listPesertaBaru',
-            'listPesertaKeluar',
-            'totalPaketAktif',
-            'totalTenagaPengajar',
-            'selectedKantor',
-            'selectedPeriode',
-            'kantors',
-            'periodes',
-            'pendaftaranMenunggu',
-            'pembayaranBelumDikonfirmasi',
-            'tagihanJatuhTempoCount',
-            'recentPendaftaran',
-            'recentAuditLogs',
-            'chartLabels',
-            'chartPesertaMasuk',
-            'chartPesertaKeluar',
-            'chartUangMasuk',
-            'chartUangKeluar'
-        ));
+        return [
+            'labels'        => $labels,
+            'pesertaMasuk'  => array_values($pesertaMasukData),
+            'pesertaKeluar' => array_values($pesertaKeluarData),
+            'uangMasuk'     => array_values($uangMasukData),
+            'uangKeluar'    => array_values($uangKeluarData),
+        ];
     }
 }
+

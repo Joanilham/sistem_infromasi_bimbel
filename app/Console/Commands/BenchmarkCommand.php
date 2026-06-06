@@ -1,11 +1,14 @@
 <?php
 
 namespace App\Console\Commands;
+use App\Models\MasterData\Bank;
+use App\Models\Akademik\Jadwal;
+use App\Models\Akademik\Absensi;
 
 use Illuminate\Console\Command;
 use App\Models\User;
-use App\Models\Kantor;
-use App\Models\Periode;
+use App\Models\MasterData\Kantor;
+use App\Models\MasterData\Periode;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Auth;
 
@@ -334,3 +337,5 @@ class BenchmarkCommand extends Command
         return 0;
     }
 }
+
+

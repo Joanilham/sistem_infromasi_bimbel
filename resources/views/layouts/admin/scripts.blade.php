@@ -32,3 +32,74 @@
 </script>
 
 @yield('scripts')
+
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('ajaxTable', () => ({
+            isLoading: false,
+            
+            fetchData(e) {
+                let form = null;
+                if (e && e.target && e.target.tagName === 'FORM') {
+                    form = e.target;
+                } else if (e && e.target && e.target.form) {
+                    form = e.target.form;
+                } else {
+                    form = this.$el.querySelector('form');
+                }
+
+                if (!form) return;
+
+                let url = new URL(form.action || window.location.href);
+                let formData = new FormData(form);
+                
+                url.search = '';
+                for (let [key, value] of formData.entries()) {
+                    if (value) url.searchParams.append(key, value);
+                }
+
+                this.doFetch(url.toString());
+            },
+            
+            navigate(e, urlStr) {
+                if (e) e.preventDefault();
+                this.doFetch(urlStr);
+            },
+
+            doFetch(urlStr) {
+                this.isLoading = true;
+                
+                fetch(urlStr, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(res => res.text())
+                .then(html => {
+                    let parser = new DOMParser();
+                    let doc = parser.parseFromString(html, 'text/html');
+                    
+                    // Update Elements safely without losing focus on inputs
+                    const updateElement = (id) => {
+                        let newEl = doc.getElementById(id);
+                        let oldEl = document.getElementById(id);
+                        if (newEl && oldEl) {
+                            oldEl.innerHTML = newEl.innerHTML;
+                        }
+                    };
+
+                    updateElement('ajax-summary-cards');
+                    updateElement('ajax-table-body');
+                    updateElement('ajax-pagination');
+                    
+                    // Update URL silently
+                    window.history.pushState({}, '', urlStr);
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                    if (typeof App !== 'undefined' && App.Progress) {
+                        App.Progress.done();
+                    }
+                });
+            }
+        }));
+    });
+</script>

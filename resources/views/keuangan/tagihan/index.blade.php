@@ -3,19 +3,18 @@
 @section('title', 'Tagihan Siswa')
 
 @section('content')
-<div class="space-y-6">
+<div class="space-y-6" x-data="ajaxTable()">
 
     {{-- Header --}}
-    <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-zinc-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+    <div class="bg-white dark:bg-zinc-900 rounded-3xl p-6 sm:p-8 border border-slate-100 dark:border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div>
-            <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Daftar Tagihan</h1>
-            <p class="text-slate-500 dark:text-slate-400 mt-2 text-sm font-medium">Monitoring tunggakan dan kekurangan pembayaran biaya bimbingan belajar.</p>
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Daftar Tagihan</h1>
+            <p class="text-slate-500 dark:text-slate-400 mt-2 text-sm">Monitoring tunggakan dan kekurangan pembayaran biaya bimbingan belajar.</p>
         </div>
         <div class="shrink-0">
             <a href="{{ request()->fullUrlWithQuery(['sort' => 'batas_waktu', 'order' => 'asc']) }}" 
-                class="inline-flex items-center gap-3 bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 font-black text-xs px-6 py-3.5 rounded-2xl ring-2 ring-rose-100/50 dark:ring-rose-900/30 shadow-sm hover:scale-105 active:scale-95 transition-all">
+                class="inline-flex items-center gap-2 bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 font-bold text-xs px-5 py-3 rounded-xl border border-rose-100 dark:border-rose-900/30 transition-colors">
                 <span class="relative flex h-2 w-2">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
                     <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
                 </span>
                 Urutkan Jatuh Tempo
@@ -24,54 +23,83 @@
     </div>
 
     {{-- Table Card --}}
-    <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] border border-slate-100 dark:border-zinc-800 shadow-sm overflow-hidden">
+    <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-slate-100 dark:border-zinc-800 overflow-hidden">
         
-        {{-- Toolbar --}}
-        <div class="p-6 border-b border-slate-100 dark:border-zinc-800 bg-slate-50/30 dark:bg-zinc-900/30">
-            <form method="GET" class="flex flex-col lg:flex-row items-end gap-4">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
-                    <div class="space-y-2">
-                        <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Tampilkan</label>
-                        <select name="per_page" onchange="this.form.submit()"
-                            class="w-full bg-white dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-xs font-black py-2.5 px-4 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all">
-                            @foreach([10,25,50,100] as $n)<option value="{{ $n }}" {{ $perPage == $n ? 'selected' : '' }}>{{ $n }}</option>@endforeach
+        {{-- Toolbar Filter (Ala Manajemen Guru) --}}
+        <div class="p-6 border-b border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-900/50 relative">
+            
+            {{-- Loading Overlay --}}
+            <div x-show="isLoading" class="absolute inset-0 z-50 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-sm flex items-center justify-center transition-opacity duration-300" style="display: none;">
+                <div class="bg-white dark:bg-zinc-800 p-4 rounded-2xl shadow-xl border border-slate-100 dark:border-zinc-700 flex items-center gap-3">
+                    <svg class="animate-spin h-5 w-5 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span class="text-sm font-bold text-slate-700 dark:text-slate-200">Memuat data...</span>
+                </div>
+            </div>
+
+            <form @submit.prevent="fetchData" method="GET" class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                
+                {{-- Left: Dropdown Filters --}}
+                <div class="flex flex-wrap items-center gap-3">
+                    {{-- Per Page --}}
+                    <div class="flex items-stretch bg-white dark:bg-zinc-950 rounded-xl border border-slate-200 dark:border-zinc-800 shadow-sm focus-within:ring-2 focus-within:ring-rose-500/20 focus-within:border-rose-500 transition-all overflow-hidden">
+                        <div class="px-3 py-2 bg-slate-50 dark:bg-zinc-900 border-r border-slate-200 dark:border-zinc-800 flex items-center justify-center">
+                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Lihat</span>
+                        </div>
+                        <select name="per_page" @change="fetchData"
+                            class="no-tomselect bg-transparent border-none text-xs font-black focus:ring-0 py-2 pl-3 pr-8 text-slate-800 dark:text-white cursor-pointer h-full hover:bg-slate-50 dark:hover:bg-zinc-900/50 transition-colors">
+                            @foreach([10, 25, 50, 100] as $n)
+                                <option value="{{ $n }}" {{ request('per_page', 10) == $n ? 'selected' : '' }}>{{ $n }}</option>
+                            @endforeach
                         </select>
                     </div>
-                    <div class="space-y-2">
-                        <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Paket Bimbingan</label>
-                        <select name="paket_id" onchange="this.form.submit()"
-                            class="w-full bg-white dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-xs font-black py-2.5 px-4 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all">
+
+                    {{-- Paket Bimbingan --}}
+                    <div class="flex items-stretch bg-white dark:bg-zinc-950 rounded-xl border border-slate-200 dark:border-zinc-800 shadow-sm focus-within:ring-2 focus-within:ring-rose-500/20 focus-within:border-rose-500 transition-all overflow-hidden hidden sm:flex">
+                        <div class="px-3 py-2 bg-slate-50 dark:bg-zinc-900 border-r border-slate-200 dark:border-zinc-800 flex items-center justify-center">
+                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Paket</span>
+                        </div>
+                        <select name="paket_id" @change="fetchData"
+                            class="no-tomselect bg-transparent border-none text-xs font-bold focus:ring-0 py-2 pl-3 pr-8 text-slate-800 dark:text-white cursor-pointer h-full hover:bg-slate-50 dark:hover:bg-zinc-900/50 transition-colors max-w-[150px] truncate">
                             <option value="">Semua Paket</option>
                             @foreach($pakets as $p)
                                 <option value="{{ $p->id }}" {{ request('paket_id') == $p->id ? 'selected' : '' }}>{{ $p->nama_paket }}</option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="space-y-2">
-                        <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Cari Nama/NISN</label>
-                        <div class="relative group">
-                            <input type="text" name="search" value="{{ $search }}" placeholder="Ketik keyword..."
-                                class="w-full bg-white dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-sm font-bold py-2.5 pl-11 pr-4 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all">
-                            <svg class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-rose-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                            </svg>
-                        </div>
-                    </div>
                 </div>
-                <div class="flex gap-2 w-full lg:w-auto">
-                    <button type="submit" class="flex-1 lg:flex-none bg-slate-900 dark:bg-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 text-white font-black text-xs px-8 py-3 rounded-xl transition-all active:scale-95 shadow-lg shadow-slate-900/10 uppercase tracking-widest">
+
+                {{-- Right: Search & Reset --}}
+                <div class="flex items-center gap-2 w-full md:w-auto">
+                    <div class="relative group flex-1 md:w-64">
+                        <input type="text" name="search" value="{{ request('search') }}"
+                            placeholder="Cari Nama / NISN..."
+                            class="w-full bg-white dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-sm font-bold py-2.5 pl-10 pr-4 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all shadow-sm">
+                        <svg class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-rose-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                    </div>
+                    <button type="submit"
+                        class="bg-rose-600 hover:bg-rose-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-sm shadow-rose-500/30">
                         Filter
                     </button>
                     @if(request()->anyFilled(['paket_id', 'search']))
-                        <a href="{{ route('keuangan.tagihan.index') }}" class="bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 hover:bg-rose-100 p-3 rounded-xl transition-all" title="Reset Filter">
-                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
+                        <a href="{{ route('keuangan.tagihan.index') }}" 
+                           class="flex items-center gap-2 bg-slate-100 dark:bg-zinc-800 hover:bg-rose-100 dark:hover:bg-rose-900/40 text-slate-600 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 px-4 py-2.5 rounded-xl text-sm font-bold transition-all"
+                           title="Reset Filter">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                            Clear
                         </a>
                     @endif
                 </div>
+
             </form>
         </div>
-
-        <div class="overflow-x-auto">
+        <div id="ajax-table-body" class="overflow-x-auto" @click="if($event.target.closest('th a')) { navigate($event, $event.target.closest('a').href) }">
             <table class="w-full text-sm border-collapse border border-slate-200 dark:border-zinc-800">
                 <thead class="bg-indigo-600 dark:bg-indigo-900/80 text-[10px] uppercase tracking-widest text-white font-black">
                     <tr>
@@ -89,7 +117,7 @@
                                 </span>
                             </a>
                         </th>
-                        <th class="px-4 py-3 text-left w-44 border border-white/20">
+                        <th class="px-4 py-3 text-left min-w-[220px] border border-white/20">
                             <a href="{{ request()->fullUrlWithQuery(['sort' => 'batas_waktu', 'order' => request('sort') == 'batas_waktu' && request('order') == 'asc' ? 'desc' : 'asc']) }}" class="flex items-center justify-between group">
                                 Jatuh Tempo
                                 <span class="transition-all {{ request('sort') == 'batas_waktu' ? 'opacity-100' : 'opacity-30 group-hover:opacity-100' }}">
@@ -133,14 +161,14 @@
                                 #{{ $t->id }}
                             </td>
                             <td class="px-4 py-3 border border-slate-200 dark:border-zinc-800">
-                                <form action="{{ route('keuangan.pembayaran.update', $t->id) }}" method="POST" class="flex items-center gap-2">
+                                <form action="{{ route('keuangan.pembayaran.update', $t->id) }}" method="POST" class="flex flex-wrap items-center gap-2">
                                     @csrf @method('PUT')
                                     <input type="date" name="batas_waktu" 
                                         value="{{ $t->batas_waktu ? $t->batas_waktu->format('Y-m-d') : '' }}" 
                                         onchange="this.form.submit()"
                                         class="bg-slate-50 hover:bg-slate-100 dark:bg-zinc-800/50 dark:hover:bg-zinc-800 border-0 rounded-lg text-xs font-black px-2.5 py-1.5 focus:ring-2 focus:ring-rose-500/20 text-slate-700 dark:text-slate-300 transition-all cursor-pointer">
                                     @if($overdue)
-                                        <span class="px-1.5 py-0.5 rounded bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400 text-[8px] font-black uppercase tracking-wider shrink-0 animate-pulse">Overdue</span>
+                                        <span class="px-1.5 py-0.5 rounded bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400 text-[8px] font-black uppercase tracking-wider shrink-0 animate-pulse border border-rose-200/50">Jatuh Tempo</span>
                                     @endif
                                 </form>
                             </td>
@@ -193,7 +221,8 @@
         </div>
 
         {{-- Footer Pagination --}}
-        <div class="px-8 py-6 border-t border-slate-100 dark:border-zinc-800 bg-slate-50/30 dark:bg-zinc-900/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div id="ajax-pagination" class="px-8 py-6 border-t border-slate-100 dark:border-zinc-800 bg-slate-50/30 dark:bg-zinc-900/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+             @click="if($event.target.closest('nav[role=navigation] a')) { navigate($event, $event.target.closest('a').href) }">
             <p class="text-xs text-slate-500 dark:text-slate-400 font-bold">
                 Menampilkan <span class="text-slate-900 dark:text-white">{{ $tagihan->firstItem() ?? 0 }}</span> – <span class="text-slate-900 dark:text-white">{{ $tagihan->lastItem() ?? 0 }}</span> dari <span class="text-slate-900 dark:text-white">{{ $tagihan->total() ?? 0 }}</span> Tagihan
             </p>

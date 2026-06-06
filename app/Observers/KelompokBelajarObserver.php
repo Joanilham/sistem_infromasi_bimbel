@@ -2,7 +2,7 @@
 
 namespace App\Observers;
 
-use App\Models\KelompokBelajar;
+use App\Models\Akademik\KelompokBelajar;
 use Illuminate\Support\Facades\Cache;
 
 class KelompokBelajarObserver
@@ -18,3 +18,4 @@ class KelompokBelajarObserver
     public function restored(KelompokBelajar $kelompokBelajar): void { $this->clearCache(); }
     public function forceDeleted(KelompokBelajar $kelompokBelajar): void { $this->clearCache(); }
 }
+

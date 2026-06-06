@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Periode;
+use App\Models\MasterData\Periode;
 use Illuminate\Database\Seeder;
 
 class PeriodeSeeder extends Seeder
@@ -21,3 +21,4 @@ class PeriodeSeeder extends Seeder
         }
     }
 }
+

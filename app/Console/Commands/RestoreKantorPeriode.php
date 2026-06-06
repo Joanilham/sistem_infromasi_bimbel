@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Kantor;
-use App\Models\Periode;
+use App\Models\MasterData\Kantor;
+use App\Models\MasterData\Periode;
 use Illuminate\Console\Command;
 
 class RestoreKantorPeriode extends Command
@@ -50,3 +50,4 @@ class RestoreKantorPeriode extends Command
         $this->info('Selesai. Sistem siap digunakan kembali.');
     }
 }
+

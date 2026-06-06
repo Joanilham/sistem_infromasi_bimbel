@@ -6,25 +6,25 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Faker\Factory as Faker;
 use App\Models\User;
-use App\Models\PesertaDidik;
-use App\Models\Kantor;
-use App\Models\Periode;
-use App\Models\PaketBimbingan;
-use App\Models\KelompokBelajar;
-use App\Models\Master;
-use App\Models\KategoriPemasukan;
-use App\Models\KategoriPengeluaran;
-use App\Models\Pemasukan;
-use App\Models\Pengeluaran;
-use App\Models\PembayaranSiswa;
-use App\Models\TransaksiPembayaran;
-use App\Models\CbtMapel;
-use App\Models\Jadwal;
-use App\Models\Absensi;
-use App\Models\Testimonial;
-use App\Models\Faq;
-use App\Models\Gallery;
-use App\Models\PendaftaranSiswa;
+use App\Models\Akademik\PesertaDidik;
+use App\Models\MasterData\Kantor;
+use App\Models\MasterData\Periode;
+use App\Models\Akademik\PaketBimbingan;
+use App\Models\Akademik\KelompokBelajar;
+use App\Models\MasterData\Master;
+use App\Models\Keuangan\KategoriPemasukan;
+use App\Models\Keuangan\KategoriPengeluaran;
+use App\Models\Keuangan\Pemasukan;
+use App\Models\Keuangan\Pengeluaran;
+use App\Models\Keuangan\PembayaranSiswa;
+use App\Models\Keuangan\TransaksiPembayaran;
+use App\Models\CBT\CbtMapel;
+use App\Models\Akademik\Jadwal;
+use App\Models\Akademik\Absensi;
+use App\Models\System\Testimonial;
+use App\Models\System\Faq;
+use App\Models\System\Gallery;
+use App\Models\Pendaftaran\PendaftaranSiswa;
 use Carbon\Carbon;
 
 class DummyFullSeeder extends Seeder
@@ -144,7 +144,8 @@ class DummyFullSeeder extends Seeder
                 [
                     'name' => $pd->nama_lengkap,
                     'username' => 'siswa' . $i,
-                    'level' => 'Siswa',
+                    'level' => 'siswa',
+                    'status' => ($i === 2) ? 'menunggu' : 'aktif',
                     'password' => Hash::make('password'),
                     'is_active' => true,
                     'peserta_didik_id' => $pd->id,
@@ -153,19 +154,36 @@ class DummyFullSeeder extends Seeder
                 ]
             );
 
+            // Tentukan status keuangan berdasarkan $i
+            // 0 = Tunggakan (Jatuh tempo)
+            // 1 = Lunas
+            // 2 = Belum lunas tapi belum jatuh tempo
+            $financialStatus = $i % 3;
+
             // Buat Tagihan
             $tagihan = PembayaranSiswa::firstOrCreate(
                 ['peserta_didik_id' => $pd->id],
                 [
                     'biaya_pendaftaran' => 250000,
                     'total_harus_dibayar' => 2750000,
-                    'batas_waktu' => $now->copy()->addMonths(1)->format('Y-m-d')
+                    'batas_waktu' => ($financialStatus === 0) ? Carbon::now()->subDays(5) : Carbon::now()->addDays(30),
+                    'dispensasi' => false,
                 ]
             );
 
-            // Transaksi Pembayaran Sebagian
-            if ($i % 2 == 0) {
+            // Transaksi Pembayaran
+            $nominal = 0;
+            $keterangan = '';
+            
+            if ($financialStatus === 1) { // Lunas
+                $nominal = 2750000;
+                $keterangan = 'Pelunasan SPP ' . $pd->nama_lengkap;
+            } elseif ($financialStatus === 0 || $financialStatus === 2) { // Baru Cicilan / Tunggakan
                 $nominal = 1000000;
+                $keterangan = 'Cicilan SPP ' . $pd->nama_lengkap;
+            }
+
+            if ($nominal > 0) {
                 TransaksiPembayaran::firstOrCreate(
                     ['pembayaran_siswa_id' => $tagihan->id, 'no_kwitansi' => 'KW-' . $pd->id . '-' . time()],
                     [
@@ -178,7 +196,7 @@ class DummyFullSeeder extends Seeder
                 );
 
                 Pemasukan::firstOrCreate(
-                    ['keterangan' => 'Cicilan SPP ' . $pd->nama_lengkap],
+                    ['keterangan' => $keterangan],
                     [
                         'tanggal' => $now->format('Y-m-d'),
                         'kategori_id' => $katPemasukan->id,
@@ -245,6 +263,38 @@ class DummyFullSeeder extends Seeder
             );
         }
 
+        // 9. Pengumuman / Berita
+        echo "Creating Pengumuman/Berita...\n";
+        $beritas = [
+            [
+                'judul' => 'Jadwal Tryout Akbar Nasional 2024',
+                'isi' => 'Pemberitahuan kepada seluruh siswa. Tryout Akbar Nasional akan diselenggarakan pada akhir bulan ini. Diharapkan seluruh siswa mempersiapkan diri sebaik mungkin untuk menghadapi tryout ini. Tryout ini sangat penting untuk mengukur kemampuan kalian sebelum ujian sesungguhnya.',
+            ],
+            [
+                'judul' => 'Pendaftaran Gelombang 2 Dibuka',
+                'isi' => 'Kabar gembira! Bimbel kami membuka pendaftaran gelombang kedua dengan diskon khusus 20% bagi yang mendaftar sebelum tanggal 15 bulan depan. Segera informasikan kepada teman-teman yang ingin bergabung.',
+            ],
+            [
+                'judul' => 'Pembagian Kelas Intensif SNBT',
+                'isi' => 'Untuk kelas intensif SNBT, pembagian jadwal dan ruangan kelas akan diumumkan pada hari Senin minggu depan. Pastikan kalian mengecek aplikasi mobile atau mading kantor.',
+            ],
+            [
+                'judul' => 'Libur Nasional & Libur Hari Raya',
+                'isi' => 'Dalam rangka hari raya, seluruh kegiatan belajar mengajar ditiadakan selama 3 hari. Kegiatan akan kembali normal pada hari Kamis. Tetap semangat belajar di rumah ya!',
+            ]
+        ];
+
+        foreach ($beritas as $berita) {
+            \App\Models\System\Pengumuman::firstOrCreate(
+                ['judul' => $berita['judul']],
+                [
+                    'isi' => $berita['isi'],
+                    'is_active' => true,
+                ]
+            );
+        }
+
         echo "DummyFullSeeder completed successfully!\n";
     }
 }
+

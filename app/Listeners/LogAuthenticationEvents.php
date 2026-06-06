@@ -5,7 +5,7 @@ namespace App\Listeners;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
 use Illuminate\Events\Dispatcher;
-use App\Models\AuditLog;
+use App\Models\System\AuditLog;
 use Illuminate\Support\Facades\Request;
 
 class LogAuthenticationEvents
@@ -62,3 +62,4 @@ class LogAuthenticationEvents
         ]);
     }
 }
+

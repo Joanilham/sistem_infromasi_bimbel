@@ -2,7 +2,7 @@
 
 namespace App\Traits;
 
-use App\Models\AuditLog;
+use App\Models\System\AuditLog;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
 
@@ -75,3 +75,4 @@ trait Auditable
         ]);
     }
 }
+

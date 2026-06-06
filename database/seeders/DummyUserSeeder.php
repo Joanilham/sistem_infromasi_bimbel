@@ -4,12 +4,12 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\User;
-use App\Models\PesertaDidik;
-use App\Models\Kantor;
-use App\Models\Periode;
-use App\Models\PaketBimbingan;
-use App\Models\KelompokBelajar;
-use App\Models\Master;
+use App\Models\Akademik\PesertaDidik;
+use App\Models\MasterData\Kantor;
+use App\Models\MasterData\Periode;
+use App\Models\Akademik\PaketBimbingan;
+use App\Models\Akademik\KelompokBelajar;
+use App\Models\MasterData\Master;
 use Faker\Factory as Faker;
 use Illuminate\Support\Facades\Hash;
 
@@ -103,7 +103,8 @@ class DummyUserSeeder extends Seeder
                 'name' => $pd->nama_lengkap,
                 'username' => 'siswa' . $i,
                 'email' => 'siswa' . $i . '@example.com',
-                'level' => 'Siswa',
+                'level' => 'siswa',
+                'status' => ($i === 2) ? 'menunggu' : 'aktif',
                 'password' => Hash::make('password'),
                 'is_active' => true,
                 'peserta_didik_id' => $pd->id,
@@ -113,3 +114,4 @@ class DummyUserSeeder extends Seeder
         echo "Dummy Guru and Siswa created successfully!\n";
     }
 }
+

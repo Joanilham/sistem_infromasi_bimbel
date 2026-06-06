@@ -27,6 +27,7 @@
         .dark .ts-control input { color: #f4f4f5 !important; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
+    <link rel="stylesheet" href="{{ asset('css/loading.css') }}">
 </head>
 <body class="bg-slate-50 dark:bg-slate-900 flex h-screen overflow-hidden text-slate-800 dark:text-slate-100">
 
@@ -139,7 +140,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('select').forEach((el) => {
-                if (el.classList.contains('no-tomselect')) return;
+                if (el.classList.contains('no-tomselect') || el.closest('.ql-toolbar')) return;
                 new TomSelect(el, {
                     create: false,
                     sortField: null,
@@ -148,5 +149,6 @@
             });
         });
     </script>
+    @include('components.loading-overlay')
 </body>
 </html>

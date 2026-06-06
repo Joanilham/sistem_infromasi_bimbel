@@ -1,11 +1,12 @@
 <?php
 
 namespace App\Http\Controllers\Api;
+use App\Models\Akademik\PesertaDidik;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Jadwal;
-use App\Models\Absensi;
+use App\Models\Akademik\Jadwal;
+use App\Models\Akademik\Absensi;
 use App\Traits\ApiResponse;
 
 class AkademikController extends Controller
@@ -70,3 +71,5 @@ class AkademikController extends Controller
         return $this->successResponse($absensi, 'Status absensi hari ini dimuat');
     }
 }
+
+

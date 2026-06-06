@@ -1,10 +1,15 @@
 <?php
 
 namespace App\Http\Controllers\Siswa;
+use App\Models\Akademik\PesertaDidik;
+use App\Models\MasterData\Periode;
+use App\Models\Akademik\PaketBimbingan;
+use App\Models\Akademik\KelompokBelajar;
+use App\Models\MasterData\Kantor;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Absensi;
+use App\Models\Akademik\Absensi;
 
 class DashboardController extends Controller
 {
@@ -35,7 +40,7 @@ class DashboardController extends Controller
 
             // CBT: Ujian yang tersedia (aktif & belum selesai)
             $kelompokId = $peserta->kelompok_belajar_id;
-            $assignedUjianIds = \App\Models\CbtUjianAssign::where(function($q) use ($user, $kelompokId) {
+            $assignedUjianIds = \App\Models\CBT\CbtUjianAssign::where(function($q) use ($user, $kelompokId) {
                 $q->where('tipe_assign', 'user')->where('assign_id', $user->id);
                 if ($kelompokId) {
                     $q->orWhere(function($sq) use ($kelompokId) {
@@ -44,12 +49,12 @@ class DashboardController extends Controller
                 }
             })->pluck('cbt_ujian_id')->toArray();
 
-            $ujianAktif = \App\Models\CbtUjian::whereIn('id', $assignedUjianIds)
+            $ujianAktif = \App\Models\CBT\CbtUjian::whereIn('id', $assignedUjianIds)
                 ->aktif()
                 ->orderBy('waktu_mulai', 'asc')
                 ->get();
 
-            $ujianSelesaiIds = \App\Models\CbtPeserta::where('user_id', $user->id)
+            $ujianSelesaiIds = \App\Models\CBT\CbtPeserta::where('user_id', $user->id)
                 ->whereIn('status', ['selesai', 'timeout'])
                 ->pluck('cbt_ujian_id')
                 ->toArray();
@@ -67,3 +72,5 @@ class DashboardController extends Controller
         return view('siswa.dashboard', compact('user', 'peserta', 'absensis', 'totalHadir', 'totalAlpha', 'ujianAktif'));
     }
 }
+
+

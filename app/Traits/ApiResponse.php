@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Traits;
+use App\Models\System\Message;
 
 use Illuminate\Http\JsonResponse;
 
@@ -40,3 +41,4 @@ trait ApiResponse
         ], $code);
     }
 }
+

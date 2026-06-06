@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Middleware;
+use App\Models\Akademik\Absensi;
 
 use Closure;
 use Illuminate\Http\Request;
@@ -47,3 +48,4 @@ class SecurityHeaders
         return $response;
     }
 }
+

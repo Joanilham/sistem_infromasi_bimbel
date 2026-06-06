@@ -22,8 +22,8 @@ class DatabaseSeeder extends Seeder
             DummyFullSeeder::class,
         ]);
 
-        $kantor = \App\Models\Kantor::first();
-        $periode = \App\Models\Periode::first();
+        $kantor = \App\Models\MasterData\Kantor::first();
+        $periode = \App\Models\MasterData\Periode::first();
 
         User::factory()->create([
             'name'     => 'Super Admin',
@@ -41,3 +41,4 @@ class DatabaseSeeder extends Seeder
         ]);
     }
 }
+

@@ -1,6 +1,11 @@
 <?php
 
 namespace App\Http\Controllers\Siswa;
+use App\Models\Akademik\PesertaDidik;
+use App\Models\Keuangan\PembayaranSiswa;
+use App\Models\MasterData\Bank;
+use App\Models\Akademik\PaketBimbingan;
+use App\Models\MasterData\Master;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -25,10 +30,10 @@ class PembayaranController extends Controller
         $kekurangan = $pembayaran ? $pembayaran->kekurangan : ($pesertaDidik->paketBimbingan?->nominal ?? 0);
 
         // Ambil data master untuk nomor WA
-        $master = \App\Models\Master::first();
+        $master = \App\Models\MasterData\Master::first();
 
         // Ambil rekening bank aktif
-        $banks = \App\Models\Bank::where('is_active', true)->get();
+        $banks = \App\Models\MasterData\Bank::where('is_active', true)->get();
 
         return view('siswa.pembayaran.index', compact('pesertaDidik', 'pembayaran', 'master', 'banks', 'kekurangan'));
     }
@@ -80,7 +85,7 @@ class PembayaranController extends Controller
 
         if ($request->hasFile('bukti_pembayaran')) {
             $file = $request->file('bukti_pembayaran');
-            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $filename = $file->hashName();
             $path = $file->storeAs('bukti_pembayaran', $filename, 'public');
             $validated['bukti_pembayaran'] = $path;
         }
@@ -104,7 +109,7 @@ class PembayaranController extends Controller
         return redirect()->route('siswa.pembayaran.index')->with('success', 'Konfirmasi pembayaran berhasil dikirim. Menunggu verifikasi dari admin.');
     }
 
-    public function downloadNota(\App\Models\TransaksiPembayaran $transaksi)
+    public function downloadNota(\App\Models\Keuangan\TransaksiPembayaran $transaksi)
     {
         // Pastikan transaksi milik siswa yang sedang login
         $user = Auth::user();
@@ -116,3 +121,5 @@ class PembayaranController extends Controller
         return view('siswa.pembayaran.nota', compact('transaksi'));
     }
 }
+
+
