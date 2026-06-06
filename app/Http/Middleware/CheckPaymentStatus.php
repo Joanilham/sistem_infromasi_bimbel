@@ -1,6 +1,9 @@
 <?php
 
 namespace App\Http\Middleware;
+use App\Models\Akademik\PesertaDidik;
+use App\Models\Akademik\Jadwal;
+use App\Models\System\Message;
 
 use Closure;
 use Illuminate\Http\Request;
@@ -37,6 +40,14 @@ class CheckPaymentStatus
                 }
 
                 // Jika mencoba akses Ujian, Jadwal, dll, lemparkan kembali ke Dashboard
+                if ($request->expectsJson() || $request->is('api/*')) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Akun Anda sedang menunggu verifikasi dari Admin Pusat. Fitur kelas belum bisa diakses.',
+                        'data' => null
+                    ], 403);
+                }
+
                 return redirect()->route('siswa.dashboard')
                     ->with('pending_message', 'Akun Anda sedang menunggu verifikasi dari Admin Pusat. Fitur kelas belum bisa diakses.');
             }
@@ -46,7 +57,7 @@ class CheckPaymentStatus
             // 2. CEK STATUS TAGIHAN / PEMBAYARAN (Logika Asli Milikmu)
             // =========================================================================
             // Check if user is a student
-            if ($user->level === 'siswa' || $user->pesertaDidik) {
+            if (strtolower($user->level) === 'siswa' || $user->pesertaDidik) {
                 $pesertaDidik = $user->pesertaDidik;
                 
                 if ($pesertaDidik) {
@@ -55,6 +66,7 @@ class CheckPaymentStatus
                     if ($status['is_locked']) {
                         // List of allowed routes when locked
                         $allowedRoutes = [
+                            'siswa.dashboard',
                             'siswa.pembayaran.index',
                             'siswa.pembayaran.konfirmasi',
                             'siswa.pembayaran.nota',
@@ -74,11 +86,12 @@ class CheckPaymentStatus
                                 }
                             }
                             
-                            // If AJAX request or expects JSON, return a clean JSON 403 Forbidden
-                            if ($request->expectsJson()) {
+                            // If AJAX request or expects JSON, return a clean JSON 200 so the mobile app doesn't crash
+                            if ($request->expectsJson() || $request->is('api/*')) {
                                 return response()->json([
                                     'status' => 'error',
-                                    'message' => $errorMessage
+                                    'message' => $errorMessage,
+                                    'data' => null
                                 ], 403);
                             }
                             

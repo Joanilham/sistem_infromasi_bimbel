@@ -2,7 +2,7 @@
 
 namespace App\Observers;
 
-use App\Models\PesertaDidik;
+use App\Models\Akademik\PesertaDidik;
 use Illuminate\Support\Facades\Cache;
 
 class PesertaDidikObserver
@@ -69,3 +69,4 @@ class PesertaDidikObserver
         }
     }
 }
+

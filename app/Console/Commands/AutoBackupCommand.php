@@ -156,10 +156,15 @@ class AutoBackupCommand extends Command
             $createTableSql = $createTableResult[0]->{'Create Table'};
             $sql .= $createTableSql . ";\n\n";
 
-            // Ambil semua baris data
-            $rows = DB::table($table)->get();
-            if ($rows->count() > 0) {
-                $sql .= "INSERT INTO `{$table}` VALUES \n";
+            // Ambil data baris dengan chunking agar tidak habiskan memori untuk tabel besar
+            $hasRows = false;
+            DB::table($table)->orderBy(
+                DB::getSchemaBuilder()->hasColumn($table, 'id') ? 'id' : DB::raw('1')
+            )->chunk(500, function ($rows) use (&$sql, $table, &$hasRows) {
+                if (!$hasRows) {
+                    $sql .= "INSERT INTO `{$table}` VALUES \n";
+                    $hasRows = true;
+                }
                 $inserts = [];
                 foreach ($rows as $row) {
                     $values = [];
@@ -167,7 +172,6 @@ class AutoBackupCommand extends Command
                         if (is_null($value)) {
                             $values[] = 'NULL';
                         } else {
-                            // Sanitasi & escape karakter string agar aman dibaca PDO
                             $escaped = str_replace(
                                 ["\\", "'", "\n", "\r", "\x1a"],
                                 ["\\\\", "\\'", "\\n", "\\r", "\\Z"],
@@ -178,7 +182,11 @@ class AutoBackupCommand extends Command
                     }
                     $inserts[] = "(" . implode(', ', $values) . ")";
                 }
-                $sql .= implode(",\n", $inserts) . ";\n\n";
+                $sql .= implode(",\n", $inserts) . ";\n";
+            });
+
+            if ($hasRows) {
+                $sql .= "\n";
             }
         }
 

@@ -153,6 +153,7 @@
         }
     </style>
     @yield('extra_style')
+    <link rel="stylesheet" href="{{ asset('css/loading.css') }}">
 </head>
 <body>
 <div class="top-bar">
@@ -221,5 +222,6 @@
 </script>
 
 @include('components.autosave-script')
+    @include('components.loading-overlay')
 </body>
 </html>

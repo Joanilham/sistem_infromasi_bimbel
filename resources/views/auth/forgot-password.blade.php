@@ -21,6 +21,7 @@
             transform: translateY(-1px);
         }
     </style>
+    <link rel="stylesheet" href="{{ asset('css/loading.css') }}">
 </head>
 <body class="min-h-screen bg-pattern flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 text-slate-900 antialiased selection:bg-blue-200 selection:text-blue-900">
     
@@ -106,5 +107,6 @@
         </p>
 
     </div>
+    @include('components.loading-overlay')
 </body>
 </html>

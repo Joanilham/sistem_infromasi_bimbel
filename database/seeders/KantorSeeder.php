@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Kantor;
+use App\Models\MasterData\Kantor;
 use Illuminate\Database\Seeder;
 
 class KantorSeeder extends Seeder
@@ -21,3 +21,4 @@ class KantorSeeder extends Seeder
         }
     }
 }
+

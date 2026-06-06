@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Pengumuman;
+use App\Models\System\Pengumuman;
 use App\Traits\ApiResponse;
 
 class PengumumanController extends Controller
@@ -28,3 +28,4 @@ class PengumumanController extends Controller
         return $this->successResponse($pengumuman, 'Data pengumuman berhasil diambil')->header('Cache-Control', 'public, max-age=600');
     }
 }
+

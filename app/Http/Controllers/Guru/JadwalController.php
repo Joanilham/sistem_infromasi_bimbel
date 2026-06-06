@@ -1,9 +1,10 @@
 <?php
 
 namespace App\Http\Controllers\Guru;
+use App\Models\Akademik\JadwalMapel;
 
 use App\Http\Controllers\Controller;
-use App\Models\Jadwal;
+use App\Models\Akademik\Jadwal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -36,14 +37,14 @@ class JadwalController extends Controller
         $validated['guru_id'] = Auth::id();
 
         // Simpan sebagai JadwalMapel (legacy) — guru hanya pakai fitur sederhana
-        \App\Models\JadwalMapel::create($validated);
+        \App\Models\Akademik\JadwalMapel::create($validated);
 
         return redirect()->route('guru.jadwal.index')->with('success', 'Jadwal berhasil ditambahkan.');
     }
 
     public function update(Request $request, string $id)
     {
-        $jadwal = \App\Models\JadwalMapel::where('guru_id', Auth::id())->findOrFail($id);
+        $jadwal = \App\Models\Akademik\JadwalMapel::where('guru_id', Auth::id())->findOrFail($id);
 
         $validated = $request->validate([
             'hari'       => 'required|string',
@@ -60,9 +61,10 @@ class JadwalController extends Controller
 
     public function destroy(string $id)
     {
-        $jadwal = \App\Models\JadwalMapel::where('guru_id', Auth::id())->findOrFail($id);
+        $jadwal = \App\Models\Akademik\JadwalMapel::where('guru_id', Auth::id())->findOrFail($id);
         $jadwal->delete();
 
         return redirect()->route('guru.jadwal.index')->with('success', 'Jadwal berhasil dihapus.');
     }
 }
+

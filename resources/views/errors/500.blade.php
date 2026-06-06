@@ -1,33 +1,60 @@
-@extends('errors.layout')
+@extends('errors.layout-card')
 
-@section('code', '500')
-@section('title', 'Terjadi Kesalahan')
-@section('gradient', '#EF4444, #DC2626, #7F1D1D')
-@section('btn-gradient', '#DC2626, #EF4444')
-@section('btn-shadow', 'rgba(220,38,38,0.4)')
+@section('page_title', '500 — Server Error')
+
+@section('code-color', '#DC2626')
+@section('badge-bg', 'var(--bg-badge)')
+@section('badge-text', '#991B1B')
+@section('badge-dot', '#DC2626')
 
 @section('icon')
-<svg fill="none" viewBox="0 0 24 24" stroke="#EF4444" stroke-width="1.5">
-    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-</svg>
+    ⚠️
 @endsection
 
+@section('code', '500')
+
+@section('badge', 'Server Error')
+
+@section('title', 'Sistem Sedang Gangguan')
+
 @section('message')
-    Sistem kami mengalami gangguan sementara. Tim kami sudah diberitahu
-    dan sedang menangani masalah ini. Silakan coba lagi nanti.
+    Aduh, sepertinya sistem kami sedang sedikit pusing. Tim teknisi kami sudah mengetahui hal ini dan sedang memperbaikinya. Mohon kembali lagi nanti ya.
 @endsection
 
 @section('actions')
-<a href="javascript:history.back()" class="btn-secondary">
-    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-    </svg>
-    Kembali
-</a>
-<a href="{{ url('/') }}" class="btn-primary">
-    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-    </svg>
-    Beranda
-</a>
+    <a href="javascript:location.reload()" class="btn btn-outline">
+        Mencoba...
+    </a>
+    <a href="javascript:void(0)" onclick="alert('Laporan terkirim! Terima kasih.')" class="btn btn-outline">
+        Laporkan
+    </a>
 @endsection
+
+@section('details')
+    <div class="details-row">
+        <span class="details-label">Kode Error</span>
+        <span class="details-value">HTTP 500</span>
+    </div>
+    <div class="details-row">
+        <span class="details-label">Waktu</span>
+        <span class="details-value" id="current-time">--.--.--</span>
+    </div>
+    <div class="details-row">
+        <span class="details-label">Request ID</span>
+        <span class="details-value">req_{{ Str::random(8) }}</span>
+    </div>
+
+    <script>
+        // Update time dynamically
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.getHours().toString().padStart(2, '0') + '.' + 
+                            now.getMinutes().toString().padStart(2, '0') + '.' + 
+                            now.getSeconds().toString().padStart(2, '0');
+            document.getElementById('current-time').textContent = timeStr;
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+    </script>
+@endsection
+

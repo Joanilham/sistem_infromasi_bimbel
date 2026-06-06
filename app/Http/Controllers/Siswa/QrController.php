@@ -1,9 +1,10 @@
 <?php
 
 namespace App\Http\Controllers\Siswa;
+use App\Models\Akademik\Absensi;
 
 use App\Http\Controllers\Controller;
-use App\Models\PesertaDidik;
+use App\Models\Akademik\PesertaDidik;
 use Illuminate\Support\Facades\Auth;
 
 class QrController extends Controller
@@ -12,7 +13,7 @@ class QrController extends Controller
     public function show()
     {
         $peserta = $this->getPeserta();
-        $absensiToday = \App\Models\Absensi::where('peserta_didik_id', $peserta->id)
+        $absensiToday = \App\Models\Akademik\Absensi::where('peserta_didik_id', $peserta->id)
             ->whereDate('tanggal', now()->toDateString())
             ->first();
             
@@ -23,7 +24,7 @@ class QrController extends Controller
     public function status()
     {
         $peserta = $this->getPeserta();
-        $absensi = \App\Models\Absensi::where('peserta_didik_id', $peserta->id)
+        $absensi = \App\Models\Akademik\Absensi::where('peserta_didik_id', $peserta->id)
             ->whereDate('tanggal', now()->toDateString())
             ->first();
 
@@ -73,7 +74,7 @@ class QrController extends Controller
 
                 $user = \App\Models\User::find($userId);
                 if ($user && $user->peserta_didik_id) {
-                    $peserta = \App\Models\PesertaDidik::find($user->peserta_didik_id);
+                    $peserta = \App\Models\Akademik\PesertaDidik::find($user->peserta_didik_id);
                     if ($peserta) {
                         return $peserta->nisn;
                     }
@@ -134,3 +135,5 @@ class QrController extends Controller
         return $key;
     }
 }
+
+

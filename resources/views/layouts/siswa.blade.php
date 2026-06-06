@@ -1,6 +1,7 @@
 @php
     $user = Auth::user();
     $pesertaDidik = $user ? $user->pesertaDidik : null;
+    $isPending = $user ? $user->status !== 'aktif' : false;
     $pembayaranOverdue = false;
     
     if ($pesertaDidik) {
@@ -49,6 +50,7 @@
     <!-- TomSelect CSS -->
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
     @stack('head')
+    <link rel="stylesheet" href="{{ asset('css/loading.css') }}">
 </head>
 <body class="bg-slate-50 dark:bg-slate-900 flex h-screen overflow-hidden text-slate-800 dark:text-slate-100">
 
@@ -66,7 +68,7 @@
     <div :class="!sidebarOpen ? 'sidebar-closed' : ''" class="main-content-wrapper flex-1 flex flex-col min-w-0 overflow-hidden">
         @include('layouts.siswa.header')
 
-        <main class="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950 p-4 sm:p-6 lg:p-8 pb-24 lg:pb-8 custom-scrollbar transition-colors duration-200">
+        <main id="main-scroll-area" class="flex-1 overflow-y-scroll bg-slate-50 dark:bg-slate-950 p-4 sm:p-6 lg:p-8 pb-24 lg:pb-8 custom-scrollbar page-enter transition-colors duration-200">
             <div class="max-w-7xl mx-auto">
                 @if(session('success'))
                 <div x-data="{ show: true }"
@@ -129,48 +131,49 @@
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                 Home
             </a>
-            <a href="javascript:void(0)" onclick="alert('⚠️ Akses ditangguhkan! Tagihan paket Anda belum dilunasi dan durasi bimbingan hampir habis / terlampaui. Silakan melunasi tagihan di menu Pembayaran.')" class="flex flex-col items-center gap-0.5 px-2 py-1 text-[10px] font-semibold text-slate-400 dark:text-zinc-600 opacity-50 cursor-not-allowed">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                Ujian
-            </a>
-            <a href="javascript:void(0)" onclick="alert('⚠️ Akses ditangguhkan! Tagihan paket Anda belum dilunasi dan durasi bimbingan hampir habis / terlampaui. Silakan melunasi tagihan di menu Pembayaran.')" class="flex flex-col items-center -mt-5 opacity-50 cursor-not-allowed">
-                <span class="w-12 h-12 rounded-full bg-slate-400 dark:bg-zinc-800 text-white flex items-center justify-center shadow-lg ring-4 ring-slate-50 dark:ring-zinc-950">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                </span>
-                <span class="text-[10px] font-semibold mt-1 text-slate-450 dark:text-zinc-600">QR</span>
-            </a>
-            <a href="javascript:void(0)" onclick="alert('⚠️ Akses ditangguhkan! Tagihan paket Anda belum dilunasi dan durasi bimbingan hampir habis / terlampaui. Silakan melunasi tagihan di menu Pembayaran.')" class="flex flex-col items-center gap-0.5 px-2 py-1 text-[10px] font-semibold text-slate-400 dark:text-zinc-600 opacity-50 cursor-not-allowed">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                Nilai
-            </a>
-            <a href="javascript:void(0)" onclick="alert('⚠️ Akses ditangguhkan! Tagihan paket Anda belum dilunasi dan durasi bimbingan hampir habis / terlampaui. Silakan melunasi tagihan di menu Pembayaran.')" class="flex flex-col items-center gap-0.5 px-2 py-1 text-[10px] font-semibold text-slate-400 dark:text-zinc-600 opacity-50 cursor-not-allowed">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                Profil
-            </a>
         @else
             <a href="{{ route('siswa.dashboard') }}" class="flex flex-col items-center gap-0.5 px-2 py-1 text-[10px] font-semibold {{ request()->routeIs('siswa.dashboard') ? 'text-[#388782]' : 'text-slate-500 dark:text-slate-400' }}">
                 <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
                 Home
             </a>
-            <a href="{{ route('siswa.ujian.index') }}" class="flex flex-col items-center gap-0.5 px-2 py-1 text-[10px] font-semibold {{ request()->routeIs('siswa.ujian.*') ? 'text-[#388782]' : 'text-slate-500 dark:text-slate-400' }}">
-                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-                Ujian
-            </a>
-            <a href="{{ route('siswa.qr.show') }}" class="flex flex-col items-center -mt-5">
-                <span class="w-12 h-12 rounded-full bg-[#388782] text-white flex items-center justify-center shadow-lg shadow-[#388782]/35 ring-4 ring-slate-50 dark:ring-zinc-950">
-                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
-                </span>
-                <span class="text-[10px] font-semibold mt-1 text-slate-500 dark:text-slate-400">QR</span>
-            </a>
-            <a href="{{ route('siswa.hasil.index') }}" class="flex flex-col items-center gap-0.5 px-2 py-1 text-[10px] font-semibold {{ request()->routeIs('siswa.hasil.*') ? 'text-[#388782]' : 'text-slate-500 dark:text-slate-400' }}">
-                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-                Nilai
-            </a>
-            <a href="{{ route('siswa.profile.edit') }}" class="flex flex-col items-center gap-0.5 px-2 py-1 text-[10px] font-semibold {{ request()->routeIs('siswa.profile.*') ? 'text-[#388782]' : 'text-slate-500 dark:text-slate-400' }}">
-                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                Profil
-            </a>
         @endif
+        @if(!$isPending)
+            @if($pembayaranOverdue)
+                <a href="javascript:void(0)" onclick="alert('⚠️ Akses ditangguhkan! Tagihan paket Anda belum dilunasi dan durasi bimbingan hampir habis / terlampaui. Silakan melunasi tagihan di menu Pembayaran.')" class="flex flex-col items-center gap-0.5 px-2 py-1 text-[10px] font-semibold text-slate-400 dark:text-zinc-600 opacity-50 cursor-not-allowed">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    Ujian
+                </a>
+                <a href="javascript:void(0)" onclick="alert('⚠️ Akses ditangguhkan! Tagihan paket Anda belum dilunasi dan durasi bimbingan hampir habis / terlampaui. Silakan melunasi tagihan di menu Pembayaran.')" class="flex flex-col items-center -mt-5 opacity-50 cursor-not-allowed">
+                    <span class="w-12 h-12 rounded-full bg-slate-400 dark:bg-zinc-800 text-white flex items-center justify-center shadow-lg ring-4 ring-slate-50 dark:ring-zinc-950">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    </span>
+                    <span class="text-[10px] font-semibold mt-1 text-slate-450 dark:text-zinc-600">QR</span>
+                </a>
+                <a href="javascript:void(0)" onclick="alert('⚠️ Akses ditangguhkan! Tagihan paket Anda belum dilunasi dan durasi bimbingan hampir habis / terlampaui. Silakan melunasi tagihan di menu Pembayaran.')" class="flex flex-col items-center gap-0.5 px-2 py-1 text-[10px] font-semibold text-slate-400 dark:text-zinc-600 opacity-50 cursor-not-allowed">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    Nilai
+                </a>
+            @else
+                <a href="{{ route('siswa.ujian.index') }}" class="flex flex-col items-center gap-0.5 px-2 py-1 text-[10px] font-semibold {{ request()->routeIs('siswa.ujian.*') ? 'text-[#388782]' : 'text-slate-500 dark:text-slate-400' }}">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                    Ujian
+                </a>
+                <a href="{{ route('siswa.qr.show') }}" class="flex flex-col items-center -mt-5">
+                    <span class="w-12 h-12 rounded-full bg-[#388782] text-white flex items-center justify-center shadow-lg shadow-[#388782]/35 ring-4 ring-slate-50 dark:ring-zinc-950">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+                    </span>
+                    <span class="text-[10px] font-semibold mt-1 text-slate-500 dark:text-slate-400">QR</span>
+                </a>
+                <a href="{{ route('siswa.hasil.index') }}" class="flex flex-col items-center gap-0.5 px-2 py-1 text-[10px] font-semibold {{ request()->routeIs('siswa.hasil.*') ? 'text-[#388782]' : 'text-slate-500 dark:text-slate-400' }}">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                    Nilai
+                </a>
+            @endif
+        @endif
+        <a href="{{ route('siswa.profile.edit') }}" class="flex flex-col items-center gap-0.5 px-2 py-1 text-[10px] font-semibold {{ request()->routeIs('siswa.profile.*') ? 'text-[#388782]' : 'text-slate-500 dark:text-slate-400' }}">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+            Profil
+        </a>
     </nav>
 
     @stack('scripts')
@@ -189,5 +192,6 @@
             });
         });
     </script>
+    @include('components.loading-overlay')
 </body>
 </html>

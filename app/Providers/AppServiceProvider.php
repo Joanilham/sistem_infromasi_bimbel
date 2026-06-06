@@ -2,9 +2,9 @@
 
 namespace App\Providers;
 
-use App\Models\Kantor;
-use App\Models\Master;
-use App\Models\Periode;
+use App\Models\MasterData\Kantor;
+use App\Models\MasterData\Master;
+use App\Models\MasterData\Periode;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -32,9 +32,9 @@ class AppServiceProvider extends ServiceProvider
         \Illuminate\Support\Facades\Event::subscribe(\App\Listeners\LogAuthenticationEvents::class);
 
         // Daftarkan Observers untuk Invalidation Otomatis
-        \App\Models\PesertaDidik::observe(\App\Observers\PesertaDidikObserver::class);
-        \App\Models\PaketBimbingan::observe(\App\Observers\PaketBimbinganObserver::class);
-        \App\Models\KelompokBelajar::observe(\App\Observers\KelompokBelajarObserver::class);
+        \App\Models\Akademik\PesertaDidik::observe(\App\Observers\PesertaDidikObserver::class);
+        \App\Models\Akademik\PaketBimbingan::observe(\App\Observers\PaketBimbinganObserver::class);
+        \App\Models\Akademik\KelompokBelajar::observe(\App\Observers\KelompokBelajarObserver::class);
         Kantor::observe(\App\Observers\KantorObserver::class);
         Periode::observe(\App\Observers\PeriodeObserver::class);
 
@@ -58,3 +58,4 @@ class AppServiceProvider extends ServiceProvider
         }
     }
 }
+

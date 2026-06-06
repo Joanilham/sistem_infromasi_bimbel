@@ -1,9 +1,11 @@
 <?php
 
 namespace App\Http\Controllers\Keuangan;
+use App\Models\Akademik\PesertaDidik;
+use App\Models\Akademik\PaketBimbingan;
 
 use App\Http\Controllers\Controller;
-use App\Models\PembayaranSiswa;
+use App\Models\Keuangan\PembayaranSiswa;
 use Illuminate\Http\Request;
 
 class TagihanController extends Controller
@@ -52,7 +54,9 @@ class TagihanController extends Controller
             ['path' => $request->url(), 'query' => $request->query()]
         );
 
-        $pakets = \App\Models\PaketBimbingan::get();
+        $pakets = \App\Models\Akademik\PaketBimbingan::get();
         return view('keuangan.tagihan.index', compact('tagihan', 'search', 'perPage', 'pakets'));
     }
 }
+
+

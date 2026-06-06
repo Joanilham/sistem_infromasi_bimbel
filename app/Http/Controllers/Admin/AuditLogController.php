@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\AuditLog;
+use App\Models\System\AuditLog;
 use Illuminate\Http\Request;
 
 class AuditLogController extends Controller
@@ -17,12 +17,7 @@ class AuditLogController extends Controller
         $event = $request->input('event');
         $perPage = $request->input('per_page', 10);
 
-        $query = AuditLog::with('user');
-
-        // Batasan Akses: Super Admin bisa melihat semua, Admin hanya bisa melihat log miliknya sendiri
-        if (strtolower(auth()->user()->level) !== 'super admin') {
-            $query->where('user_id', auth()->id());
-        }
+        $query = $this->buildAuditBaseQuery(AuditLog::with('user'));
 
         $logs = $query->when($search, function ($q) use ($search) {
                 $q->where(function ($subQ) use ($search) {
@@ -40,25 +35,8 @@ class AuditLogController extends Controller
             ->latest()
             ->paginate($perPage)
             ->withQueryString();
-        $baseQuery = AuditLog::query();
-        if (strtolower(auth()->user()->level) !== 'super admin') {
-            $baseQuery->where('user_id', auth()->id());
-        }
 
-        $cacheKey = 'audit_log_stats_' . auth()->id();
-        $stats = cache()->remember($cacheKey, now()->addMinutes(5), function () use ($baseQuery) {
-            $counts = (clone $baseQuery)
-                ->whereIn('event', ['created', 'updated', 'deleted'])
-                ->selectRaw('event, count(*) as count')
-                ->groupBy('event')
-                ->pluck('count', 'event');
-            return [
-                'created' => $counts['created'] ?? 0,
-                'updated' => $counts['updated'] ?? 0,
-                'deleted' => $counts['deleted'] ?? 0,
-            ];
-        });
-
+        $stats = $this->getAuditStats();
         $created = $stats['created'];
         $updated = $stats['updated'];
         $deleted = $stats['deleted'];
@@ -81,4 +59,36 @@ class AuditLogController extends Controller
         
         return back()->with('success', 'Log aktivitas berhasil dihapus.');
     }
+
+    // ═══════════════════════════════════════════════════════
+    // PRIVATE HELPERS
+    // ═══════════════════════════════════════════════════════
+
+    private function buildAuditBaseQuery($query)
+    {
+        if (strtolower(auth()->user()->level) !== 'super admin') {
+            $query->where('user_id', auth()->id());
+        }
+        return $query;
+    }
+
+    private function getAuditStats()
+    {
+        $cacheKey = 'audit_log_stats_' . auth()->id();
+        return cache()->remember($cacheKey, now()->addMinutes(5), function () {
+            $baseQuery = $this->buildAuditBaseQuery(AuditLog::query());
+            $counts = $baseQuery
+                ->whereIn('event', ['created', 'updated', 'deleted'])
+                ->selectRaw('event, count(*) as count')
+                ->groupBy('event')
+                ->pluck('count', 'event');
+
+            return [
+                'created' => $counts['created'] ?? 0,
+                'updated' => $counts['updated'] ?? 0,
+                'deleted' => $counts['deleted'] ?? 0,
+            ];
+        });
+    }
 }
+

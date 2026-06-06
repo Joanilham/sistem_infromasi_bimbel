@@ -45,7 +45,7 @@
             
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
                 <!-- KIRI: Pilihan Frekuensi & Input Waktu & Tombol Simpan -->
-                <div class="lg:col-span-5 flex flex-col justify-between gap-4">
+                <div class="lg:col-span-5 flex flex-col gap-4">
                     <div class="space-y-3">
                         <p class="text-[10px] font-black text-slate-400 dark:text-zinc-500 uppercase tracking-widest mb-2">Aktifkan Jadwal Backup:</p>
                         
@@ -102,7 +102,7 @@
                 </div>
 
                 <!-- KANAN: Panel Penjelasan Dinamis (Tinggi Stabil Tetap 310px - Bebas Layout Shift!) -->
-                <div class="lg:col-span-7 bg-slate-50 dark:bg-zinc-950 border border-slate-100 dark:border-zinc-800 p-5 rounded-[1.75rem] h-[310px] overflow-y-auto flex flex-col justify-center">
+                <div class="lg:col-span-7 bg-slate-50 dark:bg-zinc-950 border border-slate-100 dark:border-zinc-800 p-5 sm:p-6 rounded-[1.75rem] h-[310px] overflow-y-auto flex flex-col">
                     <p class="text-[10px] font-black text-slate-400 dark:text-zinc-500 uppercase tracking-widest mb-3">Detail Konsekuensi & Retensi:</p>
                     
                     <!-- Info Harian -->
@@ -265,7 +265,7 @@
                         @csrf
                         <button type="button" onclick="Swal.fire({title: 'Restore Database?', text: 'PERINGATAN KRITIS: Mengembalikan database akan menimpa seluruh data saat ini secara permanen! Pastikan Anda telah mengunduh backup terkini.', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d97706', cancelButtonColor: '#64748b', confirmButtonText: 'Ya, Restore!', cancelButtonText: 'Batal', background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#ffffff', color: document.documentElement.classList.contains('dark') ? '#f8fafc' : '#0f172a', customClass: {popup: 'rounded-2xl border border-slate-100 dark:border-slate-700'}}).then((result) => { if (result.isConfirmed) document.getElementById('form-restore-{{ $loop->index }}').submit(); })"
                             class="inline-flex items-center gap-1.5 bg-amber-50 dark:bg-amber-900/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 text-amber-700 dark:text-amber-400 text-xs font-bold px-4 py-2 rounded-xl transition-all">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 6.253M12 7V12l3 3" /></svg>
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" /></svg>
                             Restore
                         </button>
                     </form>
@@ -308,7 +308,6 @@
                 </div>
                 <p class="text-xs font-bold text-slate-400 dark:text-zinc-500">Belum ada file backup Manual.</p>
             </div>
-        </div>
         </div>
         @endif
     </div>

@@ -14,25 +14,25 @@ class DashboardController extends Controller
         
         $hariIni = \Carbon\Carbon::now()->locale('id')->isoFormat('dddd');
         
-        $jadwalHariIni = \App\Models\JadwalMapel::where('guru_id', $guru->id)
+        $jadwalHariIni = \App\Models\Akademik\JadwalMapel::where('guru_id', $guru->id)
             ->where('hari', $hariIni)
             ->count();
             
-        $bankSoalCount = \App\Models\CbtBankSoal::count();
+        $bankSoalCount = \App\Models\CBT\CbtBankSoal::count();
         
-        $ujianAktifCount = \App\Models\CbtUjian::where(function($query) {
+        $ujianAktifCount = \App\Models\CBT\CbtUjian::where(function($query) {
             $query->whereNull('waktu_selesai')
                   ->orWhere('waktu_selesai', '>=', now());
         })->count();
         
         $totalSiswa = \App\Models\User::where('level', 'siswa')->count();
         
-        $recentUjians = \App\Models\CbtUjian::withCount('pesertas')
+        $recentUjians = \App\Models\CBT\CbtUjian::withCount('pesertas')
             ->orderBy('created_at', 'desc')
             ->take(5)
             ->get();
             
-        $jadwals = \App\Models\JadwalMapel::where('guru_id', $guru->id)
+        $jadwals = \App\Models\Akademik\JadwalMapel::where('guru_id', $guru->id)
             ->where('hari', $hariIni)
             ->orderBy('jam_mulai', 'asc')
             ->get();

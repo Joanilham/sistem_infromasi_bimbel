@@ -50,3 +50,6 @@ Schedule::command('db:auto-backup --type=monthly')->monthlyOn(1, $monthlyTime)->
     }
     return false; // Default nonaktif
 });
+
+// Otomatis Alpha (Setiap hari pukul 23:00)
+Schedule::command('absensi:auto-alpha')->dailyAt('23:00');
