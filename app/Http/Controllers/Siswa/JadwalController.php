@@ -1,9 +1,10 @@
 <?php
 
 namespace App\Http\Controllers\Siswa;
+use App\Models\Akademik\PesertaDidik;
 
 use App\Http\Controllers\Controller;
-use App\Models\Jadwal;
+use App\Models\Akademik\Jadwal;
 use Illuminate\Support\Facades\Auth;
 
 class JadwalController extends Controller
@@ -37,3 +38,5 @@ class JadwalController extends Controller
         return view('siswa.jadwal.index', compact('jadwal', 'peserta', 'hariIni'));
     }
 }
+
+

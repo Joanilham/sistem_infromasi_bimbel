@@ -67,7 +67,7 @@
     <div class="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-slate-200 dark:border-zinc-800 p-6">
         <h3 class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-4">Pertanyaan</h3>
         <div class="prose prose-sm dark:prose-invert max-w-none text-slate-800 dark:text-slate-100 leading-relaxed">
-            {!! nl2br(e($soal->pertanyaan)) !!}
+            {!! \App\Helpers\HtmlSanitizer::clean($soal->pertanyaan) !!}
         </div>
 
         @if($soal->file_media)
@@ -88,7 +88,7 @@
                     {{ chr(65 + $idx) }}
                 </span>
                 <span class="text-sm pt-1 flex-1 {{ $opsi->is_benar ? 'text-emerald-800 dark:text-emerald-200 font-semibold' : 'text-slate-700 dark:text-slate-300' }}">
-                    {{ $opsi->teks_opsi }}
+                    {!! \App\Helpers\HtmlSanitizer::clean($opsi->teks_opsi) !!}
                 </span>
                 @if($opsi->is_benar)
                 <svg class="w-5 h-5 text-emerald-500 shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
@@ -113,7 +113,7 @@
         </button>
         <div x-show="open" x-transition class="mt-4 pt-4 border-t border-slate-100 dark:border-zinc-800">
             <div class="prose prose-sm dark:prose-invert max-w-none text-slate-700 dark:text-slate-300 bg-amber-50/50 dark:bg-amber-900/10 p-4 rounded-xl">
-                {!! nl2br(e($soal->pembahasan->pembahasanBersih)) !!}
+                {!! \App\Helpers\HtmlSanitizer::clean($soal->pembahasan->teks_pembahasan) !!}
             </div>
         </div>
     </div>

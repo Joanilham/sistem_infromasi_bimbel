@@ -324,6 +324,7 @@
             to { opacity: 1; transform: scale(1); }
         }
     </style>
+    <link rel="stylesheet" href="{{ asset('css/loading.css') }}">
 </head>
 <body>
 
@@ -579,5 +580,6 @@ setInterval(async () => {
 }, 3000); // Cek setiap 3 detik
 </script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @include('components.loading-overlay')
 </body>
 </html>

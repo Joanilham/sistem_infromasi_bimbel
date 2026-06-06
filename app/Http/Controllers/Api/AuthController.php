@@ -57,7 +57,7 @@ class AuthController extends Controller
 
         // Jika siswa, ambil juga data terbaru dari tabel peserta_didik
         if ($user->level === 'Siswa' && $user->peserta_didik_id) {
-            $peserta = \App\Models\PesertaDidik::with('pembayaran.transaksi')->find($user->peserta_didik_id);
+            $peserta = \App\Models\Akademik\PesertaDidik::with('pembayaran.transaksi')->find($user->peserta_didik_id);
             if ($peserta) {
                 $user->no_telp = $peserta->no_telepon ?? $user->no_telp;
                 $user->alamat = $peserta->alamat_lengkap ?? $user->alamat;
@@ -81,3 +81,4 @@ class AuthController extends Controller
         return $this->successResponse($user);
     }
 }
+

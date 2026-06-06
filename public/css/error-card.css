@@ -1,0 +1,336 @@
+/* ============================================
+   Error Card — Design System
+   Extracted from layout-card.blade.php
+   ============================================ */
+
+/* === Reset & Variables === */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+    --bg-body: #F8FAFC;
+    --bg-card: #FFFFFF;
+    --text-main: #0F172A;
+    --text-muted: #475569;
+    --border: #E2E8F0;
+    --bg-badge: #FEF2F2;
+    --text-badge: #991B1B;
+    --dot-badge: #DC2626;
+    --bg-details: #F4F3EB;
+    --code-color: #DC2626;
+    --badge-dot-color: #DC2626;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-body: #0F172A;
+        --bg-card: #1E293B;
+        --text-main: #F8FAFC;
+        --text-muted: #94A3B8;
+        --border: #334155;
+        --bg-badge: rgba(220, 38, 38, 0.1);
+        --text-badge: #FCA5A5;
+        --bg-details: #0F172A;
+    }
+}
+
+/* === Body === */
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--bg-body);
+    color: var(--text-main);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+/* === Background Effects === */
+.bg-pattern {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image: radial-gradient(var(--text-muted) 1.5px, transparent 1.5px);
+    background-size: 32px 32px;
+    opacity: 0.15;
+    z-index: -3;
+    pointer-events: none;
+}
+
+.bg-canvas {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    width: 100%; height: 100%;
+    z-index: -2;
+    pointer-events: none;
+    opacity: 0.8;
+}
+
+.bg-glow {
+    position: fixed;
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(circle, var(--code-color) 0%, transparent 60%);
+    opacity: 0.4;
+    filter: blur(80px);
+    z-index: -1;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: pulse-glow 8s ease-in-out infinite alternate;
+}
+
+.bg-glow-1 {
+    top: -200px;
+    left: -200px;
+}
+
+.bg-glow-2 {
+    bottom: -200px;
+    right: -200px;
+    animation-delay: -4s;
+    opacity: 0.3;
+}
+
+@keyframes pulse-glow {
+    0% { transform: scale(0.8) translate(0, 0); }
+    100% { transform: scale(1.2) translate(50px, 50px); }
+}
+
+/* === Card === */
+.error-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05);
+    max-width: 600px;
+    width: 100%;
+    padding: 48px 32px 32px;
+    text-align: center;
+    position: relative;
+    animation: card-appear 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
+@keyframes card-appear {
+    from { transform: scale(0.95) translateY(10px); opacity: 0; }
+    to   { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+/* === Icon === */
+.error-icon {
+    font-size: 64px;
+    display: block;
+    margin-bottom: 24px;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-8px); }
+}
+
+/* === Error Code (hidden by default) === */
+.error-code {
+    font-size: 80px;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 16px;
+    letter-spacing: -2px;
+    color: var(--code-color);
+}
+
+/* === Badge === */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-badge);
+    color: var(--text-badge);
+    padding: 6px 16px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 24px;
+}
+
+.badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--badge-dot-color);
+}
+
+/* === Title === */
+.error-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+}
+
+/* === Pet === */
+.pet-floor {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 50px;
+    z-index: 10;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.pet-floor canvas {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 50px;
+}
+
+/* === Description === */
+.error-desc {
+    font-size: 15px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 32px;
+    max-width: 440px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* === Buttons === */
+.btn-group {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 24px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+    border: 1px solid;
+}
+
+.btn-outline {
+    background: var(--bg-card);
+    color: var(--text-main);
+    border-color: var(--border);
+}
+
+.btn-outline:hover {
+    background: var(--bg-body);
+    transform: translateY(-1px);
+}
+
+/* === Details Box === */
+.details-box {
+    background: var(--bg-details);
+    border-radius: 16px;
+    padding: 16px 20px;
+    text-align: left;
+    position: relative;
+}
+
+.details-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    font-size: 13px;
+}
+
+@media (prefers-color-scheme: dark) {
+    .details-row {
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+}
+
+.details-row:last-child {
+    border-bottom: none;
+}
+
+.details-label {
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.details-value {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.details-toggle {
+    position: absolute;
+    bottom: -16px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 32px;
+    height: 32px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+}
+
+/* === Image Container === */
+.image-container {
+    margin-bottom: 24px;
+}
+
+.error-image {
+    width: 160px;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 24px;
+    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+    animation: float 6s ease-in-out infinite;
+}
+
+/* === Mobile Responsive === */
+@media (max-width: 640px) {
+    body {
+        padding: 16px;
+    }
+    .error-card {
+        padding: 32px 20px 24px;
+        border-radius: 20px;
+    }
+    .error-icon {
+        font-size: 52px;
+        margin-bottom: 20px;
+    }
+    .error-title {
+        font-size: 20px;
+        margin-bottom: 8px;
+    }
+    .error-desc {
+        font-size: 14px;
+        margin-bottom: 24px;
+    }
+    .btn-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    .details-box {
+        padding: 12px 16px;
+    }
+}

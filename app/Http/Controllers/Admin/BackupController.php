@@ -78,7 +78,7 @@ class BackupController extends Controller
         $freqString = count($frequencies) > 0 ? implode(', ', array_map('strtoupper', $frequencies)) : 'NONAKTIF';
         $logMsg = "Pengaturan frekuensi backup otomatis diubah menjadi: {$freqString} (Waktu: {$backupTime})";
         Log::info($logMsg . " oleh Super Admin ID " . auth()->id());
-        \App\Models\AuditLog::logSystemEvent('Ubah Pengaturan Backup', 'SystemSettings', null, ['frekuensi' => $freqString, 'waktu' => $backupTime]);
+        \App\Models\System\AuditLog::logSystemEvent('Ubah Pengaturan Backup', 'SystemSettings', null, ['frekuensi' => $freqString, 'waktu' => $backupTime]);
 
         return back()->with('success', 'Pengaturan frekuensi backup otomatis berhasil diperbarui!');
     }
@@ -113,7 +113,7 @@ class BackupController extends Controller
             $backups = $this->getBackupList();
             $latestFile = count($backups) > 0 ? $backups[0]->filename : 'baru';
 
-            \App\Models\AuditLog::logSystemEvent('Buat Backup Database', 'SystemBackup', null, ['filename' => $latestFile]);
+            \App\Models\System\AuditLog::logSystemEvent('Buat Backup Database', 'SystemBackup', null, ['filename' => $latestFile]);
             return back()->with('success', "Backup berhasil dibuat: {$latestFile}");
 
         } catch (\Exception $e) {
@@ -155,7 +155,7 @@ class BackupController extends Controller
             $file->storeAs($this->backupDir, $filename);
 
             Log::info("File backup di-upload secara sah oleh Super Admin ID " . auth()->id() . ": {$filename}");
-            \App\Models\AuditLog::logSystemEvent('Upload Backup Database', 'SystemBackup', null, ['filename' => $filename]);
+            \App\Models\System\AuditLog::logSystemEvent('Upload Backup Database', 'SystemBackup', null, ['filename' => $filename]);
             return back()->with('success', "File backup '{$filename}' berhasil di-upload!");
 
         } catch (\Exception $e) {
@@ -200,7 +200,7 @@ class BackupController extends Controller
             \Illuminate\Support\Facades\Artisan::call('optimize:clear');
 
             Log::info("Restore DB sukses dilaksanakan oleh Super Admin ID " . auth()->id() . ": {$filename}");
-            \App\Models\AuditLog::logSystemEvent('Restore Database', 'SystemBackup', ['status' => 'sebelum_restore'], ['filename' => $filename, 'status' => 'sukses_restore']);
+            \App\Models\System\AuditLog::logSystemEvent('Restore Database', 'SystemBackup', ['status' => 'sebelum_restore'], ['filename' => $filename, 'status' => 'sukses_restore']);
             return back()->with('success', "Database berhasil di-restore dari file: {$filename}");
 
         } catch (\Exception $e) {
@@ -228,7 +228,7 @@ class BackupController extends Controller
         }
 
         Log::info("File backup diunduh oleh Super Admin ID " . auth()->id() . ": {$filename}");
-        \App\Models\AuditLog::logSystemEvent('Download Backup Database', 'SystemBackup', null, ['filename' => $filename]);
+        \App\Models\System\AuditLog::logSystemEvent('Download Backup Database', 'SystemBackup', null, ['filename' => $filename]);
         return response()->download($path);
     }
 
@@ -251,7 +251,7 @@ class BackupController extends Controller
 
         Storage::delete($path);
         Log::info("Backup dihapus secara sah oleh Super Admin ID " . auth()->id() . ": {$filename}");
-        \App\Models\AuditLog::logSystemEvent('Hapus Backup Database', 'SystemBackup', ['filename' => $filename], null);
+        \App\Models\System\AuditLog::logSystemEvent('Hapus Backup Database', 'SystemBackup', ['filename' => $filename], null);
 
         return back()->with('success', "Backup {$filename} berhasil dihapus.");
     }
@@ -272,21 +272,9 @@ class BackupController extends Controller
             if (pathinfo($file, PATHINFO_EXTENSION) === 'sql' && Storage::exists($file)) {
                 $filename = basename($file);
                 
-                // Deteksi tipe backup dari prefix nama file
-                $type = 'manual'; // Default
-                if (str_starts_with($filename, 'backup_daily_')) {
-                    $type = 'daily';
-                } elseif (str_starts_with($filename, 'backup_weekly_')) {
-                    $type = 'weekly';
-                } elseif (str_starts_with($filename, 'backup_monthly_')) {
-                    $type = 'monthly';
-                } elseif (str_starts_with($filename, 'backup_manual_')) {
-                    $type = 'manual';
-                }
-
                 $backups[] = (object) [
                     'filename'   => $filename,
-                    'type'       => $type,
+                    'type'       => $this->classifyBackupType($filename),
                     'size'       => $this->formatFileSize(Storage::size($file)),
                     'size_bytes' => Storage::size($file),
                     'created_at' => date('Y-m-d H:i:s', Storage::lastModified($file)),
@@ -310,4 +298,16 @@ class BackupController extends Controller
         if ($bytes >= 1024) return number_format($bytes / 1024, 2) . ' KB';
         return $bytes . ' B';
     }
+
+    /**
+     * Determine the type of backup based on the filename prefix.
+     */
+    private function classifyBackupType(string $filename): string
+    {
+        if (str_starts_with($filename, 'backup_daily_')) return 'daily';
+        if (str_starts_with($filename, 'backup_weekly_')) return 'weekly';
+        if (str_starts_with($filename, 'backup_monthly_')) return 'monthly';
+        return 'manual';
+    }
 }
+

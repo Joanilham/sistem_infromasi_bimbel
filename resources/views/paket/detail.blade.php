@@ -16,6 +16,7 @@
     <style>
         body { font-family: 'Inter', sans-serif; }
     </style>
+    <link rel="stylesheet" href="{{ asset('css/loading.css') }}">
 </head>
 <body class="bg-[#F3F4F6] text-slate-800 antialiased selection:bg-[#1A56DB] selection:text-white flex flex-col min-h-screen">
 
@@ -224,5 +225,6 @@
         </div>
     </footer>
 
+    @include('components.loading-overlay')
 </body>
 </html>

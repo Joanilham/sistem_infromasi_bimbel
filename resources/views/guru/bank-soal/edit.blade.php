@@ -29,28 +29,45 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Mata Pelajaran</label>
-                    <select name="cbt_mapel_id" x-model="mapelId" @change="loadBabs()"
-                        class="w-full border border-slate-200 dark:border-zinc-700 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-zinc-800 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                        <option value="">-- Pilih Mapel --</option>
-                        @foreach($mapels as $m)
-                        <option value="{{ $m->id }}" {{ old('cbt_mapel_id', $soal->cbt_mapel_id) == $m->id ? 'selected' : '' }}>{{ $m->nama }}</option>
-                        @endforeach
-                    </select>
+                    <div class="flex gap-2">
+                        <select name="cbt_mapel_id" x-model="mapelId" @change="loadBabs()"
+                            class="no-tomselect flex-1 border border-slate-200 dark:border-zinc-700 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent {{ isset($mapel) ? 'bg-slate-50 dark:bg-zinc-800/50 text-slate-500 dark:text-slate-400 cursor-not-allowed' : 'bg-white dark:bg-zinc-800 text-slate-800 dark:text-white' }}"
+                            {{ isset($mapel) ? 'style="pointer-events:none;" tabindex="-1"' : '' }}>
+                            @if(!isset($mapel))
+                            <option value="">-- Pilih Mapel --</option>
+                            @endif
+                            @foreach($mapels as $m)
+                            <option value="{{ $m->id }}" {{ (isset($mapel) || old('cbt_mapel_id', $soal->cbt_mapel_id) == $m->id) ? 'selected' : '' }}>{{ $m->nama }}</option>
+                            @endforeach
+                        </select>
+                        @if(!isset($mapel))
+                        <button type="button" @click="showAddMapel = true"
+                            class="px-3 py-2.5 border border-dashed border-slate-300 dark:border-zinc-600 rounded-lg text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-300 transition-colors" title="Tambah Mapel">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        </button>
+                        @endif
+                    </div>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Topik / Bab</label>
-                    <select name="cbt_bab_id" x-model="babId"
-                        class="w-full border border-slate-200 dark:border-zinc-700 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-zinc-800 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                        <option value="">-- Pilih Topik --</option>
-                        <template x-for="bab in babList" :key="bab.id">
-                            <option :value="bab.id" x-text="bab.nama" :selected="bab.id == babId"></option>
-                        </template>
-                    </select>
+                    <div class="flex gap-2">
+                        <select name="cbt_bab_id" x-model="babId"
+                            class="no-tomselect flex-1 border border-slate-200 dark:border-zinc-700 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-zinc-800 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                            <option value="">-- Pilih Topik --</option>
+                            <template x-for="bab in babList" :key="bab.id">
+                                <option :value="bab.id" x-text="bab.nama" :selected="bab.id == babId"></option>
+                            </template>
+                        </select>
+                        <button type="button" @click="showAddBab = true" :disabled="!mapelId"
+                            class="px-3 py-2.5 border border-dashed border-slate-300 dark:border-zinc-600 rounded-lg text-slate-500 hover:text-indigo-600 disabled:opacity-40 transition-colors" title="Tambah Topik">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        </button>
+                    </div>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tipe Soal <span class="text-red-500">*</span></label>
                     <select name="tipe_soal" x-model="tipeSoal"
-                        class="w-full border border-slate-200 dark:border-zinc-700 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-zinc-800 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        class="no-tomselect w-full border border-slate-200 dark:border-zinc-700 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-zinc-800 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
                         <option value="pg">Pilihan Ganda</option>
                         <option value="benar_salah">Benar / Salah</option>
                         <option value="essay">Essay</option>
@@ -59,7 +76,7 @@
                 <div>
                     <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tingkat Kesulitan <span class="text-red-500">*</span></label>
                     <select name="tingkat_kesulitan"
-                        class="w-full border border-slate-200 dark:border-zinc-700 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-zinc-800 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        class="no-tomselect w-full border border-slate-200 dark:border-zinc-700 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-zinc-800 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
                         <option value="easy" {{ old('tingkat_kesulitan', $soal->tingkat_kesulitan) == 'easy' ? 'selected' : '' }}>Mudah</option>
                         <option value="medium" {{ old('tingkat_kesulitan', $soal->tingkat_kesulitan) == 'medium' ? 'selected' : '' }}>Sedang</option>
                         <option value="hard" {{ old('tingkat_kesulitan', $soal->tingkat_kesulitan) == 'hard' ? 'selected' : '' }}>Sulit</option>
@@ -149,6 +166,30 @@
             </button>
         </div>
     </form>
+
+    {{-- Modal: Tambah Mapel --}}
+    <div x-show="showAddMapel" x-transition.opacity class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" @click.self="showAddMapel = false" style="display:none">
+        <div class="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-zinc-700 p-6 w-full max-w-sm" @click.stop>
+            <h3 class="font-bold text-slate-800 dark:text-white mb-4">Tambah Mata Pelajaran</h3>
+            <input type="text" x-model="newMapelNama" placeholder="Nama mata pelajaran..." class="w-full border border-slate-200 dark:border-zinc-700 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-zinc-800 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 mb-4">
+            <div class="flex justify-end gap-2">
+                <button type="button" @click="showAddMapel = false" class="px-4 py-2 text-sm text-slate-500 hover:text-slate-700">Batal</button>
+                <button type="button" @click="saveMapel()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    {{-- Modal: Tambah Bab --}}
+    <div x-show="showAddBab" x-transition.opacity class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" @click.self="showAddBab = false" style="display:none">
+        <div class="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-zinc-700 p-6 w-full max-w-sm" @click.stop>
+            <h3 class="font-bold text-slate-800 dark:text-white mb-4">Tambah Topik / Bab</h3>
+            <input type="text" x-model="newBabNama" placeholder="Nama topik..." class="w-full border border-slate-200 dark:border-zinc-700 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-zinc-800 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 mb-4">
+            <div class="flex justify-end gap-2">
+                <button type="button" @click="showAddBab = false" class="px-4 py-2 text-sm text-slate-500 hover:text-slate-700">Batal</button>
+                <button type="button" @click="saveBab()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700">Simpan</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 @push('scripts')
@@ -162,11 +203,15 @@ function editSoalForm() {
     @endphp
     return {
         tipeSoal: '{{ old("tipe_soal", $soal->tipe_soal) }}',
-        mapelId: '{{ old("cbt_mapel_id", $soal->cbt_mapel_id ?? "") }}',
+        mapelId: '{{ old("cbt_mapel_id", isset($mapel) ? $mapel->id : ($soal->cbt_mapel_id ?? "")) }}',
         babId: '{{ old("cbt_bab_id", $soal->cbt_bab_id ?? "") }}',
         babList: @json($babs),
         kunciJawaban: {{ $kunciIdx !== false ? $kunciIdx : 0 }},
         opsiList: @json($opsiFinal),
+        showAddMapel: false,
+        showAddBab: false,
+        newMapelNama: '',
+        newBabNama: '',
 
         addOpsi() { if (this.opsiList.length < 5) this.opsiList.push({ teks: '' }); },
         removeOpsi(index) {
@@ -178,6 +223,38 @@ function editSoalForm() {
             const res = await fetch(`{{ route('guru.bank-soal.bab') }}?mapel_id=${this.mapelId}`);
             this.babList = await res.json();
             this.babId = '';
+        },
+        async saveMapel() {
+            if (!this.newMapelNama.trim()) return;
+            try {
+                const res = await fetch('{{ route('guru.bank-soal.mapel.store') }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+                    body: JSON.stringify({ nama: this.newMapelNama }),
+                });
+                const mapel = await res.json();
+                const select = document.querySelector('select[name="cbt_mapel_id"]');
+                select.add(new Option(mapel.nama, mapel.id, true, true));
+                this.mapelId = mapel.id;
+                this.newMapelNama = '';
+                this.showAddMapel = false;
+                this.loadBabs();
+            } catch (e) { alert('Gagal menyimpan mapel.'); }
+        },
+        async saveBab() {
+            if (!this.newBabNama.trim() || !this.mapelId) return;
+            try {
+                const res = await fetch('{{ route('guru.bank-soal.bab.store') }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+                    body: JSON.stringify({ nama: this.newBabNama, cbt_mapel_id: this.mapelId }),
+                });
+                const bab = await res.json();
+                this.babList.push(bab);
+                this.babId = bab.id;
+                this.newBabNama = '';
+                this.showAddBab = false;
+            } catch (e) { alert('Gagal menyimpan topik.'); }
         },
         init() {
             this.$watch('tipeSoal', value => {

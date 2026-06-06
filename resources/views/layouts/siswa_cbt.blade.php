@@ -173,6 +173,7 @@
     <!-- TomSelect CSS -->
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
     @stack('head')
+    <link rel="stylesheet" href="{{ asset('css/loading.css') }}">
 </head>
 <body>
 
@@ -388,5 +389,6 @@
         });
     });
 </script>
+    @include('components.loading-overlay')
 </body>
 </html>

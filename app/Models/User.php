@@ -1,6 +1,10 @@
 <?php
 
 namespace App\Models;
+use App\Models\Akademik\PesertaDidik;
+use App\Models\MasterData\Periode;
+use App\Models\Pendaftaran\PendaftaranSiswa;
+use App\Models\MasterData\Kantor;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -18,8 +22,8 @@ use App\Traits\HasContextScope;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * 
- * @property-read \App\Models\PesertaDidik|null $pesertaDidik
- * @property-read \App\Models\PendaftaranSiswa|null $pendaftaranSiswa
+ * @property-read \App\Models\Akademik\PesertaDidik|null $pesertaDidik
+ * @property-read \App\Models\Pendaftaran\PendaftaranSiswa|null $pendaftaranSiswa
  */
 use Laravel\Sanctum\HasApiTokens;
 use App\Traits\Auditable;
@@ -42,6 +46,7 @@ class User extends Authenticatable
         'level',
         'is_active',
         'password',
+        'jenis_kelamin',
         'alamat',
         'matapelajaran',
         'nip',
@@ -75,7 +80,7 @@ class User extends Authenticatable
 
     public function pesertaDidik(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(\App\Models\PesertaDidik::class, 'peserta_didik_id');
+        return $this->belongsTo(\App\Models\Akademik\PesertaDidik::class, 'peserta_didik_id');
     }
 
     // scopeInContext() disediakan oleh HasContextScope trait
@@ -115,3 +120,5 @@ class User extends Authenticatable
         ];
     }
 }
+
+

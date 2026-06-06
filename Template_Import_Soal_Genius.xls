@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet" xmlns:o="urn:schemas-microsoft-com:office:office">
+<Styles>
+            <Style ss:ID="Default">
+                <Alignment ss:Vertical="Center"/>
+                <Font ss:FontName="Calibri" ss:Size="11"/>
+            </Style>
+            <Style ss:ID="s_head">
+                <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/>
+                <Font ss:FontName="Calibri" ss:Size="10" ss:Bold="1" ss:Color="#FFFFFF"/>
+                <Interior ss:Color="#4F46E5" ss:Pattern="Solid"/>
+                <Borders>
+                    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#3730A3"/>
+                    <Border ss:Position="Right"  ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#3730A3"/>
+                </Borders>
+            </Style>
+            <Style ss:ID="s_info">
+                <Font ss:FontName="Calibri" ss:Size="10" ss:Italic="1" ss:Color="#4B5563"/>
+                <Interior ss:Color="#F3F4F6" ss:Pattern="Solid"/>
+            </Style>
+            <Style ss:ID="s_data">
+                <Alignment ss:Vertical="Top" ss:WrapText="1"/>
+                <Font ss:FontName="Calibri" ss:Size="10"/>
+                <Borders>
+                    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E5E7EB"/>
+                    <Border ss:Position="Right"  ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E5E7EB"/>
+                </Borders>
+            </Style>
+        </Styles>
+<Worksheet ss:Name="Template Import">
+<Table ss:DefaultRowHeight="18">
+<Column ss:Width="60"/>
+<Column ss:Width="60"/>
+<Column ss:Width="80"/>
+<Column ss:Width="80"/>
+<Column ss:Width="250"/>
+<Column ss:Width="120"/>
+<Column ss:Width="120"/>
+<Column ss:Width="120"/>
+<Column ss:Width="120"/>
+<Column ss:Width="120"/>
+<Column ss:Width="100"/>
+<Column ss:Width="200"/>
+<Row ss:Height="25"><Cell ss:StyleID="s_head"><Data ss:Type="String">Mapel_ID</Data></Cell><Cell ss:StyleID="s_head"><Data ss:Type="String">Bab_ID</Data></Cell><Cell ss:StyleID="s_head"><Data ss:Type="String">Tipe_Soal</Data></Cell><Cell ss:StyleID="s_head"><Data ss:Type="String">Kesulitan</Data></Cell><Cell ss:StyleID="s_head"><Data ss:Type="String">Pertanyaan</Data></Cell><Cell ss:StyleID="s_head"><Data ss:Type="String">Opsi_A</Data></Cell><Cell ss:StyleID="s_head"><Data ss:Type="String">Opsi_B</Data></Cell><Cell ss:StyleID="s_head"><Data ss:Type="String">Opsi_C</Data></Cell><Cell ss:StyleID="s_head"><Data ss:Type="String">Opsi_D</Data></Cell><Cell ss:StyleID="s_head"><Data ss:Type="String">Opsi_E</Data></Cell><Cell ss:StyleID="s_head"><Data ss:Type="String">Kunci_Jawaban</Data></Cell><Cell ss:StyleID="s_head"><Data ss:Type="String">Pembahasan</Data></Cell></Row>
+<Row ss:Height="18"><Cell ss:StyleID="s_info"><Data ss:Type="String">Isi ID Mapel</Data></Cell><Cell ss:StyleID="s_info"><Data ss:Type="String">Isi ID Bab</Data></Cell><Cell ss:StyleID="s_info"><Data ss:Type="String">pg / essay</Data></Cell><Cell ss:StyleID="s_info"><Data ss:Type="String">easy/medium/hard</Data></Cell><Cell ss:StyleID="s_info"><Data ss:Type="String">Tulis soal di sini</Data></Cell><Cell ss:StyleID="s_info"><Data ss:Type="String">Opsi A</Data></Cell><Cell ss:StyleID="s_info"><Data ss:Type="String">Opsi B</Data></Cell><Cell ss:StyleID="s_info"><Data ss:Type="String">Opsi C</Data></Cell><Cell ss:StyleID="s_info"><Data ss:Type="String">Opsi D</Data></Cell><Cell ss:StyleID="s_info"><Data ss:Type="String">Opsi E</Data></Cell><Cell ss:StyleID="s_info"><Data ss:Type="String">A/B/C/D/E</Data></Cell><Cell ss:StyleID="s_info"><Data ss:Type="String">Tulis pembahasan</Data></Cell></Row>
+<Row ss:Height="40"><Cell ss:StyleID="s_data"><Data ss:Type="String"></Data></Cell><Cell ss:StyleID="s_data"><Data ss:Type="String"></Data></Cell><Cell ss:StyleID="s_data"><Data ss:Type="String">pg</Data></Cell><Cell ss:StyleID="s_data"><Data ss:Type="String">medium</Data></Cell><Cell ss:StyleID="s_data"><Data ss:Type="String">Berapa hasil dari 1 + 1?</Data></Cell><Cell ss:StyleID="s_data"><Data ss:Type="String">1</Data></Cell><Cell ss:StyleID="s_data"><Data ss:Type="String">2</Data></Cell><Cell ss:StyleID="s_data"><Data ss:Type="String">3</Data></Cell><Cell ss:StyleID="s_data"><Data ss:Type="String">4</Data></Cell><Cell ss:StyleID="s_data"><Data ss:Type="String">5</Data></Cell><Cell ss:StyleID="s_data"><Data ss:Type="String">B</Data></Cell><Cell ss:StyleID="s_data"><Data ss:Type="String">Karena penjumlahan 1 dengan 1 hasilnya adalah 2.</Data></Cell></Row>
+</Table></Worksheet></Workbook>

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Api;
+use App\Models\Akademik\PesertaDidik;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -44,7 +45,7 @@ class ProfileController extends Controller
 
         // Sinkronisasi dengan tabel PesertaDidik jika user adalah Siswa
         if ($user->level === 'Siswa' && $user->peserta_didik_id) {
-            $peserta = \App\Models\PesertaDidik::find($user->peserta_didik_id);
+            $peserta = \App\Models\Akademik\PesertaDidik::find($user->peserta_didik_id);
             if ($peserta) {
                 if (isset($validated['name'])) {
                     $peserta->nama_lengkap = $validated['name'];
@@ -88,3 +89,5 @@ class ProfileController extends Controller
         return $this->errorResponse('Gagal mengupload foto', 400);
     }
 }
+
+

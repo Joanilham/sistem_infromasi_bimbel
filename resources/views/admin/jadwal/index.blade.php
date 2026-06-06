@@ -26,7 +26,7 @@
     for ($h = $minHour; $h <= $maxHour; $h++) { 
         $timeSlots[] = sprintf('%02d:00', $h); 
     }
-    $hariList = \App\Models\Jadwal::HARI_LIST;
+    $hariList = \App\Models\Akademik\Jadwal::HARI_LIST;
 
     // Cerdas: Hitung tanggal spesifik untuk hari Senin - Sabtu di minggu berjalan
     $currentDate = now();
@@ -48,7 +48,7 @@
     }
 @endphp
 
-<div x-data="jadwalManager()" class="space-y-6">
+<div x-data="{ viewMode: 'calendar', showDuplikasi: false, ...ajaxTable() }" class="space-y-6">
 
     {{-- Header --}}
     <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-zinc-800 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-6">
@@ -84,22 +84,34 @@
                 <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
                 Duplikasi
             </button>
-            <button @click="openAddModal()"
+            <a href="{{ route('admin.jadwal.create') }}"
                 class="inline-flex items-center gap-3 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs px-8 py-4 rounded-2xl shadow-xl shadow-indigo-500/20 transition-all active:scale-95 group">
                 <svg class="w-5 h-5 transition-transform group-hover:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
                 Tambah Jadwal
-            </button>
+            </a>
         </div>
     </div>
 
     {{-- Filter Bar --}}
     <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-zinc-800 shadow-sm relative overflow-hidden group">
         <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-150 duration-700"></div>
-        <form method="GET" action="{{ route('admin.jadwal.index') }}" class="flex flex-col lg:flex-row items-end gap-6 relative">
+
+        {{-- Loading Overlay --}}
+        <div x-show="isLoading" class="absolute inset-0 z-50 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-sm flex items-center justify-center transition-opacity duration-300" style="display: none;">
+            <div class="bg-white dark:bg-zinc-800 p-4 rounded-2xl shadow-xl border border-slate-100 dark:border-zinc-700 flex items-center gap-3">
+                <svg class="animate-spin h-5 w-5 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span class="text-sm font-bold text-slate-700 dark:text-slate-200">Memuat data...</span>
+            </div>
+        </div>
+
+        <form @submit.prevent="fetchData" method="GET" action="{{ route('admin.jadwal.index') }}" class="flex flex-col lg:flex-row items-end gap-6 relative">
             <div class="flex-1 w-full space-y-3">
                 <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Filter Tenaga Pengajar</label>
                 <div class="relative">
-                    <select name="guru_id" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all appearance-none text-slate-800 dark:text-white">
+                    <select name="guru_id" @change="fetchData" class="no-tomselect w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all appearance-none text-slate-800 dark:text-white">
                         <option value="">Semua Guru</option>
                         @foreach($guruList as $g)
                         <option value="{{ $g->id }}" {{ $filterGuru == $g->id ? 'selected' : '' }}>{{ $g->name }}</option>
@@ -113,7 +125,7 @@
             <div class="flex-1 w-full space-y-3">
                 <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Filter Kelompok Belajar</label>
                 <div class="relative">
-                    <select name="rombel_id" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all appearance-none text-slate-800 dark:text-white">
+                    <select name="rombel_id" @change="fetchData" class="no-tomselect w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all appearance-none text-slate-800 dark:text-white">
                         <option value="">Semua Rombel</option>
                         @foreach($rombelList as $r)
                         <option value="{{ $r->id }}" {{ $filterRombel == $r->id ? 'selected' : '' }}>{{ $r->nama_kelompok }}</option>
@@ -125,27 +137,29 @@
                 </div>
             </div>
             <div class="flex gap-3 w-full lg:w-auto">
-                <button type="submit" class="flex-1 lg:flex-none bg-slate-900 dark:bg-white dark:text-slate-900 text-white font-black text-xs px-10 py-4 rounded-2xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-all active:scale-95 shadow-lg shadow-slate-900/10 uppercase tracking-widest">Terapkan</button>
+                <button type="submit" class="flex-1 lg:flex-none bg-slate-900 dark:bg-white dark:text-slate-900 text-white font-black text-xs px-10 py-4 rounded-2xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-all active:scale-95 shadow-lg shadow-slate-900/10 uppercase tracking-widest shrink-0">Filter</button>
                 @if($filterGuru || $filterRombel)
-                    <a href="{{ route('admin.jadwal.index') }}" class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-rose-50 dark:bg-rose-900/20 text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-900/40 transition-all active:scale-95 border border-rose-100 dark:border-rose-900/30" title="Reset Filter">
-                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                    <a href="{{ route('admin.jadwal.index') }}" class="flex items-center gap-2 bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/40 px-6 py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all shrink-0" title="Reset Filter">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                        Clear
                     </a>
                 @endif
             </div>
         </form>
     </div>
 
-    {{-- VIEW 1: Kalender Grid View (Refined & Compact) --}}
-    <div x-show="viewMode === 'calendar'" class="bg-white dark:bg-zinc-900 rounded-[2.5rem] border border-slate-100 dark:border-zinc-800 shadow-sm overflow-hidden transition-all">
+    <div id="ajax-table-body">
+        {{-- VIEW 1: Kalender Grid View (Refined & Compact) --}}
+        <div x-show="viewMode === 'calendar'" class="bg-white dark:bg-zinc-900 rounded-[2.5rem] border border-slate-100 dark:border-zinc-800 shadow-sm overflow-hidden transition-all">
         <div class="overflow-x-auto custom-scrollbar">
-            <table class="w-full min-w-[1200px] text-sm table-fixed border-collapse border border-slate-200 dark:border-zinc-800">
+            <table class="w-full min-w-full text-sm table-fixed border-collapse border border-slate-200 dark:border-zinc-800">
                 <thead class="bg-slate-50 dark:bg-zinc-800 text-[10px] uppercase tracking-widest text-slate-700 dark:text-slate-200 font-black">
                     <tr>
-                        <th class="py-4 px-4 text-center w-28 border border-slate-200 dark:border-zinc-800 bg-slate-100 dark:bg-zinc-700/50">Jam</th>
+                        <th class="py-4 px-2 text-center w-16 border border-slate-200 dark:border-zinc-800 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-800 dark:text-indigo-300">Jam</th>
                         @foreach($hariList as $hari)
-                        <th class="py-3 px-2 text-center border border-slate-200 dark:border-zinc-800 {{ (now()->locale('id')->isoFormat('dddd') === $hari && $hari !== 'Minggu') ? 'bg-indigo-600 text-white' : 'bg-slate-50 dark:bg-zinc-800 text-slate-600 dark:text-slate-300' }}">
-                            <div class="font-black text-xs">{{ $hari }}</div>
-                            <div class="text-[9px] opacity-85 mt-0.5 font-bold tracking-tight lowercase first-letter:uppercase">{{ $datesOfWeek[$hari] ?? '' }}</div>
+                        <th class="py-3 px-1 text-center border border-slate-200 dark:border-zinc-800 {{ (now()->locale('id')->isoFormat('dddd') === $hari && $hari !== 'Minggu') ? 'bg-indigo-600 text-white' : ($hari === 'Minggu' ? 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400' : 'bg-slate-50 dark:bg-zinc-800 text-slate-600 dark:text-slate-300') }}">
+                            <div class="font-black text-[10px] sm:text-xs">{{ $hari }}</div>
+                            <div class="text-[8px] sm:text-[9px] opacity-85 mt-0.5 font-bold tracking-tight lowercase first-letter:uppercase">{{ $datesOfWeek[$hari] ?? '' }}</div>
                         </th>
                         @endforeach
                     </tr>
@@ -154,23 +168,23 @@
                     @foreach($timeSlots as $slot)
                     <tr class="hover:bg-slate-50/20 dark:hover:bg-zinc-800/10 transition-colors">
                         {{-- Label Jam Kolom Kiri --}}
-                        <td class="py-4 px-4 text-[11px] font-black font-mono text-slate-500 dark:text-slate-400 align-middle border border-slate-200 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-900/50 text-center shadow-inner">
+                        <td class="py-4 px-1 text-[10px] font-black font-mono text-indigo-700 dark:text-indigo-400 align-middle border border-slate-200 dark:border-zinc-800 bg-indigo-50/50 dark:bg-indigo-900/20 text-center shadow-inner">
                             {{ $slot }}
                         </td>
                         
                         {{-- Sel Hari --}}
                         @foreach($hariList as $hari)
-                        <td class="p-2.5 align-top min-h-[110px] h-32 {{ (now()->locale('id')->isoFormat('dddd') === $hari && $hari !== 'Minggu') ? 'bg-indigo-50/5 dark:bg-indigo-955/5' : '' }} relative border border-slate-200 dark:border-zinc-800 group">
+                        <td class="p-1 align-top h-auto {{ (now()->locale('id')->isoFormat('dddd') === $hari && $hari !== 'Minggu') ? 'bg-indigo-50/5 dark:bg-indigo-955/5' : ($hari === 'Minggu' ? 'bg-red-50/30 dark:bg-red-950/10' : '') }} relative border border-slate-200 dark:border-zinc-800 group">
                             @php
                                 $slotJadwals = $jadwals->filter(function($j) use ($hari, $slot) {
                                     return $j->hari === $hari && \Carbon\Carbon::parse($j->jam_mulai)->format('H:00') === $slot;
                                 });
                             @endphp
                             
-                            <div class="space-y-2">
+                            <div class="flex flex-col gap-1 h-full min-h-[5rem]">
                                 @foreach($slotJadwals as $j)
-                                <div @click="openEditModal({{ $j->toJson() }})"
-                                    class="group/card p-3 rounded-2xl cursor-pointer transition-all hover:scale-[1.03] hover:shadow-lg active:scale-95 ring-1 ring-black/5 dark:ring-white/5 border-l-[5px]
+                                <div @click="window.location.href = '{{ route('admin.jadwal.edit', $j->id) }}'"
+                                    class="group/card flex-1 flex flex-col justify-center p-1.5 rounded-lg cursor-pointer transition-all hover:scale-[1.03] hover:shadow-lg active:scale-95 ring-1 ring-black/5 dark:ring-white/5 border-l-[3px]
                                         {{ ['border-indigo-500 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-900/20 dark:hover:bg-indigo-900/40',
                                             'border-emerald-500 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/40',
                                             'border-amber-500 bg-amber-50 hover:bg-amber-100 dark:bg-amber-900/20 dark:hover:bg-amber-900/40',
@@ -180,28 +194,21 @@
                                            ][$j->id % 6] }}">
                                     
                                     {{-- Subject Name --}}
-                                    <div class="flex items-start justify-between gap-1.5">
-                                        <p class="font-extrabold text-[11px] text-slate-900 dark:text-white leading-tight break-words group-hover/card:text-indigo-600 dark:group-hover/card:text-indigo-400 transition-colors">
+                                    <div class="flex items-start justify-between gap-1">
+                                        <p class="font-black text-[9px] text-slate-900 dark:text-white leading-none break-words group-hover/card:text-indigo-600 dark:group-hover/card:text-indigo-400 transition-colors">
                                             {{ $j->mataPelajaran?->nama ?? ($j->guru?->matapelajaran ?? 'Sesi Belajar') }}
                                         </p>
                                     </div>
                                     
                                     {{-- Time Details --}}
-                                    <div class="flex items-center gap-1 mt-1 text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-tighter">
-                                        <svg class="w-3 h-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                        <span>{{ \Carbon\Carbon::parse($j->jam_mulai)->format('H:i') }}–{{ \Carbon\Carbon::parse($j->jam_selesai)->format('H:i') }}</span>
+                                    <div class="flex items-center gap-0.5 mt-0.5 text-[7px] font-black text-slate-500 dark:text-slate-400 tracking-tighter">
+                                        <span>🕒 {{ \Carbon\Carbon::parse($j->jam_mulai)->format('H:i') }}-{{ \Carbon\Carbon::parse($j->jam_selesai)->format('H:i') }}</span>
                                     </div>
                                     
                                     {{-- Guru & Room Info --}}
-                                    <div class="mt-2 space-y-0.5 border-t border-slate-200/50 dark:border-zinc-800/50 pt-1.5">
-                                        <p class="text-[9px] font-bold text-slate-600 dark:text-slate-400 truncate flex items-center gap-1">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-slate-400 shrink-0"></span>
-                                            {{ $j->guru?->name ?? '-' }}
-                                        </p>
-                                        <p class="text-[9px] font-bold text-slate-500 dark:text-slate-400 truncate flex items-center gap-1">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-slate-300 shrink-0"></span>
-                                            {{ $j->rombel?->nama_kelompok ?? '-' }} {{ $j->ruangan ? '('.$j->ruangan.')' : '' }}
-                                        </p>
+                                    <div class="mt-0.5 space-y-0 text-[7px] font-bold text-slate-600 dark:text-slate-400 leading-tight">
+                                        <p class="truncate">{{ $j->guru?->name ?? '-' }}</p>
+                                        <p class="truncate text-slate-500">{{ $j->rombel?->nama_kelompok ?? '-' }} {{ $j->ruangan ? '('.$j->ruangan.')' : '' }}</p>
                                     </div>
                                 </div>
                                 @endforeach
@@ -242,7 +249,7 @@
             {{-- Card Content / List --}}
             <div class="flex-1 space-y-3 overflow-y-auto max-h-[350px] pr-1 scrollbar-thin">
                 @forelse($hariJadwals as $j)
-                <div @click="openEditModal({{ $j->toJson() }})"
+                <div @click="window.location.href = '{{ route('admin.jadwal.edit', $j->id) }}'"
                     class="group p-4 bg-slate-50 hover:bg-indigo-50/30 dark:bg-zinc-950 dark:hover:bg-zinc-800 rounded-2xl border border-slate-100 dark:border-zinc-800/80 cursor-pointer transition-all active:scale-[0.98] hover:shadow-md">
                     
                     <div class="flex items-start justify-between gap-3">
@@ -288,211 +295,8 @@
             </div>
         </div>
         @endforeach
-    </div>
-
-    {{-- Slide-Over Panel Tambah/Edit (Drawer Premium) --}}
-    <div x-show="showModal" 
-         x-cloak 
-         class="fixed inset-0 z-[60] overflow-hidden" 
-         aria-labelledby="slide-over-title" 
-         role="dialog" 
-         aria-modal="true">
-        <div class="absolute inset-0 overflow-hidden">
-            <!-- Backdrop -->
-            <div x-show="showModal"
-                 x-transition:enter="ease-in-out duration-500"
-                 x-transition:enter-start="opacity-0"
-                 x-transition:enter-end="opacity-100"
-                 x-transition:leave="ease-in-out duration-500"
-                 x-transition:leave-start="opacity-100"
-                 x-transition:leave-end="opacity-0"
-                 @click="showModal = false"
-                 class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"></div>
-
-            <!-- Panel Container -->
-            <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
-                <div x-show="showModal"
-                     x-transition:enter="transform transition ease-in-out duration-500 sm:duration-700"
-                     x-transition:enter-start="translate-x-full"
-                     x-transition:enter-end="translate-x-0"
-                     x-transition:leave="transform transition ease-in-out duration-500 sm:duration-700"
-                     x-transition:leave-start="translate-x-0"
-                     x-transition:leave-end="translate-x-full"
-                     @click.stop
-                     class="pointer-events-auto w-screen max-w-xl bg-white dark:bg-zinc-900 shadow-2xl border-l border-slate-100 dark:border-zinc-800 flex flex-col h-full overflow-hidden">
-                    
-                    <!-- Header -->
-                    <div class="px-8 py-6 bg-slate-50 dark:bg-zinc-950 border-b border-slate-200 dark:border-zinc-800 flex items-center justify-between">
-                        <div>
-                            <h2 class="text-xl font-black text-slate-900 dark:text-white tracking-tight" x-text="editId ? 'Edit Sesi Jadwal' : 'Tambah Sesi Baru'"></h2>
-                            <p class="text-slate-400 dark:text-slate-500 text-xs font-bold mt-0.5">Lengkapi data jadwal belajar mengajar.</p>
-                        </div>
-                        <button @click="showModal = false" class="w-10 h-10 rounded-2xl bg-white dark:bg-zinc-900 hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center justify-center text-slate-400 hover:text-rose-500 transition-all border border-slate-200/60 dark:border-zinc-800 shadow-sm">
-                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
-                        </button>
-                    </div>
-
-                    <!-- Scrollable Body / Form -->
-                    <form :action="editId ? '{{ url('admin/jadwal') }}/' + editId : '{{ route('admin.jadwal.store') }}'" 
-                          method="POST" 
-                          class="flex-1 flex flex-col overflow-hidden">
-                        @csrf
-                        <template x-if="editId"><input type="hidden" name="_method" value="PUT"></template>
-
-                        <div class="flex-1 overflow-y-auto px-8 py-8 space-y-6 custom-scrollbar">
-                            
-                            <!-- Alert Warning Tabrakan -->
-                            <div class="bg-indigo-50/50 dark:bg-indigo-950/15 border border-indigo-100 dark:border-indigo-900/30 rounded-[2rem] p-5 flex gap-4">
-                                <div class="w-10 h-10 rounded-2xl bg-indigo-500/10 flex items-center justify-center shrink-0 text-indigo-600 dark:text-indigo-400">
-                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                </div>
-                                <div>
-                                    <h4 class="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">Validasi Bentrok Pintar</h4>
-                                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 font-bold leading-normal">Sistem akan secara otomatis memeriksa dan memberikan peringatan jika ada jadwal mengajar guru yang bentrok/tumpang tindih.</p>
-                                </div>
-                            </div>
-
-                            <div class="space-y-5">
-                                {{-- Section: Tenaga Pengajar & Hari --}}
-                                <div class="bg-slate-50 dark:bg-zinc-950/40 p-6 rounded-[2rem] border border-slate-100 dark:border-zinc-800 space-y-4">
-                                    <div class="space-y-2">
-                                        <label class="block text-[10px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-widest ml-1">Tenaga Pengajar <span class="text-rose-500">*</span></label>
-                                        <div class="relative" x-data="{ open: false, search: '' }" @click.away="open = false">
-                                            <!-- Tombol Trigger -->
-                                            <div @click="open = !open" 
-                                                 class="w-full bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 flex justify-between items-center cursor-pointer focus:ring-2 focus:ring-indigo-500/20 transition-all text-slate-800 dark:text-white group hover:border-indigo-300 dark:hover:border-indigo-700">
-                                                <div class="flex flex-col gap-0.5">
-                                                    <span x-text="form.guru_id ? guruList.find(g => g.id == form.guru_id)?.name : 'Pilih Tenaga Pengajar'" 
-                                                          :class="form.guru_id ? 'text-slate-900 dark:text-white' : 'text-slate-400 dark:text-slate-500'"></span>
-                                                    <template x-if="form.guru_id && guruList.find(g => g.id == form.guru_id)?.matapelajaran">
-                                                        <span class="text-[10px] font-black text-indigo-500 uppercase tracking-widest" x-text="'Mapel: ' + guruList.find(g => g.id == form.guru_id)?.matapelajaran"></span>
-                                                    </template>
-                                                </div>
-                                                <div class="text-slate-400 group-hover:text-indigo-500 transition-colors">
-                                                    <svg class="w-4 h-4 transform transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
-                                                </div>
-                                            </div>
-
-                                            <!-- Dropdown Pop-up Premium -->
-                                            <div x-show="open" 
-                                                 x-transition:enter="transition ease-out duration-200"
-                                                 x-transition:enter-start="opacity-0 translate-y-[-10px]"
-                                                 x-transition:enter-end="opacity-100 translate-y-0"
-                                                 x-transition:leave="transition ease-in duration-150"
-                                                 x-transition:leave-start="opacity-100 translate-y-0"
-                                                 x-transition:leave-end="opacity-0 translate-y-[-10px]"
-                                                 class="absolute z-50 w-full mt-2 bg-white dark:bg-zinc-800 rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] dark:shadow-none border border-slate-100 dark:border-zinc-700 overflow-hidden flex flex-col">
-                                                
-                                                <!-- Search Bar dalam Dropdown -->
-                                                <div class="p-3 border-b border-slate-100 dark:border-zinc-700 bg-slate-50/50 dark:bg-zinc-900/50">
-                                                    <div class="relative">
-                                                        <input type="text" x-model="search" placeholder="Cari nama guru..." class="w-full bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-xl text-xs py-2.5 pl-9 pr-3 focus:outline-none focus:border-indigo-500 dark:focus:border-indigo-500 text-slate-700 dark:text-slate-300">
-                                                        <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                                                    </div>
-                                                </div>
-
-                                                <!-- List Guru -->
-                                                <div class="max-h-60 overflow-y-auto custom-scrollbar p-2">
-                                                    <template x-for="g in guruList.filter(g => g.name.toLowerCase().includes(search.toLowerCase()))" :key="g.id">
-                                                        <div @click="form.guru_id = g.id; open = false; search = ''" 
-                                                             :class="form.guru_id == g.id ? 'bg-indigo-50 dark:bg-indigo-900/20 border-indigo-100 dark:border-indigo-800/30' : 'hover:bg-slate-50 dark:hover:bg-zinc-700/50 border-transparent'"
-                                                             class="p-3 rounded-xl cursor-pointer transition-all border flex items-center gap-3 group/item mb-1">
-                                                            <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-zinc-800 flex items-center justify-center shrink-0 text-slate-500 font-black group-hover/item:bg-indigo-100 group-hover/item:text-indigo-600 transition-colors">
-                                                                <span x-text="g.name.charAt(0)"></span>
-                                                            </div>
-                                                            <div class="flex-1">
-                                                                <div class="font-bold text-sm text-slate-800 dark:text-slate-200" x-text="g.name"></div>
-                                                                <div class="text-[10px] font-bold text-slate-400 dark:text-slate-500 mt-0.5 flex items-center gap-1">
-                                                                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-                                                                    <span x-text="g.matapelajaran ? g.matapelajaran : 'Belum diatur mapel'"></span>
-                                                                </div>
-                                                            </div>
-                                                            <div x-show="form.guru_id == g.id" class="text-indigo-600 dark:text-indigo-400">
-                                                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
-                                                            </div>
-                                                        </div>
-                                                    </template>
-                                                    
-                                                    <!-- Empty State -->
-                                                    <div x-show="guruList.filter(g => g.name.toLowerCase().includes(search.toLowerCase())).length === 0" class="py-6 text-center">
-                                                        <p class="text-xs text-slate-400 font-bold">Guru tidak ditemukan</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- Hidden input to submit form -->
-                                            <input type="hidden" name="guru_id" x-model="form.guru_id" required>
-                                        </div>
-                                    </div>
-
-                                    <div class="space-y-2">
-                                        <label class="block text-[10px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-widest ml-1">Hari Pelaksanaan <span class="text-rose-500">*</span></label>
-                                        <div class="relative">
-                                            <select name="hari" x-model="form.hari" required class="w-full bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white appearance-none">
-                                                <option value="">Pilih Hari</option>
-                                                @foreach($hariList as $h)<option value="{{ $h }}">{{ $h }}</option>@endforeach
-                                            </select>
-                                            <div class="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {{-- Section: Detail Kelas --}}
-                                <div class="bg-slate-50 dark:bg-zinc-950/40 p-6 rounded-[2rem] border border-slate-100 dark:border-zinc-800">
-                                    <div class="space-y-2">
-                                        <label class="block text-[10px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-widest ml-1">Kelompok Belajar</label>
-                                        <div class="relative">
-                                            <select name="rombel_id" x-model="form.rombel_id" class="w-full bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white appearance-none">
-                                                <option value="">— Opsional —</option>
-                                                @foreach($rombelList as $r)<option value="{{ $r->id }}">{{ $r->nama_kelompok }}</option>@endforeach
-                                            </select>
-                                            <div class="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {{-- Section: Waktu & Tempat --}}
-                                <div class="bg-slate-50 dark:bg-zinc-950/40 p-6 rounded-[2rem] border border-slate-100 dark:border-zinc-800 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div class="space-y-2">
-                                        <label class="block text-[10px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-widest ml-1">Jam Mulai <span class="text-rose-500">*</span></label>
-                                        <input type="time" name="jam_mulai" x-model="form.jam_mulai" required class="w-full bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
-                                    </div>
-
-                                    <div class="space-y-2">
-                                        <label class="block text-[10px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-widest ml-1">Jam Selesai <span class="text-rose-500">*</span></label>
-                                        <input type="time" name="jam_selesai" x-model="form.jam_selesai" required class="w-full bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
-                                    </div>
-
-                                    <div class="sm:col-span-2 space-y-2">
-                                        <label class="block text-[10px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-widest ml-1">Ruangan / Tempat</label>
-                                        <input type="text" name="ruangan" x-model="form.ruangan" placeholder="Contoh: Lab Komputer, Ruang Kelas A" class="w-full bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Sticky Footer -->
-                        <div class="px-8 py-6 bg-slate-50 dark:bg-zinc-950 border-t border-slate-200 dark:border-zinc-800 flex items-center justify-between shrink-0">
-                            <template x-if="editId">
-                                <button type="button" @click="hapusJadwal()" class="inline-flex items-center gap-2 text-rose-500 hover:text-rose-700 text-[10px] font-black uppercase tracking-widest transition-all">
-                                    <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                    Hapus Jadwal
-                                </button>
-                            </template>
-                            <template x-if="!editId"><span></span></template>
-                            <div class="flex gap-4">
-                                <button type="button" @click="showModal = false" class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-2xl transition-all">Batal</button>
-                                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-black uppercase tracking-widest px-8 py-4 rounded-2xl shadow-xl shadow-indigo-500/20 transition-all active:scale-95">Simpan Jadwal</button>
-                            </div>
-                        </div>
-                    </form>
-            </div>
         </div>
     </div>
-
     {{-- Modal Duplikasi --}}
     <div x-show="showDuplikasi" x-cloak class="fixed inset-0 z-[60] flex items-center justify-center p-4" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100">
         <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-md" @click="showDuplikasi = false"></div>
@@ -510,7 +314,7 @@
                         <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Pilih Periode Tujuan</label>
                         <select name="target_periode_id" required class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all appearance-none text-slate-800 dark:text-white">
                             <option value="">-- Pilih Periode --</option>
-                            @foreach(\App\Models\Periode::all() as $p)
+                            @foreach(\App\Models\MasterData\Periode::all() as $p)
                             <option value="{{ $p->id }}">{{ $p->tahun_periode ?? 'Periode #'.$p->id }}</option>
                             @endforeach
                         </select>
@@ -523,11 +327,6 @@
             </div>
         </div>
     </div>
-
-    {{-- Hidden Delete Form --}}
-    <form x-ref="deleteForm" method="POST" style="display:none;">
-        @csrf @method('DELETE')
-    </form>
 </div>
 
 @push('head')
@@ -551,60 +350,6 @@
 </style>
 @endpush
 
-<script>
-function jadwalManager() {
-    return {
-        viewMode: 'calendar', // Default view mode
-        showModal: false,
-        showDuplikasi: false,
-        editId: null,
-        guruList: @json($guruList),
-        form: { guru_id: '', rombel_id: '', mata_pelajaran_id: '', hari: '', jam_mulai: '', jam_selesai: '', ruangan: '' },
 
-        openAddModal() {
-            this.editId = null;
-            this.form = { guru_id: '', rombel_id: '', mata_pelajaran_id: '', hari: '', jam_mulai: '', jam_selesai: '', ruangan: '' };
-            this.showModal = true;
-        },
-
-        openEditModal(jadwal) {
-            this.editId = jadwal.id;
-            this.form = {
-                guru_id: jadwal.guru_id || '',
-                rombel_id: jadwal.rombel_id || '',
-                mata_pelajaran_id: jadwal.mata_pelajaran_id || '',
-                hari: jadwal.hari || '',
-                jam_mulai: jadwal.jam_mulai ? jadwal.jam_mulai.substring(0, 5) : '',
-                jam_selesai: jadwal.jam_selesai ? jadwal.jam_selesai.substring(0, 5) : '',
-                ruangan: jadwal.ruangan || '',
-            };
-            this.showModal = true;
-        },
-
-        hapusJadwal() {
-            Swal.fire({
-                title: 'Hapus Jadwal?',
-                text: "Yakin ingin menghapus jadwal ini? Data tidak dapat dikembalikan.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#4f46e5',
-                cancelButtonColor: '#ef4444',
-                confirmButtonText: 'Ya, hapus!',
-                cancelButtonText: 'Batal',
-                background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#ffffff',
-                color: document.documentElement.classList.contains('dark') ? '#f8fafc' : '#0f172a',
-                customClass: {
-                    popup: 'rounded-2xl border border-slate-100 dark:border-slate-700',
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    let form = this.$refs.deleteForm;
-                    form.action = '{{ url("admin/jadwal") }}/' + this.editId;
-                    form.submit();
-                }
-            });
-        }
-    };
-}
-</script>
 @endsection
+

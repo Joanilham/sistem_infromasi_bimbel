@@ -34,6 +34,7 @@
             -webkit-backdrop-filter: blur(10px);
         }
     </style>
+    <link rel="stylesheet" href="{{ asset('css/loading.css') }}">
 </head>
 <body class="min-h-screen bg-pattern flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 text-slate-900 antialiased selection:bg-blue-200 selection:text-blue-900">
     
@@ -77,13 +78,13 @@
             @endif
 
             @php
-                $currentKantorId = session('kantor_id') ?: (auth()->user()->kantor_id ?: (\App\Models\Kantor::first()->id ?? ''));
-                $currentKantor = \App\Models\Kantor::find($currentKantorId);
+                $currentKantorId = session('kantor_id') ?: (auth()->user()->kantor_id ?: (\App\Models\MasterData\Kantor::first()->id ?? ''));
+                $currentKantor = \App\Models\MasterData\Kantor::find($currentKantorId);
                 $currentKantorLabel = $currentKantor ? $currentKantor->nama_kantor : 'Pilih kantor cabang';
 
-                $activePeriode = \App\Models\Periode::where('is_active', true)->first();
-                $currentPeriodeId = session('periode_id') ?: ($activePeriode ? $activePeriode->id : (\App\Models\Periode::first()->id ?? ''));
-                $currentPeriode = \App\Models\Periode::find($currentPeriodeId);
+                $activePeriode = \App\Models\MasterData\Periode::where('is_active', true)->first();
+                $currentPeriodeId = session('periode_id') ?: ($activePeriode ? $activePeriode->id : (\App\Models\MasterData\Periode::first()->id ?? ''));
+                $currentPeriode = \App\Models\MasterData\Periode::find($currentPeriodeId);
                 $currentPeriodeLabel = $currentPeriode ? ($currentPeriode->tahun_periode . ' - ' . ucfirst($currentPeriode->semester ?? '')) : 'Pilih tahun ajaran';
             @endphp
 
@@ -264,5 +265,7 @@
         </p>
 
     </div>
+    @include('components.loading-overlay')
 </body>
 </html>
+

@@ -1,29 +1,29 @@
 <?php
 
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\KonteksController;
+use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\System\KonteksController;
 use Illuminate\Support\Facades\Route;
 
-use App\Models\Kantor;
-use App\Models\Periode;
+use App\Models\MasterData\Kantor;
+use App\Models\MasterData\Periode;
 
 Route::get('/', function () {
-    $masterData = \App\Models\Master::first();
-    $pakets = \App\Models\PaketBimbingan::where('is_featured', true)->orderBy('urutan')->get();
+    $masterData = \App\Models\MasterData\Master::first();
+    $pakets = \App\Models\Akademik\PaketBimbingan::where('is_featured', true)->orderBy('urutan')->get();
     if($pakets->isEmpty()) {
-        $pakets = \App\Models\PaketBimbingan::orderBy('urutan')->limit(3)->get();
+        $pakets = \App\Models\Akademik\PaketBimbingan::orderBy('urutan')->limit(3)->get();
     }
-    $testimonials = \App\Models\Testimonial::where('is_active', true)->latest()->get();
-    $faqs = \App\Models\Faq::where('is_active', true)->orderBy('urutan')->get();
-    $galleries = \App\Models\Gallery::orderBy('urutan')->get();
+    $testimonials = \App\Models\System\Testimonial::where('is_active', true)->latest()->get();
+    $faqs = \App\Models\System\Faq::where('is_active', true)->orderBy('urutan')->get();
+    $galleries = \App\Models\System\Gallery::orderBy('urutan')->get();
 
     return view('welcome', compact('masterData', 'pakets', 'testimonials', 'faqs', 'galleries'));
 })->name('welcome');
 
 Route::get('/paket/{id}', function ($id) {
-    $paket = \App\Models\PaketBimbingan::findOrFail($id);
-    $masterData = \App\Models\Master::first();
-    $testimonials = \App\Models\Testimonial::where('is_active', true)->latest()->limit(5)->get();
+    $paket = \App\Models\Akademik\PaketBimbingan::findOrFail($id);
+    $masterData = \App\Models\MasterData\Master::first();
+    $testimonials = \App\Models\System\Testimonial::where('is_active', true)->latest()->limit(5)->get();
     return view('paket.detail', compact('paket', 'masterData', 'testimonials'));
 })->name('paket.detail');
 
@@ -35,23 +35,23 @@ Route::post('/login', [AuthController::class, 'authenticate'])->middleware('thro
 
 // Lupa Password
 Route::middleware('guest')->group(function () {
-    Route::get('/forgot-password', [\App\Http\Controllers\PasswordResetController::class, 'create'])->name('password.request');
-    Route::post('/forgot-password', [\App\Http\Controllers\PasswordResetController::class, 'store'])->name('password.email')->middleware('throttle:5,1');
-    Route::get('/reset-password/{token}', [\App\Http\Controllers\PasswordResetController::class, 'edit'])->name('password.reset');
-    Route::post('/reset-password', [\App\Http\Controllers\PasswordResetController::class, 'update'])->name('password.store');
+    Route::get('/forgot-password', [\App\Http\Controllers\Auth\PasswordResetController::class, 'create'])->name('password.request');
+    Route::post('/forgot-password', [\App\Http\Controllers\Auth\PasswordResetController::class, 'store'])->name('password.email')->middleware('throttle:5,1');
+    Route::get('/reset-password/{token}', [\App\Http\Controllers\Auth\PasswordResetController::class, 'edit'])->name('password.reset');
+    Route::post('/reset-password', [\App\Http\Controllers\Auth\PasswordResetController::class, 'update'])->name('password.store');
 });
 
 // Pendaftaran Siswa (publik, tanpa auth)
 Route::prefix('daftar')->name('daftar.')->group(function () {
-    Route::get('/step1',  [App\Http\Controllers\PendaftaranController::class, 'step1'])->name('step1');
-    Route::post('/step1', [App\Http\Controllers\PendaftaranController::class, 'step1Store'])->name('step1.store');
-    Route::get('/step2',  [App\Http\Controllers\PendaftaranController::class, 'step2'])->name('step2');
-    Route::post('/step2', [App\Http\Controllers\PendaftaranController::class, 'step2Store'])->name('step2.store');
-    Route::get('/step3',  [App\Http\Controllers\PendaftaranController::class, 'step3'])->name('step3');
-    Route::post('/step3', [App\Http\Controllers\PendaftaranController::class, 'step3Store'])->name('step3.store');
-    Route::get('/selesai',[App\Http\Controllers\PendaftaranController::class, 'selesai'])->name('selesai');
+    Route::get('/step1',  [\App\Http\Controllers\Pendaftaran\PendaftaranController::class, 'step1'])->name('step1');
+    Route::post('/step1', [\App\Http\Controllers\Pendaftaran\PendaftaranController::class, 'step1Store'])->name('step1.store');
+    Route::get('/step2',  [\App\Http\Controllers\Pendaftaran\PendaftaranController::class, 'step2'])->name('step2');
+    Route::post('/step2', [\App\Http\Controllers\Pendaftaran\PendaftaranController::class, 'step2Store'])->name('step2.store');
+    Route::get('/step3',  [\App\Http\Controllers\Pendaftaran\PendaftaranController::class, 'step3'])->name('step3');
+    Route::post('/step3', [\App\Http\Controllers\Pendaftaran\PendaftaranController::class, 'step3Store'])->name('step3.store');
+    Route::get('/selesai',[\App\Http\Controllers\Pendaftaran\PendaftaranController::class, 'selesai'])->name('selesai');
     // Verifikasi email siswa pendaftar
-    Route::get('/verifikasi-email/{token}', [App\Http\Controllers\PendaftaranController::class, 'verifikasiEmail'])->name('verifikasi.email');
+    Route::get('/verifikasi-email/{token}', [\App\Http\Controllers\Pendaftaran\PendaftaranController::class, 'verifikasiEmail'])->name('verifikasi.email');
 });
 
 
@@ -74,7 +74,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/select-context', [KonteksController::class, 'selectContext'])->name('konteks.select');
 
         // Pusat Notifikasi
-        Route::get('/notifikasi', [\App\Http\Controllers\NotifikasiController::class, 'index'])->name('notifikasi.index');
+        Route::get('/notifikasi', [\App\Http\Controllers\System\NotifikasiController::class, 'index'])->name('notifikasi.index');
 
         // Dashboard Admin/Staff
         Route::get('/dashboard', function () {
@@ -83,7 +83,7 @@ Route::middleware('auth')->group(function () {
 
             // Data Peserta Baru (7 Hari Terakhir)
             $listPesertaBaru = \Illuminate\Support\Facades\Cache::remember("dash_list_peserta_baru_{$kantorId}_{$periodeId}", 3600, function() {
-                return \App\Models\PesertaDidik::aktif()->inContext()
+                return \App\Models\Akademik\PesertaDidik::aktif()->inContext()
                     ->where('created_at', '>=', now()->subDays(7))
                     ->select('id', 'nama_lengkap', 'asal_sekolah', 'created_at')
                     ->latest()
@@ -92,14 +92,14 @@ Route::middleware('auth')->group(function () {
 
             // Data Peserta Keluar
             $listPesertaKeluar = \Illuminate\Support\Facades\Cache::remember("dash_list_peserta_keluar_{$kantorId}_{$periodeId}", 3600, function() {
-                return \App\Models\PesertaDidik::keluar()->inContext()
+                return \App\Models\Akademik\PesertaDidik::keluar()->inContext()
                     ->select('id', 'nama_lengkap', 'asal_sekolah', 'tanggal_keluar')
                     ->latest('tanggal_keluar')
                     ->get();
             });
 
-            $totalPesertaAktif = \Illuminate\Support\Facades\Cache::rememberForever("dash_total_peserta_{$kantorId}_{$periodeId}", fn() => \App\Models\PesertaDidik::aktif()->inContext()->count());
-            $totalPaketAktif   = \Illuminate\Support\Facades\Cache::rememberForever("dash_total_paket_{$kantorId}_{$periodeId}", fn() => \App\Models\PaketBimbingan::count());
+            $totalPesertaAktif = \Illuminate\Support\Facades\Cache::rememberForever("dash_total_peserta_{$kantorId}_{$periodeId}", fn() => \App\Models\Akademik\PesertaDidik::aktif()->inContext()->count());
+            $totalPaketAktif   = \Illuminate\Support\Facades\Cache::rememberForever("dash_total_paket_{$kantorId}_{$periodeId}", fn() => \App\Models\Akademik\PaketBimbingan::count());
             $totalTenagaPengajar = \App\Models\User::where('level', 'guru')->inContext()->count();
 
             $selectedKantor  = session('kantor_id')  ? Kantor::find(session('kantor_id'))  : null;
@@ -108,13 +108,12 @@ Route::middleware('auth')->group(function () {
             $kantors  = \Illuminate\Support\Facades\Cache::remember('dash_kantors', 60, fn() => Kantor::all());
             $periodes = \Illuminate\Support\Facades\Cache::remember('dash_periodes', 60, fn() => Periode::all());
 
-            $isSuperAdmin = auth()->check() && strtolower(auth()->user()->level) === 'super admin';
-            $filterKantorId = $isSuperAdmin ? null : $kantorId;
+            $filterKantorId = ($kantorId === 'all' || empty($kantorId)) ? null : $kantorId;
 
-            $pendaftaranMenunggu = \App\Models\PendaftaranSiswa::where('status', 'menunggu')
+            $pendaftaranMenunggu = \App\Models\Pendaftaran\PendaftaranSiswa::where('status', 'menunggu')
                 ->when($filterKantorId, fn($q) => $q->where('kantor_id', $filterKantorId))
                 ->count();
-            $pembayaranBelumDikonfirmasi = \App\Models\PembayaranPendaftaran::where('status', 'menunggu')
+            $pembayaranBelumDikonfirmasi = \App\Models\Keuangan\PembayaranPendaftaran::where('status', 'menunggu')
                 ->whereHas('pendaftaranSiswa', fn($q) => $q
                     ->when($filterKantorId, fn($q2) => $q2->where('kantor_id', $filterKantorId))
                 )
@@ -122,7 +121,7 @@ Route::middleware('auth')->group(function () {
 
             // Auto-create missing PembayaranSiswa records for active students in context
             if ($kantorId && $periodeId) {
-                $studentsWithoutBilling = \App\Models\PesertaDidik::aktif()
+                $studentsWithoutBilling = \App\Models\Akademik\PesertaDidik::aktif()
                     ->inContext()
                     ->whereDoesntHave('pembayaran')
                     ->get();
@@ -140,7 +139,7 @@ Route::middleware('auth')->group(function () {
             // Tagihan Jatuh Tempo Count
             $tagihanJatuhTempoCount = 0;
             if ($kantorId && $periodeId) {
-                $tagihanRaw = \App\Models\PembayaranSiswa::with('transaksi')
+                $tagihanRaw = \App\Models\Keuangan\PembayaranSiswa::with('transaksi')
                     ->whereHas('pesertaDidik', fn($q) => $q->inContext()->aktif())
                     ->where(function($q) {
                         $q->where('batas_waktu', '<=', \Carbon\Carbon::now()->addDays(7))
@@ -151,14 +150,14 @@ Route::middleware('auth')->group(function () {
             }
 
             // Lead Tracking: 10 Pendaftar Terbaru
-            $recentPendaftaran = \App\Models\PendaftaranSiswa::with(['paketBimbingan', 'pembayaran'])
+            $recentPendaftaran = \App\Models\Pendaftaran\PendaftaranSiswa::with(['paketBimbingan', 'pembayaran'])
                 ->when($filterKantorId, fn($q) => $q->where('kantor_id', $filterKantorId))
                 ->latest()
                 ->limit(10)
                 ->get();
 
             // 5 Aktivitas Terbaru untuk Activity Log Widget di Dashboard
-            $recentAuditLogs = \App\Models\AuditLog::with('user:id,name,level')
+            $recentAuditLogs = \App\Models\System\AuditLog::with('user:id,name,level')
                 ->latest()
                 ->limit(5)
                 ->get();
@@ -206,7 +205,7 @@ Route::middleware('auth')->group(function () {
             $uangKeluarData = array_fill_keys($monthsList, 0);
 
             // 1. Peserta Didik
-            $pesertas = \App\Models\PesertaDidik::inContext()
+            $pesertas = \App\Models\Akademik\PesertaDidik::inContext()
                 ->where('periode_id', $periodeId)
                 ->get();
 
@@ -226,8 +225,9 @@ Route::middleware('auth')->group(function () {
             }
 
             // 2. Keuangan - Transaksi Pembayaran Siswa (Uang Masuk)
-            $transaksiSpp = \App\Models\TransaksiPembayaran::whereHas('pembayaranSiswa.pesertaDidik', function($q) use ($kantorId, $periodeId) {
-                    $q->where('kantor_id', $kantorId)->where('periode_id', $periodeId);
+            $transaksiSpp = \App\Models\Keuangan\TransaksiPembayaran::whereHas('pembayaranSiswa.pesertaDidik', function($q) use ($filterKantorId, $periodeId) {
+                    $q->when($filterKantorId, fn($q2) => $q2->where('kantor_id', $filterKantorId))
+                      ->when($periodeId, fn($q2) => $q2->where('periode_id', $periodeId));
                 })
                 ->whereBetween('tanggal', [$yearStart === $yearEnd ? "{$yearStart}-01-01" : "{$yearStart}-07-01", $yearStart === $yearEnd ? "{$yearStart}-12-31" : "{$yearEnd}-06-30"])
                 ->get();
@@ -242,7 +242,8 @@ Route::middleware('auth')->group(function () {
             }
 
             // 3. Keuangan - Pemasukan Lainnya (Uang Masuk)
-            $pemasukanLain = \App\Models\Pemasukan::whereBetween('tanggal', [$yearStart === $yearEnd ? "{$yearStart}-01-01" : "{$yearStart}-07-01", $yearStart === $yearEnd ? "{$yearStart}-12-31" : "{$yearEnd}-06-30"])
+            $pemasukanLain = \App\Models\Keuangan\Pemasukan::whereBetween('tanggal', [$yearStart === $yearEnd ? "{$yearStart}-01-01" : "{$yearStart}-07-01", $yearStart === $yearEnd ? "{$yearStart}-12-31" : "{$yearEnd}-06-30"])
+                ->when($filterKantorId, fn($q) => $q->whereHas('user', fn($qu) => $qu->where('kantor_id', $filterKantorId)))
                 ->get();
 
             foreach ($pemasukanLain as $pl) {
@@ -255,7 +256,8 @@ Route::middleware('auth')->group(function () {
             }
 
             // 4. Keuangan - Pengeluaran (Uang Keluar)
-            $pengeluaranList = \App\Models\Pengeluaran::whereBetween('tanggal', [$yearStart === $yearEnd ? "{$yearStart}-01-01" : "{$yearStart}-07-01", $yearStart === $yearEnd ? "{$yearStart}-12-31" : "{$yearEnd}-06-30"])
+            $pengeluaranList = \App\Models\Keuangan\Pengeluaran::whereBetween('tanggal', [$yearStart === $yearEnd ? "{$yearStart}-01-01" : "{$yearStart}-07-01", $yearStart === $yearEnd ? "{$yearStart}-12-31" : "{$yearEnd}-06-30"])
+                ->when($filterKantorId, fn($q) => $q->whereHas('user', fn($qu) => $qu->where('kantor_id', $filterKantorId)))
                 ->get();
 
             foreach ($pengeluaranList as $pg) {
@@ -301,14 +303,14 @@ Route::middleware('auth')->group(function () {
         Route::post('/session/konteks', [KonteksController::class, 'update'])->name('session.konteks');
 
         // Profil Admin/Staff
-        Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
-        Route::patch('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+        Route::get('/profile', [\App\Http\Controllers\Auth\ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/profile', [\App\Http\Controllers\Auth\ProfileController::class, 'update'])->name('profile.update');
 
         // Verifikasi Pendaftaran Siswa (Bisa diakses Admin dengan hak kelola peserta)
         Route::middleware('check_permission:manage_peserta_didik')->group(function () {
-            Route::get('/admin/pendaftaran', [App\Http\Controllers\PendaftaranController::class, 'adminIndex'])->name('admin.pendaftaran.index');
-            Route::get('/admin/pendaftaran/{pendaftaran}', [App\Http\Controllers\PendaftaranController::class, 'adminShow'])->name('admin.pendaftaran.show');
-            Route::post('/admin/pendaftaran/{pendaftaran}/verifikasi', [App\Http\Controllers\PendaftaranController::class, 'adminVerifikasi'])->name('admin.pendaftaran.verifikasi');
+            Route::get('/admin/pendaftaran', [\App\Http\Controllers\Pendaftaran\PendaftaranController::class, 'adminIndex'])->name('admin.pendaftaran.index');
+            Route::get('/admin/pendaftaran/{pendaftaran}', [\App\Http\Controllers\Pendaftaran\PendaftaranController::class, 'adminShow'])->name('admin.pendaftaran.show');
+            Route::post('/admin/pendaftaran/{pendaftaran}/verifikasi', [\App\Http\Controllers\Pendaftaran\PendaftaranController::class, 'adminVerifikasi'])->name('admin.pendaftaran.verifikasi');
         });
 
         // Audit Logs
@@ -320,28 +322,28 @@ Route::middleware('auth')->group(function () {
         // ----------------------------------------------------------
         Route::middleware(['ensure_role:Super Admin,Admin'])->group(function () {
             Route::middleware('check_permission:manage_bank')->group(function () {
-                Route::resource('bank', \App\Http\Controllers\BankController::class);
+                Route::resource('bank', \App\Http\Controllers\MasterData\BankController::class);
             });
             
             Route::middleware('check_permission:manage_kantor')->group(function () {
-                Route::resource('kantor', \App\Http\Controllers\KantorController::class);
-                Route::patch('/kantor/{id}/restore', [\App\Http\Controllers\KantorController::class, 'restore'])->name('kantor.restore');
+                Route::resource('kantor', \App\Http\Controllers\MasterData\KantorController::class);
+                Route::patch('/kantor/{id}/restore', [\App\Http\Controllers\MasterData\KantorController::class, 'restore'])->name('kantor.restore');
             });
             
             Route::middleware('check_permission:manage_periode')->group(function () {
-                Route::resource('periode', \App\Http\Controllers\PeriodeController::class);
-                Route::patch('/periode/{id}/restore', [\App\Http\Controllers\PeriodeController::class, 'restore'])->name('periode.restore');
+                Route::resource('periode', \App\Http\Controllers\MasterData\PeriodeController::class);
+                Route::patch('/periode/{id}/restore', [\App\Http\Controllers\MasterData\PeriodeController::class, 'restore'])->name('periode.restore');
             });
             
             Route::middleware('check_permission:manage_pengguna')->group(function () {
-                Route::resource('pengguna', \App\Http\Controllers\PenggunaController::class);
-                Route::patch('/pengguna/{id}/toggle-active', [\App\Http\Controllers\PenggunaController::class, 'toggleActive'])->name('pengguna.toggle-active');
+                Route::resource('pengguna', \App\Http\Controllers\Auth\PenggunaController::class);
+                Route::patch('/pengguna/{id}/toggle-active', [\App\Http\Controllers\Auth\PenggunaController::class, 'toggleActive'])->name('pengguna.toggle-active');
             });
             
             Route::middleware('check_permission:manage_master')->group(function () {
-                Route::get('/master', [\App\Http\Controllers\MasterController::class, 'index'])->name('master.index');
-                Route::put('/master', [\App\Http\Controllers\MasterController::class, 'update'])->name('master.update');
-                Route::post('/master/test-wa', [\App\Http\Controllers\MasterController::class, 'testWhatsApp'])->name('master.test.wa');
+                Route::get('/master', [\App\Http\Controllers\MasterData\MasterController::class, 'index'])->name('master.index');
+                Route::put('/master', [\App\Http\Controllers\MasterData\MasterController::class, 'update'])->name('master.update');
+                Route::post('/master/test-wa', [\App\Http\Controllers\MasterData\MasterController::class, 'testWhatsApp'])->name('master.test.wa');
             });
 
             // Landing Page Management
@@ -368,6 +370,12 @@ Route::middleware('auth')->group(function () {
                 Route::post('/admin/backup/restore/{filename}', [\App\Http\Controllers\Admin\BackupController::class, 'restore'])->name('admin.backup.restore');
                 Route::post('/admin/backup/toggle', [\App\Http\Controllers\Admin\BackupController::class, 'toggle'])->name('admin.backup.toggle');
             });
+
+            // Berita & Informasi (Pengumuman)
+            Route::middleware('check_permission:manage_pengumuman')->group(function () {
+                Route::resource('admin/pengumuman', \App\Http\Controllers\Admin\PengumumanController::class)->names('admin.pengumuman');
+                Route::patch('/admin/pengumuman/{pengumuman}/toggle-active', [\App\Http\Controllers\Admin\PengumumanController::class, 'toggleActive'])->name('admin.pengumuman.toggle-active');
+            });
         });
 
         // ----------------------------------------------------------
@@ -375,22 +383,22 @@ Route::middleware('auth')->group(function () {
         // ----------------------------------------------------------
         Route::middleware('konteks')->group(function () {
             Route::middleware('check_permission:manage_paket_bimbingan')->group(function () {
-                Route::resource('paket-bimbingan', \App\Http\Controllers\PaketBimbinganController::class)->except(['show']);
+                Route::resource('paket-bimbingan', \App\Http\Controllers\Akademik\PaketBimbinganController::class)->except(['show']);
             });
             Route::middleware('check_permission:manage_peserta_didik')->group(function () {
-                Route::get('/peserta-didik/export', [\App\Http\Controllers\PesertaDidikController::class, 'export'])->name('peserta-didik.export');
-                Route::get('/peserta-didik/keluar', [\App\Http\Controllers\PesertaDidikController::class, 'keluar'])->name('peserta-didik.keluar');
-                Route::get('/peserta-didik/keluar/export', [\App\Http\Controllers\PesertaDidikController::class, 'exportKeluar'])->name('peserta-didik.keluar.export');
-                Route::get('/peserta-didik/{id}/edit', [\App\Http\Controllers\PesertaDidikController::class, 'edit'])->name('peserta-didik.edit');
-                Route::resource('peserta-didik', \App\Http\Controllers\PesertaDidikController::class)->except(['edit', 'show']);
-                Route::resource('kelompok-belajar', \App\Http\Controllers\KelompokBelajarController::class)->except(['create', 'edit', 'show']);
+                Route::get('/peserta-didik/export', [\App\Http\Controllers\Akademik\PesertaDidikController::class, 'export'])->name('peserta-didik.export');
+                Route::get('/peserta-didik/keluar', [\App\Http\Controllers\Akademik\PesertaDidikController::class, 'keluar'])->name('peserta-didik.keluar');
+                Route::get('/peserta-didik/keluar/export', [\App\Http\Controllers\Akademik\PesertaDidikController::class, 'exportKeluar'])->name('peserta-didik.keluar.export');
+                Route::get('/peserta-didik/{id}/edit', [\App\Http\Controllers\Akademik\PesertaDidikController::class, 'edit'])->name('peserta-didik.edit');
+                Route::resource('peserta-didik', \App\Http\Controllers\Akademik\PesertaDidikController::class)->except(['edit', 'show']);
+                Route::resource('kelompok-belajar', \App\Http\Controllers\Akademik\KelompokBelajarController::class)->except(['show']);
             });
             Route::middleware('check_permission:manage_guru')->group(function () {
-                Route::get('/guru/export', [\App\Http\Controllers\GuruController::class, 'export'])->name('manajemen-guru.export');
-                Route::get('/guru/keluar', [\App\Http\Controllers\GuruController::class, 'keluar'])->name('manajemen-guru.keluar');
-                Route::get('/guru/keluar/export', [\App\Http\Controllers\GuruController::class, 'exportKeluar'])->name('manajemen-guru.keluar.export');
-                Route::get('/guru/{id}/edit', [\App\Http\Controllers\GuruController::class, 'edit'])->name('manajemen-guru.edit');
-                Route::resource('guru', \App\Http\Controllers\GuruController::class)->except(['edit', 'show'])->names([
+                Route::get('/guru/export', [\App\Http\Controllers\Akademik\GuruController::class, 'export'])->name('manajemen-guru.export');
+                Route::get('/guru/keluar', [\App\Http\Controllers\Akademik\GuruController::class, 'keluar'])->name('manajemen-guru.keluar');
+                Route::get('/guru/keluar/export', [\App\Http\Controllers\Akademik\GuruController::class, 'exportKeluar'])->name('manajemen-guru.keluar.export');
+                Route::get('/guru/{id}/edit', [\App\Http\Controllers\Akademik\GuruController::class, 'edit'])->name('manajemen-guru.edit');
+                Route::resource('guru', \App\Http\Controllers\Akademik\GuruController::class)->except(['edit', 'show'])->names([
                     'index'   => 'manajemen-guru.index',
                     'create'  => 'manajemen-guru.create',
                     'store'   => 'manajemen-guru.store',
@@ -401,25 +409,34 @@ Route::middleware('auth')->group(function () {
 
             // Absensi — Halaman Scan
             Route::middleware('check_permission:manage_absensi')->group(function () {
-                Route::get('/absensi/masuk',  [\App\Http\Controllers\AbsensiController::class, 'scanMasukPage'])->name('absensi.scan.masuk.page');
-                Route::get('/absensi/pulang', [\App\Http\Controllers\AbsensiController::class, 'scanPulangPage'])->name('absensi.scan.pulang.page');
-                Route::get('/absensi/rekap',  [\App\Http\Controllers\AbsensiController::class, 'rekap'])->name('absensi.rekap');
+                Route::get('/absensi/masuk',  [\App\Http\Controllers\Akademik\AbsensiController::class, 'scanMasukPage'])->name('absensi.scan.masuk.page');
+                Route::get('/absensi/pulang', [\App\Http\Controllers\Akademik\AbsensiController::class, 'scanPulangPage'])->name('absensi.scan.pulang.page');
+                Route::get('/absensi/rekap',  [\App\Http\Controllers\Akademik\AbsensiController::class, 'rekap'])->name('absensi.rekap');
                 // Absensi — API Scan (JSON)
-                Route::post('/absensi/scan-masuk',  [\App\Http\Controllers\AbsensiController::class, 'scanMasuk'])->name('absensi.scan.masuk');
-                Route::post('/absensi/scan-pulang', [\App\Http\Controllers\AbsensiController::class, 'scanPulang'])->name('absensi.scan.pulang');
+                Route::post('/absensi/scan-masuk',  [\App\Http\Controllers\Akademik\AbsensiController::class, 'scanMasuk'])->name('absensi.scan.masuk');
+                Route::post('/absensi/scan-pulang', [\App\Http\Controllers\Akademik\AbsensiController::class, 'scanPulang'])->name('absensi.scan.pulang');
+                // Absensi — Manual Edit Admin
+                Route::get('/absensi/detail/{id}', [\App\Http\Controllers\Akademik\AbsensiController::class, 'detail'])->name('absensi.detail');
+                Route::post('/absensi/store-manual', [\App\Http\Controllers\Akademik\AbsensiController::class, 'storeManual'])->name('absensi.store.manual');
                 // Absensi — Export
-                Route::get('/absensi/export/rekap', [\App\Http\Controllers\AbsensiController::class, 'exportRekap'])->name('absensi.export.rekap');
+                Route::get('/absensi/export/rekap', [\App\Http\Controllers\Akademik\AbsensiController::class, 'exportRekap'])->name('absensi.export.rekap');
             });
 
             // ── Manajemen Jadwal (Admin) ──
             Route::middleware('check_permission:manage_jadwal')->group(function () {
                 Route::get('/admin/jadwal', [\App\Http\Controllers\Admin\JadwalController::class, 'index'])->name('admin.jadwal.index');
+                Route::get('/admin/jadwal/create', [\App\Http\Controllers\Admin\JadwalController::class, 'create'])->name('admin.jadwal.create');
                 Route::post('/admin/jadwal', [\App\Http\Controllers\Admin\JadwalController::class, 'store'])->name('admin.jadwal.store');
+                Route::get('/admin/jadwal/{id}/edit', [\App\Http\Controllers\Admin\JadwalController::class, 'edit'])->name('admin.jadwal.edit');
                 Route::put('/admin/jadwal/{id}', [\App\Http\Controllers\Admin\JadwalController::class, 'update'])->name('admin.jadwal.update');
                 Route::delete('/admin/jadwal/{id}', [\App\Http\Controllers\Admin\JadwalController::class, 'destroy'])->name('admin.jadwal.destroy');
                 Route::get('/admin/jadwal/konflik', [\App\Http\Controllers\Admin\JadwalController::class, 'konflik'])->name('admin.jadwal.konflik');
                 Route::post('/admin/jadwal/duplikasi', [\App\Http\Controllers\Admin\JadwalController::class, 'duplikasi'])->name('admin.jadwal.duplikasi');
             });
+
+            // ── Rekapitulasi (Admin) ──
+            Route::get('/admin/rekapitulasi', [\App\Http\Controllers\Admin\RekapitulasiController::class, 'index'])->name('admin.rekapitulasi.index');
+            Route::get('/admin/rekapitulasi/export', [\App\Http\Controllers\Admin\RekapitulasiController::class, 'export'])->name('admin.rekapitulasi.export');
 
             // ── Keuangan ──────────────────────────────────────────────────
             Route::middleware('check_permission:manage_keuangan')->prefix('keuangan')->name('keuangan.')->group(function () {
@@ -471,8 +488,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\Guru\DashboardController::class, 'index'])->name('dashboard');
 
         // Profil Guru
-        Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'editGuru'])->name('profile.edit');
-        Route::patch('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+        Route::get('/profile', [\App\Http\Controllers\Auth\ProfileController::class, 'editGuru'])->name('profile.edit');
+        Route::patch('/profile', [\App\Http\Controllers\Auth\ProfileController::class, 'update'])->name('profile.update');
 
         // Jadwal Mata Pelajaran
         Route::get('/jadwal', [\App\Http\Controllers\Guru\JadwalController::class, 'index'])->name('jadwal.index');
@@ -510,8 +527,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\Siswa\DashboardController::class, 'index'])->name('dashboard');
 
         // Profil Siswa
-        Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'editSiswa'])->name('profile.edit');
-        Route::patch('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+        Route::get('/profile', [\App\Http\Controllers\Auth\ProfileController::class, 'editSiswa'])->name('profile.edit');
+        Route::patch('/profile', [\App\Http\Controllers\Auth\ProfileController::class, 'update'])->name('profile.update');
 
         // QR Absensi Dinamis
         Route::get('/qr', [\App\Http\Controllers\Siswa\QrController::class, 'show'])->name('qr.show');
@@ -534,6 +551,10 @@ Route::middleware('auth')->group(function () {
         // ── Jadwal Siswa ──
         Route::get('/jadwal', [\App\Http\Controllers\Siswa\JadwalController::class, 'index'])->name('jadwal.index');
 
+        // ── Pembayaran Siswa ──
+        Route::get('/pembayaran', [\App\Http\Controllers\Siswa\PembayaranController::class, 'index'])->name('pembayaran.index');
+        Route::post('/pembayaran/konfirmasi', [\App\Http\Controllers\Siswa\PembayaranController::class, 'confirmPayment'])->name('pembayaran.konfirmasi');
+        Route::get('/pembayaran/{transaksi}/nota', [\App\Http\Controllers\Siswa\PembayaranController::class, 'downloadNota'])->name('pembayaran.nota');
 
     });
 });

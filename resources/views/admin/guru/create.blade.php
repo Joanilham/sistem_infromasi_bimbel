@@ -1,74 +1,103 @@
 @extends('layouts.admin')
 
-@section('title', 'Tambah Guru')
+@section('title', 'Tambah Guru Baru')
 
 @section('content')
-<div class="pd-form-wrap">
-    <h2 style="font-size:1.05rem;font-weight:700;color:#111827;margin-bottom:4px;">Tambah Guru Baru</h2>
-    <p style="font-size:.78rem;color:#6b7280;margin-bottom:0;">Isi seluruh data guru dengan lengkap dan benar.</p>
-
-    <form action="{{ route('manajemen-guru.store') }}" method="POST">
-        @csrf
-
-        {{-- ── SECTION 1: Data Pribadi ────────────────── --}}
-        <div class="pd-section-title">Data Pribadi</div>
-        <div class="pd-grid">
-            <div class="pd-field full">
-                <label>Nama Lengkap <span>*</span></label>
-                <input type="text" name="name" required value="{{ old('name') }}" placeholder="Nama lengkap guru">
-            </div>
-            <div class="pd-field">
-                <label>NIP</label>
-                <input type="text" name="nip" value="{{ old('nip') }}" placeholder="Nomor Induk Pegawai"
-                    inputmode="numeric"
-                    oninput="this.value=this.value.replace(/[^0-9]/g,'')"
-                    maxlength="20">
-            </div>
-            <div class="pd-field">
-                <label>No. Telp</label>
-                <input type="tel" name="no_telp" value="{{ old('no_telp') }}" placeholder="08xxxxxxxxxx"
-                    inputmode="numeric"
-                    pattern="[0-9]{8,12}"
-                    maxlength="12"
-                    oninput="this.value=this.value.replace(/[^0-9]/g,'')"
-                    title="Hanya boleh angka (Maksimal 12 digit)">
-            </div>
-            <div class="pd-field full">
-                <label>Alamat</label>
-                <textarea name="alamat" placeholder="Alamat lengkap guru">{{ old('alamat') }}</textarea>
-            </div>
+<div class="space-y-6">
+    {{-- Header --}}
+    <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-zinc-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+        <div>
+            <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Tambah Guru Baru</h1>
+            <p class="text-slate-500 dark:text-slate-400 mt-2 text-sm font-medium">Isi seluruh data guru dengan lengkap dan benar.</p>
         </div>
+        <a href="{{ route('manajemen-guru.index') }}" class="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-slate-50 dark:bg-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-700 text-slate-500 dark:text-slate-400 transition-all">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+        </a>
+    </div>
 
-        {{-- ── SECTION 2: Data Kepegawaian ───────────── --}}
-        <div class="pd-section-title">Data Kepegawaian</div>
-        <div class="pd-grid">
-            <div class="pd-field full">
-                <label>Mata Pelajaran <span>*</span></label>
-                <input type="text" name="matapelajaran" required value="{{ old('matapelajaran') }}" placeholder="Mata pelajaran yang diajarkan">
-            </div>
-        </div>
+    {{-- Form Card --}}
+    <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] border border-slate-100 dark:border-zinc-800 shadow-sm overflow-hidden max-w-5xl mx-auto" x-data="{ status: 'Aktif' }">
+        <form action="{{ route('manajemen-guru.store') }}" method="POST">
+            @csrf
+            <div class="p-8 sm:p-10 space-y-10">
+                
+                {{-- Data Pribadi --}}
+                <div class="space-y-4">
+                    <h3 class="text-xs font-black uppercase tracking-widest text-indigo-500 flex items-center gap-2 border-b border-slate-100 dark:border-zinc-800 pb-2">
+                        Data Pribadi
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div class="space-y-2 sm:col-span-2">
+                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Nama Lengkap <span class="text-rose-500">*</span></label>
+                            <input type="text" name="name" required value="{{ old('name') }}" placeholder="Nama lengkap guru" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-3 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Jenis Kelamin</label>
+                            <select name="jenis_kelamin" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-3 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
+                                <option value="">Pilih Jenis Kelamin</option>
+                                <option value="Laki-Laki" {{ old('jenis_kelamin') == 'Laki-Laki' ? 'selected' : '' }}>Laki-Laki</option>
+                                <option value="Perempuan" {{ old('jenis_kelamin') == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">NIP</label>
+                            <input type="text" name="nip" value="{{ old('nip') }}" placeholder="Nomor Induk Pegawai" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'')" maxlength="20" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-3 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">No. Telp</label>
+                            <input type="tel" name="no_telp" value="{{ old('no_telp') }}" placeholder="08xxxxxxxxxx" inputmode="numeric" pattern="[0-9]{8,12}" maxlength="12" oninput="this.value=this.value.replace(/[^0-9]/g,'')" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-3 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
+                        </div>
+                        <div class="space-y-2 sm:col-span-2">
+                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Alamat Lengkap</label>
+                            <textarea name="alamat" rows="2" placeholder="Alamat lengkap guru" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-3 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white custom-scrollbar">{{ old('alamat') }}</textarea>
+                        </div>
+                    </div>
+                </div>
 
-        {{-- ── SECTION 3: Akun ───────────────────────── --}}
-        <div class="pd-section-title">Akun Login</div>
-        <div class="pd-grid">
-            <div class="pd-field full">
-                <label>Email <span>*</span></label>
-                <input type="email" name="email" required value="{{ old('email') }}" placeholder="Email aktif untuk login">
-            </div>
-            <div class="pd-field">
-                <label>Password <span>*</span></label>
-                <input type="password" name="password" required placeholder="Minimal 8 karakter">
-            </div>
-            <div class="pd-field">
-                <label>Konfirmasi Password <span>*</span></label>
-                <input type="password" name="password_confirmation" required placeholder="Ulangi password di atas">
-            </div>
-        </div>
+                {{-- Data Kepegawaian --}}
+                <div class="space-y-4">
+                    <h3 class="text-xs font-black uppercase tracking-widest text-emerald-500 flex items-center gap-2 border-b border-slate-100 dark:border-zinc-800 pb-2">
+                        Data Kepegawaian
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Mata Pelajaran <span class="text-rose-500">*</span></label>
+                            <input type="text" name="matapelajaran" required value="{{ old('matapelajaran') }}" placeholder="Mata pelajaran" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-3 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
+                        </div>
+                    </div>
+                </div>
 
-        <div class="pd-btns">
-            <a href="{{ route('manajemen-guru.index') }}" class="pd-btn-back">Batal</a>
-            <button type="submit" class="pd-btn-save">Simpan</button>
-        </div>
-    </form>
+                {{-- Akun Login --}}
+                <div class="space-y-4">
+                    <h3 class="text-xs font-black uppercase tracking-widest text-amber-500 flex items-center gap-2 border-b border-slate-100 dark:border-zinc-800 pb-2">
+                        Akun Login
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div class="space-y-2 sm:col-span-2">
+                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Email <span class="text-rose-500">*</span></label>
+                            <input type="email" name="email" required value="{{ old('email') }}" placeholder="Email aktif" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-3 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Password <span class="text-rose-500">*</span></label>
+                            <input type="password" name="password" required placeholder="Min 8 Karakter" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-3 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Konfirmasi Password <span class="text-rose-500">*</span></label>
+                            <input type="password" name="password_confirmation" required placeholder="Ulangi password" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-3 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            
+            {{-- Footer --}}
+            <div class="px-8 sm:px-10 py-6 bg-slate-50 dark:bg-zinc-950 border-t border-slate-200 dark:border-zinc-800 flex items-center justify-end gap-4">
+                <a href="{{ route('manajemen-guru.index') }}" class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-2xl transition-all">Batal</a>
+                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-black uppercase tracking-widest px-8 py-4 rounded-2xl shadow-xl shadow-indigo-500/20 transition-all active:scale-95">Simpan Data Guru</button>
+            </div>
+        </form>
+    </div>
 </div>
 @endsection

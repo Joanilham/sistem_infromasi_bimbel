@@ -222,6 +222,7 @@
         }
         #autosave-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     </style>
+    <link rel="stylesheet" href="{{ asset('css/loading.css') }}">
 </head>
 <body class="no-scrollbar">
 
@@ -304,7 +305,7 @@
                         </span>
                     @endif
                 </div>
-                <div class="soal-text">{!! nl2br(e($jawabanSaatIni->bankSoal->pertanyaan)) !!}
+                <div class="soal-text">{!! \App\Helpers\HtmlSanitizer::clean($jawabanSaatIni->bankSoal->pertanyaan) !!}
                     @if($jawabanSaatIni->bankSoal->file_media)
                         <img src="{{ asset('storage/' . $jawabanSaatIni->bankSoal->file_media) }}" alt="Media Soal">
                     @endif
@@ -332,7 +333,7 @@
                     <label class="option-label {{ $savedOpsi == $opsi->id ? 'selected' : '' }}" onclick="selectOption(this)">
                         <input type="radio" name="cbt_opsi_jawaban_id" value="{{ $opsi->id }}" {{ $savedOpsi == $opsi->id ? 'checked' : '' }} onchange="autoSave()">
                         <div class="option-mark">{{ $letters[$i] ?? ($i+1) }}</div>
-                        <div class="option-text">{!! nl2br(e($opsi->teks_opsi)) !!}</div>
+                        <div class="option-text">{!! \App\Helpers\HtmlSanitizer::clean($opsi->teks_opsi) !!}</div>
                     </label>
                     @endforeach
                 </div>
@@ -519,5 +520,6 @@ setInterval(() => {
     }).catch(err => console.warn('Keep-alive ping failed:', err));
 }, 300000); // 5 menit
 </script>
+    @include('components.loading-overlay')
 </body>
 </html>

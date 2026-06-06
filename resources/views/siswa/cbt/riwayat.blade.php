@@ -136,7 +136,7 @@
     @endif
     @else
         @php
-            $master = \App\Models\Master::first();
+            $master = \App\Models\MasterData\Master::first();
             $waNum = $master?->wa_number ?? '6281234567890';
             $pesertaDidik = Auth::user()->pesertaDidik;
             $pesanKeuangan = "Halo Admin Keuangan, saya " . ($pesertaDidik?->nama_lengkap ?? Auth::user()->name) . " (NISN: " . ($pesertaDidik?->nisn ?? $pesertaDidik?->nomor_induk ?? '-') . ") ingin menanyakan / mengonfirmasi mengenai kekurangan tagihan saya sebesar Rp " . number_format($kekurangan, 0, ',', '.') . ". Mohon bantuannya.";
@@ -203,3 +203,4 @@
 
 </div>
 @endsection
+

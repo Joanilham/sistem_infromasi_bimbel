@@ -1,10 +1,11 @@
 <?php
 
 namespace App\Services;
+use App\Models\System\Message;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use App\Models\Master;
+use App\Models\MasterData\Master;
 
 class WhatsAppService
 {
@@ -87,3 +88,5 @@ class WhatsAppService
         })->afterResponse();
     }
 }
+
+

@@ -139,6 +139,10 @@
                         <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Kelola Admin / Pengguna</span>
                     </label>
                     <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 cursor-pointer transition-colors">
+                        <input type="checkbox" name="permissions[]" value="manage_pengumuman" {{ in_array('manage_pengumuman', $oldPerms) ? 'checked' : '' }} class="w-5 h-5 text-indigo-600 rounded border-slate-300 dark:border-zinc-600 focus:ring-indigo-500">
+                        <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Kelola Berita & Informasi</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 cursor-pointer transition-colors">
                         <input type="checkbox" name="permissions[]" value="manage_backup" {{ in_array('manage_backup', $oldPerms) ? 'checked' : '' }} class="w-5 h-5 text-indigo-600 rounded border-slate-300 dark:border-zinc-600 focus:ring-indigo-500">
                         <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Kelola Backup Database</span>
                     </label>

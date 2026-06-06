@@ -1,12 +1,13 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+use App\Models\System\Gallery;
 
 use App\Http\Controllers\Controller;
-use App\Models\Master;
-use App\Models\PaketBimbingan;
-use App\Models\Testimonial;
-use App\Models\Faq;
+use App\Models\MasterData\Master;
+use App\Models\Akademik\PaketBimbingan;
+use App\Models\System\Testimonial;
+use App\Models\System\Faq;
 use App\Traits\HandlesImageUpload;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -21,7 +22,7 @@ class LandingPageController extends Controller
         $pakets = PaketBimbingan::orderBy('urutan')->get();
         $testimonials = Testimonial::latest()->get();
         $faqs = Faq::orderBy('urutan')->get();
-        $galleries = \App\Models\Gallery::inContext()->orderBy('urutan')->get();
+        $galleries = \App\Models\System\Gallery::inContext()->orderBy('urutan')->get();
         
         return view('admin.landing_page.index', compact('master', 'pakets', 'testimonials', 'faqs', 'galleries'));
     }
@@ -41,14 +42,14 @@ class LandingPageController extends Controller
                 $validated['foto'] = $this->compressAndStore($request->file('foto'), 'gallery', 75);
             }
 
-            \App\Models\Gallery::create($validated);
+            \App\Models\System\Gallery::create($validated);
             return back()->with('success', 'Foto berhasil ditambahkan ke gallery.');
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal mengunggah foto.');
         }
     }
 
-    public function destroyGallery(\App\Models\Gallery $gallery)
+    public function destroyGallery(\App\Models\System\Gallery $gallery)
     {
         try {
             if ($gallery->foto) Storage::disk('public')->delete($gallery->foto);
@@ -164,3 +165,5 @@ class LandingPageController extends Controller
         return back()->with('success', 'FAQ berhasil dihapus.');
     }
 }
+
+

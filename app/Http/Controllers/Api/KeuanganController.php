@@ -1,11 +1,13 @@
 <?php
 
 namespace App\Http\Controllers\Api;
+use App\Models\Akademik\PesertaDidik;
+use App\Models\MasterData\Bank;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\PembayaranSiswa;
-use App\Models\TransaksiPembayaran;
+use App\Models\Keuangan\PembayaranSiswa;
+use App\Models\Keuangan\TransaksiPembayaran;
 use App\Traits\ApiResponse;
 
 class KeuanganController extends Controller
@@ -71,8 +73,8 @@ class KeuanganController extends Controller
 
     public function bank()
     {
-        // Assuming Bank model is App\Models\Bank
-        $banks = \App\Models\Bank::where('is_active', true)->get();
+        // Assuming Bank model is App\Models\MasterData\Bank
+        $banks = \App\Models\MasterData\Bank::where('is_active', true)->get();
         return $this->successResponse($banks, 'Daftar bank tujuan berhasil dimuat');
     }
 
@@ -96,8 +98,15 @@ class KeuanganController extends Controller
         ]);
 
         $kekurangan = $pembayaran->kekurangan;
-        if ($request->nominal > $kekurangan) {
-            return $this->errorResponse("Nominal tidak boleh melebihi sisa tagihan (Maks: Rp " . number_format($kekurangan, 0, ',', '.') . ").", 422);
+        $total_pending = $pembayaran->transaksi()->where('status', 'PENDING')->sum('nominal');
+        $sisa_boleh_dibayar = $kekurangan - $total_pending;
+
+        if ($sisa_boleh_dibayar <= 0) {
+            return $this->errorResponse('Tagihan Anda sudah lunas atau semua pembayaran sedang menunggu konfirmasi.', 422);
+        }
+
+        if ($request->nominal > $sisa_boleh_dibayar) {
+            return $this->errorResponse("Nominal tidak boleh melebihi sisa tagihan dikurangi pembayaran yang menunggu konfirmasi (Maks: Rp " . number_format($sisa_boleh_dibayar, 0, ',', '.') . ").", 422);
         }
 
         // Buat no kwitansi: ambil 5 karakter pertama dari username/name saja agar tidak overflow
@@ -125,3 +134,5 @@ class KeuanganController extends Controller
         return $this->successResponse($transaksi, 'Pengajuan pembayaran berhasil dikirim. Menunggu verifikasi admin.');
     }
 }
+
+

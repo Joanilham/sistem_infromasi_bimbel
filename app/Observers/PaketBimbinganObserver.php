@@ -2,9 +2,9 @@
 
 namespace App\Observers;
 
-use App\Models\Kantor;
-use App\Models\Periode;
-use App\Models\PaketBimbingan;
+use App\Models\MasterData\Kantor;
+use App\Models\MasterData\Periode;
+use App\Models\Akademik\PaketBimbingan;
 use Illuminate\Support\Facades\Cache;
 
 class PaketBimbinganObserver
@@ -36,3 +36,4 @@ class PaketBimbinganObserver
     public function restored(PaketBimbingan $paketBimbingan): void { $this->clearCache(); }
     public function forceDeleted(PaketBimbingan $paketBimbingan): void { $this->clearCache(); }
 }
+

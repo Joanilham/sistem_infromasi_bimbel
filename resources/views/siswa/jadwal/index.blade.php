@@ -174,7 +174,7 @@
     for ($h = $minHour; $h <= $maxHour; $h++) { 
         $timeSlots[] = sprintf('%02d:00', $h); 
     }
-    $hariList = \App\Models\Jadwal::HARI_LIST;
+    $hariList = \App\Models\Akademik\Jadwal::HARI_LIST;
 @endphp
 
 <div class="jadwal-scope pb-4">
@@ -335,3 +335,4 @@
     </div>
 </div>
 @endsection
+

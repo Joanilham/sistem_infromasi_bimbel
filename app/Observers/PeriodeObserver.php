@@ -2,7 +2,7 @@
 
 namespace App\Observers;
 
-use App\Models\Periode;
+use App\Models\MasterData\Periode;
 use Illuminate\Support\Facades\Cache;
 
 class PeriodeObserver
@@ -19,3 +19,4 @@ class PeriodeObserver
     public function restored(Periode $periode): void { $this->clearCache(); }
     public function forceDeleted(Periode $periode): void { $this->clearCache(); }
 }
+

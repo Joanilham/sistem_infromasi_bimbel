@@ -1,13 +1,14 @@
 <?php
 
 namespace App\Http\Controllers\Api;
+use App\Models\Akademik\PesertaDidik;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
-use App\Models\Jadwal;
-use App\Models\Pengumuman;
-use App\Models\CbtUjian;
+use App\Models\Akademik\Jadwal;
+use App\Models\System\Pengumuman;
+use App\Models\CBT\CbtUjian;
 use App\Traits\ApiResponse;
 
 class BerandaController extends Controller
@@ -43,7 +44,7 @@ class BerandaController extends Controller
             $peserta = $user->pesertaDidik;
 
             // 1. Jadwal Pelajaran Hari Ini
-            if ($peserta->kelompok_belajar_id) {
+            if (strtolower($user->status) === 'aktif' && $peserta->kelompok_belajar_id) {
                 $data['jadwal_hari_ini'] = Jadwal::with(['mataPelajaran', 'guru'])
                     ->where('hari', $hariIni)
                     ->where('rombel_id', $peserta->kelompok_belajar_id)
@@ -67,11 +68,15 @@ class BerandaController extends Controller
                 $data['tagihan_aktif'] = null;
             }
 
-            // 3. Ujian CBT Aktif (Simple active query)
-            $data['ujian_aktif'] = CbtUjian::aktif()
-                ->orderBy('waktu_mulai', 'asc')
-                ->take(3)
-                ->get(['id', 'judul', 'waktu_mulai', 'waktu_selesai', 'durasi']);
+            // 3. Ujian CBT Aktif
+            if (strtolower($user->status) === 'aktif') {
+                $data['ujian_aktif'] = CbtUjian::aktif()
+                    ->orderBy('waktu_mulai', 'asc')
+                    ->take(3)
+                    ->get(['id', 'judul', 'waktu_mulai', 'waktu_selesai', 'durasi']);
+            } else {
+                $data['ujian_aktif'] = [];
+            }
 
             $data['role_view'] = 'siswa';
         } else {
@@ -89,3 +94,5 @@ class BerandaController extends Controller
         return $this->successResponse($data, 'Beranda berhasil dimuat')->header('Cache-Control', 'private, max-age=300');
     }
 }
+
+

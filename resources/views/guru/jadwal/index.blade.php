@@ -27,7 +27,7 @@
         $timeSlots[] = sprintf('%02d:00', $h); 
     }
     $hariIni = now()->locale('id')->isoFormat('dddd');
-    $hariList = \App\Models\Jadwal::HARI_LIST;
+    $hariList = \App\Models\Akademik\Jadwal::HARI_LIST;
     $jadwalHariIni = $jadwal->filter(fn($j) => $j->hari === $hariIni)->sortBy('jam_mulai');
 
     // Cerdas: Hitung tanggal spesifik untuk hari Senin - Sabtu di minggu berjalan
@@ -115,55 +115,63 @@
     {{-- VIEW 1: Kalender Grid (Refined & Compact) --}}
     <div x-show="viewMode === 'calendar'" class="bg-white dark:bg-zinc-900 rounded-[2.5rem] border border-slate-100 dark:border-zinc-800 shadow-sm overflow-hidden transition-all">
         <div class="overflow-x-auto custom-scrollbar">
-            <table class="w-full min-w-[1000px] text-sm table-fixed border-collapse border border-slate-150 dark:border-zinc-800">
+            <table class="w-full min-w-full text-sm table-fixed border-collapse border border-slate-200 dark:border-zinc-800">
                 <thead class="bg-slate-50 dark:bg-zinc-800 text-[10px] uppercase tracking-widest text-slate-700 dark:text-slate-200 font-black">
                     <tr>
-                        <th class="py-4 px-4 text-center w-28 border border-slate-200 dark:border-zinc-800 bg-slate-100 dark:bg-zinc-700/50">Jam</th>
+                        <th class="py-4 px-2 text-center w-16 border border-slate-200 dark:border-zinc-800 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-800 dark:text-indigo-300">Jam</th>
                         @foreach($hariList as $hari)
-                        <th class="py-3 px-2 text-center border border-slate-200 dark:border-zinc-800 {{ ($hariIni === $hari && $hari !== 'Minggu') ? 'bg-indigo-600 text-white' : 'bg-slate-50 dark:bg-zinc-800 text-slate-655 dark:text-slate-300' }}">
-                            <div class="font-black text-xs">{{ $hari }}</div>
-                            <div class="text-[9px] opacity-85 mt-0.5 font-bold tracking-tight lowercase first-letter:uppercase">{{ $datesOfWeek[$hari] ?? '' }}</div>
+                        <th class="py-3 px-1 text-center border border-slate-200 dark:border-zinc-800 {{ ($hariIni === $hari && $hari !== 'Minggu') ? 'bg-indigo-600 text-white' : ($hari === 'Minggu' ? 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400' : 'bg-slate-50 dark:bg-zinc-800 text-slate-600 dark:text-slate-300') }}">
+                            <div class="font-black text-[10px] sm:text-xs">{{ $hari }}</div>
+                            <div class="text-[8px] sm:text-[9px] opacity-85 mt-0.5 font-bold tracking-tight lowercase first-letter:uppercase">{{ $datesOfWeek[$hari] ?? '' }}</div>
                         </th>
                         @endforeach
                     </tr>
                 </thead>
                 <tbody class="bg-white dark:bg-zinc-900">
                     @foreach($timeSlots as $slot)
-                    <tr class="hover:bg-slate-50/20 dark:hover:bg-zinc-850/10 transition-colors">
+                    <tr class="hover:bg-slate-50/20 dark:hover:bg-zinc-800/10 transition-colors">
                         {{-- Label Jam Kolom Kiri --}}
-                        <td class="py-4 px-4 text-[11px] font-black font-mono text-slate-500 dark:text-slate-400 align-middle border border-slate-200 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-900/50 text-center shadow-inner">
+                        <td class="py-4 px-1 text-[10px] font-black font-mono text-indigo-700 dark:text-indigo-400 align-middle border border-slate-200 dark:border-zinc-800 bg-indigo-50/50 dark:bg-indigo-900/20 text-center shadow-inner">
                             {{ $slot }}
                         </td>
                         
                         {{-- Sel Hari --}}
                         @foreach($hariList as $hari)
-                        <td class="p-2.5 align-top min-h-[110px] h-32 {{ ($hariIni === $hari && $hari !== 'Minggu') ? 'bg-indigo-50/5 dark:bg-indigo-955/5' : '' }} relative border border-slate-150 dark:border-zinc-800 group">
+                        <td class="p-1 align-top h-auto {{ ($hariIni === $hari && $hari !== 'Minggu') ? 'bg-indigo-50/5 dark:bg-indigo-955/5' : ($hari === 'Minggu' ? 'bg-red-50/30 dark:bg-red-950/10' : '') }} relative border border-slate-200 dark:border-zinc-800 group">
                             @php
                                 $slotItems = $jadwal->filter(function($j) use ($hari, $slot) {
                                     return $j->hari === $hari && \Carbon\Carbon::parse($j->jam_mulai)->format('H:00') === $slot;
                                 });
                             @endphp
                             
-                            <div class="space-y-2">
+                            <div class="flex flex-col gap-1 h-full min-h-[5rem]">
                                 @foreach($slotItems as $j)
-                                <div class="group/card p-3 rounded-2xl border-l-[5px] ring-1 ring-black/5 dark:ring-white/5 border-indigo-500 bg-indigo-50/40 hover:bg-indigo-50/80 dark:bg-indigo-950/20 dark:hover:bg-indigo-950/40 transition-all hover:scale-[1.03] hover:shadow-md">
-                                    <p class="font-extrabold text-[11px] text-slate-900 dark:text-white leading-tight break-words">
-                                        {{ $j->mataPelajaran?->nama ?? 'Sesi Belajar' }}
-                                    </p>
-                                    <div class="flex items-center gap-1 mt-1.5 text-[9px] font-black text-slate-450 dark:text-slate-400 uppercase tracking-tighter">
-                                        <svg class="w-3 h-3 text-slate-450" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                        <span>{{ \Carbon\Carbon::parse($j->jam_mulai)->format('H:i') }}–{{ \Carbon\Carbon::parse($j->jam_selesai)->format('H:i') }}</span>
+                                <div class="group/card flex-1 flex flex-col justify-center p-1.5 rounded-lg transition-all hover:scale-[1.03] hover:shadow-lg ring-1 ring-black/5 dark:ring-white/5 border-l-[3px]
+                                        {{ ['border-indigo-500 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-900/20 dark:hover:bg-indigo-900/40',
+                                            'border-emerald-500 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/40',
+                                            'border-amber-500 bg-amber-50 hover:bg-amber-100 dark:bg-amber-900/20 dark:hover:bg-amber-900/40',
+                                            'border-rose-500 bg-rose-50 hover:bg-rose-100 dark:bg-rose-900/20 dark:hover:bg-rose-900/40',
+                                            'border-purple-500 bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/20 dark:hover:bg-purple-900/40',
+                                            'border-cyan-500 bg-cyan-50 hover:bg-cyan-100 dark:bg-cyan-900/20 dark:hover:bg-cyan-900/40',
+                                           ][$j->id % 6] }}">
+                                    
+                                    {{-- Subject Name --}}
+                                    <div class="flex items-start justify-between gap-1">
+                                        <p class="font-black text-[9px] text-slate-900 dark:text-white leading-none break-words group-hover/card:text-indigo-600 dark:group-hover/card:text-indigo-400 transition-colors">
+                                            {{ $j->mataPelajaran?->nama ?? 'Sesi Belajar' }}
+                                        </p>
                                     </div>
-                                    <div class="mt-2 space-y-0.5 border-t border-slate-200/50 dark:border-zinc-800/50 pt-1.5">
-                                        <p class="text-[9px] font-bold text-slate-550 dark:text-slate-400 truncate flex items-center gap-1">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0"></span>
-                                            Kelas: {{ $j->rombel?->nama_kelompok ?? '-' }}
-                                        </p>
+                                    
+                                    {{-- Time Details --}}
+                                    <div class="flex items-center gap-0.5 mt-0.5 text-[7px] font-black text-slate-500 dark:text-slate-400 tracking-tighter">
+                                        <span>🕒 {{ \Carbon\Carbon::parse($j->jam_mulai)->format('H:i') }}-{{ \Carbon\Carbon::parse($j->jam_selesai)->format('H:i') }}</span>
+                                    </div>
+                                    
+                                    {{-- Room Info --}}
+                                    <div class="mt-0.5 space-y-0 text-[7px] font-bold text-slate-600 dark:text-slate-400 leading-tight">
+                                        <p class="truncate text-slate-500">Kelas: {{ $j->rombel?->nama_kelompok ?? '-' }}</p>
                                         @if($j->ruangan)
-                                        <p class="text-[9px] font-bold text-slate-500 dark:text-slate-400 truncate flex items-center gap-1">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-slate-350 shrink-0"></span>
-                                            Ruang: {{ $j->ruangan }}
-                                        </p>
+                                        <p class="truncate text-slate-500">Ruang: {{ $j->ruangan }}</p>
                                         @endif
                                     </div>
                                 </div>
@@ -178,7 +186,7 @@
         </div>
 
         @if($jadwal->isEmpty())
-        <div class="p-16 text-center bg-white dark:bg-zinc-900">
+        <div class="p-16 text-center bg-white dark:bg-zinc-900 border-t border-slate-100 dark:border-zinc-800">
             <svg class="w-16 h-16 mx-auto text-slate-300 dark:text-slate-700 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
             <p class="text-slate-400 dark:text-slate-500 font-black">Belum Ada Jadwal Mengajar</p>
             <p class="text-slate-400 dark:text-slate-500 text-xs mt-1.5 font-semibold">Hubungi tim administrator pusat untuk penugasan kelas belajar Anda.</p>

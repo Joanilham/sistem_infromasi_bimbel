@@ -3,9 +3,9 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\PesertaDidik;
-use App\Models\PaketBimbingan;
-use App\Models\KelompokBelajar;
+use App\Models\Akademik\PesertaDidik;
+use App\Models\Akademik\PaketBimbingan;
+use App\Models\Akademik\KelompokBelajar;
 use Faker\Factory as Faker;
 
 class DummyPesertaDidikSeeder extends Seeder
@@ -19,8 +19,8 @@ class DummyPesertaDidikSeeder extends Seeder
         $kelompoks = KelompokBelajar::pluck('id')->toArray();
 
         // Ambil ID Kantor dan Periode paling pertama sebagai konteks default untuk dummy data.
-        $kantor_default = \App\Models\Kantor::first()->id ?? 1;
-        $periode_default = \App\Models\Periode::first()->id ?? 1;
+        $kantor_default = \App\Models\MasterData\Kantor::first()->id ?? 1;
+        $periode_default = \App\Models\MasterData\Periode::first()->id ?? 1;
 
         if (empty($pakets)) {
             $paket = PaketBimbingan::create([
@@ -72,3 +72,4 @@ class DummyPesertaDidikSeeder extends Seeder
         echo "Berhasil membuat 1000 dummy Peserta Didik!\n";
     }
 }
+
