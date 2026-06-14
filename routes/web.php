@@ -7,20 +7,28 @@ use Illuminate\Support\Facades\Route;
 use App\Models\MasterData\Kantor;
 use App\Models\MasterData\Periode;
 
-Route::get('/', function () {
-    $masterData = \App\Models\MasterData\Master::first();
-    $pakets = \App\Models\Akademik\PaketBimbingan::where('is_featured', true)->orderBy('urutan')->get();
-    if($pakets->isEmpty()) {
-        $pakets = \App\Models\Akademik\PaketBimbingan::orderBy('urutan')->limit(3)->get();
-    }
-    $testimonials = \App\Models\System\Testimonial::where('is_active', true)->latest()->get();
-    $faqs = \App\Models\System\Faq::where('is_active', true)->orderBy('urutan')->get();
-    $galleries = \App\Models\System\Gallery::orderBy('urutan')->get();
-    $features = \App\Models\System\Feature::orderBy('order_num')->get();
-    $mitras = \App\Models\System\MitraLogo::orderBy('order_num')->get();
-    $featuredGurus = \App\Models\User::where('level', 'Guru')->where('is_featured', true)->get();
+Route::any('/403-waf', function () {
+    abort(403, 'Akses Ditolak oleh Web Application Firewall');
+});
 
-    return view('welcome', compact('masterData', 'pakets', 'testimonials', 'faqs', 'galleries', 'features', 'mitras', 'featuredGurus'));
+Route::get('/', function () {
+    $data = \Illuminate\Support\Facades\Cache::remember('welcome_page_data', 3600, function () {
+        $masterData = \App\Models\MasterData\Master::first();
+        $pakets = \App\Models\Akademik\PaketBimbingan::where('is_featured', true)->orderBy('urutan')->get();
+        if($pakets->isEmpty()) {
+            $pakets = \App\Models\Akademik\PaketBimbingan::orderBy('urutan')->limit(3)->get();
+        }
+        $testimonials = \App\Models\System\Testimonial::where('is_active', true)->latest()->get();
+        $faqs = \App\Models\System\Faq::where('is_active', true)->orderBy('urutan')->get();
+        $galleries = \App\Models\System\Gallery::orderBy('urutan')->get();
+        $features = \App\Models\System\Feature::orderBy('order_num')->get();
+        $mitras = \App\Models\System\MitraLogo::orderBy('order_num')->get();
+        $featuredGurus = \App\Models\User::where('level', 'Guru')->where('is_featured', true)->get();
+
+        return compact('masterData', 'pakets', 'testimonials', 'faqs', 'galleries', 'features', 'mitras', 'featuredGurus');
+    });
+
+    return view('welcome', $data);
 })->name('welcome');
 
 Route::get('/paket/{id}', function ($id) {
@@ -161,6 +169,11 @@ Route::middleware('auth')->group(function () {
 
             // 5 Aktivitas Terbaru untuk Activity Log Widget di Dashboard
             $recentAuditLogs = \App\Models\System\AuditLog::with('user:id,name,level')
+                ->when(strtolower(auth()->user()->level) !== 'super admin', function ($query) {
+                    $query->whereHas('user', function ($q) {
+                        $q->whereRaw('LOWER(level) != ?', ['super admin']);
+                    })->orWhereNull('user_id');
+                })
                 ->latest()
                 ->limit(5)
                 ->get();
@@ -189,23 +202,29 @@ Route::middleware('auth')->group(function () {
             if ($yearStart === $yearEnd) {
                 for ($m = 1; $m <= 12; $m++) {
                     $monthsList[] = sprintf('%04d-%02d', $yearStart, $m);
-                    $labels[] = \Carbon\Carbon::create($yearStart, $m, 1)->translatedFormat('F Y');
+                    $labels[] = \Carbon\Carbon::create($yearStart, $m, 1)->translatedFormat('M Y');
                 }
             } else {
                 for ($m = 7; $m <= 12; $m++) {
                     $monthsList[] = sprintf('%04d-%02d', $yearStart, $m);
-                    $labels[] = \Carbon\Carbon::create($yearStart, $m, 1)->translatedFormat('F Y');
+                    $labels[] = \Carbon\Carbon::create($yearStart, $m, 1)->translatedFormat('M Y');
                 }
                 for ($m = 1; $m <= 6; $m++) {
                     $monthsList[] = sprintf('%04d-%02d', $yearEnd, $m);
-                    $labels[] = \Carbon\Carbon::create($yearEnd, $m, 1)->translatedFormat('F Y');
+                    $labels[] = \Carbon\Carbon::create($yearEnd, $m, 1)->translatedFormat('M Y');
                 }
             }
+
+            $firstMonthKey = $monthsList[0];
 
             $pesertaMasukData = array_fill_keys($monthsList, 0);
             $pesertaKeluarData = array_fill_keys($monthsList, 0);
             $uangMasukData = array_fill_keys($monthsList, 0);
             $uangKeluarData = array_fill_keys($monthsList, 0);
+
+            // Start date for queries includes early registrations (from Jan 1st)
+            $startDateStr = "{$yearStart}-01-01";
+            $endDateStr = $yearStart === $yearEnd ? "{$yearStart}-12-31" : "{$yearEnd}-06-30";
 
             // 1. Peserta Didik
             $pesertas = \App\Models\Akademik\PesertaDidik::inContext()
@@ -215,12 +234,14 @@ Route::middleware('auth')->group(function () {
             foreach ($pesertas as $p) {
                 if ($p->created_at) {
                     $key = $p->created_at->format('Y-m');
+                    if ($key < $firstMonthKey) $key = $firstMonthKey;
                     if (array_key_exists($key, $pesertaMasukData)) {
                         $pesertaMasukData[$key]++;
                     }
                 }
                 if ($p->tanggal_keluar) {
                     $key = \Carbon\Carbon::parse($p->tanggal_keluar)->format('Y-m');
+                    if ($key < $firstMonthKey) $key = $firstMonthKey;
                     if (array_key_exists($key, $pesertaKeluarData)) {
                         $pesertaKeluarData[$key]++;
                     }
@@ -232,12 +253,14 @@ Route::middleware('auth')->group(function () {
                     $q->when($filterKantorId, fn($q2) => $q2->where('kantor_id', $filterKantorId))
                       ->when($periodeId, fn($q2) => $q2->where('periode_id', $periodeId));
                 })
-                ->whereBetween('tanggal', [$yearStart === $yearEnd ? "{$yearStart}-01-01" : "{$yearStart}-07-01", $yearStart === $yearEnd ? "{$yearStart}-12-31" : "{$yearEnd}-06-30"])
+                ->where('status', 'sukses')
+                ->whereBetween('tanggal', [$startDateStr, $endDateStr])
                 ->get();
 
             foreach ($transaksiSpp as $t) {
                 if ($t->tanggal) {
                     $key = \Carbon\Carbon::parse($t->tanggal)->format('Y-m');
+                    if ($key < $firstMonthKey) $key = $firstMonthKey;
                     if (array_key_exists($key, $uangMasukData)) {
                         $uangMasukData[$key] += (int) $t->nominal;
                     }
@@ -245,13 +268,14 @@ Route::middleware('auth')->group(function () {
             }
 
             // 3. Keuangan - Pemasukan Lainnya (Uang Masuk)
-            $pemasukanLain = \App\Models\Keuangan\Pemasukan::whereBetween('tanggal', [$yearStart === $yearEnd ? "{$yearStart}-01-01" : "{$yearStart}-07-01", $yearStart === $yearEnd ? "{$yearStart}-12-31" : "{$yearEnd}-06-30"])
+            $pemasukanLain = \App\Models\Keuangan\Pemasukan::whereBetween('tanggal', [$startDateStr, $endDateStr])
                 ->when($filterKantorId, fn($q) => $q->whereHas('user', fn($qu) => $qu->where('kantor_id', $filterKantorId)))
                 ->get();
 
             foreach ($pemasukanLain as $pl) {
                 if ($pl->tanggal) {
                     $key = \Carbon\Carbon::parse($pl->tanggal)->format('Y-m');
+                    if ($key < $firstMonthKey) $key = $firstMonthKey;
                     if (array_key_exists($key, $uangMasukData)) {
                         $uangMasukData[$key] += (int) $pl->nominal;
                     }
@@ -259,13 +283,14 @@ Route::middleware('auth')->group(function () {
             }
 
             // 4. Keuangan - Pengeluaran (Uang Keluar)
-            $pengeluaranList = \App\Models\Keuangan\Pengeluaran::whereBetween('tanggal', [$yearStart === $yearEnd ? "{$yearStart}-01-01" : "{$yearStart}-07-01", $yearStart === $yearEnd ? "{$yearStart}-12-31" : "{$yearEnd}-06-30"])
+            $pengeluaranList = \App\Models\Keuangan\Pengeluaran::whereBetween('tanggal', [$startDateStr, $endDateStr])
                 ->when($filterKantorId, fn($q) => $q->whereHas('user', fn($qu) => $qu->where('kantor_id', $filterKantorId)))
                 ->get();
 
             foreach ($pengeluaranList as $pg) {
                 if ($pg->tanggal) {
                     $key = \Carbon\Carbon::parse($pg->tanggal)->format('Y-m');
+                    if ($key < $firstMonthKey) $key = $firstMonthKey;
                     if (array_key_exists($key, $uangKeluarData)) {
                         $uangKeluarData[$key] += (int) $pg->nominal;
                     }
@@ -318,7 +343,13 @@ Route::middleware('auth')->group(function () {
 
         // Audit Logs
         Route::get('/admin/audit-logs', [\App\Http\Controllers\Admin\AuditLogController::class, 'index'])->name('admin.audit-logs.index');
+        Route::delete('/admin/audit-logs/prune', [\App\Http\Controllers\Admin\AuditLogController::class, 'prune'])->name('admin.audit-logs.prune');
         Route::delete('/admin/audit-logs/{id}', [\App\Http\Controllers\Admin\AuditLogController::class, 'destroy'])->name('admin.audit-logs.destroy');
+
+        // Recycle Bin (Recycle Bin)
+        Route::get('/admin/recycle-bin', [\App\Http\Controllers\Admin\RecycleBinController::class, 'index'])->name('admin.recycle-bin.index');
+        Route::post('/admin/recycle-bin/{type}/{id}/restore', [\App\Http\Controllers\Admin\RecycleBinController::class, 'restore'])->name('admin.recycle-bin.restore');
+        Route::delete('/admin/recycle-bin/{type}/{id}', [\App\Http\Controllers\Admin\RecycleBinController::class, 'forceDelete'])->name('admin.recycle-bin.force-delete');
 
         // ----------------------------------------------------------
         // KHUSUS ADMINISTRATOR (Dan Admin dengan akses spesifik)
@@ -376,6 +407,7 @@ Route::middleware('auth')->group(function () {
                 Route::get('/admin/backup', [\App\Http\Controllers\Admin\BackupController::class, 'index'])->name('admin.backup.index');
                 Route::post('/admin/backup', [\App\Http\Controllers\Admin\BackupController::class, 'create'])->name('admin.backup.create');
                 Route::get('/admin/backup/download/{filename}', [\App\Http\Controllers\Admin\BackupController::class, 'download'])->name('admin.backup.download');
+                Route::delete('/admin/backup/bulk-destroy', [\App\Http\Controllers\Admin\BackupController::class, 'bulkDestroy'])->name('admin.backup.bulk_destroy');
                 Route::delete('/admin/backup/{filename}', [\App\Http\Controllers\Admin\BackupController::class, 'destroy'])->name('admin.backup.destroy');
                 Route::post('/admin/backup/upload', [\App\Http\Controllers\Admin\BackupController::class, 'upload'])->name('admin.backup.upload');
                 Route::post('/admin/backup/restore/{filename}', [\App\Http\Controllers\Admin\BackupController::class, 'restore'])->name('admin.backup.restore');
@@ -527,6 +559,8 @@ Route::middleware('auth')->group(function () {
         Route::patch('/ujian/{id}/publish', [\App\Http\Controllers\Guru\UjianController::class, 'publish'])->name('ujian.publish');
         Route::patch('/ujian/{id}/arsipkan', [\App\Http\Controllers\Guru\UjianController::class, 'arsipkan'])->name('ujian.arsipkan');
         Route::get('/ujian/{id}/monitoring', [\App\Http\Controllers\Guru\UjianController::class, 'monitoring'])->name('ujian.monitoring');
+        Route::get('/ujian/{id}/koreksi/{peserta_id}', [\App\Http\Controllers\Guru\UjianController::class, 'koreksi'])->name('ujian.koreksi');
+        Route::post('/ujian/{id}/koreksi/{peserta_id}', [\App\Http\Controllers\Guru\UjianController::class, 'simpanKoreksi'])->name('ujian.koreksi.store');
 
     });
 
@@ -535,37 +569,48 @@ Route::middleware('auth')->group(function () {
     // ensure_role memastikan hanya siswa yang bisa masuk ke sini
     // ----------------------------------------------------------
     Route::middleware('ensure_role:siswa')->prefix('siswa')->name('siswa.')->group(function () {
-        Route::get('/dashboard', [\App\Http\Controllers\Siswa\DashboardController::class, 'index'])->name('dashboard');
+        
+        // ── Halaman Terkunci (Overdue) ──
+        Route::get('/locked', function () {
+            $user = auth()->user();
+            $pembayaran = $user->pesertaDidik ? $user->pesertaDidik->pembayaran : null;
+            return view('siswa.locked', compact('pembayaran'));
+        })->name('locked');
 
-        // Profil Siswa
-        Route::get('/profile', [\App\Http\Controllers\Auth\ProfileController::class, 'editSiswa'])->name('profile.edit');
-        Route::patch('/profile', [\App\Http\Controllers\Auth\ProfileController::class, 'update'])->name('profile.update');
-
-        // QR Absensi Dinamis
-        Route::get('/qr', [\App\Http\Controllers\Siswa\QrController::class, 'show'])->name('qr.show');
-        Route::get('/qr/token', [\App\Http\Controllers\Siswa\QrController::class, 'token'])->name('qr.token');
-        Route::get('/qr/status', [\App\Http\Controllers\Siswa\QrController::class, 'status'])->name('qr.status');
-
-        // ── CBT Ujian Siswa ──
-        Route::get('/ujian', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'index'])->name('ujian.index');
-        Route::get('/ujian/riwayat', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'riwayat'])->name('ujian.riwayat');
-        Route::get('/ujian/{id}', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'show'])->name('ujian.show');
-        Route::post('/ujian/{id}/mulai', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'mulai'])->name('ujian.mulai');
-        Route::get('/ujian/{id}/soal/{no}', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'soal'])->name('ujian.soal');
-        Route::post('/ujian/{id}/jawab', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'simpanJawaban'])->name('ujian.jawab')->middleware('throttle:60,1');
-        Route::post('/ujian/{id}/log-blur', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'logBlur'])->name('ujian.log-blur')->middleware('throttle:20,1');
-        Route::post('/ujian/{id}/submit', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'submit'])->name('ujian.submit');
-        Route::get('/ujian/{id}/hasil', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'hasil'])->name('ujian.hasil');
-        // ── Nilai / Hasil ──
-        Route::get('/hasil', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'riwayat'])->name('hasil.index');
-
-        // ── Jadwal Siswa ──
-        Route::get('/jadwal', [\App\Http\Controllers\Siswa\JadwalController::class, 'index'])->name('jadwal.index');
-
-        // ── Pembayaran Siswa ──
+        // ── Pembayaran Siswa (Pengecualian, selalu bisa diakses) ──
         Route::get('/pembayaran', [\App\Http\Controllers\Siswa\PembayaranController::class, 'index'])->name('pembayaran.index');
         Route::post('/pembayaran/konfirmasi', [\App\Http\Controllers\Siswa\PembayaranController::class, 'confirmPayment'])->name('pembayaran.konfirmasi');
         Route::get('/pembayaran/{transaksi}/nota', [\App\Http\Controllers\Siswa\PembayaranController::class, 'downloadNota'])->name('pembayaran.nota');
 
+        // ── Rute yang Terkunci jika Cicilan Menunggak ──
+        Route::middleware('check_installment_status')->group(function () {
+            Route::get('/dashboard', [\App\Http\Controllers\Siswa\DashboardController::class, 'index'])->name('dashboard');
+
+            // Profil Siswa
+            Route::get('/profile', [\App\Http\Controllers\Auth\ProfileController::class, 'editSiswa'])->name('profile.edit');
+            Route::patch('/profile', [\App\Http\Controllers\Auth\ProfileController::class, 'update'])->name('profile.update');
+
+            // QR Absensi Dinamis
+            Route::get('/qr', [\App\Http\Controllers\Siswa\QrController::class, 'show'])->name('qr.show');
+            Route::get('/qr/token', [\App\Http\Controllers\Siswa\QrController::class, 'token'])->name('qr.token');
+            Route::get('/qr/status', [\App\Http\Controllers\Siswa\QrController::class, 'status'])->name('qr.status');
+
+            // ── CBT Ujian Siswa ──
+            Route::get('/ujian', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'index'])->name('ujian.index');
+            Route::get('/ujian/riwayat', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'riwayat'])->name('ujian.riwayat');
+            Route::get('/ujian/{id}', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'show'])->name('ujian.show');
+            Route::post('/ujian/{id}/mulai', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'mulai'])->name('ujian.mulai');
+            Route::get('/ujian/{id}/soal/{no}', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'soal'])->name('ujian.soal');
+            Route::post('/ujian/{id}/jawab', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'simpanJawaban'])->name('ujian.jawab')->middleware('throttle:60,1');
+            Route::post('/ujian/{id}/log-blur', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'logBlur'])->name('ujian.log-blur')->middleware('throttle:20,1');
+            Route::post('/ujian/{id}/submit', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'submit'])->name('ujian.submit');
+            Route::get('/ujian/{id}/hasil', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'hasil'])->name('ujian.hasil');
+            
+            // ── Nilai / Hasil ──
+            Route::get('/hasil', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'riwayat'])->name('hasil.index');
+
+            // ── Jadwal Siswa ──
+            Route::get('/jadwal', [\App\Http\Controllers\Siswa\JadwalController::class, 'index'])->name('jadwal.index');
+        });
     });
 });

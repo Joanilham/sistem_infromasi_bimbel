@@ -1,10 +1,11 @@
     {{-- MENU OPERASIONAL --}}
-    @if(auth()->user()->hasPermission('manage_peserta_didik') || auth()->user()->hasPermission('manage_jadwal') || auth()->user()->hasPermission('manage_absensi'))
+    @if(auth()->user()->hasPermission('manage_peserta_didik') || auth()->user()->hasPermission('manage_jadwal') || auth()->user()->hasPermission('manage_absensi') || auth()->user()->hasPermission('manage_rekapitulasi') || auth()->user()->hasPermission('manage_pendaftaran'))
     <div class="mb-6">
         <h3 class="px-3 text-[10px] font-bold uppercase text-slate-400 dark:text-slate-500 tracking-widest mb-2">MENU OPERASIONAL</h3>
         <nav class="space-y-1">
 
             {{-- Rekapitulasi --}}
+            @if(auth()->user()->hasPermission('manage_rekapitulasi'))
             <a href="{{ route('admin.rekapitulasi.index') }}"
                 class="flex items-center px-3 py-2.5 rounded-2xl transition-all duration-200 {{ request()->routeIs('admin.rekapitulasi.*') ? 'bg-indigo-500 shadow-md shadow-indigo-500/30' : 'hover:bg-slate-100 dark:hover:bg-zinc-800' }} group">
                 <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mr-3 {{ request()->routeIs('admin.rekapitulasi.*') ? 'bg-white/25' : 'bg-indigo-500 shadow-sm shadow-indigo-500/40' }}">
@@ -14,9 +15,10 @@
                 </div>
                 <span class="text-sm font-semibold {{ request()->routeIs('admin.rekapitulasi.*') ? 'text-white' : 'text-slate-700 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-white' }}">Rekapitulasi Data</span>
             </a>
+            @endif
 
             {{-- Verifikasi Pendaftaran --}}
-            @if(auth()->user()->hasPermission('manage_peserta_didik'))
+            @if(auth()->user()->hasPermission('manage_pendaftaran'))
             <a href="{{ route('admin.pendaftaran.index') }}"
                 class="flex items-center px-3 py-2.5 rounded-2xl transition-all duration-200 {{ request()->routeIs('admin.pendaftaran.*') ? 'bg-emerald-500 shadow-md shadow-emerald-500/30' : 'hover:bg-slate-100 dark:hover:bg-zinc-800' }} group">
                 <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mr-3 {{ request()->routeIs('admin.pendaftaran.*') ? 'bg-white/25' : 'bg-emerald-500 shadow-sm shadow-emerald-500/40' }}">

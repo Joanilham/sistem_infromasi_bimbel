@@ -14,7 +14,7 @@ use App\Http\Requests\Auth\UpdatePenggunaRequest;
 
 class PenggunaController extends Controller
 {
-    protected array $allowedLevels = ['Super Admin', 'Admin'];
+    protected array $allowedLevels = ['Super Admin', 'Admin', 'Staff'];
 
     /**
      * Display a listing of the resource.
@@ -26,8 +26,11 @@ class PenggunaController extends Controller
         $sort    = in_array($request->input('sort'), ['id', 'name']) ? $request->input('sort') : 'id';
         $order   = in_array($request->input('order'), ['asc', 'desc']) ? $request->input('order') : 'desc';
 
-        // Hanya tampilkan pengguna dengan level administrator & admin
+        // Hanya tampilkan pengguna sesuai hak akses
         $penggunas = User::whereIn('level', $this->allowedLevels)
+            ->when(strtolower(auth()->user()->level) !== 'super admin', function ($q) {
+                $q->whereRaw('LOWER(level) != ?', ['super admin']);
+            })
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($sq) use ($search) {
                     $sq->where('name', 'like', "%{$search}%")
@@ -82,6 +85,10 @@ class PenggunaController extends Controller
     {
         $pengguna = User::whereIn('level', $this->allowedLevels)->findOrFail($id);
 
+        if (strtolower($pengguna->level) === 'super admin' && strtolower(auth()->user()->level) !== 'super admin') {
+            abort(403, 'Anda tidak memiliki akses untuk mengelola Super Admin.');
+        }
+
         if (!in_array($pengguna->level, $this->allowedLevels)) {
             return back()->withErrors(['error' => 'Pengguna ini tidak dapat dikelola dari halaman ini.']);
         }
@@ -94,6 +101,9 @@ class PenggunaController extends Controller
      */
     public function update(UpdatePenggunaRequest $request, User $pengguna)
     {
+        if (strtolower($pengguna->level) === 'super admin' && strtolower(auth()->user()->level) !== 'super admin') {
+            abort(403, 'Anda tidak memiliki akses untuk mengelola Super Admin.');
+        }
         // Cegah update ke Super Admin oleh Admin biasa
         if (auth()->user()->level === 'Admin' && $request->level === 'Super Admin' && $pengguna->level !== 'Super Admin') {
             abort(403, 'Akses ditolak.');
@@ -135,6 +145,10 @@ class PenggunaController extends Controller
     {
         $pengguna = User::whereIn('level', $this->allowedLevels)->findOrFail($id);
 
+        if (strtolower($pengguna->level) === 'super admin' && strtolower(auth()->user()->level) !== 'super admin') {
+            abort(403, 'Anda tidak memiliki akses untuk mengelola Super Admin.');
+        }
+
         if ($pengguna->id === Auth::id()) {
             return back()->withErrors(['error' => 'Anda tidak dapat menonaktifkan akun Anda sendiri.']);
         }
@@ -152,6 +166,10 @@ class PenggunaController extends Controller
     public function destroy($id)
     {
         $pengguna = User::whereIn('level', $this->allowedLevels)->findOrFail($id);
+
+        if (strtolower($pengguna->level) === 'super admin' && strtolower(auth()->user()->level) !== 'super admin') {
+            abort(403, 'Anda tidak memiliki akses untuk mengelola Super Admin.');
+        }
 
         if ($pengguna->id === Auth::id()) {
             return back()->withErrors(['error' => 'Anda tidak dapat menghapus akun Anda sendiri.']);

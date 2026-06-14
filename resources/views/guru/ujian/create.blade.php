@@ -124,9 +124,9 @@
         </div>
 
         {{-- Submit --}}
-        <div class="flex flex-col sm:flex-row justify-end gap-3">
-            <a href="{{ route('guru.ujian.index') }}" class="px-6 py-2.5 border border-slate-200 dark:border-zinc-700 text-slate-600 dark:text-slate-300 rounded-xl text-sm font-medium hover:bg-slate-50 dark:hover:bg-zinc-800 text-center transition-colors">Batal</a>
-            <button type="submit" class="px-8 py-2.5 bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-xl text-sm font-semibold shadow-md shadow-violet-500/25 hover:from-violet-600 hover:to-purple-700 hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2">
+        <div class="flex items-center justify-between pt-2 pb-8">
+            <a href="{{ route('guru.ujian.index') }}" class="px-5 sm:px-6 py-2.5 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-600 dark:text-slate-300 rounded-xl text-sm font-medium shadow-sm hover:bg-slate-50 dark:hover:bg-zinc-700 text-center transition-colors shrink-0">Batal</a>
+            <button type="submit" class="px-5 sm:px-8 py-2.5 bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-xl text-sm font-semibold shadow-md shadow-violet-500/25 hover:from-violet-600 hover:to-purple-700 hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2">
                 Simpan & Pilih Soal
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
             </button>

@@ -85,6 +85,12 @@
                         <div class="space-y-2 sm:col-span-2">
                             <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Email <span class="text-rose-500">*</span></label>
                             <input type="email" name="email" required value="{{ old('email') }}" placeholder="Email aktif" class="w-full border bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-3 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
+                            <p class="text-[10px] text-amber-600 dark:text-amber-500 flex items-center gap-1.5 mt-1 font-bold ml-1">
+                                <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Gunakan email aktif agar guru bisa menerima link Reset Password jika lupa.
+                            </p>
                         </div>
                         <div class="space-y-2">
                             <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Password <span class="text-rose-500">*</span></label>

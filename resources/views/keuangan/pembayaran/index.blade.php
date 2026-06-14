@@ -209,16 +209,24 @@
                             </td>
                             <td class="px-4 py-3 text-center border border-slate-200 dark:border-zinc-800">
                                 @if($s->pembayaran)
-                                    @php $lunas = $s->pembayaran->lunas; @endphp
+                                    @php 
+                                        $lunas = $s->pembayaran->lunas; 
+                                        $overdue = $s->pembayaran->batas_waktu && $s->pembayaran->batas_waktu->isPast() && !$lunas;
+                                    @endphp
                                     @if($lunas)
                                         <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 text-[9px] font-black uppercase ring-1 ring-emerald-100 shadow-sm">
                                             <span class="w-1 h-1 rounded-full bg-emerald-500"></span>
                                             Lunas
                                         </span>
+                                    @elseif($overdue)
+                                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 text-[9px] font-black uppercase ring-1 ring-rose-100 shadow-sm">
+                                            <span class="w-1 h-1 rounded-full bg-rose-500 animate-pulse"></span>
+                                            Tunggakan
+                                        </span>
                                     @else
                                         <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 text-[9px] font-black uppercase ring-1 ring-amber-100 shadow-sm">
                                             <span class="w-1 h-1 rounded-full bg-amber-500 animate-pulse"></span>
-                                            Tunggakan
+                                            Belum Lunas
                                         </span>
                                     @endif
                                 @else

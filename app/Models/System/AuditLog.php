@@ -109,7 +109,7 @@ class AuditLog extends Model
      * Catat aktivitas sistem secara manual (non-Eloquent model).
      * Contoh: backup database, ubah konfigurasi, dll.
      */
-    public static function logSystemEvent(string $event, string $type = 'SystemEvent', array $oldValues = null, array $newValues = null): void
+    public static function logSystemEvent(string $event, string $type = 'SystemEvent', ?array $oldValues = null, ?array $newValues = null): void
     {
         self::record([
             'event'          => $event,
@@ -165,15 +165,22 @@ class AuditLog extends Model
     public function getRecordTitleAttribute()
     {
         // 1. Coba ambil dari model auditable (jika data belum dihapus permanen)
-        if ($this->auditable) {
-            return $this->auditable->nama_lengkap 
-                ?? $this->auditable->nama_paket 
-                ?? $this->auditable->name 
-                ?? $this->auditable->nama 
-                ?? $this->auditable->judul 
-                ?? $this->auditable->no_transaksi 
-                ?? $this->auditable->invoice_number 
-                ?? null;
+        // Pastikan auditable_type adalah class yang valid sebelum memanggil relasi
+        if ($this->auditable_type && (class_exists($this->auditable_type) || \Illuminate\Database\Eloquent\Relations\Relation::getMorphedModel($this->auditable_type))) {
+            try {
+                if ($this->auditable) {
+                    return $this->auditable->nama_lengkap 
+                        ?? $this->auditable->nama_paket 
+                        ?? $this->auditable->name 
+                        ?? $this->auditable->nama 
+                        ?? $this->auditable->judul 
+                        ?? $this->auditable->no_transaksi 
+                        ?? $this->auditable->invoice_number 
+                        ?? null;
+                }
+            } catch (\Exception $e) {
+                // Abaikan jika relasi gagal diload karena class tidak ditemukan
+            }
         }
 
         // 2. Jika data sudah terhapus, coba cari namanya di history (old_values atau new_values)

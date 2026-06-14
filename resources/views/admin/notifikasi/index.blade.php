@@ -134,25 +134,25 @@
             @else
                 <ul class="divide-y divide-slate-100 dark:divide-zinc-800">
                     @foreach($pendaftaranMenunggu as $item)
-                        <li class="flex items-center justify-between gap-4 px-6 py-4 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition">
-                            <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 rounded-2xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center shrink-0">
+                        <li class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4 sm:px-6 py-4 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition">
+                            <div class="flex items-start sm:items-center gap-3 sm:gap-4">
+                                <div class="w-10 h-10 rounded-2xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center shrink-0 mt-1 sm:mt-0">
                                     <svg class="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                                 </div>
                                 <div>
-                                    <div class="flex items-center gap-2">
+                                    <div class="flex flex-wrap items-center gap-2">
                                         <p class="text-sm font-bold text-slate-800 dark:text-white">{{ $item->nama_lengkap }}</p>
-                                        <span class="px-2 py-0.5 rounded-md bg-amber-50 text-amber-600 border border-amber-200 text-[9px] font-black uppercase">Menunggu Persetujuan Admin</span>
+                                        <span class="px-2 py-0.5 rounded-md bg-amber-50 text-amber-600 border border-amber-200 text-[9px] font-black uppercase whitespace-nowrap">Menunggu Persetujuan Admin</span>
                                     </div>
-                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                        Calon siswa mendaftar di <strong>{{ $item->kantor?->nama_kantor ?? 'Kantor Pusat' }}</strong> untuk program <strong>{{ $item->paketBimbingan?->nama_paket ?? '-' }}</strong>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                                        Calon siswa mendaftar di <strong class="text-slate-700 dark:text-slate-300">{{ $item->kantor?->nama_kantor ?? 'Kantor Pusat' }}</strong> untuk program <strong class="text-slate-700 dark:text-slate-300">{{ $item->paketBimbingan?->nama_paket ?? '-' }}</strong>
                                     </p>
                                 </div>
                             </div>
-                            <div class="flex items-center gap-3 shrink-0">
+                            <div class="flex items-center justify-between sm:justify-end gap-3 shrink-0 mt-2 sm:mt-0 pl-14 sm:pl-0">
                                 <span class="text-xs text-slate-400">{{ $item->created_at->diffForHumans() }}</span>
                                 <a href="{{ route('admin.pendaftaran.show', $item->id) }}"
-                                   class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition active:scale-95 shadow-sm">
+                                   class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition active:scale-95 shadow-sm text-center">
                                     Verifikasi
                                 </a>
                             </div>
@@ -175,26 +175,26 @@
                 <ul class="divide-y divide-slate-100 dark:divide-zinc-800">
                     @foreach($transferSpp as $item)
                         @php $siswa = $item->pembayaranSiswa?->pesertaDidik; @endphp
-                        <li class="flex items-center justify-between gap-4 px-6 py-4 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition">
-                            <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 rounded-2xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center shrink-0">
+                        <li class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4 sm:px-6 py-4 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition">
+                            <div class="flex items-start sm:items-center gap-3 sm:gap-4">
+                                <div class="w-10 h-10 rounded-2xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center shrink-0 mt-1 sm:mt-0">
                                     <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
                                 </div>
                                 <div>
-                                    <p class="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                    <p class="text-sm font-bold text-slate-800 dark:text-white flex flex-wrap items-center gap-2">
                                         {{ $siswa?->nama_lengkap ?? 'Siswa' }}
-                                        <span class="px-2 py-0.5 rounded-md bg-blue-50 text-blue-600 border border-blue-200 text-[9px] font-black uppercase">Transaksi Masuk via Siswa</span>
+                                        <span class="px-2 py-0.5 rounded-md bg-blue-50 text-blue-600 border border-blue-200 text-[9px] font-black uppercase whitespace-nowrap">Transaksi Masuk via Siswa</span>
                                     </p>
-                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
                                         Transfer <strong>Tagihan SPP Rutin</strong> (No: <span class="font-mono font-bold">{{ $item->no_kwitansi }}</span>) sebesar <span class="text-emerald-600 font-bold">Rp {{ number_format($item->nominal, 0, ',', '.') }}</span> ke <strong>{{ $item->penerima }}</strong>
                                     </p>
                                 </div>
                             </div>
-                            <div class="flex items-center gap-3 shrink-0">
+                            <div class="flex items-center justify-between sm:justify-end gap-3 shrink-0 mt-2 sm:mt-0 pl-14 sm:pl-0">
                                 <span class="text-xs text-slate-400">{{ $item->created_at->diffForHumans() }}</span>
                                 @if($siswa)
                                     <a href="{{ route('keuangan.pembayaran.show', $siswa->id) }}"
-                                       class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition active:scale-95">
+                                       class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition active:scale-95 text-center shadow-sm">
                                         Lihat Detail
                                     </a>
                                 @endif
@@ -221,37 +221,37 @@
                             $overdue  = $item->batas_waktu && $item->batas_waktu->isPast();
                             $hasDate  = !empty($item->batas_waktu);
                         @endphp
-                        <li class="flex items-center justify-between gap-4 px-6 py-4 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition {{ $overdue ? 'bg-red-50/40 dark:bg-red-900/5' : '' }}">
-                            <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0
+                        <li class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4 sm:px-6 py-4 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition {{ $overdue ? 'bg-red-50/40 dark:bg-red-900/5' : '' }}">
+                            <div class="flex items-start sm:items-center gap-3 sm:gap-4">
+                                <div class="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 mt-1 sm:mt-0
                                     {{ $overdue ? 'bg-red-100 dark:bg-red-900/30' : ($hasDate ? 'bg-yellow-100 dark:bg-yellow-900/30' : 'bg-slate-100 dark:bg-zinc-800') }}">
                                     <svg class="w-5 h-5 {{ $overdue ? 'text-red-600' : ($hasDate ? 'text-yellow-600' : 'text-slate-400') }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                                     </svg>
                                 </div>
                                 <div>
-                                    <p class="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                    <p class="text-sm font-bold text-slate-800 dark:text-white flex flex-wrap items-center gap-2">
                                         {{ $siswa?->nama_lengkap }}
                                         @if($overdue)
-                                            <span class="px-2 py-0.5 rounded-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 text-[10px] font-black uppercase">Jatuh Tempo!</span>
+                                            <span class="px-2 py-0.5 rounded-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 text-[10px] font-black uppercase whitespace-nowrap">Jatuh Tempo!</span>
                                         @elseif($hasDate)
-                                            <span class="px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400 text-[10px] font-black uppercase">Segera</span>
+                                            <span class="px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400 text-[10px] font-black uppercase whitespace-nowrap">Segera</span>
                                         @else
-                                            <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 dark:bg-zinc-800 dark:text-slate-400 text-[10px] font-black uppercase">Belum Diatur</span>
+                                            <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 dark:bg-zinc-800 dark:text-slate-400 text-[10px] font-black uppercase whitespace-nowrap">Belum Diatur</span>
                                         @endif
                                     </p>
-                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
                                         Kekurangan: <span class="font-black text-red-600">Rp {{ number_format($item->kekurangan, 0, ',', '.') }}</span>
                                         &bull; Deadline: <span class="font-semibold {{ $overdue ? 'text-red-600' : ($hasDate ? 'text-yellow-600' : 'text-slate-400') }}">{{ $item->batas_waktu?->format('d/m/Y') ?? 'Belum Diatur' }}</span>
                                         &bull; Paket: {{ $siswa?->paketBimbingan?->nama_paket ?? '-' }}
                                     </p>
                                 </div>
                             </div>
-                            <div class="flex items-center gap-3 shrink-0">
+                            <div class="flex items-center justify-between sm:justify-end gap-3 shrink-0 mt-2 sm:mt-0 pl-14 sm:pl-0">
                                 <span class="text-xs text-slate-400">{{ $item->batas_waktu?->diffForHumans() ?? 'Deadline Kosong' }}</span>
                                 @if($siswa)
                                     <a href="{{ route('keuangan.pembayaran.show', $siswa->id) }}"
-                                       class="{{ $overdue ? 'bg-red-600 hover:bg-red-700' : ($hasDate ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-slate-600 hover:bg-slate-700') }} text-white text-xs font-bold px-4 py-2 rounded-xl transition active:scale-95">
+                                       class="{{ $overdue ? 'bg-red-600 hover:bg-red-700' : ($hasDate ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-slate-600 hover:bg-slate-700') }} text-white text-xs font-bold px-4 py-2.5 rounded-xl transition active:scale-95 text-center shadow-sm">
                                         Tagih
                                     </a>
                                 @endif

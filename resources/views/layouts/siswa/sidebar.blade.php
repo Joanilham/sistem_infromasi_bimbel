@@ -6,14 +6,19 @@
     $pembayaranBelumLunas = false;
     $kekurangan = 0;
     
-    if ($isPending) {
-        $pembayaranOverdue = true;
-    } elseif ($pesertaDidik) {
+    if ($pesertaDidik && !$isPending) {
         $statusPembayaran = $pesertaDidik->getStatusPembayaran();
         $pembayaranOverdue = $statusPembayaran['is_locked'];
         $pembayaranBelumLunas = $statusPembayaran['kekurangan'] > 0;
         $kekurangan = $statusPembayaran['kekurangan'];
     }
+
+    $isRestricted = $isPending || $pembayaranOverdue;
+
+    $alertTitle = $isPending ? 'Akun Belum Diverifikasi' : 'Akses Ditangguhkan!';
+    $alertText = $isPending 
+        ? 'Harap tunggu, akun Anda sedang dalam proses verifikasi oleh Admin. Menu kelas belum bisa diakses.'
+        : 'Tagihan paket Anda belum dilunasi dan durasi bimbingan hampir habis / terlampaui. Silakan melunasi tagihan di menu Pembayaran.';
 @endphp
 
 <div class="flex items-center justify-center h-20 border-b border-slate-100 dark:border-zinc-800 px-4 bg-white dark:bg-zinc-950">
@@ -29,8 +34,8 @@
 
 <div class="flex-1 min-h-0 overflow-y-auto p-4 pb-28 custom-scrollbar bg-white dark:bg-zinc-950">
     <nav class="space-y-1 mb-6">
-        @if($pembayaranOverdue)
-        <a href="javascript:void(0)" onclick="alert('⚠️ Akses ditangguhkan! Tagihan paket Anda belum dilunasi dan durasi bimbingan hampir habis / terlampaui. Silakan melunasi tagihan di menu Pembayaran.')"
+        @if($isRestricted)
+        <a href="javascript:void(0)" onclick="Swal.fire({icon: 'warning', title: '{{ $alertTitle }}', text: '{{ $alertText }}', confirmButtonColor: '#d33'})"
             class="flex items-center px-3 py-2.5 rounded-2xl transition-all duration-200 opacity-55 cursor-not-allowed hover:bg-slate-50 dark:hover:bg-zinc-800/50 group">
             <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mr-3 bg-slate-200 dark:bg-zinc-800 text-slate-400">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -59,8 +64,8 @@
     <div class="mb-6">
         <h3 class="px-3 text-[10px] font-bold uppercase text-slate-400 dark:text-slate-500 tracking-widest mb-2">Menu Belajar</h3>
         <nav class="space-y-1">
-            @if($pembayaranOverdue)
-            <a href="javascript:void(0)" onclick="alert('⚠️ Akses ditangguhkan! Tagihan paket Anda belum dilunasi dan durasi bimbingan hampir habis / terlampaui. Silakan melunasi tagihan di menu Pembayaran.')"
+            @if($isRestricted)
+            <a href="javascript:void(0)" onclick="Swal.fire({icon: 'warning', title: '{{ $alertTitle }}', text: '{{ $alertText }}', confirmButtonColor: '#d33'})"
                 class="flex items-center px-3 py-2.5 rounded-2xl transition-all duration-200 opacity-55 cursor-not-allowed hover:bg-slate-50 dark:hover:bg-zinc-800/50 group">
                 <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mr-3 bg-slate-200 dark:bg-zinc-800 text-slate-400">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -84,8 +89,8 @@
             </a>
             @endif
 
-            @if($pembayaranOverdue)
-            <a href="javascript:void(0)" onclick="alert('⚠️ Akses ditangguhkan! Tagihan paket Anda belum dilunasi dan durasi bimbingan hampir habis / terlampaui. Silakan melunasi tagihan di menu Pembayaran.')"
+            @if($isRestricted)
+            <a href="javascript:void(0)" onclick="Swal.fire({icon: 'warning', title: '{{ $alertTitle }}', text: '{{ $alertText }}', confirmButtonColor: '#d33'})"
                 class="flex items-center px-3 py-2.5 rounded-2xl transition-all duration-200 opacity-55 cursor-not-allowed hover:bg-slate-50 dark:hover:bg-zinc-800/50 group">
                 <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mr-3 bg-slate-200 dark:bg-zinc-800 text-slate-400">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -109,8 +114,8 @@
             </a>
             @endif
 
-            @if($pembayaranOverdue)
-            <a href="javascript:void(0)" onclick="alert('⚠️ Akses ditangguhkan! Tagihan paket Anda belum dilunasi dan durasi bimbingan hampir habis / terlampaui. Silakan melunasi tagihan di menu Pembayaran.')"
+            @if($isRestricted)
+            <a href="javascript:void(0)" onclick="Swal.fire({icon: 'warning', title: '{{ $alertTitle }}', text: '{{ $alertText }}', confirmButtonColor: '#d33'})"
                 class="flex items-center px-3 py-2.5 rounded-2xl transition-all duration-200 opacity-55 cursor-not-allowed hover:bg-slate-50 dark:hover:bg-zinc-800/50 group">
                 <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mr-3 bg-slate-200 dark:bg-zinc-800 text-slate-400">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -137,6 +142,7 @@
     </div>
     @endif
 
+    @if(!$isPending)
     <div class="mb-6">
         <h3 class="px-3 text-[10px] font-bold uppercase text-slate-400 dark:text-slate-500 tracking-widest mb-2">Menu Keuangan</h3>
         <nav class="space-y-1">
@@ -151,6 +157,7 @@
             </a>
         </nav>
     </div>
+    @endif
 
     <div class="mb-6">
         <h3 class="px-3 text-[10px] font-bold uppercase text-slate-400 dark:text-slate-500 tracking-widest mb-2">Bantuan</h3>

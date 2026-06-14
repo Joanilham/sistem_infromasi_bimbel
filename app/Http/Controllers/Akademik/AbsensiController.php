@@ -55,7 +55,7 @@ class AbsensiController extends Controller
         $this->buildAbsensiStats($pesertaDidiks, $absensisMap, $bulan, $tahun);
 
         $pakets = PaketBimbingan::get();
-        $kelompoks = KelompokBelajar::inContext()->get();
+        $kelompoks = KelompokBelajar::query()->get();
 
         return view('admin.absensi.rekap', compact('pesertaDidiks', 'bulan', 'tahun', 'pakets', 'kelompoks'));
     }

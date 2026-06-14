@@ -33,6 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'konteks'     => \App\Http\Middleware\CekKonteks::class,
             'check_payment'=> \App\Http\Middleware\CheckPaymentStatus::class,
             'check_permission' => \App\Http\Middleware\CheckPermission::class,
+            'check_installment_status' => \App\Http\Middleware\CheckInstallmentStatus::class,
         ]);
 
         // Pengecualian CSRF untuk endpoint scanner QR & logout (menghindari error 419 via Ngrok/AJAX)

@@ -49,12 +49,22 @@
                 @endif
 
                 <h2 class="text-slate-400 dark:text-slate-500 text-[10px] font-black uppercase tracking-[0.3em] mb-4">Skor Pencapaian</h2>
-                <div class="flex items-center justify-center gap-2 mb-2">
-                    <span class="text-8xl md:text-9xl font-black leading-none tracking-tighter {{ $sesi->skor >= 75 ? 'text-emerald-500' : ($sesi->skor >= 50 ? 'text-amber-500' : 'text-red-500') }}">
-                        {{ number_format($sesi->skor, 0) }}
-                    </span>
-                    <span class="text-2xl font-black text-slate-300 dark:text-slate-700 mt-10">/ 100</span>
-                </div>
+                @if($sesi->belum_dikoreksi_count > 0)
+                    <div class="flex flex-col items-center justify-center mb-8 mt-4 space-y-4">
+                        <div class="w-20 h-20 bg-amber-50 dark:bg-amber-900/20 rounded-full flex items-center justify-center text-amber-500 animate-pulse">
+                            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <h3 class="text-2xl md:text-3xl font-black text-slate-700 dark:text-slate-200 tracking-tight">Menunggu Koreksi Guru</h3>
+                        <p class="text-sm font-medium text-slate-500 dark:text-slate-400 max-w-sm">Ujian ini mengandung soal essay. Nilai akhir akan muncul setelah guru selesai mengoreksi jawaban essay kamu.</p>
+                    </div>
+                @else
+                    <div class="flex items-center justify-center gap-2 mb-2">
+                        <span class="text-8xl md:text-9xl font-black leading-none tracking-tighter {{ $sesi->skor >= 75 ? 'text-emerald-500' : ($sesi->skor >= 50 ? 'text-amber-500' : 'text-red-500') }}">
+                            {{ number_format($sesi->skor, 0) }}
+                        </span>
+                        <span class="text-2xl font-black text-slate-300 dark:text-slate-700 mt-10">/ 100</span>
+                    </div>
+                @endif
                 <p class="text-sm font-bold text-slate-500 dark:text-slate-400 mb-10">{{ $sesi->ujian->judul }}</p>
 
                 <div class="grid grid-cols-3 gap-4 max-w-2xl mx-auto pt-10 border-t border-slate-100 dark:border-zinc-800">
@@ -115,7 +125,7 @@
                     {{-- Question Header --}}
                     <div class="flex items-start gap-4 mb-6">
                         <div class="shrink-0 w-10 h-10 rounded-2xl flex items-center justify-center font-black text-sm
-                            {{ $isKosong ? 'bg-slate-50 text-slate-400 dark:bg-zinc-800 dark:text-zinc-600' : ($isCorrect ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400' : 'bg-red-50 text-red-500 dark:bg-red-900/20 dark:text-red-400') }}">
+                            {{ $isKosong ? 'bg-slate-50 text-slate-400 dark:bg-zinc-800 dark:text-zinc-600' : ($isCorrect === true ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400' : ($isCorrect === false ? 'bg-red-50 text-red-500 dark:bg-red-900/20 dark:text-red-400' : 'bg-amber-50 text-amber-500 dark:bg-amber-900/20 dark:text-amber-400')) }}">
                             {{ $i + 1 }}
                         </div>
                         <div class="flex-1 space-y-2">
@@ -127,10 +137,12 @@
                                 @endif
                                 @if($isKosong)
                                     <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">• Tidak Dijawab</span>
-                                @elseif($isCorrect)
+                                @elseif($isCorrect === true)
                                     <span class="text-[10px] font-black text-emerald-500 uppercase tracking-widest">• Benar</span>
-                                @else
+                                @elseif($isCorrect === false)
                                     <span class="text-[10px] font-black text-red-500 uppercase tracking-widest">• Salah</span>
+                                @else
+                                    <span class="text-[10px] font-black text-amber-500 uppercase tracking-widest">• Menunggu Koreksi</span>
                                 @endif
                             </div>
                             <div class="text-base font-bold text-slate-800 dark:text-slate-200 leading-relaxed">

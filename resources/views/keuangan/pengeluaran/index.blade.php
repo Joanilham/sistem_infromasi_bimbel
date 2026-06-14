@@ -20,97 +20,94 @@
         </div>
     @endif
 
-    {{-- Arus Kas Summary Cards --}}
-    <div id="ajax-summary-cards" class="grid grid-cols-1 {{ $selectedKantorName == 'Semua Cabang' ? 'md:grid-cols-2' : '' }} gap-6">
+    {{-- Arus Kas Summary Cards & Form --}}
+    @php
+        $hasTwoSummaries = $selectedKantorName == 'Semua Cabang';
+    @endphp
+    <div id="ajax-summary-cards" class="grid grid-cols-1 lg:grid-cols-{{ $hasTwoSummaries ? '4' : '3' }} gap-6">
+        
         {{-- Card 1: Pengeluaran Cabang Ini --}}
-        <div class="bg-rose-600 dark:bg-rose-900 border border-rose-500/50 dark:border-rose-800 rounded-3xl p-6 text-white flex items-center justify-between overflow-hidden relative">
-            <div class="relative z-10">
-                <div class="text-[10px] font-bold uppercase tracking-widest text-rose-200">Pengeluaran - {{ $selectedKantorName }}</div>
-                <div class="text-3xl sm:text-4xl font-bold mt-2">Rp {{ number_format($totalCabangIni, 0, ',', '.') }}</div>
-                <div class="text-xs text-rose-200 mt-2 flex items-center gap-1.5">
-                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                    Cabang: {{ $selectedKantorName }}
+        <div class="bg-white dark:bg-zinc-900 rounded-[2rem] p-6 sm:p-8 border border-slate-100 dark:border-zinc-800 shadow-sm flex flex-col justify-between relative overflow-hidden group">
+            <div class="absolute -right-8 -top-8 w-40 h-40 bg-rose-50 dark:bg-rose-900/20 rounded-full blur-3xl opacity-60 group-hover:opacity-100 group-hover:scale-110 transition duration-700"></div>
+            
+            <div class="relative z-10 flex justify-between items-start">
+                <div class="w-14 h-14 rounded-[1rem] bg-rose-50 dark:bg-rose-900/30 text-rose-600 flex items-center justify-center shadow-sm">
+                    <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
                 </div>
             </div>
-            <div class="w-14 h-14 flex items-center justify-center rounded-2xl bg-white/10 text-white shrink-0 text-2xl">
-                🏢
+            
+            <div class="relative z-10 mt-8">
+                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Total Pengeluaran</h3>
+                <p class="text-xs font-bold text-rose-500 dark:text-rose-400 mb-3 line-clamp-1">{{ $selectedKantorName }}</p>
+                <div class="text-3xl xl:text-4xl font-black text-slate-900 dark:text-white leading-none tracking-tight">Rp {{ number_format($totalCabangIni, 0, ',', '.') }}</div>
             </div>
         </div>
 
-        @if($selectedKantorName == 'Semua Cabang')
+        @if($hasTwoSummaries)
         {{-- Card 2: Pengeluaran Seluruh Cabang --}}
-        <div class="bg-amber-500 dark:bg-amber-800 border border-amber-400/50 dark:border-amber-700 rounded-3xl p-6 text-white flex items-center justify-between overflow-hidden relative">
-            <div class="relative z-10">
-                <div class="text-[10px] font-bold uppercase tracking-widest text-amber-100">Pengeluaran Seluruh Cabang</div>
-                <div class="text-3xl sm:text-4xl font-bold mt-2">Rp {{ number_format($totalSeluruhCabang, 0, ',', '.') }}</div>
-                <div class="text-xs text-amber-100 mt-2 flex items-center gap-1.5">
-                    <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
-                    Akumulasi nasional (seluruh cabang)
+        <div class="bg-white dark:bg-zinc-900 rounded-[2rem] p-6 sm:p-8 border border-slate-100 dark:border-zinc-800 shadow-sm flex flex-col justify-between relative overflow-hidden group">
+            <div class="absolute -right-8 -top-8 w-40 h-40 bg-amber-50 dark:bg-amber-900/20 rounded-full blur-3xl opacity-60 group-hover:opacity-100 group-hover:scale-110 transition duration-700"></div>
+            
+            <div class="relative z-10 flex justify-between items-start">
+                <div class="w-14 h-14 rounded-[1rem] bg-amber-50 dark:bg-amber-900/30 text-amber-600 flex items-center justify-center shadow-sm">
+                    <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
                 </div>
             </div>
-            <div class="w-14 h-14 flex items-center justify-center rounded-2xl bg-white/10 text-white shrink-0 text-2xl">
-                🌍
+            
+            <div class="relative z-10 mt-8">
+                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Total Pengeluaran</h3>
+                <p class="text-xs font-bold text-amber-500 dark:text-amber-400 mb-3 line-clamp-1">Seluruh Cabang</p>
+                <div class="text-3xl xl:text-4xl font-black text-slate-900 dark:text-white leading-none tracking-tight">Rp {{ number_format($totalSeluruhCabang, 0, ',', '.') }}</div>
             </div>
         </div>
         @endif
-    </div>
 
-    {{-- Form Tambah Card --}}
-    <div class="bg-white dark:bg-zinc-900 rounded-3xl p-6 sm:p-8 border border-slate-100 dark:border-zinc-800">
-        <div class="flex items-center gap-3 mb-6">
-            <div class="w-8 h-0.5 bg-rose-500"></div>
-            <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Catat Pengeluaran Baru</h2>
-        </div>
-        <form action="{{ route('keuangan.pengeluaran.store') }}" method="POST" class="space-y-6">
-            @csrf
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="space-y-2">
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tanggal Transaksi</label>
-                    <input type="date" name="tanggal" value="{{ old('tanggal', date('Y-m-d')) }}" required 
-                        class="w-full bg-slate-50 dark:bg-zinc-950 border border-slate-100 dark:border-zinc-800 rounded-xl text-sm py-3 px-4 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none transition-colors">
+        {{-- Form Entri Pengeluaran --}}
+        <div class="lg:col-span-2 bg-white dark:bg-zinc-900 rounded-[2rem] p-6 sm:p-8 border border-slate-100 dark:border-zinc-800 shadow-sm flex flex-col justify-between">
+            <h2 class="font-black text-slate-900 dark:text-white mb-6 flex items-center justify-between gap-3 text-xs uppercase tracking-wider">
+                <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-xl bg-rose-100 dark:bg-rose-900/30 text-rose-600 flex items-center justify-center">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                    </span>
+                    Catat Pengeluaran
                 </div>
-                <div class="space-y-2">
-                    <div class="flex items-center justify-between">
-                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Kategori Pengeluaran</label>
-                        <a href="{{ route('keuangan.pengeluaran.kategori.index') }}" 
-                           class="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-white hover:text-white bg-rose-500 hover:bg-rose-600 dark:bg-rose-600 dark:hover:bg-rose-700 transition-colors px-3 py-1.5 rounded-lg shadow-sm">
-                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                            </svg>
-                            Kelola Kategori
-                        </a>
+                <a href="{{ route('keuangan.pengeluaran.kategori.index') }}" class="text-[9px] font-black text-rose-600 hover:text-rose-700 dark:text-rose-400 transition-colors">Kelola Kategori &rarr;</a>
+            </h2>
+            <form action="{{ route('keuangan.pengeluaran.store') }}" method="POST" class="mt-auto">
+                @csrf
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5 mb-6">
+                    <div class="space-y-2">
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tanggal</label>
+                        <input type="date" name="tanggal" value="{{ old('tanggal', date('Y-m-d')) }}" required class="w-full bg-slate-50 dark:bg-zinc-950 border border-slate-100 dark:border-zinc-800 rounded-xl text-sm py-2.5 px-4 focus:ring-2 focus:ring-rose-500/20 outline-none transition-colors">
                     </div>
-                    <select name="kategori_id" required 
-                        class="no-tomselect w-full bg-slate-50 dark:bg-zinc-950 border border-slate-100 dark:border-zinc-800 rounded-xl text-sm py-3 px-4 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none transition-colors">
-                        <option value="">-- Pilih --</option>
-                        @foreach($kategoris as $k)
-                            <option value="{{ $k->id }}" {{ old('kategori_id') == $k->id ? 'selected' : '' }}>{{ $k->nama }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="space-y-2">
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Nominal (IDR)</label>
-                    <div class="relative">
-                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-bold">Rp</span>
-                        <input type="text" inputmode="numeric" name="nominal" value="{{ old('nominal') }}" required placeholder="0" class="nominal-format w-full bg-slate-50 dark:bg-zinc-950 border border-slate-100 dark:border-zinc-800 rounded-xl text-sm py-3 pl-10 pr-4 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none transition-colors">
+                    <div class="space-y-2">
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Kategori</label>
+                        <select name="kategori_id" required class="no-tomselect w-full bg-slate-50 dark:bg-zinc-950 border border-slate-100 dark:border-zinc-800 rounded-xl text-sm py-2.5 px-4 focus:ring-2 focus:ring-rose-500/20 outline-none transition-colors">
+                            <option value="">-- Pilih --</option>
+                            @foreach($kategoris as $k)
+                                <option value="{{ $k->id }}" {{ old('kategori_id') == $k->id ? 'selected' : '' }}>{{ $k->nama }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Nominal (Rp)</label>
+                        <input type="text" inputmode="numeric" name="nominal" value="{{ old('nominal') }}" required placeholder="0" class="nominal-format w-full bg-slate-50 dark:bg-zinc-950 border border-slate-100 dark:border-zinc-800 rounded-xl text-sm py-2.5 px-4 focus:ring-2 focus:ring-rose-500/20 outline-none transition-colors">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Keterangan</label>
+                        <input type="text" name="keterangan" value="{{ old('keterangan') }}" placeholder="Contoh: Beli spidol..." class="w-full bg-slate-50 dark:bg-zinc-950 border border-slate-100 dark:border-zinc-800 rounded-xl text-sm py-2.5 px-4 focus:ring-2 focus:ring-rose-500/20 outline-none transition-colors">
                     </div>
                 </div>
-                <div class="space-y-2">
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Keterangan Pengeluaran</label>
-                    <input type="text" name="keterangan" value="{{ old('keterangan') }}" placeholder="Contoh: Bayar Listrik…" 
-                        class="w-full bg-slate-50 dark:bg-zinc-950 border border-slate-100 dark:border-zinc-800 rounded-xl text-sm py-3 px-4 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none transition-colors">
-                </div>
-            </div>
-            <div class="flex justify-end pt-4 border-t border-slate-100 dark:border-zinc-800">
-                <button type="submit" class="bg-rose-600 hover:bg-rose-700 text-white text-sm px-8 py-3 rounded-xl transition-colors flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                    </svg>
+                <button type="submit" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-black px-6 py-3.5 rounded-xl text-sm transition-colors shadow-sm shadow-rose-500/30 flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
                     Simpan Pengeluaran
                 </button>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
 
     {{-- Table Card --}}

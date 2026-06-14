@@ -77,6 +77,9 @@ class CbtSiswaController extends Controller
 
         $pesertas = CbtPeserta::where('user_id', Auth::id())
             ->with(['ujian'])
+            ->withCount(['jawabans as belum_dikoreksi_count' => function($q) {
+                $q->whereNull('is_benar');
+            }])
             ->whereIn('status', ['selesai', 'timeout'])
             ->orderBy('waktu_selesai', 'desc')
             ->paginate(15);
@@ -206,7 +209,7 @@ class CbtSiswaController extends Controller
 
         // Hitung sisa waktu
         $durasiDetik = $sesi->ujian->durasi * 60;
-        $detikBerlalu = now()->diffInSeconds($sesi->waktu_mulai);
+        $detikBerlalu = $sesi->waktu_mulai->diffInSeconds(now());
         $sisaWaktu = max(0, $durasiDetik - $detikBerlalu);
 
         if ($sisaWaktu == 0) {
@@ -277,6 +280,9 @@ class CbtSiswaController extends Controller
     public function hasil($id)
     {
         $sesi = CbtPeserta::with(['ujian', 'jawabans.bankSoal.opsiJawabans', 'jawabans.opsiJawaban'])
+            ->withCount(['jawabans as belum_dikoreksi_count' => function($q) {
+                $q->whereNull('is_benar');
+            }])
             ->findOrFail($id);
 
         if ($sesi->user_id !== Auth::id()) {

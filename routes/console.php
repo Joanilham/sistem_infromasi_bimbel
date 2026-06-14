@@ -8,6 +8,7 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 use Illuminate\Support\Facades\Schedule;
+use Illuminate\Support\Facades\Storage;
 
 Schedule::command('pembayaran:check-tenggat')->dailyAt('08:00');
 // Ambil jam backup kustom dari berkas pengaturan

@@ -44,6 +44,13 @@ Route::middleware([\App\Http\Middleware\RestrictApiAccess::class])->group(functi
         Route::get('/keuangan/bank', [\App\Http\Controllers\Api\KeuanganController::class, 'bank']);
         Route::post('/keuangan/bayar', [\App\Http\Controllers\Api\KeuanganController::class, 'bayar']);
 
+        // Guru API (Tidak dibekukan oleh tagihan)
+        Route::get('/guru/bank-soal/form-data', [\App\Http\Controllers\Api\GuruBankSoalController::class, 'formData']);
+        Route::get('/guru/bank-soal', [\App\Http\Controllers\Api\GuruBankSoalController::class, 'index']);
+        Route::post('/guru/bank-soal', [\App\Http\Controllers\Api\GuruBankSoalController::class, 'store']);
+        Route::delete('/guru/bank-soal/{id}', [\App\Http\Controllers\Api\GuruBankSoalController::class, 'destroy']);
+        Route::get('/guru/ujian', [\App\Http\Controllers\Api\GuruUjianController::class, 'index']);
+
         // Fitur yang dibekukan jika ada tunggakan (Semua fitur kelas/akademik/ujian diblokir)
         Route::middleware('check_payment')->group(function () {
             // Akademik

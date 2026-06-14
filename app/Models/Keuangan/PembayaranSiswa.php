@@ -25,6 +25,9 @@ class PembayaranSiswa extends Model
         'total_harus_dibayar',
         'batas_waktu',
         'dispensasi',
+        'jumlah_cicilan',
+        'nominal_per_cicilan',
+        'jatuh_tempo_berikutnya',
     ];
 
     protected $casts = [

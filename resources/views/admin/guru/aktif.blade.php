@@ -11,16 +11,16 @@
             <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Manajemen Guru</h1>
             <p class="text-slate-500 dark:text-slate-400 mt-2 text-sm font-medium">Monitoring dan kelola database tenaga pengajar aktif di bimbingan belajar.</p>
         </div>
-        <div class="flex items-center gap-3 shrink-0">
+        <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto shrink-0">
             <a href="{{ route('manajemen-guru.export') }}"
-               class="inline-flex items-center gap-3 bg-white dark:bg-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-700 text-slate-700 dark:text-slate-200 font-black text-xs px-6 py-4 rounded-2xl shadow-sm border border-slate-200 dark:border-zinc-700 transition-all active:scale-95">
+               class="inline-flex items-center justify-center w-full sm:w-auto gap-3 bg-white dark:bg-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-700 text-slate-700 dark:text-slate-200 font-black text-xs px-6 py-4 rounded-2xl shadow-sm border border-slate-200 dark:border-zinc-700 transition-all active:scale-95">
                 <svg class="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
                 Export Data
             </a>
             <a href="{{ route('manajemen-guru.create') }}"
-               class="inline-flex items-center gap-3 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs px-8 py-4 rounded-2xl shadow-xl shadow-indigo-500/20 transition-all active:scale-95 group">
+               class="inline-flex items-center justify-center w-full sm:w-auto gap-3 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs px-8 py-4 rounded-2xl shadow-xl shadow-indigo-500/20 transition-all active:scale-95 group">
                 <svg class="w-5 h-5 transition-transform group-hover:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
                 </svg>
@@ -80,7 +80,7 @@
                     </div>
 
                     {{-- Search & Reset --}}
-                    <div class="flex items-center gap-2 w-full sm:w-auto shrink-0">
+                    <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto shrink-0">
                         <div class="relative group flex-1 sm:w-64">
                             <input type="text" name="search" value="{{ request('search') }}"
                                 placeholder="Cari nama atau NIP…"
@@ -125,7 +125,7 @@
                     {{-- Jenis Kelamin Filter --}}
                     <div class="flex items-stretch bg-white dark:bg-zinc-950 rounded-xl border border-slate-200 dark:border-zinc-800 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all overflow-hidden">
                         <div class="px-3 py-2 bg-slate-50 dark:bg-zinc-900 border-r border-slate-200 dark:border-zinc-800 flex items-center justify-center">
-                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Gender</span>
+                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Jenis Kelamin</span>
                         </div>
                         <select name="jenis_kelamin" @change="fetchData"
                             class="no-tomselect bg-transparent border-none text-xs font-bold focus:ring-0 py-2 pl-3 pr-8 text-slate-800 dark:text-white cursor-pointer h-full hover:bg-slate-50 dark:hover:bg-zinc-900/50 transition-colors">
@@ -227,7 +227,7 @@
                                 </div>
                             </td>
                             <td class="px-4 py-3 border border-slate-200 dark:border-zinc-800">
-                                <div class="flex items-center justify-center gap-2">
+                                <div class="flex flex-wrap items-center justify-center gap-2">
                                     <a href="{{ route('manajemen-guru.edit', $guru->id) }}"
                                        class="inline-flex items-center justify-center w-8 h-8 rounded bg-amber-50 dark:bg-amber-900/10 text-amber-600 dark:text-amber-400 hover:bg-amber-100 transition-all border border-amber-200/50 shadow-sm"
                                        title="Edit Data">

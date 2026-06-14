@@ -233,7 +233,14 @@ class PendaftaranService
 
         $dpDibayar     = ($pendaftaran->pembayaran?->status === 'dikonfirmasi') ? ($pendaftaran->pembayaran->jumlah ?? 0) : 0;
         $sisaTagihan   = max(0, $nominalPaket - $dpDibayar);
+        
+        $paket = $pendaftaran->paketBimbingan;
+
         $jumlahCicilan = $request->jumlah_cicilan ?: null;
+        if (!$jumlahCicilan && $paket && $paket->bisa_dicicil) {
+            $jumlahCicilan = $paket->max_cicilan;
+        }
+        
         $nominalPerCicilan = ($jumlahCicilan > 0) ? (int) ceil($sisaTagihan / $jumlahCicilan) : null;
 
         $updateData = [
@@ -244,6 +251,8 @@ class PendaftaranService
 
         if ($request->filled('jatuh_tempo_berikutnya')) {
             $updateData['jatuh_tempo_berikutnya'] = $request->jatuh_tempo_berikutnya;
+        } elseif ($jumlahCicilan > 0) {
+            $updateData['jatuh_tempo_berikutnya'] = now()->addMonth();
         }
 
         // Hitung batas waktu dari durasi paket

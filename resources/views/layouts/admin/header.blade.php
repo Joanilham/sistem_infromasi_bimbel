@@ -3,7 +3,7 @@
         <div class="flex justify-between h-20">
             <div class="flex items-center gap-2 sm:gap-3 min-w-0">
                 <!-- Sidebar Toggle -->
-                <button @click="sidebarOpen = !sidebarOpen" class="shrink-0 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 focus:outline-none transition-colors p-2 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-xl">
+                <button @click="sidebarOpen = !sidebarOpen" aria-label="Toggle Sidebar" class="shrink-0 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 focus:outline-none transition-colors p-2 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-xl">
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" x-show="sidebarOpen">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
                     </svg>
@@ -11,7 +11,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
                 </button>
-                <h2 class="text-base sm:text-lg lg:text-[22px] font-bold text-slate-800 dark:text-white tracking-tight truncate">@yield('title', 'Dashboard')</h2>
+                <h1 class="text-base sm:text-lg lg:text-[22px] font-bold text-slate-800 dark:text-white tracking-tight truncate">@yield('title', 'Dashboard')</h1>
             </div>
 
             <div class="flex items-center gap-2 sm:gap-4">
@@ -29,6 +29,7 @@
                         ->whereHas('pendaftaranSiswa', fn($q) => $q->when($filterKantorId, fn($q2) => $q2->where('kantor_id', $filterKantorId)))->count();
 
                     $transferSppCount = ($kId && $pId) ? \App\Models\Keuangan\TransaksiPembayaran::where('tipe_pembayaran', 'TRANSFER')
+                        ->where('status', 'PENDING')
                         ->whereHas('pembayaranSiswa.pesertaDidik', fn($q) => $q->inContext())
                         ->where('created_at', '>=', \Carbon\Carbon::now()->subDays(30))
                         ->count() : 0;
@@ -51,7 +52,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                         </svg>
                         @if($totalPesan > 0)
-                        <span class="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-white text-[9px] font-black leading-none ring-2 ring-white dark:ring-zinc-900">
+                        <span class="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-white text-[9px] font-black leading-none ring-2 ring-white dark:ring-zinc-900">
                             {{ $totalPesan > 9 ? '9+' : $totalPesan }}
                         </span>
                         @endif
@@ -60,7 +61,7 @@
 
                 <!-- User Dropdown -->
                 <div class="relative" x-data="{ open: false }">
-                    <button @click="open = !open" @click.away="open = false" class="flex items-center gap-2 sm:gap-2.5 bg-slate-50 dark:bg-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-700/80 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-full border border-slate-200 dark:border-zinc-700 focus:outline-none transition-colors cursor-pointer">
+                    <button @click="open = !open" @click.away="open = false" aria-label="User Menu" class="flex items-center gap-2 sm:gap-2.5 bg-slate-50 dark:bg-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-700/80 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-full border border-slate-200 dark:border-zinc-700 focus:outline-none transition-colors cursor-pointer">
                         @if(auth()->user() && auth()->user()->photo)
                             <img src="{{ asset('storage/' . auth()->user()->photo) }}" alt="Profile" class="w-[26px] h-[26px] rounded-full object-cover">
                         @else
@@ -86,7 +87,7 @@
                         x-cloak>
 
                         <div class="px-4 py-2 border-b border-slate-50 mb-1">
-                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Akun Saya</p>
+                            <p class="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Akun Saya</p>
                         </div>
 
                         <a href="{{ route('profile.edit') }}" class="flex items-center px-4 py-2.5 text-sm text-slate-700 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-700 hover:text-emerald-600 transition-colors">

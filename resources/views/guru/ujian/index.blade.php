@@ -109,6 +109,7 @@
                 </a>
                 <div class="flex gap-2">
                     <a href="{{ route('guru.ujian.soal', $ujian->id) }}" class="text-xs text-slate-500 dark:text-slate-400 hover:text-[#388782] font-medium" title="Kelola Soal">Soal</a>
+                    <a href="{{ route('guru.ujian.peserta', $ujian->id) }}" class="text-xs text-slate-500 dark:text-slate-400 hover:text-[#388782] font-medium" title="Atur Peserta">Peserta</a>
                     @if($isAktif)
                     <a href="{{ route('guru.ujian.monitoring', $ujian->id) }}" class="text-xs text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 font-medium">Monitor</a>
                     @endif

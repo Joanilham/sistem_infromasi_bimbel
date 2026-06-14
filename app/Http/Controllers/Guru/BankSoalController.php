@@ -397,6 +397,14 @@ class BankSoalController extends Controller
         $content = file_get_contents($file->getRealPath());
         $dataRows = [];
 
+        // Deteksi file binary (seperti .xlsx atau .xls binary asli) yang bisa memicu Error Laravel
+        $isZip = str_starts_with($content, "PK\x03\x04");
+        $isOle2 = str_starts_with($content, "\xD0\xCF\x11\xE0");
+
+        if ($isZip || $isOle2) {
+            return back()->with('error', 'Format file tidak didukung! Pastikan Anda menyimpan (Save) template tanpa mengubah jenis formatnya. Jika Anda tidak sengaja menyimpannya sebagai "Excel Workbook (*.xlsx)", silakan Save As kembali ke format "XML Spreadsheet 2003" atau "CSV" agar bisa diupload.');
+        }
+
         // Deteksi apakah ini XML (Template Baru) atau CSV (Lama)
         if (str_contains($content, '<?xml') && str_contains($content, 'Workbook')) {
             try {

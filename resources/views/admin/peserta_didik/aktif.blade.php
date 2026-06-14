@@ -11,16 +11,16 @@
             <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Peserta Didik Aktif</h1>
             <p class="text-slate-500 dark:text-slate-400 mt-2 text-sm font-medium">Kelola data peserta didik yang sedang aktif belajar di lembaga.</p>
         </div>
-        <div class="flex items-center gap-3 shrink-0">
+        <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto shrink-0">
             <a href="{{ route('peserta-didik.export') }}"
-               class="inline-flex items-center gap-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs px-6 py-4 rounded-2xl shadow-xl shadow-emerald-500/20 transition-all active:scale-95">
+               class="inline-flex items-center justify-center w-full sm:w-auto gap-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs px-6 py-4 rounded-2xl shadow-xl shadow-emerald-500/20 transition-all active:scale-95">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
                 Export Excel
             </a>
             <a href="{{ route('peserta-didik.create') }}"
-               class="inline-flex items-center gap-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs px-8 py-4 rounded-2xl shadow-xl shadow-indigo-500/20 transition-all active:scale-95">
+               class="inline-flex items-center justify-center w-full sm:w-auto gap-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs px-8 py-4 rounded-2xl shadow-xl shadow-indigo-500/20 transition-all active:scale-95">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
                 </svg>
@@ -80,7 +80,7 @@
                     </div>
 
                     {{-- Search & Reset --}}
-                    <div class="flex items-center gap-2 w-full sm:w-auto shrink-0">
+                    <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto shrink-0">
                         <div class="relative group flex-1 sm:w-64">
                             <input type="text" name="search" value="{{ request('search') }}"
                                 placeholder="Cari nama, nisn, sekolah…"
@@ -139,7 +139,7 @@
                     {{-- JK Filter --}}
                     <div class="flex items-stretch bg-white dark:bg-zinc-950 rounded-xl border border-slate-200 dark:border-zinc-800 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all overflow-hidden">
                         <div class="px-3 py-2 bg-slate-50 dark:bg-zinc-900 border-r border-slate-200 dark:border-zinc-800 flex items-center justify-center">
-                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Gender</span>
+                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Jenis Kelamin</span>
                         </div>
                         <select name="jenis_kelamin" @change="fetchData"
                             class="no-tomselect bg-transparent border-none text-xs font-bold focus:ring-0 py-2 pl-3 pr-8 text-slate-800 dark:text-white cursor-pointer h-full hover:bg-slate-50 dark:hover:bg-zinc-900/50 transition-colors">
@@ -187,7 +187,7 @@
                             </a>
                         </th>
                         <th class="px-4 py-3 text-left border border-white/20">NISN</th>
-                        <th class="px-4 py-3 text-center w-20 border border-white/20">Gender</th>
+                        <th class="px-4 py-3 text-center w-20 border border-white/20">Jenis Kelamin</th>
                         <th class="px-4 py-3 text-left border border-white/20">Program & Kelas</th>
                         <th class="px-4 py-3 text-left border border-white/20">Kontak</th>
                         <th class="px-4 py-3 text-center w-32 border border-white/20">Opsi</th>
@@ -237,7 +237,7 @@
                                 <p class="text-[9px] text-slate-400 font-bold uppercase tracking-tighter truncate max-w-[150px] mt-0.5">{{ $peserta->alamat_lengkap ?? '-' }}</p>
                             </td>
                             <td class="px-4 py-3 border border-slate-200 dark:border-zinc-800">
-                                <div class="flex items-center justify-center gap-2">
+                                <div class="flex flex-wrap items-center justify-center gap-2">
                                     <a href="{{ route('peserta-didik.edit', $peserta->id) }}"
                                         class="inline-flex items-center justify-center w-8 h-8 rounded bg-amber-50 dark:bg-amber-900/10 text-amber-600 dark:text-amber-400 hover:bg-amber-100 transition-all border border-amber-200/50 shadow-sm"
                                         title="Edit">

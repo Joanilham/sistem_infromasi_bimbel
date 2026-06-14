@@ -170,6 +170,7 @@
     </div>
 </div>
 
+@push('modals')
 {{-- ── MODAL KONFIRMASI CUSTOM ─────────────────────────────── --}}
 <div id="modal-konfirmasi"
      style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.5); backdrop-filter:blur(4px);
@@ -271,7 +272,9 @@
 #modal-konfirmasi.aktif { display:flex !important; }
 #modal-confirm-btn:hover { opacity:0.88; }
 </style>
+@endpush
 
+@push('scripts')
 <script>
 let aksiAktif = null;
 
@@ -427,5 +430,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+@endpush
 @endsection
 

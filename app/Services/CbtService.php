@@ -143,6 +143,32 @@ class CbtService
         return $sesi;
     }
 
+    /**
+     * Menghitung ulang skor sesi (biasanya dipanggil setelah guru menginput nilai essay).
+     */
+    public function recalculateSkor(CbtPeserta $sesi): void
+    {
+        $jawabans = $sesi->jawabans()->get();
+        $ujianSoalsMap = CbtUjianSoal::where('cbt_ujian_id', $sesi->cbt_ujian_id)
+            ->get()
+            ->keyBy('cbt_bank_soal_id');
+
+        $totalSkor = 0;
+        $totalBobot = 0;
+
+        foreach ($jawabans as $j) {
+            $bobot = ($ujianSoalsMap->get($j->cbt_bank_soal_id)?->bobot) ?? 1;
+            $totalBobot += $bobot;
+
+            if ($j->skor !== null) {
+                $totalSkor += $j->skor;
+            }
+        }
+
+        $sesi->skor = $totalBobot > 0 ? ($totalSkor / $totalBobot) * 100 : 0;
+        $sesi->save();
+    }
+
     // ═══════════════════════════════════════════════════════
     // MANAJEMEN SOAL DI UJIAN
     // ═══════════════════════════════════════════════════════

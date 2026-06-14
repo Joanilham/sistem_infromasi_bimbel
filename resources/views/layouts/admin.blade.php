@@ -6,23 +6,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Dashboard Sistem Informasi Manajemen Pendidikan Genius Education">
+    <meta name="author" content="Genius Education">
+    <meta name="robots" content="index, follow">
     <title>@yield('title', 'Dashboard') - Genius Education</title>
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{{ isset($masterData) && $masterData->logo ? Storage::url($masterData->logo) : asset('favicon.png') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
+    
     <!-- DataTables TailwindCSS -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.tailwindcss.min.css">
+    <link rel="stylesheet" href="{{ asset('vendor/datatables/dataTables.tailwindcss.min.css') }}" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="{{ asset('vendor/datatables/dataTables.tailwindcss.min.css') }}"></noscript>
 
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="{{ asset('vendor/alpinejs/alpine.min.js') }}"></script>
     
     <!-- TomSelect CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+    <link href="{{ asset('vendor/tom-select/tom-select.css') }}" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="{{ asset('vendor/tom-select/tom-select.css') }}" rel="stylesheet"></noscript>
     
     <!-- Flatpickr CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="{{ asset('vendor/flatpickr/flatpickr.min.css') }}" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="{{ asset('vendor/flatpickr/flatpickr.min.css') }}"></noscript>
     
     <style>
         .ts-control { border-radius: 0.75rem !important; border: 1px solid #e2e8f0 !important; padding: 0.625rem 0.875rem !important; font-size: 0.875rem !important; box-shadow: none !important; }
@@ -32,10 +40,24 @@
         .dark .ts-dropdown { background-color: #18181b !important; border-color: #27272a !important; color: #f4f4f5 !important; }
         .dark .ts-dropdown .active { background-color: #27272a !important; color: #818cf8 !important; }
         .dark .ts-control input { color: #f4f4f5 !important; }
+        
+        /* ApexCharts Tooltip Contrast Fix */
+        .apexcharts-tooltip { background: #ffffff !important; border: 1px solid #e2e8f0 !important; color: #1e293b !important; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1) !important; }
+        .apexcharts-tooltip-title { background: #f8fafc !important; border-bottom: 1px solid #e2e8f0 !important; color: #0f172a !important; font-weight: 700 !important; }
+        .dark .apexcharts-tooltip { background: #1e293b !important; border: 1px solid #334155 !important; color: #f8fafc !important; }
+        .dark .apexcharts-tooltip-title { background: #0f172a !important; border-bottom: 1px solid #334155 !important; color: #ffffff !important; }
+        
+        /* TomSelect Dropdown Input Fixes */
+        .ts-dropdown .dropdown-input-wrap { padding: 0.5rem !important; border-bottom: 1px solid #e2e8f0; }
+        .dark .ts-dropdown .dropdown-input-wrap { border-bottom: 1px solid #27272a; }
+        .ts-dropdown .dropdown-input { border: 1px solid #e2e8f0 !important; border-radius: 0.5rem !important; padding: 0.5rem 0.75rem !important; width: 100% !important; font-size: 0.875rem !important; outline: none !important; box-shadow: none !important; box-sizing: border-box !important; }
+        .dark .ts-dropdown .dropdown-input { background-color: #18181b !important; border-color: #3f3f46 !important; color: #f4f4f5 !important; }
     </style>
 
     @stack('head')
-    <link rel="stylesheet" href="{{ asset('css/loading.css') }}">
+    <style>
+        {!! file_get_contents(public_path('css/loading.css')) !!}
+    </style>
 </head>
 
 <body class="bg-slate-50 dark:bg-slate-900 flex h-screen overflow-hidden text-slate-800 dark:text-slate-100">
@@ -60,7 +82,7 @@
         @include('layouts.admin.header')
 
         <!-- Main Body Area -->
-        <main id="main-scroll-area" class="flex-1 overflow-y-scroll bg-slate-50 dark:bg-slate-950 p-4 sm:p-6 lg:p-8 custom-scrollbar page-enter">
+        <main id="main-scroll-area" class="flex-1 overflow-y-scroll bg-slate-50 dark:bg-slate-950 p-4 pb-24 sm:p-6 sm:pb-8 lg:p-8 custom-scrollbar page-enter">
             <div class="max-w-7xl mx-auto">
                 @if(session('success'))
                 <div x-data="{ show: true }" 
@@ -127,24 +149,31 @@
     @stack('scripts')
     
     <!-- TomSelect JS -->
-    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+    <script defer src="{{ asset('vendor/tom-select/tom-select.complete.min.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('select').forEach((el) => {
                 if (el.classList.contains('no-tomselect')) return;
                 new TomSelect(el, {
                     create: false,
-                    sortField: null,
+                    sortField: [{field: '$order'}],
                     allowEmptyOption: true,
                     plugins: ['dropdown_input'],
+                    onInitialize: function() {
+                        const input = this.dropdown_content.parentNode.querySelector('.dropdown-input');
+                        if (input) {
+                            input.setAttribute('autocomplete', 'off');
+                            input.setAttribute('role', 'presentation');
+                        }
+                    }
                 });
             });
         });
     </script>
     
     <!-- Flatpickr JS -->
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://npmcdn.com/flatpickr/dist/l10n/id.js"></script>
+    <script defer src="{{ asset('vendor/flatpickr/flatpickr.min.js') }}"></script>
+    <script defer src="{{ asset('vendor/flatpickr/id.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             flatpickr("input[type='date']", {

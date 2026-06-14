@@ -234,7 +234,7 @@
                     </div>
                 </div>
                 <div class="bg-white dark:bg-zinc-900 rounded-3xl p-6 border border-slate-100 dark:border-zinc-800 shadow-sm relative overflow-hidden group sm:col-span-2">
-                    <h3 class="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-4">Distribusi Gender (Siswa Aktif)</h3>
+                    <h3 class="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-4">Distribusi Jenis Kelamin (Siswa Aktif)</h3>
                     <div class="flex items-center gap-6">
                         <div class="flex-1">
                             <div class="flex justify-between items-end mb-2">

@@ -43,13 +43,13 @@ class CheckPaymentStatus
                 if ($request->expectsJson() || $request->is('api/*')) {
                     return response()->json([
                         'status' => 'error',
-                        'message' => 'Akun Anda sedang menunggu verifikasi dari Admin Pusat. Fitur kelas belum bisa diakses.',
+                        'message' => 'Harap tunggu, akun Anda sedang dalam proses verifikasi oleh Admin.',
                         'data' => null
                     ], 403);
                 }
 
                 return redirect()->route('siswa.dashboard')
-                    ->with('pending_message', 'Akun Anda sedang menunggu verifikasi dari Admin Pusat. Fitur kelas belum bisa diakses.');
+                    ->with('pending_message', 'Harap tunggu, akun Anda sedang dalam proses verifikasi oleh Admin.');
             }
 
 

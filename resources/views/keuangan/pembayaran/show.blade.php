@@ -20,11 +20,13 @@
     {{-- Header --}}
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-            <a href="{{ route('keuangan.pembayaran.index') }}" class="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-indigo-600 mb-3 transition">
+            <a href="{{ route('keuangan.pembayaran.index') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-zinc-700 hover:text-indigo-600 dark:hover:text-indigo-400 mb-4 transition shadow-sm w-fit">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
                 Kembali ke Daftar Siswa
             </a>
-            <h1 class="text-2xl font-black text-slate-900 dark:text-white">{{ $pesertaDidik->nama_lengkap }}</h1>
-            <p class="text-slate-500 text-sm mt-0.5">No. Induk: <span class="font-mono font-bold">{{ $pesertaDidik->nomor_induk ?? '-' }}</span></p>
+            <h1 class="text-2xl font-black text-slate-900 dark:text-white">Detail Pembayaran</h1>
         </div>
         <span class="self-start sm:self-auto px-4 py-2 rounded-2xl text-sm font-black uppercase
             {{ $lunas ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400' : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400' }}">
@@ -104,32 +106,32 @@
                     </span>
                     Profil Siswa
                 </h2>
-                <div class="space-y-3">
-                    <div class="group">
-                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Nama Lengkap</label>
-                        <p class="text-sm font-bold text-slate-800 dark:text-white">{{ $pesertaDidik->nama_lengkap }}</p>
+                <div class="flex flex-col gap-3">
+                    <div class="bg-slate-50/50 dark:bg-zinc-800/30 p-3.5 rounded-2xl border border-slate-100/50 dark:border-zinc-800/50">
+                        <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Nama Lengkap</label>
+                        <p class="text-sm font-black text-slate-800 dark:text-white">{{ $pesertaDidik->nama_lengkap }}</p>
                     </div>
-                    <div class="flex justify-between items-center py-2 border-y border-slate-50 dark:border-zinc-800/50">
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">NISN</label>
-                            <p class="text-xs font-semibold text-slate-700 dark:text-slate-300">{{ $pesertaDidik->nisn ?? '-' }}</p>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-slate-50/50 dark:bg-zinc-800/30 p-3.5 rounded-2xl border border-slate-100/50 dark:border-zinc-800/50">
+                            <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">NISN</label>
+                            <p class="text-xs font-bold text-slate-700 dark:text-slate-300">{{ $pesertaDidik->nisn ?? '-' }}</p>
                         </div>
-                        <div class="text-right">
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Asal Sekolah</label>
-                            <p class="text-xs font-semibold text-slate-700 dark:text-slate-300">{{ $pesertaDidik->asal_sekolah }}</p>
+                        <div class="bg-slate-50/50 dark:bg-zinc-800/30 p-3.5 rounded-2xl border border-slate-100/50 dark:border-zinc-800/50">
+                            <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Asal Sekolah</label>
+                            <p class="text-xs font-bold text-slate-700 dark:text-slate-300">{{ $pesertaDidik->asal_sekolah }}</p>
                         </div>
                     </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">WhatsApp Orang Tua</label>
-                        <div class="flex flex-col gap-1">
-                            <p class="text-xs text-slate-600 dark:text-slate-400 flex justify-between">
-                                <span>Ayah:</span>
-                                <span class="font-bold text-slate-800 dark:text-slate-200">{{ $pesertaDidik->no_telepon_ayah ?? '-' }}</span>
-                            </p>
-                            <p class="text-xs text-slate-600 dark:text-slate-400 flex justify-between">
-                                <span>Ibu:</span>
-                                <span class="font-bold text-slate-800 dark:text-slate-200">{{ $pesertaDidik->no_telepon_ibu ?? '-' }}</span>
-                            </p>
+                    <div class="bg-slate-50/50 dark:bg-zinc-800/30 p-3.5 rounded-2xl border border-slate-100/50 dark:border-zinc-800/50">
+                        <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">WhatsApp Orang Tua</label>
+                        <div class="flex flex-col gap-1.5">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-slate-500 font-semibold">Ayah</span>
+                                <span class="font-bold text-slate-800 dark:text-slate-200 bg-white dark:bg-zinc-900 px-2 py-1 rounded-lg border border-slate-200 dark:border-zinc-700">{{ $pesertaDidik->no_telepon_ayah ?? '-' }}</span>
+                            </div>
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-slate-500 font-semibold">Ibu</span>
+                                <span class="font-bold text-slate-800 dark:text-slate-200 bg-white dark:bg-zinc-900 px-2 py-1 rounded-lg border border-slate-200 dark:border-zinc-700">{{ $pesertaDidik->no_telepon_ibu ?? '-' }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -145,47 +147,65 @@
         </div>
 
         {{-- Card 2: Status Keuangan --}}
-        <div class="bg-white dark:bg-zinc-900 rounded-[2rem] p-6 border border-slate-100 dark:border-zinc-800 shadow-sm">
-            <h2 class="font-black text-slate-900 dark:text-white mb-4 flex items-center gap-3 text-xs uppercase tracking-wider">
-                <span class="w-8 h-8 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 flex items-center justify-center">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                </span>
-                Status Keuangan
-            </h2>
-            <div class="space-y-2.5 text-xs">
-                <div class="flex justify-between"><span class="text-slate-500">Total Biaya</span><span class="font-bold text-slate-900 dark:text-white">Rp {{ number_format($total,0,',','.') }}</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Terbayar</span><span class="font-bold text-emerald-600">Rp {{ number_format($terbayar,0,',','.') }}</span></div>
-                <div class="pt-2 border-t border-slate-50 dark:border-zinc-800 flex justify-between items-center">
-                    <span class="font-black text-slate-900 dark:text-white">Sisa Tagihan</span>
-                    @if($lunas)
-                        <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-black uppercase text-[10px]">LUNAS</span>
-                    @else
-                        <span class="text-red-500 font-black text-sm">Rp {{ number_format($kekurangan,0,',','.') }}</span>
-                    @endif
+        <div class="bg-white dark:bg-zinc-900 rounded-[2rem] p-6 border border-slate-100 dark:border-zinc-800 shadow-sm flex flex-col justify-between">
+            <div>
+                <h2 class="font-black text-slate-900 dark:text-white mb-4 flex items-center gap-3 text-xs uppercase tracking-wider">
+                    <span class="w-8 h-8 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 flex items-center justify-center">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                    </span>
+                    Status Keuangan
+                </h2>
+                <div class="flex flex-col gap-3">
+                    <div class="flex justify-between items-center py-2.5 border-b border-slate-100 dark:border-zinc-800/50">
+                        <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total Biaya</span>
+                        <span class="font-black text-sm text-slate-900 dark:text-white">Rp {{ number_format($total,0,',','.') }}</span>
+                    </div>
+                    <div class="flex justify-between items-center py-2.5 border-b border-slate-100 dark:border-zinc-800/50">
+                        <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Terbayar</span>
+                        <span class="font-black text-sm text-emerald-600">Rp {{ number_format($terbayar,0,',','.') }}</span>
+                    </div>
+                    <div class="flex justify-between items-center py-2.5 border-b border-slate-100 dark:border-zinc-800/50">
+                        <span class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">Sisa Tagihan</span>
+                        @if($lunas)
+                            <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 font-black uppercase text-[10px] tracking-widest shadow-sm">LUNAS</span>
+                        @else
+                            <span class="text-rose-500 font-black text-base">Rp {{ number_format($kekurangan,0,',','.') }}</span>
+                        @endif
+                    </div>
+                    <div class="flex justify-between items-center py-2 mt-1 bg-amber-50 dark:bg-amber-900/20 px-4 rounded-xl border border-amber-100 dark:border-amber-900/30">
+                        <span class="text-[10px] font-bold text-amber-600 dark:text-amber-500 uppercase tracking-widest">Jatuh Tempo</span>
+                        <span class="text-xs font-black text-amber-700 dark:text-amber-400">{{ $pembayaran->batas_waktu?->format('d/m/Y') ?? 'Belum Diatur' }}</span>
+                    </div>
+                    
                 </div>
-                <div class="flex justify-between mt-1 italic text-slate-400">
-                    <span>Jatuh Tempo</span>
-                    <span>{{ $pembayaran->batas_waktu?->format('d/m/Y') ?? 'Belum Diatur' }}</span>
-                </div>
-                {{-- Bagian Bukti Pendaftaran dipindahkan ke kolom Riwayat Transaksi --}}
             </div>
+            
+            @php
+                $persentase = $total > 0 ? min(100, round(($terbayar / $total) * 100)) : 0;
+            @endphp
+            <div class="mt-4 p-4 rounded-2xl bg-slate-50 dark:bg-zinc-800/30 border border-slate-100 dark:border-zinc-800/50">
+                <div class="flex justify-between items-end mb-2">
+                    <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Progress Pelunasan</span>
+                    <span class="text-xs font-black text-indigo-600 dark:text-indigo-400">{{ $persentase }}%</span>
+                </div>
+                <div class="w-full bg-slate-200 dark:bg-zinc-700 rounded-full h-2 overflow-hidden">
+                    <div class="bg-indigo-600 h-2 rounded-full transition-all duration-1000 ease-out" style="width: {{ $persentase }}%"></div>
+                </div>
+            </div>
+            {{-- Bagian Bukti Pendaftaran dipindahkan ke kolom Riwayat Transaksi --}}
         </div>
 
         {{-- Card 3: Catat Pembayaran Baru --}}
-        <div class="bg-white dark:bg-zinc-900 rounded-[2rem] p-6 border border-slate-100 dark:border-zinc-800 shadow-sm">
-            <h2 class="font-black text-slate-900 dark:text-white mb-4 flex items-center gap-3 text-xs uppercase tracking-wider">
+        <div class="bg-white dark:bg-zinc-900 rounded-[2rem] p-6 border border-slate-100 dark:border-zinc-800 shadow-sm flex flex-col h-full">
+            <h2 class="font-black text-slate-900 dark:text-white mb-6 flex items-center gap-3 text-xs uppercase tracking-wider">
                 <span class="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 flex items-center justify-center">Rp</span>
                 Bayar Sekarang
             </h2>
-            <form id="form-catat-pembayaran" action="{{ route('keuangan.pembayaran.transaksi.store', $pembayaran->id) }}" method="POST" class="space-y-3">
+            
+            <form id="form-catat-pembayaran" action="{{ route('keuangan.pembayaran.transaksi.store', $pembayaran->id) }}" method="POST" class="space-y-4">
                 @csrf
-                @if(!$lunas)
-                    <div class="text-[10px] text-amber-600 dark:text-amber-400 font-bold mb-1">
-                        Sisa Tagihan: Rp {{ number_format($kekurangan, 0, ',', '.') }},-
-                    </div>
-                @endif
                 <div class="relative mb-2">
                     <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tanggal Transaksi Pembayaran</label>
                     <input type="date" name="tanggal" required value="{{ now()->format('Y-m-d') }}" class="w-full rounded-xl border border-slate-200 dark:border-zinc-700 dark:bg-zinc-950 text-sm px-4 py-2 focus:ring-indigo-500">
@@ -335,6 +355,7 @@
     </div>
 </div>
 
+@push('modals')
 {{-- MODAL BUKTI TRANSFER --}}
 <div id="modal-bukti" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-all duration-300">
     <div class="relative max-w-2xl w-[90%] bg-white dark:bg-zinc-900 rounded-3xl p-6 shadow-2xl scale-95 transition-all duration-300" id="modal-bukti-box">
@@ -418,6 +439,7 @@
         </form>
     </div>
 </div>
+@endpush
 
 <script>
     const baseVerifikasiUrl = "{{ route('keuangan.transaksi.verifikasi', ':id') }}";
@@ -542,9 +564,6 @@
         catatNominalInput.addEventListener('input', function(e) {
             this.value = formatRupiah(this.value);
         });
-    }
-
-        modalBox.classList.add('scale-95');
     }
 
     // FORMAT NOMINAL (Titik ribuan)

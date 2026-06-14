@@ -54,7 +54,7 @@
 
         <div class="p-8 md:p-12 space-y-12">
             {{-- Stats Grid --}}
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
                 <div class="bg-slate-50 dark:bg-zinc-800/50 rounded-[2rem] p-6 text-center transition-transform hover:-translate-y-1">
                     <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Total Soal</p>
                     <p class="text-3xl font-black text-[#388782]">{{ $ujian->soals_count }}</p>
@@ -65,15 +65,10 @@
                     <p class="text-3xl font-black text-amber-600">{{ $ujian->durasi }}</p>
                     <p class="text-[10px] text-slate-500 font-bold mt-1">Menit Pengerjaan</p>
                 </div>
-                <div class="bg-slate-50 dark:bg-zinc-800/50 rounded-[2rem] p-6 text-center transition-transform hover:-translate-y-1">
+                <div class="bg-slate-50 dark:bg-zinc-800/50 rounded-[2rem] p-6 text-center transition-transform hover:-translate-y-1 col-span-2 md:col-span-1">
                     <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Percobaan</p>
                     <p class="text-3xl font-black text-emerald-600">{{ $ujian->limit_attempt == 0 ? '∞' : $ujian->limit_attempt }}</p>
                     <p class="text-[10px] text-slate-500 font-bold mt-1">Batas Maksimal</p>
-                </div>
-                <div class="bg-slate-50 dark:bg-zinc-800/50 rounded-[2rem] p-6 text-center transition-transform hover:-translate-y-1">
-                    <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Metode</p>
-                    <p class="text-2xl font-black text-slate-700 dark:text-slate-200 mt-1">{{ $ujian->acak_soal ? 'ACAK' : 'FIXED' }}</p>
-                    <p class="text-[10px] text-slate-500 font-bold mt-1">Urutan Soal</p>
                 </div>
             </div>
 

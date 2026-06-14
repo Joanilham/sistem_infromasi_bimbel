@@ -28,6 +28,27 @@ class AppServiceProvider extends ServiceProvider
             return strtolower($user->level) === 'super admin';
         });
 
+        // Daftarkan Custom Driver Google Drive
+        \Illuminate\Support\Facades\Storage::extend('google', function ($app, $config) {
+            $client = new \Google_Client();
+            $client->setClientId($config['clientId']);
+            $client->setClientSecret($config['clientSecret']);
+            
+            $token = $client->fetchAccessTokenWithRefreshToken($config['refreshToken']);
+            if (isset($token['error'])) {
+                $tokenPrefix = substr($config['refreshToken'], 0, 15) . '...';
+                throw new \Exception("Google Token Error: " . json_encode($token) . " | Token yang dipakai server saat ini: " . $tokenPrefix);
+            }
+            
+            $service = new \Google_Service_Drive($client);
+            $adapter = new \Masbug\Flysystem\GoogleDriveAdapter($service, $config['folderId'] ?? '');
+            return new \Illuminate\Filesystem\FilesystemAdapter(
+                new \League\Flysystem\Filesystem($adapter),
+                $adapter,
+                $config
+            );
+        });
+
         // Daftarkan listener autentikasi (login/logout audit log)
         \Illuminate\Support\Facades\Event::subscribe(\App\Listeners\LogAuthenticationEvents::class);
 

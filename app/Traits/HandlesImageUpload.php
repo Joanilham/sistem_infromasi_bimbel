@@ -28,29 +28,28 @@ trait HandlesImageUpload
                 case 'image/jpeg':
                 case 'image/jpg':
                     $image = imagecreatefromjpeg($file->getRealPath());
-                    imagejpeg($image, $tempPath, $quality);
                     break;
                 case 'image/png':
                     $image = imagecreatefrompng($file->getRealPath());
                     imagealphablending($image, false);
                     imagesavealpha($image, true);
-                    // PNG compression is 0-9. Level 7 is balanced.
-                    imagepng($image, $tempPath, 7);
                     break;
                 case 'image/webp':
                     $image = imagecreatefromwebp($file->getRealPath());
-                    imagewebp($image, $tempPath, $quality);
                     break;
                 default:
                     if (file_exists($tempPath)) unlink($tempPath);
                     return $file->store($directory, 'public');
             }
 
+            // Convert and save EVERYTHING as WebP
             if (isset($image)) {
+                imagewebp($image, $tempPath, $quality);
                 imagedestroy($image);
             }
 
-            $filename = $file->hashName();
+            // Generate a random filename with .webp extension
+            $filename = \Illuminate\Support\Str::random(40) . '.webp';
             $finalPath = $directory . '/' . $filename;
             
             Storage::disk('public')->put($finalPath, file_get_contents($tempPath));

@@ -326,11 +326,19 @@ const App = (() => {
     Toast.init();
     Network.init();
 
-    // Sembunyikan page loader saat halaman siap
-    if (document.readyState === 'complete') {
+    // Sembunyikan page loader secepat mungkin saat DOM siap
+    function hideLoader() {
       Loader.hide();
+      Progress.done();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', hideLoader);
+      // Fallback just in case
+      window.addEventListener('load', hideLoader);
     } else {
-      window.addEventListener('load', () => Loader.hide());
+      // DOM sudah siap (interactive atau complete)
+      hideLoader();
     }
 
     // Progress bar untuk navigasi link biasa
@@ -343,11 +351,12 @@ const App = (() => {
       Progress.start();
     });
 
+    // Pastikan progress bar selesai saat halaman load
+    window.addEventListener('load', () => Progress.done(), { once: true });
+
     // Error global JS
     window.addEventListener('error', (e) => {
       console.error('[App Error]', e.message, e.filename, e.lineno);
-      // Uncomment jika ingin toast untuk JS error:
-      // Toast.error('Terjadi Kesalahan', 'Silakan muat ulang halaman.');
     });
 
     // Unhandled promise rejection
@@ -359,5 +368,5 @@ const App = (() => {
   return { init, Progress, Loader, Toast, Http, Skeleton, Network };
 })();
 
-// Auto init
-document.addEventListener('DOMContentLoaded', () => App.init());
+// Langsung jalankan init, jika dipanggil dengan defer maka akan dieksekusi setelah parsing DOM selesai.
+App.init();

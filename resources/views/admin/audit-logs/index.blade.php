@@ -6,6 +6,7 @@
 <div class="space-y-6" x-data="{ 
     selectedLog: null,
     showModal: false,
+    showPruneModal: false,
     openDetail(log) {
         this.selectedLog = log;
         this.showModal = true;
@@ -61,6 +62,12 @@
             </div>
         </div>
         <div class="flex items-center gap-2">
+            @if(strtolower(auth()->user()->level) === 'super admin')
+            <button type="button" @click="showPruneModal = true" class="inline-flex items-center px-3 py-1.5 rounded-xl border border-red-200 dark:border-red-900/50 text-xs font-semibold bg-white dark:bg-zinc-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 hover:border-red-300 transition-colors shadow-sm cursor-pointer">
+                <svg class="w-3.5 h-3.5 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                Bersihkan Log (> 30 Hari)
+            </button>
+            @endif
             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400">
                 <span class="w-1.5 h-1.5 mr-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
                 Sistem Terlindungi (Deferred Active)
@@ -255,32 +262,27 @@
         @endif
     </div>
 
-    <!-- DETAIL POPUP MODAL (Github-Style Diff Viewer) -->
-    <div x-show="showModal" 
-         class="fixed inset-0 z-[60] overflow-y-auto" 
-         style="display: none;"
-         x-transition:enter="transition ease-out duration-300"
-         x-transition:enter-start="opacity-0"
-         x-transition:enter-end="opacity-100"
-         x-transition:leave="transition ease-in duration-200"
-         x-transition:leave-start="opacity-100"
-         x-transition:leave-end="opacity-0">
+    <!-- DETAIL POPUP MODAL -->
+    <template x-teleport="body">
+        <div x-show="showModal" 
+             class="fixed inset-0 z-50 overflow-y-auto" 
+             style="display: none;"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0">
          
-        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <!-- Background overlay -->
-            <div class="fixed inset-0 transition-opacity bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm z-[60]" @click="showModal = false"></div>
+            <div class="fixed inset-0 transition-opacity bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm z-40" @click="showModal = false"></div>
 
             <!-- This element is to trick the browser into centering the modal contents. -->
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
             <!-- Modal panel -->
-            <div class="relative z-[70] inline-block align-bottom bg-white dark:bg-zinc-900 rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full border border-slate-100 dark:border-zinc-800"
-                 x-transition:enter="transition ease-out duration-300"
-                 x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-                 x-transition:leave="transition ease-in duration-200"
-                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
+            <div class="relative z-50 inline-block align-bottom bg-white dark:bg-zinc-900 rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full border border-slate-100 dark:border-zinc-800">
                  
                 <!-- Modal Header -->
                 <div class="bg-slate-50 dark:bg-zinc-800/40 px-6 py-5 border-b border-slate-100 dark:border-zinc-800 flex justify-between items-center">
@@ -356,14 +358,14 @@
                                                         </td>
                                                         <!-- Old Value -->
                                                         <td class="p-4 border-r border-slate-100 dark:border-zinc-700/50 bg-rose-50/10 dark:bg-rose-950/10 relative">
-                                                            <div class="font-medium text-rose-600 dark:text-rose-400 break-words line-through decoration-rose-200 dark:decoration-rose-900/50" 
+                                                            <div class="font-medium text-rose-600 dark:text-rose-400 break-all line-through decoration-rose-200 dark:decoration-rose-900/50" 
                                                                  x-text="selectedLog?.old_values?.[key] !== undefined ? formatValue(selectedLog.old_values[key], key) : '—'">
                                                             </div>
                                                         </td>
                                                         <!-- New Value -->
                                                         <td class="p-4 bg-emerald-50/10 dark:bg-emerald-950/10 relative">
                                                             <div class="absolute inset-y-0 left-0 w-0.5 bg-emerald-400/50 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                                            <div class="font-bold text-emerald-600 dark:text-emerald-400 break-words"
+                                                            <div class="font-bold text-emerald-600 dark:text-emerald-400 break-all"
                                                                  x-text="selectedLog?.new_values?.[key] !== undefined ? formatValue(selectedLog.new_values[key], key) : '—'">
                                                             </div>
                                                         </td>
@@ -392,7 +394,7 @@
                                                         <td class="p-4 border-r border-emerald-50 dark:border-emerald-900/20 bg-emerald-50/10 dark:bg-emerald-950/10">
                                                             <span class="font-bold text-slate-700 dark:text-slate-300 tracking-wider uppercase text-[10px]" x-text="formatKey(key)"></span>
                                                         </td>
-                                                        <td class="p-4 font-medium text-emerald-600 dark:text-emerald-400 break-words"
+                                                        <td class="p-4 font-medium text-emerald-600 dark:text-emerald-400 break-all"
                                                             x-text="formatValue(value, key)">
                                                         </td>
                                                     </tr>
@@ -420,7 +422,7 @@
                                                         <td class="p-4 border-r border-rose-50 dark:border-rose-900/20 bg-rose-50/10 dark:bg-rose-950/10">
                                                             <span class="font-bold text-slate-700 dark:text-slate-300 tracking-wider uppercase text-[10px]" x-text="formatKey(key)"></span>
                                                         </td>
-                                                        <td class="p-4 font-medium text-rose-600 dark:text-rose-400 break-words line-through decoration-rose-200"
+                                                        <td class="p-4 font-medium text-rose-600 dark:text-rose-400 break-all line-through decoration-rose-200"
                                                             x-text="formatValue(value, key)">
                                                         </td>
                                                     </tr>
@@ -460,6 +462,66 @@
                 </div>
             </div>
         </div>
-    </div>
+    </template>
+
+    <!-- PRUNE MODAL -->
+    <template x-teleport="body">
+        <div x-show="showPruneModal" 
+             class="fixed inset-0 z-50 overflow-y-auto" 
+             style="display: none;"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0">
+         
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <!-- Background overlay -->
+            <div class="fixed inset-0 transition-opacity bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm z-40" @click="showPruneModal = false"></div>
+
+            <!-- This element is to trick the browser into centering the modal contents. -->
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+            <!-- Modal panel -->
+            <div class="relative z-50 inline-block align-bottom bg-white dark:bg-zinc-900 rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full border border-slate-100 dark:border-zinc-800">
+                
+                <form action="{{ route('admin.audit-logs.prune') }}" method="POST">
+                    @csrf
+                    @method('DELETE')
+                    
+                    <div class="p-6">
+                        <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 mb-5">
+                            <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-center text-slate-800 dark:text-white mb-2">Autentikasi Diperlukan</h3>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 text-center mb-6 leading-relaxed">
+                            Peringatan! Aksi ini akan menghapus log aktivitas yang umurnya lebih dari 30 hari secara <b class="text-red-500 dark:text-red-400">permanen</b>. Masukkan kata sandi Anda untuk memverifikasi hak akses.
+                        </p>
+                        
+                        <div>
+                            <label for="password" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Kata Sandi (Password)</label>
+                            <input type="password" name="password" id="password" required autocomplete="current-password"
+                                   class="block w-full px-4 py-3 border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800/50 rounded-xl focus:ring-2 focus:ring-red-500/20 focus:border-red-500 text-sm transition-all dark:text-white placeholder-slate-400 dark:placeholder-slate-500"
+                                   placeholder="Masukkan kata sandi akun Anda">
+                        </div>
+                    </div>
+                    
+                    <div class="bg-slate-50 dark:bg-zinc-800/40 px-6 py-4 border-t border-slate-100 dark:border-zinc-800 flex justify-end gap-3">
+                        <button type="button" @click="showPruneModal = false"
+                                class="px-5 py-2.5 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-700 text-slate-700 dark:text-slate-300 text-sm font-semibold rounded-xl transition-colors cursor-pointer shadow-sm">
+                            Batal
+                        </button>
+                        <button type="submit"
+                                class="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-xl shadow-sm transition-colors cursor-pointer flex items-center justify-center min-w-[140px]">
+                            Verifikasi & Hapus
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </template>
 </div>
 @endsection
