@@ -1,10 +1,9 @@
 <!-- jQuery & DataTables JS -->
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.7/js/dataTables.tailwindcss.min.js"></script>
+<script defer src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>
+<script defer src="{{ asset('vendor/datatables/jquery.dataTables.min.js') }}"></script>
 
 <!-- SweetAlert2 -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script defer src="{{ asset('vendor/sweetalert2/sweetalert2.min.js') }}"></script>
 
 <!-- Global Delete Confirmation Script -->
 <script>
@@ -92,6 +91,10 @@
                     
                     // Update URL silently
                     window.history.pushState({}, '', urlStr);
+                })
+                .catch(error => {
+                    console.error('AJAX Error:', error);
+                    // optionally show alert or toast
                 })
                 .finally(() => {
                     this.isLoading = false;

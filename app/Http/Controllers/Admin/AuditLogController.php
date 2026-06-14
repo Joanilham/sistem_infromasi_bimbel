@@ -60,6 +60,41 @@ class AuditLogController extends Controller
         return back()->with('success', 'Log aktivitas berhasil dihapus.');
     }
 
+    /**
+     * Delete audit logs older than 30 days
+     */
+    public function prune(Request $request)
+    {
+        // Fitur hapus log adalah hak eksklusif Super Admin
+        if (strtolower(auth()->user()->level) !== 'super admin') {
+            abort(403, 'Akses ditolak. Anda tidak memiliki izin untuk membersihkan log sistem.');
+        }
+
+        $request->validate([
+            'password' => 'required|string',
+        ]);
+
+        if (!\Illuminate\Support\Facades\Hash::check($request->password, auth()->user()->password)) {
+            return back()->with('error', 'Kata sandi tidak sesuai. Autentikasi gagal.');
+        }
+
+        $date30DaysAgo = now()->subDays(30);
+        $deletedCount = AuditLog::where('created_at', '<', $date30DaysAgo)->delete();
+
+        if ($deletedCount > 0) {
+            // Catat aktivitas pembersihan ini sendiri
+            AuditLog::logSystemEvent(
+                'Bersihkan Log Lama', 
+                'AuditLog', 
+                null, 
+                ['jumlah_dihapus' => $deletedCount, 'batas_tanggal' => $date30DaysAgo->format('Y-m-d')]
+            );
+            return back()->with('success', "Berhasil membersihkan {$deletedCount} log aktivitas yang lebih lama dari 30 hari.");
+        }
+
+        return back()->with('info', 'Tidak ada log aktivitas yang umurnya lebih dari 30 hari untuk dibersihkan.');
+    }
+
     // ═══════════════════════════════════════════════════════
     // PRIVATE HELPERS
     // ═══════════════════════════════════════════════════════
@@ -67,7 +102,11 @@ class AuditLogController extends Controller
     private function buildAuditBaseQuery($query)
     {
         if (strtolower(auth()->user()->level) !== 'super admin') {
-            $query->where('user_id', auth()->id());
+            $query->where(function ($q) {
+                $q->whereHas('user', function ($u) {
+                    $u->whereRaw('LOWER(level) != ?', ['super admin']);
+                })->orWhereNull('user_id');
+            });
         }
         return $query;
     }

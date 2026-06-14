@@ -328,8 +328,37 @@ class UjianController extends Controller
             ->withCount('ujianSoals')
             ->findOrFail($id);
 
-        $pesertas = $ujian->pesertas()
-            ->with('user')
+        $assigns = $ujian->assigns;
+        
+        $userIds = [];
+        $kelompokIds = [];
+        foreach ($assigns as $assign) {
+            if ($assign->tipe_assign === 'user') {
+                $userIds[] = $assign->assign_id;
+            } elseif ($assign->tipe_assign === 'kelas') {
+                $kelompokIds[] = $assign->assign_id;
+            }
+        }
+
+        $query = User::where('level', 'siswa')->where('is_active', true);
+        if (count($userIds) > 0 || count($kelompokIds) > 0) {
+            $query->where(function($q) use ($userIds, $kelompokIds) {
+                if (count($userIds) > 0) {
+                    $q->whereIn('id', $userIds);
+                }
+                if (count($kelompokIds) > 0) {
+                    $q->orWhereHas('pesertaDidik', function($sq) use ($kelompokIds) {
+                        $sq->whereIn('kelompok_belajar_id', $kelompokIds);
+                    });
+                }
+            });
+        } else {
+            $query->whereRaw('1 = 0');
+        }
+        
+        $assignedUsers = $query->orderBy('name')->get();
+
+        $sesis = $ujian->pesertas()
             ->withCount(['jawabans as jawabans_count' => function($q) {
                 // Hanya hitung soal yang sudah dijawab (opsi dipilih atau essay diisi)
                 $q->where(function($sub) {
@@ -337,10 +366,65 @@ class UjianController extends Controller
                         ->orWhereNotNull('jawaban_essay');
                 });
             }])
-            ->orderBy('waktu_mulai', 'desc')
-            ->get();
+            ->withCount(['jawabans as belum_dikoreksi_count' => function($q) {
+                $q->whereNull('is_benar');
+            }])
+            ->get()
+            ->keyBy('user_id');
 
-        return view('guru.ujian.monitoring', compact('ujian', 'pesertas'));
+        return view('guru.ujian.monitoring', compact('ujian', 'assignedUsers', 'sesis'));
+    }
+
+    /**
+     * Halaman Koreksi Jawaban Essay
+     */
+    public function koreksi(string $id, string $peserta_id)
+    {
+        $ujian = CbtUjian::where('created_by', Auth::id())->findOrFail($id);
+        $sesi = CbtPeserta::with(['user', 'jawabans.bankSoal.opsiJawabans', 'jawabans.opsiJawaban'])
+            ->where('cbt_ujian_id', $ujian->id)
+            ->findOrFail($peserta_id);
+
+        $ujianSoalsMap = \App\Models\CBT\CbtUjianSoal::where('cbt_ujian_id', $ujian->id)
+            ->get()
+            ->keyBy('cbt_bank_soal_id');
+
+        return view('guru.ujian.koreksi', compact('ujian', 'sesi', 'ujianSoalsMap'));
+    }
+
+    /**
+     * Simpan Nilai Koreksi
+     */
+    public function simpanKoreksi(Request $request, string $id, string $peserta_id)
+    {
+        $ujian = CbtUjian::where('created_by', Auth::id())->findOrFail($id);
+        $sesi = CbtPeserta::where('cbt_ujian_id', $ujian->id)->findOrFail($peserta_id);
+
+        $skorData = $request->input('skor', []);
+        
+        $ujianSoalsMap = \App\Models\CBT\CbtUjianSoal::where('cbt_ujian_id', $ujian->id)
+            ->get()
+            ->keyBy('cbt_bank_soal_id');
+
+        foreach ($skorData as $jawaban_id => $inputSkor) {
+            $jawaban = \App\Models\CBT\CbtPesertaJawaban::where('cbt_peserta_id', $sesi->id)->find($jawaban_id);
+            if ($jawaban && $jawaban->bankSoal->tipe_soal === 'essay') {
+                $bobotMaksimal = $ujianSoalsMap->get($jawaban->cbt_bank_soal_id)?->bobot ?? 1;
+                
+                // Validasi skor tidak melebihi bobot
+                $skorDiinput = min(max(0, (float) $inputSkor), $bobotMaksimal);
+                
+                $jawaban->skor = $skorDiinput;
+                $jawaban->is_benar = ($skorDiinput > 0);
+                $jawaban->save();
+            }
+        }
+
+        // Kalkulasi Ulang Skor Akhir
+        app(\App\Services\CbtService::class)->recalculateSkor($sesi);
+
+        return redirect()->route('guru.ujian.monitoring', $ujian->id)
+            ->with('success', 'Nilai essay berhasil disimpan dan skor akhir telah diperbarui.');
     }
 }
 

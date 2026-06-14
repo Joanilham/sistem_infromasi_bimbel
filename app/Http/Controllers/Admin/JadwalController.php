@@ -29,7 +29,7 @@ class JadwalController extends Controller
             ->get();
 
         $guruList   = User::where('level', 'guru')->where('is_active', true)->orderBy('name')->get();
-        $rombelList = KelompokBelajar::inContext()->orderBy('nama_kelompok')->get();
+        $rombelList = KelompokBelajar::query()->orderBy('nama_kelompok')->get();
         $mapelList  = CbtMapel::orderBy('nama')->get();
 
         return view('admin.jadwal.index', compact(
@@ -44,7 +44,7 @@ class JadwalController extends Controller
     public function create()
     {
         $guruList   = User::where('level', 'guru')->where('is_active', true)->orderBy('name')->get();
-        $rombelList = KelompokBelajar::inContext()->orderBy('nama_kelompok')->get();
+        $rombelList = KelompokBelajar::query()->orderBy('nama_kelompok')->get();
         $hariList   = Jadwal::HARI_LIST;
 
         return view('admin.jadwal.create', compact('guruList', 'rombelList', 'hariList'));
@@ -95,7 +95,7 @@ class JadwalController extends Controller
         $jadwal = Jadwal::inContext()->findOrFail($id);
         
         $guruList   = User::where('level', 'guru')->where('is_active', true)->orderBy('name')->get();
-        $rombelList = KelompokBelajar::inContext()->orderBy('nama_kelompok')->get();
+        $rombelList = KelompokBelajar::query()->orderBy('nama_kelompok')->get();
         $hariList   = Jadwal::HARI_LIST;
 
         return view('admin.jadwal.edit', compact('jadwal', 'guruList', 'rombelList', 'hariList'));

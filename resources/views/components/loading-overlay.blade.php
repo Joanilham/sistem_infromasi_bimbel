@@ -13,4 +13,4 @@
 
 <!-- Toast container -->
 <div id="toast-container" role="region" aria-live="polite"></div>
-<script src="{{ asset('js/app-loader.js') }}"></script>
+<script defer src="{{ asset('js/app-loader.js') }}"></script>

@@ -14,6 +14,15 @@ class PesertaDidikRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation()
+    {
+        if ($this->has('nisn')) {
+            $this->merge([
+                'nomor_induk' => $this->nisn,
+            ]);
+        }
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -27,6 +36,7 @@ class PesertaDidikRequest extends FormRequest
         $rules = [
             'nama_lengkap'      => 'required|string|max:255',
             'nisn'              => 'required|digits:10|unique:peserta_didiks,nisn,' . $id,
+            'nomor_induk'       => 'nullable|string|max:255|unique:peserta_didiks,nomor_induk,' . $id,
             'jenis_kelamin'     => 'required|in:L,P',
             'tempat_lahir'      => 'nullable|string|max:255',
             'tanggal_lahir'     => 'nullable|date',

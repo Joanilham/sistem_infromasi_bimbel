@@ -171,7 +171,7 @@
     </div>
 
     {{-- Backup List --}}
-    <div x-data="{ activeFilter: 'all' }" class="bg-white dark:bg-zinc-900 rounded-[2.5rem] border border-slate-100 dark:border-zinc-800 shadow-sm overflow-hidden">
+    <div x-data="backupManager()" class="bg-white dark:bg-zinc-900 rounded-[2.5rem] border border-slate-100 dark:border-zinc-800 shadow-sm overflow-hidden">
         <div class="p-6 sm:p-8 border-b border-slate-100 dark:border-zinc-800">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div class="flex items-center gap-3">
@@ -180,7 +180,7 @@
                     </div>
                     <div>
                         <h2 class="text-lg font-black text-slate-900 dark:text-white">Daftar Backup</h2>
-                        <p class="text-xs text-slate-400">{{ count($backups) }} file backup tersedia</p>
+                        <p class="text-xs text-slate-400">Total {{ count($allBackups) }} file backup tersedia</p>
                     </div>
                 </div>
 
@@ -207,28 +207,42 @@
         </div>
         @else
         <!-- Filter Tabs / Pills -->
-        <div class="px-6 sm:px-8 py-3.5 bg-slate-50/50 dark:bg-zinc-950/20 border-b border-slate-100 dark:border-zinc-800/80 flex flex-wrap gap-2">
-            <button @click="activeFilter = 'all'" :class="activeFilter === 'all' ? 'bg-indigo-600 text-white' : 'bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800'" class="text-[10px] font-black uppercase tracking-wider px-4 py-2 rounded-xl transition-all shadow-sm">
-                Semua ({{ count($backups) }})
-            </button>
-            <button @click="activeFilter = 'daily'" :class="activeFilter === 'daily' ? 'bg-emerald-600 text-white shadow-emerald-500/20' : 'bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800'" class="text-[10px] font-black uppercase tracking-wider px-4 py-2 rounded-xl transition-all shadow-sm">
-                Harian ({{ count(array_filter($backups, fn($b) => $b->type === 'daily')) }})
-            </button>
-            <button @click="activeFilter = 'weekly'" :class="activeFilter === 'weekly' ? 'bg-amber-600 text-white shadow-amber-500/20' : 'bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800'" class="text-[10px] font-black uppercase tracking-wider px-4 py-2 rounded-xl transition-all shadow-sm">
-                Mingguan ({{ count(array_filter($backups, fn($b) => $b->type === 'weekly')) }})
-            </button>
-            <button @click="activeFilter = 'monthly'" :class="activeFilter === 'monthly' ? 'bg-purple-600 text-white shadow-purple-500/20' : 'bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800'" class="text-[10px] font-black uppercase tracking-wider px-4 py-2 rounded-xl transition-all shadow-sm">
-                Bulanan ({{ count(array_filter($backups, fn($b) => $b->type === 'monthly')) }})
-            </button>
-            <button @click="activeFilter = 'manual'" :class="activeFilter === 'manual' ? 'bg-slate-600 text-white shadow-slate-500/20' : 'bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800'" class="text-[10px] font-black uppercase tracking-wider px-4 py-2 rounded-xl transition-all shadow-sm">
-                Manual ({{ count(array_filter($backups, fn($b) => $b->type === 'manual')) }})
-            </button>
+        <div class="px-6 sm:px-8 py-3.5 bg-slate-50/50 dark:bg-zinc-950/20 border-b border-slate-100 dark:border-zinc-800/80 flex flex-wrap gap-2 items-center justify-between">
+            <div class="flex flex-wrap gap-2">
+                <button @click="activeFilter = 'all'; setTimeout(() => toggleSelectAll(false), 50)" :class="activeFilter === 'all' ? 'bg-indigo-600 text-white' : 'bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800'" class="text-[10px] font-black uppercase tracking-wider px-4 py-2 rounded-xl transition-all shadow-sm">
+                    Semua ({{ count($allBackups) }})
+                </button>
+                <button @click="activeFilter = 'daily'; setTimeout(() => toggleSelectAll(false), 50)" :class="activeFilter === 'daily' ? 'bg-emerald-600 text-white shadow-emerald-500/20' : 'bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800'" class="text-[10px] font-black uppercase tracking-wider px-4 py-2 rounded-xl transition-all shadow-sm">
+                    Harian ({{ count(array_filter($allBackups, fn($b) => $b->type === 'daily')) }})
+                </button>
+                <button @click="activeFilter = 'weekly'; setTimeout(() => toggleSelectAll(false), 50)" :class="activeFilter === 'weekly' ? 'bg-amber-600 text-white shadow-amber-500/20' : 'bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800'" class="text-[10px] font-black uppercase tracking-wider px-4 py-2 rounded-xl transition-all shadow-sm">
+                    Mingguan ({{ count(array_filter($allBackups, fn($b) => $b->type === 'weekly')) }})
+                </button>
+                <button @click="activeFilter = 'monthly'; setTimeout(() => toggleSelectAll(false), 50)" :class="activeFilter === 'monthly' ? 'bg-purple-600 text-white shadow-purple-500/20' : 'bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800'" class="text-[10px] font-black uppercase tracking-wider px-4 py-2 rounded-xl transition-all shadow-sm">
+                    Bulanan ({{ count(array_filter($allBackups, fn($b) => $b->type === 'monthly')) }})
+                </button>
+                <button @click="activeFilter = 'manual'; setTimeout(() => toggleSelectAll(false), 50)" :class="activeFilter === 'manual' ? 'bg-slate-600 text-white shadow-slate-500/20' : 'bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800'" class="text-[10px] font-black uppercase tracking-wider px-4 py-2 rounded-xl transition-all shadow-sm">
+                    Manual ({{ count(array_filter($allBackups, fn($b) => $b->type === 'manual')) }})
+                </button>
+            </div>
+            <div x-show="selectedFiles.length > 0" x-transition x-cloak>
+                <button @click="bulkDelete()" class="text-[10px] font-black uppercase tracking-wider px-4 py-2 rounded-xl transition-all shadow-sm bg-red-600 hover:bg-red-700 text-white flex items-center gap-2">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                    Hapus Terpilih (<span x-text="selectedFiles.length"></span>)
+                </button>
+            </div>
         </div>
 
         <div class="divide-y divide-slate-50 dark:divide-zinc-800">
+            <div class="px-5 py-3 sm:px-6 bg-slate-50 dark:bg-zinc-900 border-b border-slate-100 dark:border-zinc-800 flex items-center gap-4">
+                <input type="checkbox" x-model="selectAll" @change="toggleSelectAll()" class="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4 cursor-pointer">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Pilih Semua di Halaman Ini</span>
+            </div>
+
             @foreach($backups as $backup)
-            <div x-show="activeFilter === 'all' || activeFilter === '{{ $backup->type }}'" class="p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/50 dark:hover:bg-zinc-800/50 transition-colors group">
+            <div x-show="activeFilter === 'all' || activeFilter === '{{ $backup->type }}'" class="backup-row p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/50 dark:hover:bg-zinc-800/50 transition-colors group">
                 <div class="flex items-center gap-4 min-w-0">
+                    <input type="checkbox" value="{{ $backup->filename }}" x-model="selectedFiles" class="file-checkbox rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4 cursor-pointer shrink-0">
                     <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-zinc-800 flex items-center justify-center shrink-0 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/30 transition-colors">
                         <svg class="w-5 h-5 text-slate-400 dark:text-zinc-500 group-hover:text-indigo-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                     </div>
@@ -255,7 +269,7 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-2 shrink-0">
-                    <a href="{{ route('admin.backup.download', $backup->filename) }}"
+                    <a href="{{ route('admin.backup.download', $backup->filename) }}" download
                         class="inline-flex items-center gap-1.5 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-400 text-xs font-bold px-4 py-2 rounded-xl transition-all">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
                         Download
@@ -273,7 +287,7 @@
                     <form action="{{ route('admin.backup.destroy', $backup->filename) }}" method="POST" class="inline">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" onclick="event.preventDefault(); confirmDelete('Hapus Backup?', 'Tindakan ini tidak bisa dibatalkan.', this.closest('form'))"
+                        <button type="button" @click="deleteSingle('{{ $backup->filename }}', $el)"
                             class="inline-flex items-center gap-1.5 bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 text-red-700 dark:text-red-400 text-xs font-bold px-4 py-2 rounded-xl transition-all">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                             Hapus
@@ -284,32 +298,132 @@
             @endforeach
 
             <!-- Empty State Filter Khusus (Alpine Dynamic) -->
-            <div x-show="activeFilter === 'daily' && {{ count(array_filter($backups, fn($b) => $b->type === 'daily')) }} === 0" class="p-12 text-center" x-cloak>
+            <div x-show="activeFilter === 'daily' && {{ count(array_filter($backups->items(), fn($b) => $b->type === 'daily')) }} === 0" class="p-12 text-center" x-cloak>
                 <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/20 flex items-center justify-center mx-auto mb-3">
                     <svg class="w-6 h-6 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 </div>
-                <p class="text-xs font-bold text-slate-400 dark:text-zinc-500">Belum ada file backup berkala Harian.</p>
+                <p class="text-xs font-bold text-slate-400 dark:text-zinc-500">Belum ada file backup berkala Harian di halaman ini.</p>
             </div>
-            <div x-show="activeFilter === 'weekly' && {{ count(array_filter($backups, fn($b) => $b->type === 'weekly')) }} === 0" class="p-12 text-center" x-cloak>
+            <div x-show="activeFilter === 'weekly' && {{ count(array_filter($backups->items(), fn($b) => $b->type === 'weekly')) }} === 0" class="p-12 text-center" x-cloak>
                 <div class="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/20 flex items-center justify-center mx-auto mb-3">
                     <svg class="w-6 h-6 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 </div>
-                <p class="text-xs font-bold text-slate-400 dark:text-zinc-500">Belum ada file backup berkala Mingguan.</p>
+                <p class="text-xs font-bold text-slate-400 dark:text-zinc-500">Belum ada file backup berkala Mingguan di halaman ini.</p>
             </div>
-            <div x-show="activeFilter === 'monthly' && {{ count(array_filter($backups, fn($b) => $b->type === 'monthly')) }} === 0" class="p-12 text-center" x-cloak>
+            <div x-show="activeFilter === 'monthly' && {{ count(array_filter($backups->items(), fn($b) => $b->type === 'monthly')) }} === 0" class="p-12 text-center" x-cloak>
                 <div class="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-950/20 flex items-center justify-center mx-auto mb-3">
                     <svg class="w-6 h-6 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 </div>
-                <p class="text-xs font-bold text-slate-400 dark:text-zinc-500">Belum ada file backup berkala Bulanan.</p>
+                <p class="text-xs font-bold text-slate-400 dark:text-zinc-500">Belum ada file backup berkala Bulanan di halaman ini.</p>
             </div>
-            <div x-show="activeFilter === 'manual' && {{ count(array_filter($backups, fn($b) => $b->type === 'manual')) }} === 0" class="p-12 text-center" x-cloak>
+            <div x-show="activeFilter === 'manual' && {{ count(array_filter($backups->items(), fn($b) => $b->type === 'manual')) }} === 0" class="p-12 text-center" x-cloak>
                 <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-zinc-800 flex items-center justify-center mx-auto mb-3">
                     <svg class="w-6 h-6 text-slate-400 dark:text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                 </div>
-                <p class="text-xs font-bold text-slate-400 dark:text-zinc-500">Belum ada file backup Manual.</p>
+                <p class="text-xs font-bold text-slate-400 dark:text-zinc-500">Belum ada file backup Manual di halaman ini.</p>
             </div>
+        </div>
+        </div>
+        @endif
+        
+        @if($backups->hasPages())
+        <div class="p-6 border-t border-slate-100 dark:border-zinc-800">
+            {{ $backups->links() }}
         </div>
         @endif
     </div>
 </div>
+
+@push('scripts')
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('backupManager', () => ({
+            activeFilter: 'all',
+            selectedFiles: [],
+            selectAll: false,
+
+            toggleSelectAll(forceState = null) {
+                if (forceState !== null) this.selectAll = forceState;
+                
+                if (this.selectAll) {
+                    this.selectedFiles = Array.from(document.querySelectorAll('input[type="checkbox"].file-checkbox'))
+                        .filter(el => el.closest('.backup-row').style.display !== 'none')
+                        .map(el => el.value);
+                } else {
+                    this.selectedFiles = [];
+                }
+            },
+            
+            bulkDelete() {
+                if (this.selectedFiles.length === 0) return;
+                
+                Swal.fire({
+                    title: 'Hapus Massal?',
+                    text: 'Tindakan ini akan menghapus ' + this.selectedFiles.length + ' file secara permanen!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#64748b',
+                    confirmButtonText: 'Ya, Hapus Semua!',
+                    cancelButtonText: 'Batal',
+                    background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#ffffff',
+                    color: document.documentElement.classList.contains('dark') ? '#f8fafc' : '#0f172a'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch('{{ route('admin.backup.bulk_destroy') }}', {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({ filenames: this.selectedFiles })
+                        }).then(res => res.json()).then(data => {
+                            if(data.success) {
+                                window.location.reload();
+                            }
+                        });
+                    }
+                });
+            },
+
+            deleteSingle(filename, element) {
+                Swal.fire({
+                    title: 'Hapus Backup?',
+                    text: 'Tindakan ini tidak bisa dibatalkan.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#64748b',
+                    confirmButtonText: 'Ya, Hapus!',
+                    cancelButtonText: 'Batal',
+                    background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#ffffff',
+                    color: document.documentElement.classList.contains('dark') ? '#f8fafc' : '#0f172a'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch(`/admin/backup/${filename}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            }
+                        }).then(res => res.json()).then(data => {
+                            if(data.success) {
+                                element.closest('.backup-row').remove();
+                                // Remove from selected array if it was checked
+                                this.selectedFiles = this.selectedFiles.filter(f => f !== filename);
+                                
+                                // Optional: reload if empty
+                                if (document.querySelectorAll('.backup-row').length === 0) {
+                                    window.location.reload();
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+        }));
+    });
+</script>
+@endpush
 @endsection

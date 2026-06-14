@@ -134,6 +134,14 @@ class PembayaranController extends Controller
         // Kirim Notifikasi WA
         $this->kirimBuktiWa($pembayaranSiswa->pesertaDidik, $validated['nominal'], $validated['tanggal'], $noKwitansi, false);
 
+        // Update batas_waktu otomatis jika masih ada kekurangan (cicilan)
+        if ($pembayaranSiswa->kekurangan > 0 && $pembayaranSiswa->batas_waktu) {
+            $newBatasWaktu = $pembayaranSiswa->batas_waktu->isPast() 
+                ? now()->addMonth() 
+                : $pembayaranSiswa->batas_waktu->copy()->addMonth();
+            $pembayaranSiswa->update(['batas_waktu' => $newBatasWaktu]);
+        }
+
         return redirect()->route('keuangan.transaksi.struk', $transaksi->id)->with('success', "Pembayaran dicatat. No. Kwitansi: {$noKwitansi}");
     }
 
@@ -194,6 +202,15 @@ class PembayaranController extends Controller
             $noKwitansi,
             true
         );
+
+        $pembayaranSiswa = $transaksiPembayaran->pembayaranSiswa;
+        // Update batas_waktu otomatis jika masih ada kekurangan (cicilan)
+        if ($pembayaranSiswa->kekurangan > 0 && $pembayaranSiswa->batas_waktu) {
+            $newBatasWaktu = $pembayaranSiswa->batas_waktu->isPast() 
+                ? now()->addMonth() 
+                : $pembayaranSiswa->batas_waktu->copy()->addMonth();
+            $pembayaranSiswa->update(['batas_waktu' => $newBatasWaktu]);
+        }
 
         return redirect()->route('keuangan.transaksi.struk', $transaksiPembayaran->id)->with('success', "Pembayaran transfer berhasil diverifikasi. No. Kwitansi: {$noKwitansi}");
     }

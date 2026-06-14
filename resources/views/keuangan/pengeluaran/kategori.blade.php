@@ -38,25 +38,26 @@
     @endif
 
     {{-- Form Tambah Section --}}
-    <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-zinc-800 shadow-sm">
-        <h2 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest mb-6 flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-rose-500"></span>
-            Tambah Kategori Baru
+    <div class="bg-white dark:bg-zinc-900 rounded-[2rem] p-6 sm:p-8 border border-slate-100 dark:border-zinc-800 shadow-sm">
+        <h2 class="font-black text-slate-900 dark:text-white mb-6 flex items-center justify-between gap-3 text-xs uppercase tracking-wider">
+            <div class="flex items-center gap-3">
+                <span class="w-8 h-8 rounded-xl bg-rose-100 dark:bg-rose-900/30 text-rose-600 flex items-center justify-center">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                </span>
+                Tambah Kategori Baru
+            </div>
         </h2>
-        <form action="{{ route('keuangan.pengeluaran.kategori.store') }}" method="POST" class="flex flex-col sm:flex-row gap-4">
+        <form action="{{ route('keuangan.pengeluaran.kategori.store') }}" method="POST" class="flex flex-col sm:flex-row gap-4 items-center">
             @csrf
-            <div class="flex-1 relative group">
+            <div class="flex-1 relative group w-full">
                 <input type="text" name="nama" value="{{ old('nama') }}" required autofocus
                     placeholder="Contoh: GAJI GURU, OPERASIONAL, LISTRIK..." 
-                    class="w-full bg-slate-50 dark:bg-zinc-950 border-2 border-transparent rounded-2xl text-sm font-bold px-6 py-4 focus:ring-0 focus:border-rose-500/30 focus:bg-white dark:focus:bg-zinc-900 transition-all outline-none">
-                <div class="absolute inset-y-0 right-4 flex items-center opacity-0 group-focus-within:opacity-100 transition-opacity">
-                    <kbd class="px-2 py-1 bg-slate-200 dark:bg-zinc-800 rounded text-[10px] font-black text-slate-500 tracking-tighter">ENTER</kbd>
-                </div>
+                    class="w-full bg-slate-50 dark:bg-zinc-950 border border-slate-100 dark:border-zinc-800 rounded-xl text-sm py-3 px-4 focus:ring-2 focus:ring-rose-500/20 outline-none transition-colors">
             </div>
             <button type="submit" 
-                class="bg-rose-600 hover:bg-rose-700 text-white font-black text-xs px-8 py-4 rounded-2xl shadow-xl shadow-rose-600/20 transition-all active:scale-95 uppercase tracking-widest flex items-center justify-center gap-3 shrink-0">
-                <span>Simpan Kategori</span>
+                class="w-full sm:w-auto bg-rose-600 hover:bg-rose-700 text-white font-black px-6 py-3 rounded-xl text-sm transition-colors shadow-sm shadow-rose-500/30 flex items-center justify-center gap-2 shrink-0">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                <span>Simpan Kategori</span>
             </button>
         </form>
     </div>

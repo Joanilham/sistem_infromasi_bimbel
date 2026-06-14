@@ -26,7 +26,7 @@
             </div>
             @endif
         </div>
-        <div class="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-slate-200 dark:border-zinc-800 p-6" x-data="{ show: {{ count($assignedUserIds) > 0 ? 'true' : 'false' }} }">
+        <div class="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-slate-200 dark:border-zinc-800 p-6" x-data="{ show: true }">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-sm font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider">Per Siswa Individual</h3>
                 <button type="button" @click="show=!show" class="text-xs text-indigo-600 font-medium" x-text="show?'Sembunyikan':'Tampilkan'"></button>

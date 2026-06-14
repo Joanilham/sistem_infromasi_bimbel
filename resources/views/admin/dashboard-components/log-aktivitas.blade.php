@@ -1,4 +1,4 @@
-﻿    {{-- ─── Log Aktivitas Terbaru ─── --}}
+    {{-- ─── Log Aktivitas Terbaru ─── --}}
     <div class="mb-10">
         <div class="flex items-center justify-between mb-5">
             <div>
@@ -14,12 +14,12 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="bg-slate-50/70 border-b border-slate-100">
-                            <th class="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Pengguna</th>
-                            <th class="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Aktivitas</th>
-                            <th class="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Modul</th>
-                            <th class="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 hidden md:table-cell">Perangkat</th>
-                            <th class="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Waktu</th>
+                        <tr class="bg-slate-50/70 border-b border-slate-100 dark:border-slate-800">
+                            <th class="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Pengguna</th>
+                            <th class="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Aktivitas</th>
+                            <th class="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Modul</th>
+                            <th class="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 hidden md:table-cell">Perangkat</th>
+                            <th class="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 text-right">Waktu</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-50">

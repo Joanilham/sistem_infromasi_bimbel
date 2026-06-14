@@ -1,4 +1,4 @@
-﻿    {{-- ─── Banner Pengingat Periode Hampir Habis ─── --}}
+    {{-- ─── Banner Pengingat Periode Hampir Habis ─── --}}
     @php
         $activePeriode = \App\Models\MasterData\Periode::where('id', session('periode_id'))->first();
         $periodeWarning = false;
@@ -69,7 +69,7 @@
 
             {{-- Action Button --}}
             <div class="shrink-0 mt-2 sm:mt-0 w-full sm:w-auto">
-                <a href="{{ route('periode.index') }}"
+                <a href="{{ route('periode.index') }}" aria-label="Buat Periode Baru"
                    class="flex sm:inline-flex justify-center items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all w-full sm:w-auto
                     {{ $bulanSisa == 0
                         ? 'bg-red-600 hover:bg-red-700 text-white shadow-sm shadow-red-200 dark:shadow-red-900'

@@ -21,13 +21,19 @@ class JadwalResource extends JsonResource
             'jam_selesai'   => substr($this->jam_selesai, 0, 5),
             'ruangan'       => $this->ruangan,
             'mata_pelajaran'=> $this->whenLoaded('mataPelajaran', function() {
-                return $this->mataPelajaran->nama_mapel ?? null;
+                return ['nama' => $this->mataPelajaran->nama_mapel ?? null];
             }),
             'guru'          => $this->whenLoaded('guru', function() {
-                return $this->guru->name ?? null;
+                return ['name' => $this->guru->name ?? null];
             }),
             'rombel'        => $this->whenLoaded('rombel', function() {
-                return $this->rombel->nama_kelompok ?? null;
+                return ['nama_kelompok' => $this->rombel->nama_kelompok ?? null];
+            }),
+            'mapel'         => $this->whenLoaded('mataPelajaran', function() {
+                return $this->mataPelajaran->nama_mapel ?? null;
+            }),
+            'nama_guru'     => $this->whenLoaded('guru', function() {
+                return $this->guru->name ?? null;
             }),
         ];
     }

@@ -37,7 +37,7 @@ class WhatsAppService
         try {
             // Default Fonnte Payload format
             if (str_contains($url, 'fonnte.com')) {
-                $response = Http::withHeaders([
+                $response = Http::timeout(5)->withHeaders([
                     'Authorization' => $token,
                 ])->post($url, [
                     'target' => $phone,
@@ -56,7 +56,7 @@ class WhatsAppService
 
                 // Coba gunakan Authorization: Bearer Token, atau apikey header (disesuaikan dengan kebutuhan)
                 // Disini kita mengirim Bearer Token
-                $response = Http::withToken($token)
+                $response = Http::timeout(5)->withToken($token)
                                 // Jika pakai Evolution API biasanya via JSON
                                 ->asJson()
                                 ->post($url, $payload);

@@ -298,35 +298,37 @@
         </div>
     </div>
     {{-- Modal Duplikasi --}}
-    <div x-show="showDuplikasi" x-cloak class="fixed inset-0 z-[60] flex items-center justify-center p-4" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100">
-        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-md" @click="showDuplikasi = false"></div>
-        <div class="relative bg-white dark:bg-zinc-900 rounded-[3rem] shadow-2xl border border-slate-200/50 dark:border-zinc-700/50 w-full max-w-md overflow-hidden" @click.stop>
-            <div class="p-10">
-                <div class="w-16 h-16 bg-amber-50 dark:bg-amber-900/20 rounded-[1.5rem] flex items-center justify-center mb-6">
-                    <svg class="w-8 h-8 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+    <template x-teleport="body">
+        <div x-show="showDuplikasi" x-cloak class="fixed inset-0 z-[60] flex items-center justify-center p-4" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100">
+            <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-md" @click="showDuplikasi = false"></div>
+            <div class="relative bg-white dark:bg-zinc-900 rounded-[3rem] shadow-2xl border border-slate-200/50 dark:border-zinc-700/50 w-full max-w-md overflow-hidden" @click.stop>
+                <div class="p-10">
+                    <div class="w-16 h-16 bg-amber-50 dark:bg-amber-900/20 rounded-[1.5rem] flex items-center justify-center mb-6">
+                        <svg class="w-8 h-8 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                    </div>
+                    <h3 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Duplikasi Jadwal</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 font-medium">Salin seluruh struktur jadwal dari periode saat ini ke periode tujuan.</p>
+                    
+                    <form action="{{ route('admin.jadwal.duplikasi') }}" method="POST" class="mt-8 space-y-6">
+                        @csrf
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Pilih Periode Tujuan</label>
+                            <select name="target_periode_id" required class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all appearance-none text-slate-800 dark:text-white">
+                                <option value="">-- Pilih Periode --</option>
+                                @foreach(\App\Models\MasterData\Periode::all() as $p)
+                                <option value="{{ $p->id }}">{{ $p->tahun_periode ?? 'Periode #'.$p->id }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="flex gap-4 pt-4">
+                            <button type="button" @click="showDuplikasi = false" class="flex-1 px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-slate-50 dark:hover:bg-zinc-800 rounded-2xl transition-all">Batal</button>
+                            <button type="submit" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white text-[10px] font-black uppercase tracking-widest px-8 py-4 rounded-2xl shadow-xl shadow-amber-500/20 transition-all active:scale-95">Mulai Salin</button>
+                        </div>
+                    </form>
                 </div>
-                <h3 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Duplikasi Jadwal</h3>
-                <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 font-medium">Salin seluruh struktur jadwal dari periode saat ini ke periode tujuan.</p>
-                
-                <form action="{{ route('admin.jadwal.duplikasi') }}" method="POST" class="mt-8 space-y-6">
-                    @csrf
-                    <div class="space-y-2">
-                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Pilih Periode Tujuan</label>
-                        <select name="target_periode_id" required class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all appearance-none text-slate-800 dark:text-white">
-                            <option value="">-- Pilih Periode --</option>
-                            @foreach(\App\Models\MasterData\Periode::all() as $p)
-                            <option value="{{ $p->id }}">{{ $p->tahun_periode ?? 'Periode #'.$p->id }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="flex gap-4 pt-4">
-                        <button type="button" @click="showDuplikasi = false" class="flex-1 px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-slate-50 dark:hover:bg-zinc-800 rounded-2xl transition-all">Batal</button>
-                        <button type="submit" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white text-[10px] font-black uppercase tracking-widest px-8 py-4 rounded-2xl shadow-xl shadow-amber-500/20 transition-all active:scale-95">Mulai Salin</button>
-                    </div>
-                </form>
             </div>
         </div>
-    </div>
+    </template>
 </div>
 
 @push('head')

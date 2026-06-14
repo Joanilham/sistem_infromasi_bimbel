@@ -36,7 +36,7 @@ class LandingPageController extends Controller
         $validated = $request->validate([
             'judul'    => 'nullable|string|max:255',
             'kategori' => 'nullable|string|max:50',
-            'foto'     => 'required|image|mimes:jpg,jpeg,png,webp|max:5120',
+            'foto'     => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
             'urutan'   => 'nullable|integer',
         ]);
 
@@ -71,14 +71,14 @@ class LandingPageController extends Controller
     {
         $validated = $request->validate([
             'nama_lembaga'   => 'nullable|string|max:255',
-            'logo'           => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
+            'logo'           => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'wa_number'      => 'nullable|string|max:20',
             'wa_widget_status' => 'nullable|boolean',
             'wa_widget_message' => 'nullable|string|max:255',
             'instagram_url'  => 'nullable|string|max:255',
             'hero_title'     => 'nullable|string|max:255',
             'hero_subtitle'  => 'nullable|string',
-            'hero_image'     => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
+            'hero_image'     => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'hero_overlay_opacity' => 'nullable|integer|min:0|max:100',
             'tentang_kami'   => 'nullable|string',
             'stats_siswa'    => 'nullable|string|max:50',
@@ -130,7 +130,7 @@ class LandingPageController extends Controller
             'posisi' => 'nullable|string|max:255',
             'ulasan' => 'required|string',
             'bintang'=> 'required|integer|min:1|max:5',
-            'foto'   => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
+            'foto'   => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         try {
@@ -182,7 +182,7 @@ class LandingPageController extends Controller
         $validated = $request->validate([
             'title'       => 'required|string|max:255',
             'description' => 'nullable|string',
-            'icon'        => 'nullable|image|mimes:jpg,jpeg,png,webp,svg|max:5120',
+            'icon'        => 'nullable|image|mimes:jpg,jpeg,png,webp,svg|max:2048',
         ]);
 
         if ($request->hasFile('icon')) {
@@ -208,7 +208,7 @@ class LandingPageController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'link' => 'nullable|string|max:255',
-            'logo' => 'required|image|mimes:jpg,jpeg,png,webp,svg|max:5120',
+            'logo' => 'required|image|mimes:jpg,jpeg,png,webp,svg|max:2048',
         ]);
 
         if ($request->hasFile('logo')) {

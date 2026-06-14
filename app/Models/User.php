@@ -84,6 +84,11 @@ class User extends Authenticatable
         return $this->belongsTo(\App\Models\Akademik\PesertaDidik::class, 'peserta_didik_id');
     }
 
+    public function conversations()
+    {
+        return $this->belongsToMany(\App\Models\System\Conversation::class, 'conversation_user');
+    }
+
     // scopeInContext() disediakan oleh HasContextScope trait
 
     public function kantor(): \Illuminate\Database\Eloquent\Relations\BelongsTo

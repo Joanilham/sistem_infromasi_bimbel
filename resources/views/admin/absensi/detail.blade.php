@@ -108,75 +108,77 @@
 </div>
 
 {{-- Modal Edit Manual --}}
-<div x-data="{
-        show: false,
-        form: {
-            tanggal: '',
-            tanggal_format: '',
-            status_masuk: 'hadir',
-            jam_masuk: '',
-            jam_pulang: '',
-            keterangan: ''
-        }
-    }" 
-    x-show="show" 
-    @open-modal.window="if ($event.detail === 'edit-absensi') show = true"
-    @close-modal.window="show = false"
-    @set-absensi.window="
-        form.tanggal = $event.detail.tanggal;
-        form.tanggal_format = $event.detail.tanggal_format;
-        form.status_masuk = $event.detail.status_masuk;
-        form.jam_masuk = $event.detail.jam_masuk;
-        form.jam_pulang = $event.detail.jam_pulang;
-        form.keterangan = $event.detail.keterangan;
-    "
-    class="fixed inset-0 z-[100] flex items-center justify-center" style="display: none;">
-    
-    <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="show = false"></div>
+<template x-teleport="body">
+    <div x-data="{
+            show: false,
+            form: {
+                tanggal: '',
+                tanggal_format: '',
+                status_masuk: 'hadir',
+                jam_masuk: '',
+                jam_pulang: '',
+                keterangan: ''
+            }
+        }" 
+        x-show="show" 
+        @open-modal.window="if ($event.detail === 'edit-absensi') show = true"
+        @close-modal.window="show = false"
+        @set-absensi.window="
+            form.tanggal = $event.detail.tanggal;
+            form.tanggal_format = $event.detail.tanggal_format;
+            form.status_masuk = $event.detail.status_masuk;
+            form.jam_masuk = $event.detail.jam_masuk;
+            form.jam_pulang = $event.detail.jam_pulang;
+            form.keterangan = $event.detail.keterangan;
+        "
+        class="fixed inset-0 z-[100] flex items-center justify-center" style="display: none;">
+        
+        <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="show = false"></div>
 
-    <div class="relative bg-white dark:bg-zinc-900 rounded-[2rem] shadow-2xl w-full max-w-md p-8 m-4 transform transition-all border border-slate-100 dark:border-zinc-800">
-        <h3 class="text-xl font-black text-slate-800 dark:text-white mb-1">Edit Absensi Manual</h3>
-        <p class="text-sm font-bold text-slate-400 mb-6" x-text="'Tanggal: ' + form.tanggal_format"></p>
+        <div class="relative bg-white dark:bg-zinc-900 rounded-[2rem] shadow-2xl w-full max-w-md p-8 m-4 transform transition-all border border-slate-100 dark:border-zinc-800">
+            <h3 class="text-xl font-black text-slate-800 dark:text-white mb-1">Edit Absensi Manual</h3>
+            <p class="text-sm font-bold text-slate-400 mb-6" x-text="'Tanggal: ' + form.tanggal_format"></p>
 
-        <form action="{{ route('absensi.store.manual') }}" method="POST">
-            @csrf
-            <input type="hidden" name="peserta_didik_id" value="{{ $peserta->id }}">
-            <input type="hidden" name="tanggal" x-model="form.tanggal">
+            <form action="{{ route('absensi.store.manual') }}" method="POST">
+                @csrf
+                <input type="hidden" name="peserta_didik_id" value="{{ $peserta->id }}">
+                <input type="hidden" name="tanggal" x-model="form.tanggal">
 
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Status Kehadiran</label>
-                    <select name="status_masuk" x-model="form.status_masuk" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-sm font-bold py-3 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
-                        <option value="hadir">Hadir</option>
-                        <option value="izin">Izin</option>
-                        <option value="sakit">Sakit</option>
-                        <option value="alpha">Alpha</option>
-                    </select>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4" x-show="form.status_masuk === 'hadir'">
+                <div class="space-y-4">
                     <div>
-                        <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Jam Masuk</label>
-                        <input type="time" name="jam_masuk" x-model="form.jam_masuk" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-sm font-bold py-3 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
+                        <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Status Kehadiran</label>
+                        <select name="status_masuk" x-model="form.status_masuk" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-sm font-bold py-3 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
+                            <option value="hadir">Hadir</option>
+                            <option value="izin">Izin</option>
+                            <option value="sakit">Sakit</option>
+                            <option value="alpha">Alpha</option>
+                        </select>
                     </div>
+
+                    <div class="grid grid-cols-2 gap-4" x-show="form.status_masuk === 'hadir'">
+                        <div>
+                            <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Jam Masuk</label>
+                            <input type="time" name="jam_masuk" x-model="form.jam_masuk" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-sm font-bold py-3 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Jam Pulang</label>
+                            <input type="time" name="jam_pulang" x-model="form.jam_pulang" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-sm font-bold py-3 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
+                        </div>
+                    </div>
+
                     <div>
-                        <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Jam Pulang</label>
-                        <input type="time" name="jam_pulang" x-model="form.jam_pulang" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-sm font-bold py-3 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
+                        <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Keterangan (Opsional)</label>
+                        <textarea name="keterangan" x-model="form.keterangan" rows="2" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-sm py-3 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" placeholder="Ketik alasan perubahan manual di sini..."></textarea>
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Keterangan (Opsional)</label>
-                    <textarea name="keterangan" x-model="form.keterangan" rows="2" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-sm py-3 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" placeholder="Ketik alasan perubahan manual di sini..."></textarea>
+                <div class="mt-8 flex items-center justify-end gap-3 pt-6 border-t border-slate-100 dark:border-zinc-800">
+                    <button type="button" @click="show = false" class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-white bg-rose-500 hover:bg-rose-600 rounded-2xl transition-all shadow-xl shadow-rose-500/20 active:scale-95">Batal</button>
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-black uppercase tracking-widest px-8 py-4 rounded-2xl shadow-xl shadow-indigo-500/20 transition-all active:scale-95">Simpan Perubahan</button>
                 </div>
-            </div>
-
-            <div class="mt-8 flex items-center justify-end gap-3">
-                <button type="button" @click="show = false" class="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors">Batal</button>
-                <button type="submit" class="px-6 py-2.5 rounded-xl text-sm font-black text-white bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-500/30 transition-all active:scale-95">Simpan Perubahan</button>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
-</div>
+</template>
 
 @endsection

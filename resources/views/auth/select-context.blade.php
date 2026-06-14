@@ -92,7 +92,7 @@
                 @csrf
                 <input type="hidden" name="redirect" value="/dashboard">
 
-                @if(strtolower(auth()->user()->level) === 'super admin')
+                @if(in_array(strtolower(auth()->user()->level), ['super admin', 'admin']))
                     <div class="space-y-1.5" x-data="{ open: false, selected: '{{ $currentKantorId }}', selectedLabel: '{{ $currentKantorLabel }}' }">
                         <label class="block text-sm font-bold text-slate-700">Kantor Cabang</label>
                         <div class="relative">
@@ -123,8 +123,8 @@
                                     <div @click="selected = 'all'; selectedLabel = 'Semua Cabang (Akses Global)'; open = false"
                                          class="group flex items-center gap-4 px-4 py-3.5 text-sm rounded-2xl cursor-pointer transition-all duration-200"
                                          :class="selected == 'all' ? 'bg-slate-800 text-white shadow-lg shadow-slate-200' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'">
-                                         <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-100 bg-white/50 shadow-sm group-hover:border-slate-300 group-hover:bg-white transition-all duration-200"
-                                              :class="selected == 'all' ? 'bg-white/20 border-white/20' : ''">
+                                         <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-100 bg-white/50 shadow-sm transition-all duration-200"
+                                              :class="selected == 'all' ? 'bg-white/20 border-white/20' : 'group-hover:border-slate-300 group-hover:bg-white'">
                                              <svg class="h-5 w-5" :class="selected == 'all' ? 'text-white' : 'text-slate-500 group-hover:text-slate-800'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                              </svg>
@@ -146,8 +146,8 @@
                                         <div @click="selected = '{{ $kantor->id }}'; selectedLabel = '{{ $kantor->nama_kantor }}'; open = false"
                                              class="group flex items-center gap-4 px-4 py-3.5 text-sm rounded-2xl cursor-pointer transition-all duration-200"
                                              :class="selected == '{{ $kantor->id }}' ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'text-slate-600 hover:bg-blue-50 hover:text-blue-700'">
-                                             <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-100 bg-white/50 shadow-sm group-hover:border-blue-200 group-hover:bg-white transition-all duration-200"
-                                                  :class="selected == '{{ $kantor->id }}' ? 'bg-white/20 border-white/20' : ''">
+                                             <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-100 bg-white/50 shadow-sm transition-all duration-200"
+                                                  :class="selected == '{{ $kantor->id }}' ? 'bg-white/20 border-white/20' : 'group-hover:border-blue-200 group-hover:bg-white'">
                                                  <svg class="h-5 w-5" :class="selected == '{{ $kantor->id }}' ? 'text-white' : 'text-slate-400 group-hover:text-blue-600'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                                                  </svg>
@@ -216,8 +216,8 @@
                                     <div @click="selected = '{{ $periode->id }}'; selectedLabel = '{{ $periode->tahun_periode }} - {{ ucfirst($periode->semester ?? '') }}'; open = false"
                                          class="group flex items-center gap-4 px-4 py-3.5 text-sm rounded-2xl cursor-pointer transition-all duration-200"
                                          :class="selected == '{{ $periode->id }}' ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'text-slate-600 hover:bg-blue-50 hover:text-blue-700'">
-                                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-100 bg-white/50 shadow-sm group-hover:border-blue-200 group-hover:bg-white transition-all duration-200"
-                                             :class="selected == '{{ $periode->id }}' ? 'bg-white/20 border-white/20' : ''">
+                                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-100 bg-white/50 shadow-sm transition-all duration-200"
+                                             :class="selected == '{{ $periode->id }}' ? 'bg-white/20 border-white/20' : 'group-hover:border-blue-200 group-hover:bg-white'">
                                             <svg class="h-5 w-5" :class="selected == '{{ $periode->id }}' ? 'text-white' : 'text-slate-400 group-hover:text-blue-600'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                             </svg>

@@ -89,11 +89,20 @@ class BackupController extends Controller
     public function index()
     {
 
-        $backups = $this->getBackupList();
+        $allBackups = $this->getBackupList();
+        
+        // Batasi render data menjadi 10 (Pagination)
+        $perPage = 10;
+        $currentPage = \Illuminate\Pagination\Paginator::resolveCurrentPage() ?: 1;
+        $currentItems = array_slice($allBackups, ($currentPage - 1) * $perPage, $perPage);
+        $backups = new \Illuminate\Pagination\LengthAwarePaginator($currentItems, count($allBackups), $perPage, $currentPage, [
+            'path' => \Illuminate\Pagination\Paginator::resolveCurrentPath(),
+        ]);
+        
         $backupFrequencies = $this->getBackupFrequencies();
         $backupTime = $this->getBackupTime();
         
-        return view('admin.backup.index', compact('backups', 'backupFrequencies', 'backupTime'));
+        return view('admin.backup.index', compact('backups', 'backupFrequencies', 'backupTime', 'allBackups'));
     }
 
     /**
@@ -221,15 +230,32 @@ class BackupController extends Controller
             abort(403, 'Akses tidak sah.');
         }
 
-        $path = storage_path("app/{$this->backupDir}/{$filename}");
+        $relativePath = "{$this->backupDir}/{$filename}";
 
-        if (!file_exists($path)) {
+        if (!\Illuminate\Support\Facades\Storage::exists($relativePath)) {
             return back()->with('error', 'File backup tidak ditemukan.');
         }
 
         Log::info("File backup diunduh oleh Super Admin ID " . auth()->id() . ": {$filename}");
-        \App\Models\System\AuditLog::logSystemEvent('Download Backup Database', 'SystemBackup', null, ['filename' => $filename]);
-        return response()->download($path);
+        
+        // Simpan log aktivitas langsung ke database tanpa menunggu app()->terminating
+        // agar terhindar dari isu koneksi terputus saat streaming file besar.
+        try {
+            \App\Models\System\AuditLog::create([
+                'user_id'        => auth()->id(),
+                'event'          => 'Download Backup Database',
+                'auditable_type' => 'SystemBackup',
+                'auditable_id'   => 0,
+                'url'            => request()->fullUrl(),
+                'ip_address'     => request()->ip(),
+                'user_agent'     => request()->userAgent(),
+                'new_values'     => ['filename' => $filename]
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Audit log write failed: ' . $e->getMessage());
+        }
+
+        return \Illuminate\Support\Facades\Storage::download($relativePath);
     }
 
     /**
@@ -240,12 +266,14 @@ class BackupController extends Controller
         // Proteksi Directory Traversal & Batasan Ekstensi
         if (str_contains($filename, '/') || str_contains($filename, '\\') || !str_ends_with(strtolower($filename), '.sql')) {
             Log::warning("Percobaan serangan Directory Traversal pada Hapus DB: {$filename} oleh User ID " . auth()->id());
+            if (request()->wantsJson() || request()->ajax()) return response()->json(['success' => false, 'message' => 'Akses tidak sah.'], 403);
             abort(403, 'Akses tidak sah.');
         }
 
         $path = "{$this->backupDir}/{$filename}";
 
         if (!Storage::exists($path)) {
+            if (request()->wantsJson() || request()->ajax()) return response()->json(['success' => false, 'message' => 'File backup tidak ditemukan.'], 404);
             return back()->with('error', 'File backup tidak ditemukan.');
         }
 
@@ -253,7 +281,45 @@ class BackupController extends Controller
         Log::info("Backup dihapus secara sah oleh Super Admin ID " . auth()->id() . ": {$filename}");
         \App\Models\System\AuditLog::logSystemEvent('Hapus Backup Database', 'SystemBackup', ['filename' => $filename], null);
 
+        if (request()->wantsJson() || request()->ajax()) {
+            return response()->json(['success' => true, 'message' => "Backup {$filename} berhasil dihapus."]);
+        }
         return back()->with('success', "Backup {$filename} berhasil dihapus.");
+    }
+
+    /**
+     * Hapus banyak file backup sekaligus
+     */
+    public function bulkDestroy(Request $request)
+    {
+        $filenames = $request->input('filenames', []);
+        
+        if (empty($filenames) || !is_array($filenames)) {
+            return response()->json(['success' => false, 'message' => 'Tidak ada file yang dipilih.']);
+        }
+
+        $deletedCount = 0;
+        foreach ($filenames as $filename) {
+            if (str_contains($filename, '/') || str_contains($filename, '\\') || !str_ends_with(strtolower($filename), '.sql')) {
+                continue;
+            }
+
+            $path = "{$this->backupDir}/{$filename}";
+            if (Storage::exists($path)) {
+                Storage::delete($path);
+                $deletedCount++;
+                Log::info("Backup dihapus secara sah (Bulk) oleh Super Admin ID " . auth()->id() . ": {$filename}");
+            }
+        }
+        
+        if ($deletedCount > 0) {
+            \App\Models\System\AuditLog::logSystemEvent('Hapus Massal Backup Database', 'SystemBackup', ['count' => $deletedCount], null);
+        }
+
+        return response()->json([
+            'success' => true, 
+            'message' => "Berhasil menghapus {$deletedCount} file backup."
+        ]);
     }
 
     /**

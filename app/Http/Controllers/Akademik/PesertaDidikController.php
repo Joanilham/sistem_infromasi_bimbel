@@ -29,7 +29,7 @@ class PesertaDidikController extends Controller
         
         $pesertaDidiks = $this->pesertaDidikService->getAktifData($request);
         $paketBimbingans = PaketBimbingan::get();
-        $kelompokBelajars = KelompokBelajar::inContext()->orderBy('nama_kelompok')->get();
+        $kelompokBelajars = KelompokBelajar::query()->orderBy('nama_kelompok')->get();
 
         return view('admin.peserta_didik.aktif', compact('pesertaDidiks', 'paketBimbingans', 'kelompokBelajars', 'search', 'perPage'));
     }
@@ -55,7 +55,7 @@ class PesertaDidikController extends Controller
     public function create()
     {
         $paketBimbingans  = PaketBimbingan::get();
-        $kelompokBelajars = KelompokBelajar::inContext()->orderBy('nama_kelompok')->get();
+        $kelompokBelajars = KelompokBelajar::query()->orderBy('nama_kelompok')->get();
         return view('admin.peserta_didik.create', compact('paketBimbingans', 'kelompokBelajars'));
     }
 
@@ -96,7 +96,7 @@ class PesertaDidikController extends Controller
     {
         $pesertaDidik     = PesertaDidik::findOrFail($id);
         $paketBimbingans  = PaketBimbingan::get();
-        $kelompokBelajars = KelompokBelajar::inContext()->orderBy('nama_kelompok')->get();
+        $kelompokBelajars = KelompokBelajar::query()->orderBy('nama_kelompok')->get();
         return view('admin.peserta_didik.edit', compact('pesertaDidik', 'paketBimbingans', 'kelompokBelajars'));
     }
 

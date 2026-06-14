@@ -1,5 +1,5 @@
-﻿    <!-- MENU PENGATURAN -->
-    @if(auth()->check() && (in_array(strtolower(auth()->user()->level), ['super admin', 'administrator']) || auth()->user()->hasPermission('manage_bank') || auth()->user()->hasPermission('manage_kantor') || auth()->user()->hasPermission('manage_periode') || auth()->user()->hasPermission('manage_pengguna') || auth()->user()->hasPermission('manage_master') || auth()->user()->hasPermission('manage_landing_page') || auth()->user()->hasPermission('manage_backup') || auth()->user()->hasPermission('manage_pengumuman')))
+    <!-- MENU PENGATURAN -->
+    @if(auth()->check() && (in_array(strtolower(auth()->user()->level), ['super admin', 'administrator']) || auth()->user()->hasPermission('manage_bank') || auth()->user()->hasPermission('manage_kantor') || auth()->user()->hasPermission('manage_periode') || auth()->user()->hasPermission('manage_pengguna') || auth()->user()->hasPermission('manage_master') || auth()->user()->hasPermission('manage_landing_page') || auth()->user()->hasPermission('manage_backup') || auth()->user()->hasPermission('manage_pengumuman') || auth()->user()->hasPermission('manage_audit_logs')))
     <div class="mb-6">
         <h3 class="px-3 text-[10px] font-bold uppercase text-slate-400 dark:text-slate-500 tracking-widest mb-2">MENU PENGATURAN SISTEM</h3>
         <nav class="space-y-1">
@@ -100,6 +100,7 @@
             </a>
             @endif
 
+            @if(in_array(strtolower(auth()->user()->level), ['super admin', 'administrator']) || auth()->user()->hasPermission('manage_audit_logs'))
             <a href="{{ route('admin.audit-logs.index') }}"
                 class="flex items-center px-3 py-2.5 rounded-2xl transition-all duration-200 {{ request()->routeIs('admin.audit-logs.*') ? 'bg-slate-800 shadow-md shadow-slate-800/30' : 'hover:bg-slate-100 dark:hover:bg-zinc-800' }} group">
                 <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mr-3 {{ request()->routeIs('admin.audit-logs.*') ? 'bg-white/25' : 'bg-slate-700 shadow-sm shadow-slate-700/40' }}">
@@ -109,8 +110,19 @@
                 </div>
                 <span class="text-sm font-semibold {{ request()->routeIs('admin.audit-logs.*') ? 'text-white' : 'text-slate-700 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-white' }}">Log Aktivitas</span>
             </a>
+            @endif
 
             @if(strtolower(auth()->user()->level) === 'super admin')
+            <a href="{{ route('admin.recycle-bin.index') }}"
+                class="flex items-center px-3 py-2.5 rounded-2xl transition-all duration-200 {{ request()->routeIs('admin.recycle-bin.*') ? 'bg-red-500 shadow-md shadow-red-500/30' : 'hover:bg-slate-100 dark:hover:bg-zinc-800' }} group">
+                <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mr-3 {{ request()->routeIs('admin.recycle-bin.*') ? 'bg-white/25' : 'bg-red-500 shadow-sm shadow-red-500/40' }}">
+                    <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                </div>
+                <span class="text-sm font-semibold {{ request()->routeIs('admin.recycle-bin.*') ? 'text-white' : 'text-slate-700 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-white' }}">Recycle Bin</span>
+            </a>
+
             <a href="{{ url('log-viewer') }}"
                 target="_blank"
                 class="flex items-center px-3 py-2.5 rounded-2xl transition-all duration-200 hover:bg-slate-100 dark:hover:bg-zinc-800 group">

@@ -74,9 +74,9 @@
             </div>
         </div>
 
-        <div class="flex justify-end gap-3">
-            <a href="{{ route('guru.ujian.show', $ujian->id) }}" class="px-6 py-2.5 border border-slate-200 dark:border-zinc-700 text-slate-600 rounded-xl text-sm font-medium hover:bg-slate-50 transition-colors">Batal</a>
-            <button type="submit" class="px-8 py-2.5 bg-gradient-to-r from-indigo-500 to-blue-600 text-white rounded-xl text-sm font-semibold shadow-md hover:shadow-lg transition-all">Simpan Perubahan</button>
+        <div class="flex items-center justify-between pt-2 pb-8">
+            <a href="{{ route('guru.ujian.show', $ujian->id) }}" class="px-5 sm:px-6 py-2.5 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-600 rounded-xl text-sm font-medium shadow-sm hover:bg-slate-50 dark:hover:bg-zinc-700 text-center transition-colors shrink-0">Batal</a>
+            <button type="submit" class="px-5 sm:px-8 py-2.5 bg-gradient-to-r from-indigo-500 to-blue-600 text-white rounded-xl text-sm font-semibold shadow-md hover:shadow-lg transition-all flex items-center justify-center">Simpan Perubahan</button>
         </div>
     </form>
 </div>

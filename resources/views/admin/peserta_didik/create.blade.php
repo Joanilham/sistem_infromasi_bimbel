@@ -101,9 +101,25 @@
                                 @endforeach
                             </select>
                         </div>
+@php
+    $sumberList = ['Brosur', 'Instagram', 'Facebook', 'Tiktok', 'Teman/Keluarga', 'Guru/Sekolah', 'Website/Internet', 'Spanduk/Banner'];
+    $currentSumber = old('informasi_dari');
+    $isLainnya = $currentSumber !== '' && $currentSumber !== null && !in_array($currentSumber, $sumberList);
+    $selectValue = $isLainnya ? 'Lainnya' : $currentSumber;
+@endphp
                         <div class="space-y-2 sm:col-span-2">
                             <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Sumber Informasi</label>
-                            <input type="text" name="informasi_dari" value="{{ old('informasi_dari') }}" placeholder="Brosur, Instagram, Teman..." class="w-full border bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-3 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
+                            <select id="informasi_dari_select" name="{{ $isLainnya ? '' : 'informasi_dari' }}" class="w-full border bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-3 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white" onchange="toggleInformasiLainnya(this)">
+                                <option value="">- Pilih Sumber Informasi -</option>
+                                @foreach($sumberList as $sumber)
+                                    <option value="{{ $sumber }}" {{ $selectValue == $sumber ? 'selected' : '' }}>{{ $sumber }}</option>
+                                @endforeach
+                                <option value="Lainnya" {{ $selectValue == 'Lainnya' ? 'selected' : '' }}>Lainnya</option>
+                            </select>
+                            
+                            <div id="informasi_dari_lainnya_container" style="display: {{ $isLainnya ? 'block' : 'none' }}; margin-top: 10px;">
+                                <input type="text" id="informasi_dari_input" name="{{ $isLainnya ? 'informasi_dari' : '' }}" class="w-full border bg-white dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-3 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white" value="{{ $isLainnya ? $currentSumber : '' }}" placeholder="Tuliskan sumber informasi...">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -169,6 +185,21 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.4/build/js/intlTelInput.min.js"></script>
 <script>
+window.toggleInformasiLainnya = function(selectEl) {
+    const container = document.getElementById('informasi_dari_lainnya_container');
+    const input = document.getElementById('informasi_dari_input');
+    if (selectEl.value === 'Lainnya') {
+        container.style.display = 'block';
+        input.setAttribute('name', 'informasi_dari');
+        selectEl.removeAttribute('name');
+        input.focus();
+    } else {
+        container.style.display = 'none';
+        input.removeAttribute('name');
+        selectEl.setAttribute('name', 'informasi_dari');
+    }
+};
+
 document.addEventListener('DOMContentLoaded', function() {
     const phoneInputs = [
         document.querySelector("#no_telepon"),
@@ -189,6 +220,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 strictMode: true
             });
             itiInstances.push({ input: input, iti: iti });
+            
+            // Cegah input/paste teks (hanya boleh angka dan +)
+            input.addEventListener('input', function() {
+                this.value = this.value.replace(/[^\d+]/g, '');
+            });
         }
     });
 
@@ -197,7 +233,7 @@ document.addEventListener('DOMContentLoaded', function() {
         form.addEventListener('submit', function() {
             itiInstances.forEach(item => {
                 if (item.input.value.trim() !== '') {
-                    item.input.value = item.iti.getNumber();
+                    item.input.value = item.iti.getNumber().replace(/\D/g, '');
                 }
             });
         });

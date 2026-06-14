@@ -177,109 +177,113 @@
 </div>
 
 {{-- MODAL CREATE --}}
-<div id="modal-create" class="fixed inset-0 z-[60] overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity z-[60]" onclick="document.getElementById('modal-create').classList.add('hidden')"></div>
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-        
-        <div class="relative z-[70] inline-block align-middle bg-white dark:bg-zinc-900 rounded-[2rem] text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-slate-150 dark:border-zinc-800">
-            <div class="p-8">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-2xl font-black text-slate-900 dark:text-white">Tambah Rekening Bank</h3>
-                    <button onclick="document.getElementById('modal-create').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-50 dark:bg-zinc-800 text-slate-500 hover:bg-slate-100 transition flex items-center justify-center">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
-                    </button>
-                </div>
+<template x-teleport="body">
+    <div id="modal-create" class="fixed inset-0 z-[60] overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity z-[60]" onclick="document.getElementById('modal-create').classList.add('hidden')"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            
+            <div class="relative z-[70] inline-block align-middle bg-white dark:bg-zinc-900 rounded-[2rem] text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-slate-150 dark:border-zinc-800">
+                <div class="p-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-2xl font-black text-slate-900 dark:text-white">Tambah Rekening Bank</h3>
+                        <button onclick="document.getElementById('modal-create').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-50 dark:bg-zinc-800 text-slate-500 hover:bg-slate-100 transition flex items-center justify-center">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                    </div>
 
-                <form action="{{ route('bank.store') }}" method="POST" class="space-y-5" onsubmit="this.querySelector('button[type=submit]').disabled = true; this.querySelector('button[type=submit]').innerHTML = 'Menyimpan...';">
-                    @csrf
-                    <div>
-                        <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Nama Bank / Penerbit</label>
-                        <input type="text" name="nama_bank" required placeholder="Contoh: Bank BCA, Bank Mandiri"
-                            class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-sm font-bold p-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Nomor Rekening</label>
-                        <input type="text" name="nomor_rekening" required placeholder="Contoh: 1234-5678-9012-3456" inputmode="numeric" maxlength="24" oninput="formatRekening(this)"
-                            class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-sm font-bold p-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Atas Nama Pemilik</label>
-                        <input type="text" name="atas_nama" required placeholder="Masukkan nama pemilik rekening"
-                            class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-sm font-bold p-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
-                    </div>
-                    
-                    <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-zinc-800">
-                        <button type="button" onclick="document.getElementById('modal-create').classList.add('hidden')"
-                            class="px-6 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-600 dark:text-slate-300 font-bold text-xs transition">
-                            Batal
-                        </button>
-                        <button type="submit"
-                            class="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-750 text-white font-bold text-xs shadow-lg shadow-indigo-500/20 transition">
-                            Simpan Rekening
-                        </button>
-                    </div>
-                </form>
+                    <form action="{{ route('bank.store') }}" method="POST" class="space-y-5" onsubmit="this.querySelector('button[type=submit]').disabled = true; this.querySelector('button[type=submit]').innerHTML = 'Menyimpan...';">
+                        @csrf
+                        <div>
+                            <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Nama Bank / Penerbit</label>
+                            <input type="text" name="nama_bank" required placeholder="Contoh: Bank BCA, Bank Mandiri"
+                                class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-sm font-bold p-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Nomor Rekening</label>
+                            <input type="text" name="nomor_rekening" required placeholder="Contoh: 1234-5678-9012-3456" inputmode="numeric" maxlength="24" oninput="formatRekening(this)"
+                                class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-sm font-bold p-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Atas Nama Pemilik</label>
+                            <input type="text" name="atas_nama" required placeholder="Masukkan nama pemilik rekening"
+                                class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-sm font-bold p-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
+                        </div>
+                        
+                        <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-zinc-800 mt-4">
+                            <button type="button" onclick="document.getElementById('modal-create').classList.add('hidden')"
+                                class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-white bg-rose-500 hover:bg-rose-600 rounded-2xl transition-all shadow-xl shadow-rose-500/20 active:scale-95">
+                                Batal
+                            </button>
+                            <button type="submit"
+                                class="bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-black uppercase tracking-widest px-8 py-4 rounded-2xl shadow-xl shadow-indigo-500/20 transition-all active:scale-95">
+                                Simpan Rekening
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
+</template>
 
 {{-- MODAL EDIT --}}
-<div id="modal-edit" class="fixed inset-0 z-[60] overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity z-[60]" onclick="document.getElementById('modal-edit').classList.add('hidden')"></div>
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-        
-        <div class="relative z-[70] inline-block align-middle bg-white dark:bg-zinc-900 rounded-[2rem] text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-slate-150 dark:border-zinc-800">
-            <div class="p-8">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-2xl font-black text-slate-900 dark:text-white">Edit Rekening Bank</h3>
-                    <button onclick="document.getElementById('modal-edit').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-50 dark:bg-zinc-800 text-slate-500 hover:bg-slate-100 transition flex items-center justify-center">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
-                    </button>
+<template x-teleport="body">
+    <div id="modal-edit" class="fixed inset-0 z-[60] overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity z-[60]" onclick="document.getElementById('modal-edit').classList.add('hidden')"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            
+            <div class="relative z-[70] inline-block align-middle bg-white dark:bg-zinc-900 rounded-[2rem] text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-slate-150 dark:border-zinc-800">
+                <div class="p-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-2xl font-black text-slate-900 dark:text-white">Edit Rekening Bank</h3>
+                        <button onclick="document.getElementById('modal-edit').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-50 dark:bg-zinc-800 text-slate-500 hover:bg-slate-100 transition flex items-center justify-center">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                    </div>
+                    
+                    <form id="editForm" method="POST" class="space-y-5" onsubmit="this.querySelector('button[type=submit]').disabled = true; this.querySelector('button[type=submit]').innerHTML = 'Menyimpan...';">
+                        @csrf
+                        @method('PUT')
+                        <div>
+                            <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Nama Bank / Penerbit</label>
+                            <input type="text" name="nama_bank" id="edit_nama_bank" required placeholder="Contoh: Bank BCA, Bank Mandiri"
+                                class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-sm font-bold p-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Nomor Rekening</label>
+                            <input type="text" name="nomor_rekening" id="edit_nomor_rekening" required placeholder="Contoh: 1234-5678-9012-3456" inputmode="numeric" maxlength="24" oninput="formatRekening(this)"
+                                class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-sm font-bold p-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Atas Nama Pemilik</label>
+                            <input type="text" name="atas_nama" id="edit_atas_nama" required placeholder="Masukkan nama pemilik rekening"
+                                class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-sm font-bold p-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
+                        </div>
+                        
+                        <div class="flex items-center gap-3">
+                            <input type="checkbox" name="is_active" id="edit_is_active" value="1"
+                                class="w-5 h-5 text-indigo-600 border-slate-200 dark:border-zinc-800 rounded focus:ring-indigo-500/20 transition-all">
+                            <label for="edit_is_active" class="text-sm font-bold text-slate-700 dark:text-slate-300 select-none">Rekening Aktif (Tampilkan untuk Siswa)</label>
+                        </div>
+                        
+                        <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-zinc-800 mt-4">
+                            <button type="button" onclick="document.getElementById('modal-edit').classList.add('hidden')"
+                                class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-white bg-rose-500 hover:bg-rose-600 rounded-2xl transition-all shadow-xl shadow-rose-500/20 active:scale-95">
+                                Batal
+                            </button>
+                            <button type="submit"
+                                class="bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-black uppercase tracking-widest px-8 py-4 rounded-2xl shadow-xl shadow-indigo-500/20 transition-all active:scale-95">
+                                Simpan Perubahan
+                            </button>
+                        </div>
+                    </form>
                 </div>
-                
-                <form id="editForm" method="POST" class="space-y-5" onsubmit="this.querySelector('button[type=submit]').disabled = true; this.querySelector('button[type=submit]').innerHTML = 'Menyimpan...';">
-                    @csrf
-                    @method('PUT')
-                    <div>
-                        <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Nama Bank / Penerbit</label>
-                        <input type="text" name="nama_bank" id="edit_nama_bank" required placeholder="Contoh: Bank BCA, Bank Mandiri"
-                            class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-sm font-bold p-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Nomor Rekening</label>
-                        <input type="text" name="nomor_rekening" id="edit_nomor_rekening" required placeholder="Contoh: 1234-5678-9012-3456" inputmode="numeric" maxlength="24" oninput="formatRekening(this)"
-                            class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-sm font-bold p-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Atas Nama Pemilik</label>
-                        <input type="text" name="atas_nama" id="edit_atas_nama" required placeholder="Masukkan nama pemilik rekening"
-                            class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-sm font-bold p-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
-                    </div>
-                    
-                    <div class="flex items-center gap-3">
-                        <input type="checkbox" name="is_active" id="edit_is_active" value="1"
-                            class="w-5 h-5 text-indigo-600 border-slate-200 dark:border-zinc-800 rounded focus:ring-indigo-500/20 transition-all">
-                        <label for="edit_is_active" class="text-sm font-bold text-slate-700 dark:text-slate-300 select-none">Rekening Aktif (Tampilkan untuk Siswa)</label>
-                    </div>
-                    
-                    <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-zinc-800">
-                        <button type="button" onclick="document.getElementById('modal-edit').classList.add('hidden')"
-                            class="px-6 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-600 dark:text-slate-300 font-bold text-xs transition">
-                            Batal
-                        </button>
-                        <button type="submit"
-                            class="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-750 text-white font-bold text-xs shadow-lg shadow-indigo-500/20 transition">
-                            Simpan Perubahan
-                        </button>
-                    </div>
-                </form>
             </div>
         </div>
     </div>
-</div>
+</template>
 
 <script>
     function editBank(btn) {

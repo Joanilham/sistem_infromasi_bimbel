@@ -70,9 +70,14 @@
                     <div class="p-6 md:p-8 flex flex-col md:flex-row items-center gap-6 md:gap-10">
                         {{-- Score Circle --}}
                         <div class="relative shrink-0 w-20 h-20 rounded-[1.5rem] flex flex-col items-center justify-center font-black transition-transform group-hover:scale-105 duration-500
-                            {{ $p->status === 'selesai' ? ($p->skor >= 75 ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400' : ($p->skor >= 50 ? 'bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400' : 'bg-red-50 text-red-500 dark:bg-red-900/20 dark:text-red-400')) : 'bg-slate-50 dark:bg-zinc-800 text-slate-400' }}">
-                            <span class="text-2xl leading-none">{{ number_format($p->skor, 0) }}</span>
-                            <span class="text-[8px] uppercase tracking-widest opacity-60 mt-1">Skor</span>
+                            {{ $p->belum_dikoreksi_count > 0 ? 'bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400' : ($p->status === 'selesai' ? ($p->skor >= 75 ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400' : ($p->skor >= 50 ? 'bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400' : 'bg-red-50 text-red-500 dark:bg-red-900/20 dark:text-red-400')) : 'bg-slate-50 dark:bg-zinc-800 text-slate-400') }}">
+                            @if($p->belum_dikoreksi_count > 0)
+                                <svg class="w-6 h-6 mb-1 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <span class="text-[8px] uppercase tracking-widest opacity-80 text-center leading-tight">Menunggu<br>Koreksi</span>
+                            @else
+                                <span class="text-2xl leading-none">{{ number_format($p->skor, 0) }}</span>
+                                <span class="text-[8px] uppercase tracking-widest opacity-60 mt-1">Skor</span>
+                            @endif
                         </div>
 
                         {{-- Info --}}

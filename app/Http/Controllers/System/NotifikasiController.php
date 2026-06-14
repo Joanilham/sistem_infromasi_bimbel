@@ -63,16 +63,17 @@ class NotifikasiController extends Controller
                 'user',
             ])
             ->where('tipe_pembayaran', 'TRANSFER')
-            ->whereHas('pembayaranSiswa.pesertaDidik', function ($q) use ($search) {
+            ->where('status', 'PENDING')
+            ->whereHas('pembayaranSiswa.pesertaDidik', function ($q) {
                 $q->inContext();
-                if ($search) {
-                    $q->where('nama_lengkap', 'like', "%{$search}%");
-                }
             })
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($q2) use ($search) {
                     $q2->where('no_kwitansi', 'like', "%{$search}%")
-                       ->orWhere('penerima', 'like', "%{$search}%");
+                       ->orWhere('penerima', 'like', "%{$search}%")
+                       ->orWhereHas('pembayaranSiswa.pesertaDidik', function ($q3) use ($search) {
+                           $q3->where('nama_lengkap', 'like', "%{$search}%");
+                       });
                 });
             })
             ->where('created_at', '>=', Carbon::now()->subDays(30))

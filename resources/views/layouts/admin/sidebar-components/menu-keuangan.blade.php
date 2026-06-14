@@ -1,10 +1,11 @@
-﻿    {{-- MENU KEUANGAN --}}
-    @if(auth()->user()->hasPermission('manage_keuangan'))
+    {{-- MENU KEUANGAN --}}
+    @if(auth()->user()->hasPermission('manage_keuangan') || auth()->user()->hasPermission('manage_pembayaran_siswa') || auth()->user()->hasPermission('manage_pemasukan') || auth()->user()->hasPermission('manage_pengeluaran') || auth()->user()->hasPermission('manage_tagihan'))
     <div class="mb-6">
         <h3 class="px-3 text-[10px] font-bold uppercase text-slate-400 dark:text-slate-500 tracking-widest mb-2">MENU KEUANGAN</h3>
         <nav class="space-y-1">
 
             {{-- Pembayaran --}}
+            @if(auth()->user()->hasPermission('manage_keuangan') || auth()->user()->hasPermission('manage_pembayaran_siswa'))
             <a href="{{ route('keuangan.pembayaran.index') }}"
                 class="flex items-center px-3 py-2.5 rounded-2xl transition-all duration-200 {{ request()->routeIs('keuangan.pembayaran.*') ? 'bg-emerald-500 shadow-md shadow-emerald-500/30' : 'hover:bg-slate-100 dark:hover:bg-zinc-800' }} group">
                 <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mr-3 {{ request()->routeIs('keuangan.pembayaran.*') ? 'bg-white/25' : 'bg-emerald-500 shadow-sm shadow-emerald-500/40' }}">
@@ -14,8 +15,10 @@
                 </div>
                 <span class="text-sm font-semibold {{ request()->routeIs('keuangan.pembayaran.*') ? 'text-white' : 'text-slate-700 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-white' }}">Pembayaran Siswa</span>
             </a>
+            @endif
 
             {{-- Pemasukan Dropdown --}}
+            @if(auth()->user()->hasPermission('manage_keuangan') || auth()->user()->hasPermission('manage_pemasukan'))
             <div x-data="{ open: {{ request()->routeIs('keuangan.pemasukan.*') ? 'true' : 'false' }} }">
                 <button @click="open = !open"
                     class="w-full flex items-center justify-between px-3 py-2.5 rounded-2xl transition-all duration-200 {{ request()->routeIs('keuangan.pemasukan.*') ? 'bg-green-500 shadow-md shadow-green-500/30' : 'hover:bg-slate-100 dark:hover:bg-zinc-800' }} group focus:outline-none">
@@ -52,8 +55,10 @@
                     </a>
                 </div>
             </div>
+            @endif
 
             {{-- Pengeluaran Dropdown --}}
+            @if(auth()->user()->hasPermission('manage_keuangan') || auth()->user()->hasPermission('manage_pengeluaran'))
             <div x-data="{ open: {{ request()->routeIs('keuangan.pengeluaran.*') ? 'true' : 'false' }} }">
                 <button @click="open = !open"
                     class="w-full flex items-center justify-between px-3 py-2.5 rounded-2xl transition-all duration-200 {{ request()->routeIs('keuangan.pengeluaran.*') ? 'bg-red-500 shadow-md shadow-red-500/30' : 'hover:bg-slate-100 dark:hover:bg-zinc-800' }} group focus:outline-none">
@@ -90,8 +95,10 @@
                     </a>
                 </div>
             </div>
+            @endif
 
             {{-- Tagihan --}}
+            @if(auth()->user()->hasPermission('manage_keuangan') || auth()->user()->hasPermission('manage_tagihan'))
             <a href="{{ route('keuangan.tagihan.index') }}"
                 class="flex items-center px-3 py-2.5 rounded-2xl transition-all duration-200 {{ request()->routeIs('keuangan.tagihan.*') ? 'bg-amber-500 shadow-md shadow-amber-500/30' : 'hover:bg-slate-100 dark:hover:bg-zinc-800' }} group">
                 <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mr-3 {{ request()->routeIs('keuangan.tagihan.*') ? 'bg-white/25' : 'bg-amber-500 shadow-sm shadow-amber-500/40' }}">
@@ -101,6 +108,7 @@
                 </div>
                 <span class="text-sm font-semibold {{ request()->routeIs('keuangan.tagihan.*') ? 'text-white' : 'text-slate-700 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-white' }}">Tagihan Siswa</span>
             </a>
+            @endif
 
         </nav>
     </div>

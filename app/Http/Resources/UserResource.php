@@ -19,6 +19,8 @@ class UserResource extends JsonResource
             'name'  => $this->name,
             'email' => $this->email,
             'level' => $this->level,
+            'status' => $this->status,
+            'is_active' => $this->is_active,
             // If it's a student, we add extra fields computed in AuthController
             'no_telp'    => $this->when(isset($this->no_telp), $this->no_telp),
             'alamat'     => $this->when(isset($this->alamat), $this->alamat),

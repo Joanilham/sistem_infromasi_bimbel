@@ -104,9 +104,9 @@
                     </div>
                 </div>
 
-                <div class="bg-slate-50/80 dark:bg-slate-800/50 px-4 py-4 sm:px-6 flex justify-end flex-row-reverse sm:rounded-b-xl border-t border-slate-200 dark:border-slate-800">
-                    <button type="submit" class="inline-flex items-center justify-center py-2.5 px-5 border border-transparent shadow-sm shadow-indigo-500/30 text-sm font-semibold rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all hover:-translate-y-0.5">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <div class="bg-slate-50/80 dark:bg-slate-800/50 px-6 py-6 sm:px-8 flex justify-end flex-row-reverse sm:rounded-b-xl border-t border-slate-200 dark:border-slate-800">
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-black uppercase tracking-widest px-8 py-4 rounded-2xl shadow-xl shadow-indigo-500/20 transition-all active:scale-95 flex items-center gap-2">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                         </svg>
                         Simpan Profil
@@ -169,9 +169,9 @@
                     </div>
                 </div>
 
-                <div class="bg-slate-50/80 dark:bg-slate-800/50 px-4 py-4 sm:px-6 flex justify-end flex-row-reverse sm:rounded-b-xl border-t border-slate-200 dark:border-slate-800">
-                    <button type="submit" class="inline-flex items-center justify-center py-2.5 px-5 border border-transparent shadow-sm shadow-slate-500/30 text-sm font-semibold rounded-xl text-white bg-slate-800 hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 transition-all hover:-translate-y-0.5">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <div class="bg-slate-50/80 dark:bg-slate-800/50 px-6 py-6 sm:px-8 flex justify-end flex-row-reverse sm:rounded-b-xl border-t border-slate-200 dark:border-slate-800">
+                    <button type="submit" class="bg-slate-800 hover:bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest px-8 py-4 rounded-2xl shadow-xl shadow-slate-500/20 transition-all active:scale-95 flex items-center gap-2">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                         </svg>
                         Perbarui Sandi

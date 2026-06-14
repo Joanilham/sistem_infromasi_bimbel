@@ -13,9 +13,16 @@
                 <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Kelola repositori soal Anda untuk digunakan pada ujian CBT</p>
             </div>
             <div class="flex items-center gap-3" x-data="{ showImportModal: false }">
+                <a href="{{ route('guru.bank-soal.template') }}" download
+                    class="bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-slate-300 px-4 py-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-zinc-700 flex items-center gap-2 text-sm font-semibold transition-all duration-200" title="Download Template Excel">
+                    <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                    Template Excel
+                </a>
                 <button @click="showImportModal = true"
                     class="bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-slate-300 px-4 py-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-zinc-700 flex items-center gap-2 text-sm font-semibold transition-all duration-200">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                    <svg class="w-4 h-4 text-[#388782] dark:text-[#A2D5CB]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
                     Import Excel
                 </button>
                 <a href="{{ route('guru.bank-soal.create') }}"
@@ -32,13 +39,6 @@
                         <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-2">Import Soal (Excel)</h3>
                         <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">Upload file Excel menggunakan template yang disediakan.</p>
                         
-                        <div class="mb-6">
-                            <a href="{{ route('guru.bank-soal.template') }}" class="inline-flex items-center gap-2 text-sm text-[#388782] dark:text-[#A2D5CB] hover:underline font-medium">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                                Download Template Excel (.xls)
-                            </a>
-                        </div>
-
                         <form action="{{ route('guru.bank-soal.import') }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Pilih File Excel (.xls) atau CSV</label>

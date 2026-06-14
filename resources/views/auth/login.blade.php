@@ -140,10 +140,19 @@
                     </a>
                 </div>
 
-                <div class="mt-8 text-center text-sm text-slate-600">
+                <div class="mt-8 text-center text-sm text-slate-600 border-b border-slate-100 pb-6">
                     Belum memiliki akun? 
                     <a href="{{ route('daftar.step1') }}" class="font-bold text-blue-600 hover:text-blue-500 transition-colors ml-1">
                         Daftar di sini
+                    </a>
+                </div>
+                
+                <div class="mt-6 flex justify-center">
+                    <a href="{{ url('/') }}" class="text-sm font-medium text-slate-500 hover:text-slate-800 flex items-center gap-2 transition-colors">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                        </svg>
+                        Kembali ke Halaman Utama
                     </a>
                 </div>
             </form>

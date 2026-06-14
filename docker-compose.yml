@@ -19,16 +19,21 @@ services:
         condition: service_started
 
 
-  # Nginx Web Server
+  # Nginx Web Server (with ModSecurity WAF)
   nginx:
-    image: nginx:alpine
+    image: owasp/modsecurity-crs:nginx-alpine
     container_name: geniusedu-nginx
     restart: unless-stopped
     ports:
-      - "8080:80"
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - ENFORCE_MODSECURITY=1
+      - PARANOIA=1
+      - SEC_RULE_ENGINE=On
     volumes:
       - .:/var/www/html
-      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./docker/nginx/default.conf:/etc/nginx/templates/conf.d/default.conf.template
     networks:
       - geniusedu
     depends_on:

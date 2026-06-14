@@ -92,9 +92,25 @@
                 @error('asal_sekolah')<span class="invalid-feedback">{{ $message }}</span>@enderror
             </div>
 
+@php
+    $sumberList = ['Brosur', 'Instagram', 'Facebook', 'Tiktok', 'Teman/Keluarga', 'Guru/Sekolah', 'Website/Internet', 'Spanduk/Banner'];
+    $currentSumber = old('informasi_dari', $sessData['informasi_dari'] ?? '');
+    $isLainnya = $currentSumber !== '' && $currentSumber !== null && !in_array($currentSumber, $sumberList);
+    $selectValue = $isLainnya ? 'Lainnya' : $currentSumber;
+@endphp
             <div class="form-group form-col-full">
                 <label>Memperoleh Informasi Dari</label>
-                <input type="text" name="informasi_dari" class="form-control" value="{{ old('informasi_dari', $sessData['informasi_dari'] ?? '') }}" placeholder="Media sosial, teman, brosur, dll">
+                <select id="informasi_dari_select" name="{{ $isLainnya ? '' : 'informasi_dari' }}" class="form-control no-tomselect" onchange="toggleInformasiLainnya(this)">
+                    <option value="">— Pilih Sumber Informasi —</option>
+                    @foreach($sumberList as $sumber)
+                        <option value="{{ $sumber }}" {{ $selectValue == $sumber ? 'selected' : '' }}>{{ $sumber }}</option>
+                    @endforeach
+                    <option value="Lainnya" {{ $selectValue == 'Lainnya' ? 'selected' : '' }}>Lainnya</option>
+                </select>
+
+                <div id="informasi_dari_lainnya_container" style="display: {{ $isLainnya ? 'block' : 'none' }}; margin-top: 10px;">
+                    <input type="text" id="informasi_dari_input" name="{{ $isLainnya ? 'informasi_dari' : '' }}" class="form-control" value="{{ $isLainnya ? $currentSumber : '' }}" placeholder="Tuliskan sumber informasi...">
+                </div>
             </div>
         </div>
 
@@ -142,6 +158,21 @@
 
 <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.4/build/js/intlTelInput.min.js"></script>
 <script>
+window.toggleInformasiLainnya = function(selectEl) {
+    const container = document.getElementById('informasi_dari_lainnya_container');
+    const input = document.getElementById('informasi_dari_input');
+    if (selectEl.value === 'Lainnya') {
+        container.style.display = 'block';
+        input.setAttribute('name', 'informasi_dari');
+        selectEl.removeAttribute('name');
+        input.focus();
+    } else {
+        container.style.display = 'none';
+        input.removeAttribute('name');
+        selectEl.setAttribute('name', 'informasi_dari');
+    }
+};
+
 document.addEventListener('DOMContentLoaded', function() {
     const phoneInputs = [
         document.querySelector("#no_telepon"),
@@ -162,6 +193,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 strictMode: true
             });
             itiInstances.push({ input: input, iti: iti });
+            
+            // Cegah input/paste teks (hanya boleh angka dan +)
+            input.addEventListener('input', function() {
+                this.value = this.value.replace(/[^\d+]/g, '');
+            });
         }
     });
 

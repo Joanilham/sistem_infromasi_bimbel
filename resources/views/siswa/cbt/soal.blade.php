@@ -72,6 +72,17 @@
         .timer-display.danger { background: #FEF2F2; color: #EF4444; border-color: #FEE2E2; animation: pulse-danger 2s infinite; }
         @keyframes pulse-danger { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
 
+        .timer-wrapper {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+        @media (max-width: 640px) {
+            .exam-title-wrapper { max-width: 30%; }
+            .exam-title { font-size: 0.85rem; }
+        }
+
         .btn-submit {
             padding: 8px 20px; background: #EF4444; color: white;
             border: none; border-radius: 14px; font-size: 0.85rem;
@@ -86,9 +97,9 @@
         /* Sidebar navigator */
         .navigator-panel {
             width: 300px; background: white; border-right: 1px solid #E2E8F0;
-            padding: 24px; display: none; flex-direction: column; gap: 20px;
+            padding: 24px; display: flex; flex-direction: column; gap: 20px;
             position: sticky; top: 65px; height: calc(100vh - 65px);
-            overflow-y: auto;
+            overflow-y: auto; z-index: 150;
         }
         @media (prefers-color-scheme: dark) { 
             .navigator-panel { background: #18181B; border-color: #27272A; } 
@@ -182,9 +193,10 @@
         @media (prefers-color-scheme: dark) { .soal-nav-bottom { background: #18181B; border-color: #27272A; } }
         
         .btn-nav {
-            display: flex; align-items: center; gap: 8px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
             padding: 12px 24px; border-radius: 16px; font-family: inherit;
             font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.2s; border: none;
+            white-space: nowrap;
         }
         .btn-prev { background: #F1F5F9; color: #475569; }
         @media (prefers-color-scheme: dark) { .btn-prev { background: #27272A; color: #94A3B8; } }
@@ -195,14 +207,51 @@
         .btn-prev:disabled, .btn-next:disabled { opacity: 0.3; cursor: not-allowed; }
 
         /* Ragu-ragu */
-        .ragu-toggle { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 8px 16px; border-radius: 12px; transition: background 0.2s; }
+        .ragu-toggle { display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; padding: 12px 16px; border-radius: 12px; transition: background 0.2s; white-space: nowrap; }
         .ragu-toggle:hover { background: #FFFBEB; }
         @media (prefers-color-scheme: dark) { .ragu-toggle:hover { background: #78350F/20; } }
         .ragu-toggle input { width: 18px; height: 18px; cursor: pointer; accent-color: #F59E0B; }
         .ragu-toggle span { font-size: 0.85rem; font-weight: 800; color: #D97706; }
 
-        @media (min-width: 1024px) {
-            .navigator-panel { display: flex; }
+        /* Mobile specific adjustments for nav */
+        .nav-toggle-btn { display: none; background: transparent; border: none; cursor: pointer; padding: 8px; margin-left: -8px; color: #64748B; }
+        @media (prefers-color-scheme: dark) { .nav-toggle-btn { color: #94A3B8; } }
+        
+        @media (max-width: 1023px) {
+            .nav-toggle-btn { display: block; }
+            .navigator-panel {
+                position: fixed; top: 65px; left: -100%; bottom: 0;
+                transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                box-shadow: 10px 0 25px rgba(0,0,0,0.1);
+            }
+            .navigator-panel.open { left: 0; }
+            .nav-overlay {
+                position: fixed; inset: 0; top: 65px; background: rgba(15, 23, 42, 0.5); 
+                backdrop-blur: 4px; z-index: 140; 
+                opacity: 0; pointer-events: none; transition: opacity 0.3s;
+            }
+            .nav-overlay.show { opacity: 1; pointer-events: auto; }
+        }
+
+        @media (max-width: 640px) {
+            .soal-nav-bottom {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                grid-template-areas: 
+                    "ragu ragu"
+                    "prev next";
+                gap: 12px;
+                padding: 16px;
+            }
+            .ragu-toggle { grid-area: ragu; background: #FFFBEB; border: 1px solid #FDE68A; }
+            @media (prefers-color-scheme: dark) { .ragu-toggle { background: #78350F/30; border-color: #92400E; } }
+            .btn-prev { grid-area: prev; padding: 12px 12px; font-size: 0.8rem; }
+            .btn-next { grid-area: next; padding: 12px 12px; font-size: 0.8rem; }
+            .btn-nav svg { width: 18px; height: 18px; }
+            .essay-wrapper { padding: 0 16px 24px; }
+            .options-container { padding: 0 16px 24px; }
+            .soal-card { margin-bottom: 16px; }
+            .soal-main { padding: 16px; padding-bottom: 110px; } /* Prevent OS nav bar from covering bottom buttons */
         }
 
         /* Modal */
@@ -213,12 +262,13 @@
 
         /* Toast */
         #autosave-toast {
-            position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(20px); 
+            position: fixed; top: 80px; left: 50%; transform: translateX(-50%) translateY(-20px); 
             background: #10B981; color: white;
-            padding: 12px 24px; border-radius: 20px; font-size: 0.85rem; font-weight: 800;
-            display: flex; align-items: center; gap: 10px; opacity: 0;
+            padding: 10px 20px; border-radius: 20px; font-size: 0.8rem; font-weight: 800;
+            display: flex; align-items: center; gap: 8px; opacity: 0;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 1000;
             box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4);
+            pointer-events: none;
         }
         #autosave-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     </style>
@@ -239,25 +289,37 @@
 </div>
 
 {{-- Exam Header --}}
-<header class="exam-header">
-    <div class="exam-title-wrapper">
-        <span class="exam-label">Assessment</span>
-        <div class="exam-title" title="{{ $sesi->ujian->judul }}">{{ $sesi->ujian->judul }}</div>
+<header class="exam-header" style="position: sticky;">
+    <div class="flex items-center gap-3">
+        <button id="nav-toggle-btn" class="nav-toggle-btn" onclick="toggleNav()" type="button" aria-label="Toggle Navigation">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <div class="exam-title-wrapper">
+            <span class="exam-label">Assessment</span>
+            <div class="exam-title" title="{{ $sesi->ujian->judul }}">{{ $sesi->ujian->judul }}</div>
+        </div>
     </div>
     
-    <div id="timer-display" class="timer-display">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        <span id="timer-text">--:--</span>
+    <div class="timer-wrapper">
+        <div id="timer-display" class="timer-display">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span id="timer-text">--:--</span>
+        </div>
     </div>
 
-    <button class="btn-submit" onclick="showSubmitModal()">Selesai</button>
+    <div class="flex items-center justify-end">
+        <button class="btn-submit" onclick="showSubmitModal()">Selesai</button>
+    </div>
 </header>
 
 {{-- Layout --}}
 <div class="exam-layout">
 
+    {{-- Mobile Overlay --}}
+    <div id="nav-overlay" class="nav-overlay lg:hidden" onclick="toggleNav()"></div>
+
     {{-- Navigator Sidebar --}}
-    <aside class="navigator-panel no-scrollbar">
+    <aside id="navigator-panel" class="navigator-panel no-scrollbar">
         <h4>Navigasi Soal</h4>
         <div class="nav-grid">
             @foreach($semuaJawaban as $nav)
@@ -347,16 +409,16 @@
 
             {{-- Ragu-ragu + Nav --}}
             <div class="soal-nav-bottom">
-                <button type="button" class="btn-nav btn-prev" onclick="navigasi('prev')" {{ $no <= 1 ? 'disabled' : '' }}>
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-                    <span>Sebelumnya</span>
-                </button>
-
                 <label class="ragu-toggle">
                     <input type="hidden" name="ragu_ragu" value="0">
                     <input type="checkbox" name="ragu_ragu" value="1" id="ragu_check" {{ $jawabanSaatIni->ragu_ragu ? 'checked' : '' }} onchange="autoSave()">
                     <span>Ragu-ragu</span>
                 </label>
+
+                <button type="button" class="btn-nav btn-prev" onclick="navigasi('prev')" {{ $no <= 1 ? 'disabled' : '' }}>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+                    <span>Sebelumnya</span>
+                </button>
 
                 @if($no < $totalSoal)
                 <button type="button" class="btn-nav btn-next" onclick="navigasi('next')">
@@ -381,12 +443,16 @@
             <svg class="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
         </div>
         <h3 class="text-2xl font-black text-slate-800 dark:text-slate-100 mb-2 tracking-tight">Kumpulkan Ujian?</h3>
-        <p class="text-slate-400 dark:text-slate-500 mb-10 font-medium leading-relaxed" id="modal-info">
-            @php 
-                $dijawabCount = $semuaJawaban->filter(fn($j) => $j->cbt_opsi_jawaban_id || $j->jawaban_essay)->count(); 
-            @endphp
-            Anda telah menjawab <span class="text-slate-800 dark:text-slate-200 font-bold">{{ $dijawabCount }} dari {{ $totalSoal }}</span> soal. Pastikan semua jawaban sudah benar sebelum mengakhiri sesi.
+        <p class="text-slate-400 dark:text-slate-500 mb-6 font-medium leading-relaxed" id="modal-info">
+            Anda telah menjawab <span class="text-slate-800 dark:text-slate-200 font-bold"><span id="modal-answered-count">0</span> dari {{ $totalSoal }}</span> soal. Pastikan semua jawaban sudah benar sebelum mengakhiri sesi.
         </p>
+        <div id="modal-unanswered-list" class="hidden mb-10 text-sm p-4 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 rounded-xl font-medium border border-amber-200 dark:border-amber-800">
+            <div class="flex items-center justify-center gap-2 mb-2 font-bold">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                Belum Dijawab:
+            </div>
+            <div id="unanswered-numbers" class="flex flex-wrap justify-center gap-2"></div>
+        </div>
         <div class="flex gap-4">
             <button onclick="closeSubmitModal()" class="flex-1 py-4 rounded-2xl bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-400 font-black transition-all hover:bg-slate-200">Kembali</button>
             <form action="{{ route('siswa.ujian.submit', $sesi->id) }}" method="POST" class="flex-1">
@@ -411,16 +477,17 @@ function updateTimer() {
         document.querySelector('form[action*="submit"]').submit();
         return;
     }
-    const h = Math.floor(sisaWaktu / 3600);
-    const m = Math.floor((sisaWaktu % 3600) / 60);
-    const s = sisaWaktu % 60;
+    const safeSisaWaktu = Math.floor(sisaWaktu);
+    const h = Math.floor(safeSisaWaktu / 3600);
+    const m = Math.floor((safeSisaWaktu % 3600) / 60);
+    const s = safeSisaWaktu % 60;
     timerText.textContent = (h > 0 ? String(h).padStart(2,'0') + ':' : '') +
         String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
 
-    const pct = (sisaWaktu / totalWaktu) * 100;
+    const pct = (safeSisaWaktu / totalWaktu) * 100;
     timerProgress.style.width = pct + '%';
 
-    if (sisaWaktu <= 300) {
+    if (safeSisaWaktu <= 300) {
         timerDisplay.classList.add('danger');
         timerBar.classList.add('danger');
     }
@@ -462,11 +529,63 @@ function navigasi(dir) {
     if (dir === 'prev') target--;
     
     if (target < 1 || target > {{ $totalSoal }}) return;
+    
+    if (typeof App !== 'undefined' && App.Progress) App.Progress.start();
     window.location.href = '{{ url("siswa/ujian/" . $sesi->id . "/soal") }}/' + target;
 }
 
+// Mobile Navigator Toggle
+function toggleNav() {
+    const panel = document.getElementById('navigator-panel');
+    const overlay = document.getElementById('nav-overlay');
+    panel.classList.toggle('open');
+    overlay.classList.toggle('show');
+}
+
 // Modal
-function showSubmitModal() { document.getElementById('submit-modal').classList.add('show'); }
+function showSubmitModal() { 
+    // Hitung soal terjawab (ambil dari navbar + cek soal saat ini)
+    let answered = [];
+    let unanswered = [];
+    
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        let isBtnAnswered = btn.classList.contains('answered');
+        let num = parseInt(btn.textContent.trim());
+        
+        if (btn.classList.contains('active')) {
+            // Cek real-time form current question
+            const form = document.getElementById('jawaban-form');
+            const checkedOption = form.querySelector('input[type="radio"]:checked');
+            const essayBox = form.querySelector('.essay-box');
+            
+            if (checkedOption || (essayBox && essayBox.value.trim() !== '')) {
+                isBtnAnswered = true;
+            } else {
+                isBtnAnswered = false;
+            }
+        }
+        
+        if (isBtnAnswered) {
+            answered.push(num);
+        } else {
+            unanswered.push(num);
+        }
+    });
+
+    document.getElementById('modal-answered-count').textContent = answered.length;
+    
+    const unList = document.getElementById('modal-unanswered-list');
+    const unNums = document.getElementById('unanswered-numbers');
+    
+    if (unanswered.length > 0) {
+        unList.classList.remove('hidden');
+        unNums.innerHTML = unanswered.map(n => `<span class="px-2 py-1 bg-white dark:bg-zinc-800 rounded-md border border-amber-200 dark:border-amber-700/50 shadow-sm text-xs font-bold">${n}</span>`).join('');
+    } else {
+        unList.classList.add('hidden');
+    }
+
+    document.getElementById('submit-modal').classList.add('show'); 
+}
 function closeSubmitModal() { document.getElementById('submit-modal').classList.remove('show'); }
 
 // Auto-save via AJAX
@@ -499,6 +618,8 @@ function autoSave() {
       .then(res => {
           if(res && res.status === 'saved') {
               showToast();
+              const currentNavBtn = document.querySelector('.nav-btn.active');
+              if(currentNavBtn) currentNavBtn.classList.add('answered');
           }
       })
       .catch(err => {

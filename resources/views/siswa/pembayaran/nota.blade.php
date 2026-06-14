@@ -337,7 +337,10 @@
         </div>
 
         <div class="action-buttons">
-            <button onclick="window.close()" class="btn-back">Tutup Tab</button>
+            @php
+                $backUrl = route('siswa.pembayaran.index');
+            @endphp
+            <button onclick="if(window.history.length > 1 && !window.opener) { window.location.href = '{{ $backUrl }}'; } else { window.close(); window.location.href = '{{ $backUrl }}'; }" class="btn-back">Kembali / Tutup</button>
             <button class="btn-print" onclick="window.print()">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="6 9 6 2 18 2 18 9"></polyline>

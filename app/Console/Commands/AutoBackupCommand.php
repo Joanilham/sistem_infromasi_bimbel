@@ -70,6 +70,19 @@ class AutoBackupCommand extends Command
             $this->info($msg);
             Log::info($msg);
 
+            // Upload ke Google Drive jika dikonfigurasi
+            if (config('filesystems.disks.google.clientId') && config('filesystems.disks.google.refreshToken')) {
+                try {
+                    $this->info("Mengunggah backup ke Google Drive...");
+                    Storage::disk('google')->put($fileName, $sqlContent);
+                    $this->info("Berhasil mengunggah ke Google Drive!");
+                    Log::info("Backup DB sukses diunggah ke Google Drive: {$fileName}");
+                } catch (\Exception $e) {
+                    $this->error("Gagal mengunggah ke Google Drive: " . $e->getMessage());
+                    Log::error("Google Drive Upload Exception: " . $e->getMessage());
+                }
+            }
+
             // Batasi jumlah file backup per tipe untuk rotasi penyimpanan mandiri
             $this->pruneOldBackups($type);
 
@@ -139,7 +152,7 @@ class AutoBackupCommand extends Command
         $keyName = "Tables_in_{$dbName}";
 
         foreach ($result as $row) {
-            $tables[] = $row->{$keyName};
+            $tables[] = array_values((array)$row)[0];
         }
 
         $sql = "-- GeniusEdu Database Backup (" . strtoupper($type) . ")\n";

@@ -15,14 +15,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Seed kantor & periode terlebih dahulu
         $this->call([
-            KantorSeeder::class,
             PeriodeSeeder::class,
-            DummyFullSeeder::class,
         ]);
 
-        $kantor = \App\Models\MasterData\Kantor::first();
+        $kantor = \App\Models\MasterData\Kantor::firstOrCreate(
+            ['nama_kantor' => 'Genius Education Pusat'],
+            ['alamat' => 'Cluring']
+        );
         $periode = \App\Models\MasterData\Periode::first();
 
         User::factory()->create([
@@ -31,14 +31,17 @@ class DatabaseSeeder extends Seeder
             'level'    => 'Super Admin',
             'password' => bcrypt('password'),
         ]);
-        User::factory()->create([
-            'name'     => 'Admin',
-            'email'    => 'admin@admin.com',
-            'level'    => 'Admin',
-            'password' => bcrypt('password'),
-            'kantor_id' => $kantor ? $kantor->id : null,
-            'periode_id' => $periode ? $periode->id : null,
-        ]);
+
+        // Akun Admin dan data dummy dinonaktifkan untuk produksi (cPanel)
+        // User::factory()->create([
+        //     'name'     => 'Admin',
+        //     'email'    => 'admin@admin.com',
+        //     ...
+        // ]);
+        
+        // $this->call([
+        //     DummyFullSeeder::class,
+        // ]);
     }
 }
 

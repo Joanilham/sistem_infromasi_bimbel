@@ -49,6 +49,11 @@ class DashboardController extends Controller
 
         // 5 Aktivitas Terbaru untuk Activity Log Widget di Dashboard
         $recentAuditLogs = AuditLog::with('user:id,name,level')
+            ->when(strtolower(auth()->user()->level) !== 'super admin', function ($query) {
+                $query->whereHas('user', function ($q) {
+                    $q->whereRaw('LOWER(level) != ?', ['super admin']);
+                })->orWhereNull('user_id');
+            })
             ->latest()
             ->limit(5)
             ->get();
@@ -158,16 +163,17 @@ class DashboardController extends Controller
         if ($yearStart === $yearEnd) {
             for ($m = 1; $m <= 12; $m++) {
                 $monthsList[] = sprintf('%04d-%02d', $yearStart, $m);
-                $labels[] = Carbon::create($yearStart, $m, 1)->translatedFormat('F Y');
+                $labels[] = Carbon::create($yearStart, $m, 1)->translatedFormat('M Y');
             }
         } else {
-            for ($m = 7; $m <= 12; $m++) {
+            // Cakup juga Januari - Juni dari tahun mulai (untuk pendaftaran & pembayaran awal)
+            for ($m = 1; $m <= 12; $m++) {
                 $monthsList[] = sprintf('%04d-%02d', $yearStart, $m);
-                $labels[] = Carbon::create($yearStart, $m, 1)->translatedFormat('F Y');
+                $labels[] = Carbon::create($yearStart, $m, 1)->translatedFormat('M Y');
             }
             for ($m = 1; $m <= 6; $m++) {
                 $monthsList[] = sprintf('%04d-%02d', $yearEnd, $m);
-                $labels[] = Carbon::create($yearEnd, $m, 1)->translatedFormat('F Y');
+                $labels[] = Carbon::create($yearEnd, $m, 1)->translatedFormat('M Y');
             }
         }
 
@@ -176,7 +182,7 @@ class DashboardController extends Controller
         $uangMasukData = array_fill_keys($monthsList, 0);
         $uangKeluarData = array_fill_keys($monthsList, 0);
 
-        $startDateStr = $yearStart === $yearEnd ? "{$yearStart}-01-01" : "{$yearStart}-07-01";
+        $startDateStr = "{$yearStart}-01-01";
         $endDateStr = $yearStart === $yearEnd ? "{$yearStart}-12-31" : "{$yearEnd}-06-30";
 
         // 1. Peserta Didik
@@ -204,6 +210,7 @@ class DashboardController extends Controller
                 $q->when($filterKantorId, fn($q2) => $q2->where('kantor_id', $filterKantorId))
                   ->when($periodeId, fn($q2) => $q2->where('periode_id', $periodeId));
             })
+            ->where('status', 'sukses') // WAJIB sukses
             ->whereBetween('tanggal', [$startDateStr, $endDateStr])
             ->get();
 

@@ -17,8 +17,9 @@ class TagihanController extends Controller
         $sort    = in_array($request->input('sort'), ['id', 'nama_lengkap', 'batas_waktu']) ? $request->input('sort') : 'id';
         $order   = in_array($request->input('order'), ['asc', 'desc']) ? $request->input('order') : 'desc';
 
-        // Eager load untuk hindari N+1
+        // Eager load dan query efisien untuk hindari N+1
         $tagihanQuery = PembayaranSiswa::with(['pesertaDidik.paketBimbingan', 'transaksi'])
+            ->withSum(['transaksi' => fn($q) => $q->where('status', 'SUKSES')], 'nominal')
             ->whereHas('pesertaDidik', function ($q) use ($request, $search) {
                 $q->inContext()->aktif();
                 if ($search) {
@@ -32,7 +33,7 @@ class TagihanController extends Controller
                 }
             })
             ->join('peserta_didiks', 'pembayaran_siswa.peserta_didik_id', '=', 'peserta_didiks.id')
-            ->select('pembayaran_siswa.*')
+            ->select('pembayaran_siswa.*', 'peserta_didiks.nama_lengkap')
             ->when($sort === 'batas_waktu', function ($q) use ($order) {
                 $q->orderByRaw('pembayaran_siswa.batas_waktu IS NULL, pembayaran_siswa.batas_waktu ' . $order);
             })
@@ -40,19 +41,10 @@ class TagihanController extends Controller
                 $q->orderBy($sort === 'nama_lengkap' ? 'peserta_didiks.nama_lengkap' : 'pembayaran_siswa.id', $order);
             });
 
-        // Filter hanya yang masih punya kekurangan (dilakukan di PHP karena computed attribute)
-        $allTagihan = $tagihanQuery->get()->filter(fn($p) => $p->kekurangan > 0);
+        // Filter hanya yang masih punya kekurangan (dilakukan di DB)
+        $tagihanQuery->whereRaw('pembayaran_siswa.total_harus_dibayar > (SELECT IFNULL(SUM(nominal), 0) FROM transaksi_pembayaran WHERE transaksi_pembayaran.pembayaran_siswa_id = pembayaran_siswa.id AND transaksi_pembayaran.status = ? AND transaksi_pembayaran.deleted_at IS NULL)', ['SUKSES']);
 
-        // Manual pagination dari collection
-        $page    = $request->input('page', 1);
-        $total   = $allTagihan->count();
-        $tagihan = new \Illuminate\Pagination\LengthAwarePaginator(
-            $allTagihan->forPage($page, $perPage)->values(),
-            $total,
-            $perPage,
-            $page,
-            ['path' => $request->url(), 'query' => $request->query()]
-        );
+        $tagihan = $tagihanQuery->paginate($perPage)->withQueryString();
 
         $pakets = \App\Models\Akademik\PaketBimbingan::get();
         return view('keuangan.tagihan.index', compact('tagihan', 'search', 'perPage', 'pakets'));

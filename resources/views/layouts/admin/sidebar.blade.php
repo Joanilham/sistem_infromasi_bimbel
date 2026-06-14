@@ -1,4 +1,4 @@
-﻿<!-- Sidebar Header -->
+<!-- Sidebar Header -->
 <div class="flex items-center justify-center h-20 border-b border-slate-100 dark:border-zinc-800 px-4 bg-white dark:bg-zinc-950">
     <div class="flex items-center gap-3">
         {{-- Logo: tampilkan gambar dari DB jika ada, fallback ke icon SVG --}}
@@ -25,8 +25,8 @@
 
 <!-- Sidebar Content -->
 <div id="sidebar-scroll-container" class="flex-1 min-h-0 overflow-y-auto p-4 pb-24 custom-scrollbar bg-white dark:bg-zinc-950">
-    <nav class="space-y-1 mb-8">
-        <a href="{{ route('dashboard') }}"
+    <nav class="space-y-1 mb-4">
+        <a href="{{ route('dashboard') }}" aria-label="Dashboard"
             class="flex items-center px-3 py-2.5 rounded-2xl transition-all duration-200 {{ request()->routeIs('dashboard') ? 'bg-blue-500 shadow-md shadow-blue-500/30' : 'hover:bg-slate-100 dark:hover:bg-zinc-800' }} group">
             <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mr-3 transition-all duration-200 {{ request()->routeIs('dashboard') ? 'bg-white/25' : 'bg-blue-500 shadow-sm shadow-blue-500/40' }}">
                 <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -38,8 +38,8 @@
     </nav>
 
     @include('layouts.admin.sidebar-components.menu-akademik')
-    @include('layouts.admin.sidebar-components.menu-operasional')
     @include('layouts.admin.sidebar-components.menu-keuangan')
+    @include('layouts.admin.sidebar-components.menu-operasional')
     @include('layouts.admin.sidebar-components.menu-pengaturan')
     <script>
         document.addEventListener("DOMContentLoaded", function() {
