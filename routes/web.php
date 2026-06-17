@@ -142,6 +142,7 @@ Route::middleware('auth')->group(function () {
                 Route::get('/master', [\App\Http\Controllers\MasterData\MasterController::class, 'index'])->name('master.index');
                 Route::put('/master', [\App\Http\Controllers\MasterData\MasterController::class, 'update'])->name('master.update');
                 Route::post('/master/test-wa', [\App\Http\Controllers\MasterData\MasterController::class, 'testWhatsApp'])->name('master.test.wa');
+                Route::post('/master/test-email', [\App\Http\Controllers\MasterData\MasterController::class, 'testEmail'])->name('master.test.email');
             });
 
             // Landing Page Management

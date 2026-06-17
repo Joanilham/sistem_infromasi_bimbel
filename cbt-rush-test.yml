@@ -1,0 +1,17 @@
+config:
+  target: "https://bimbel.geniusedu.my.id"
+  phases:
+    - duration: 5
+      arrivalCount: 100
+      name: "Serbuan 100 Siswa Ujian Bersamaan"
+scenarios:
+  - name: "Siswa Mengakses Halaman CBT"
+    flow:
+      - get:
+          url: "/"
+      - think: 1
+      - get:
+          url: "/login"
+      - think: 1
+      - get:
+          url: "/daftar/step1"
