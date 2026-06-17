@@ -152,20 +152,16 @@
             const sidebarScrollArea = document.getElementById('sidebar-scroll-container');
             if (sidebarScrollArea) {
                 const savedScrollTop = localStorage.getItem('sidebarScrollTopGuru');
-                if (savedScrollTop) {
-                    sidebarScrollArea.scrollTop = savedScrollTop;
-                    setTimeout(() => { sidebarScrollArea.scrollTop = savedScrollTop; }, 50);
-                    setTimeout(() => { sidebarScrollArea.scrollTop = savedScrollTop; }, 150);
+                if (savedScrollTop !== null) {
+                    const pos = parseInt(savedScrollTop, 10);
+                    sidebarScrollArea.scrollTop = pos;
+                    setTimeout(() => { sidebarScrollArea.scrollTop = pos; }, 50);
+                    setTimeout(() => { sidebarScrollArea.scrollTop = pos; }, 150);
+                    setTimeout(() => { sidebarScrollArea.scrollTop = pos; }, 300);
                 }
 
-                let scrollTimeout;
                 sidebarScrollArea.addEventListener('scroll', function() {
-                    clearTimeout(scrollTimeout);
-                    scrollTimeout = setTimeout(() => {
-                        if (this.scrollTop > 0 || savedScrollTop == 0) {
-                            localStorage.setItem('sidebarScrollTopGuru', this.scrollTop);
-                        }
-                    }, 100);
+                    localStorage.setItem('sidebarScrollTopGuru', this.scrollTop);
                 });
             }
         });
