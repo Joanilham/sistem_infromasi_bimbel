@@ -182,7 +182,7 @@
     <!-- TomSelect JS -->
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('turbo:load', function() {
             // TomSelect Init
             document.querySelectorAll('select').forEach((el) => {
                 if (el.classList.contains('no-tomselect')) return;
@@ -252,5 +252,8 @@
         });
     </script>
     @include('components.loading-overlay')
+
+    <!-- Turbo Drive SPA -->
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.4/dist/turbo.es2017-esm.js"></script>
 </body>
 </html>
