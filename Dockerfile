@@ -40,7 +40,8 @@ RUN npm ci
 COPY . .
 
 # Run post-install scripts
-RUN composer dump-autoload --optimize
+RUN composer dump-autoload --optimize \
+    && php artisan storage:link
 
 # Build frontend assets
 RUN npm run build \

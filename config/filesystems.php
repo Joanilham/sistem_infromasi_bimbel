@@ -40,9 +40,7 @@ return [
 
         'public' => [
             'driver' => 'local',
-            'root' => (isset($_SERVER['SCRIPT_FILENAME']) && basename($_SERVER['SCRIPT_FILENAME']) === 'index.php') 
-                        ? dirname($_SERVER['SCRIPT_FILENAME']) . '/storage' 
-                        : storage_path('app/public'),
+            'root' => storage_path('app/public'),
             'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
             'visibility' => 'public',
             'throw' => false,
