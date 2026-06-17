@@ -77,7 +77,7 @@ class ProfileController extends Controller
         try {
             $user->save();
             return back()->with('success', $pesan);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error('Profile Update Error: ' . $e->getMessage());
             return back()->with('error', 'Terjadi kesalahan saat menyimpan perubahan profil.');
         }
@@ -101,7 +101,7 @@ class ProfileController extends Controller
             $user->save();
 
             return back()->with('success', 'Foto profil berhasil diperbarui!');
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error('Profile Photo Update Error: ' . $e->getMessage());
             return back()->with('error', 'Terjadi kesalahan sistem saat memperbarui foto profil.');
         }

@@ -56,7 +56,7 @@ trait HandlesImageUpload
             if (file_exists($tempPath)) unlink($tempPath);
             
             return $finalPath;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             if (file_exists($tempPath)) unlink($tempPath);
             \Illuminate\Support\Facades\Log::error('Compression Error: ' . $e->getMessage());
             return $file->store($directory, 'public');
