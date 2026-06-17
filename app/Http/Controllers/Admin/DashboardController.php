@@ -207,74 +207,65 @@ class DashboardController extends Controller
         $endDateStr = $yearStart === $yearEnd ? "{$yearStart}-12-31" : "{$yearEnd}-06-30";
 
         // 1. Peserta Didik
-        $pesertas = PesertaDidik::inContext()
+        $pesertaMasukRaw = PesertaDidik::inContext()
             ->where('periode_id', $periodeId)
-            ->get();
+            ->whereNotNull('created_at')
+            ->selectRaw('DATE_FORMAT(created_at, "%Y-%m") as month, count(id) as total')
+            ->groupBy('month')
+            ->pluck('total', 'month')->toArray();
 
-        foreach ($pesertas as $p) {
-            if ($p->created_at) {
-                $key = $p->created_at->format('Y-m');
-                if ($key < $firstMonthKey) $key = $firstMonthKey;
-                if (array_key_exists($key, $pesertaMasukData)) {
-                    $pesertaMasukData[$key]++;
-                }
-            }
-            if ($p->tanggal_keluar) {
-                $key = Carbon::parse($p->tanggal_keluar)->format('Y-m');
-                if ($key < $firstMonthKey) $key = $firstMonthKey;
-                if (array_key_exists($key, $pesertaKeluarData)) {
-                    $pesertaKeluarData[$key]++;
-                }
-            }
-        }
+        $pesertaKeluarRaw = PesertaDidik::inContext()
+            ->where('periode_id', $periodeId)
+            ->whereNotNull('tanggal_keluar')
+            ->selectRaw('DATE_FORMAT(tanggal_keluar, "%Y-%m") as month, count(id) as total')
+            ->groupBy('month')
+            ->pluck('total', 'month')->toArray();
 
         // 2. Keuangan - Transaksi Pembayaran Siswa
-        $transaksiSpp = TransaksiPembayaran::whereHas('pembayaranSiswa.pesertaDidik', function($q) use ($filterKantorId, $periodeId) {
+        $transaksiSppRaw = TransaksiPembayaran::whereHas('pembayaranSiswa.pesertaDidik', function($q) use ($filterKantorId, $periodeId) {
                 $q->when($filterKantorId, fn($q2) => $q2->where('kantor_id', $filterKantorId))
                   ->when($periodeId, fn($q2) => $q2->where('periode_id', $periodeId));
             })
-            ->where('status', 'sukses') // WAJIB sukses
+            ->where('status', 'sukses')
             ->whereBetween('tanggal', [$startDateStr, $endDateStr])
-            ->get();
-
-        foreach ($transaksiSpp as $t) {
-            if ($t->tanggal) {
-                $key = Carbon::parse($t->tanggal)->format('Y-m');
-                if ($key < $firstMonthKey) $key = $firstMonthKey;
-                if (array_key_exists($key, $uangMasukData)) {
-                    $uangMasukData[$key] += (int) $t->nominal;
-                }
-            }
-        }
+            ->selectRaw('DATE_FORMAT(tanggal, "%Y-%m") as month, sum(nominal) as total')
+            ->groupBy('month')
+            ->pluck('total', 'month')->toArray();
 
         // 3. Keuangan - Pemasukan Lainnya
-        $pemasukanLain = Pemasukan::when($filterKantorId, fn($q) => $q->whereHas('user', fn($qu) => $qu->where('kantor_id', $filterKantorId)))
+        $pemasukanLainRaw = Pemasukan::when($filterKantorId, fn($q) => $q->whereHas('user', fn($qu) => $qu->where('kantor_id', $filterKantorId)))
             ->whereBetween('tanggal', [$startDateStr, $endDateStr])
-            ->get();
-
-        foreach ($pemasukanLain as $pl) {
-            if ($pl->tanggal) {
-                $key = Carbon::parse($pl->tanggal)->format('Y-m');
-                if ($key < $firstMonthKey) $key = $firstMonthKey;
-                if (array_key_exists($key, $uangMasukData)) {
-                    $uangMasukData[$key] += (int) $pl->nominal;
-                }
-            }
-        }
+            ->selectRaw('DATE_FORMAT(tanggal, "%Y-%m") as month, sum(nominal) as total')
+            ->groupBy('month')
+            ->pluck('total', 'month')->toArray();
 
         // 4. Keuangan - Pengeluaran
-        $pengeluaranList = Pengeluaran::when($filterKantorId, fn($q) => $q->whereHas('user', fn($qu) => $qu->where('kantor_id', $filterKantorId)))
+        $pengeluaranRaw = Pengeluaran::when($filterKantorId, fn($q) => $q->whereHas('user', fn($qu) => $qu->where('kantor_id', $filterKantorId)))
             ->whereBetween('tanggal', [$startDateStr, $endDateStr])
-            ->get();
+            ->selectRaw('DATE_FORMAT(tanggal, "%Y-%m") as month, sum(nominal) as total')
+            ->groupBy('month')
+            ->pluck('total', 'month')->toArray();
 
-        foreach ($pengeluaranList as $pg) {
-            if ($pg->tanggal) {
-                $key = Carbon::parse($pg->tanggal)->format('Y-m');
-                if ($key < $firstMonthKey) $key = $firstMonthKey;
-                if (array_key_exists($key, $uangKeluarData)) {
-                    $uangKeluarData[$key] += (int) $pg->nominal;
-                }
-            }
+        // Rekapitulasi Data
+        foreach ($pesertaMasukRaw as $key => $total) {
+            if ($key < $firstMonthKey) $key = $firstMonthKey;
+            if (array_key_exists($key, $pesertaMasukData)) $pesertaMasukData[$key] += $total;
+        }
+        foreach ($pesertaKeluarRaw as $key => $total) {
+            if ($key < $firstMonthKey) $key = $firstMonthKey;
+            if (array_key_exists($key, $pesertaKeluarData)) $pesertaKeluarData[$key] += $total;
+        }
+        foreach ($transaksiSppRaw as $key => $total) {
+            if ($key < $firstMonthKey) $key = $firstMonthKey;
+            if (array_key_exists($key, $uangMasukData)) $uangMasukData[$key] += $total;
+        }
+        foreach ($pemasukanLainRaw as $key => $total) {
+            if ($key < $firstMonthKey) $key = $firstMonthKey;
+            if (array_key_exists($key, $uangMasukData)) $uangMasukData[$key] += $total;
+        }
+        foreach ($pengeluaranRaw as $key => $total) {
+            if ($key < $firstMonthKey) $key = $firstMonthKey;
+            if (array_key_exists($key, $uangKeluarData)) $uangKeluarData[$key] += $total;
         }
 
         return [
