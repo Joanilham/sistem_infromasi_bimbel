@@ -69,7 +69,7 @@
         :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" 
         class="fixed z-40 inset-y-0 left-0 w-64 transition-transform duration-300 transform bg-white dark:bg-zinc-900 shadow-2xl lg:shadow-none border-r border-slate-200 dark:border-zinc-800 flex flex-col"
         style="will-change: transform;">
-        <div class="flex flex-col h-full overflow-y-auto custom-scrollbar">
+        <div id="sidebar-scroll-area" class="flex flex-col h-full overflow-y-auto custom-scrollbar">
             @include('layouts.admin.sidebar')
         </div>
     </aside>
@@ -234,6 +234,19 @@
                     });
                 }
             });
+
+            // Persist Sidebar Scroll Position
+            const sidebarScrollArea = document.getElementById('sidebar-scroll-area');
+            if (sidebarScrollArea) {
+                const savedScrollTop = localStorage.getItem('sidebarScrollTopAdmin');
+                if (savedScrollTop) {
+                    sidebarScrollArea.scrollTop = savedScrollTop;
+                }
+
+                sidebarScrollArea.addEventListener('scroll', function() {
+                    localStorage.setItem('sidebarScrollTopAdmin', this.scrollTop);
+                });
+            }
         });
     </script>
     
