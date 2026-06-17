@@ -18,9 +18,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
     
-    <!-- DataTables TailwindCSS -->
-    <link rel="stylesheet" href="{{ asset('vendor/datatables/dataTables.tailwindcss.min.css') }}" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="{{ asset('vendor/datatables/dataTables.tailwindcss.min.css') }}"></noscript>
+
 
     <script defer src="{{ asset('vendor/alpinejs/alpine.min.js') }}"></script>
     
@@ -151,9 +149,12 @@
     <!-- TomSelect JS -->
     <script defer src="{{ asset('vendor/tom-select/tom-select.complete.min.js') }}"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        // Init pada saat load awal atau setelah pergantian halaman via Turbo
+        document.addEventListener('turbo:load', function() {
             document.querySelectorAll('select').forEach((el) => {
-                if (el.classList.contains('no-tomselect')) return;
+                // Jangan inisialisasi ulang jika sudah memiliki tomselect (Turbo membiarkan node lama atau mengembalikan node dari cache)
+                if (el.classList.contains('no-tomselect') || el.tomselect) return;
+                
                 new TomSelect(el, {
                     create: false,
                     sortField: [{field: '$order'}],
@@ -175,7 +176,7 @@
     <script defer src="{{ asset('vendor/flatpickr/flatpickr.min.js') }}"></script>
     <script defer src="{{ asset('vendor/flatpickr/id.js') }}"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('turbo:load', function() {
             flatpickr("input[type='date']", {
                 locale: "id",
                 dateFormat: "Y-m-d",
@@ -188,26 +189,7 @@
 
     @include('components.loading-overlay')
 
-    <!-- Scroll Position Preserver -->
     <script>
-        document.addEventListener("DOMContentLoaded", function() { 
-            const scrollpos = sessionStorage.getItem('scrollpos_' + window.location.pathname);
-            const mainArea = document.getElementById('main-scroll-area');
-            if (scrollpos && mainArea) {
-                // Gunakan requestAnimationFrame agar render selesai dulu
-                requestAnimationFrame(() => {
-                    mainArea.scrollTop = parseInt(scrollpos, 10);
-                });
-            }
-        });
-
-        window.addEventListener("beforeunload", function() {
-            const mainArea = document.getElementById('main-scroll-area');
-            if (mainArea) {
-                sessionStorage.setItem('scrollpos_' + window.location.pathname, mainArea.scrollTop);
-            }
-        });
-
         // Global Format Rupiah
         function formatRupiah(value) {
             if (!value) return '';
@@ -226,28 +208,37 @@
             return rupiah;
         }
 
-        document.querySelectorAll('input.nominal-format, input.nominal-input, input[name="nominal"], input[name="biaya_pendaftaran"]').forEach(input => {
-            if(input.type === 'number') {
-                input.type = 'text';
-                input.setAttribute('inputmode', 'numeric');
-            }
-            
-            if(input.value) {
-                input.value = formatRupiah(input.value);
-            }
+        document.addEventListener('turbo:load', function() {
+            document.querySelectorAll('input.nominal-format, input.nominal-input, input[name="nominal"], input[name="biaya_pendaftaran"]').forEach(input => {
+                // Cegah multiple event listener jika Turbo cache dikembalikan
+                if (input.dataset.rupiahBound) return;
+                input.dataset.rupiahBound = "true";
 
-            input.addEventListener('input', function(e) {
-                this.value = formatRupiah(this.value);
-            });
-            
-            const form = input.closest('form');
-            if (form) {
-                form.addEventListener('submit', function() {
-                    input.value = input.value.replace(/\./g, '');
+                if(input.type === 'number') {
+                    input.type = 'text';
+                    input.setAttribute('inputmode', 'numeric');
+                }
+                
+                if(input.value) {
+                    input.value = formatRupiah(input.value);
+                }
+
+                input.addEventListener('input', function(e) {
+                    this.value = formatRupiah(this.value);
                 });
-            }
+                
+                const form = input.closest('form');
+                if (form) {
+                    form.addEventListener('submit', function() {
+                        input.value = input.value.replace(/\./g, '');
+                    });
+                }
+            });
         });
     </script>
+    
+    <!-- Turbo Drive SPA -->
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.4/dist/turbo.es2017-esm.js"></script>
 </body>
 
 </html>

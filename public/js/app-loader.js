@@ -327,7 +327,10 @@ const App = (() => {
     Network.init();
 
     // Sembunyikan page loader secepat mungkin saat DOM siap
+    let loaderHidden = false;
     function hideLoader() {
+      if (loaderHidden) return;
+      loaderHidden = true;
       Loader.hide();
       Progress.done();
     }
@@ -340,6 +343,16 @@ const App = (() => {
       // DOM sudah siap (interactive atau complete)
       hideLoader();
     }
+
+    // Hard safety timeout: force-remove loader after 8 seconds no matter what
+    setTimeout(() => {
+      const loader = document.getElementById('page-loader');
+      if (loader) {
+        console.warn('Page loader safety timeout: force-removing loader');
+        loader.classList.add('fade-out');
+        setTimeout(() => { if (loader.parentNode) loader.remove(); }, 500);
+      }
+    }, 8000);
 
     // Progress bar untuk navigasi link biasa
     document.addEventListener('click', (e) => {

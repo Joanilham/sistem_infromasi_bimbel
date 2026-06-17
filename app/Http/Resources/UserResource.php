@@ -21,6 +21,7 @@ class UserResource extends JsonResource
             'level' => $this->level,
             'status' => $this->status,
             'is_active' => $this->is_active,
+            'photo'     => $this->photo ? asset('storage/' . $this->photo) : null,
             // If it's a student, we add extra fields computed in AuthController
             'no_telp'    => $this->when(isset($this->no_telp), $this->no_telp),
             'alamat'     => $this->when(isset($this->alamat), $this->alamat),

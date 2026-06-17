@@ -16,10 +16,26 @@ class PesertaDidikRequest extends FormRequest
 
     protected function prepareForValidation()
     {
+        $mergeData = [];
+
         if ($this->has('nisn')) {
-            $this->merge([
-                'nomor_induk' => $this->nisn,
-            ]);
+            $mergeData['nomor_induk'] = $this->nisn;
+        }
+
+        if ($this->has('no_telepon')) {
+            $mergeData['no_telepon'] = preg_replace('/\D/', '', $this->no_telepon);
+        }
+
+        if ($this->has('no_telepon_ayah')) {
+            $mergeData['no_telepon_ayah'] = preg_replace('/\D/', '', $this->no_telepon_ayah);
+        }
+
+        if ($this->has('no_telepon_ibu')) {
+            $mergeData['no_telepon_ibu'] = preg_replace('/\D/', '', $this->no_telepon_ibu);
+        }
+
+        if (!empty($mergeData)) {
+            $this->merge($mergeData);
         }
     }
 
@@ -76,5 +92,11 @@ class PesertaDidikRequest extends FormRequest
             'nisn.digits'           => 'NISN harus tepat 10 digit angka.',
             'nisn.unique'           => 'NISN ini sudah terdaftar pada sistem.',
         ];
+    }
+
+    protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
+    {
+        \Illuminate\Support\Facades\Log::error('PesertaDidik Validation Failed:', $validator->errors()->toArray());
+        parent::failedValidation($validator);
     }
 }

@@ -339,6 +339,8 @@ let lastScanValue = '';
 let lastScanTime  = 0;
 
 function onDetect(value) {
+    if (!value || !value.trim()) return;
+
     const now = Date.now();
     // Abaikan jika QR yang sama persis di-scan dalam waktu 3 detik
     if (value === lastScanValue && now - lastScanTime < 3000) {
@@ -375,7 +377,12 @@ function kirim(nisn) {
         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
         body: JSON.stringify({ nisn })
     })
-    .then(r => r.ok ? r.json() : r.text().then(t => { throw new Error('HTTP ' + r.status); }))
+    .then(r => {
+        if (r.ok) return r.json();
+        return r.json().catch(() => { throw new Error('HTTP ' + r.status); }).then(errData => {
+            throw new Error(errData.message || 'HTTP ' + r.status);
+        });
+    })
     .then(data => {
         const type = !data.success ? 'err' : (data.sudah ? 'dup' : 'ok');
         showFeedback(data.success, data.message);

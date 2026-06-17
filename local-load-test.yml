@@ -1,0 +1,17 @@
+config:
+  target: "http://localhost:8080"
+  phases:
+    - duration: 60
+      arrivalRate: 2
+      name: "Ujian Lokal (120 Siswa per menit)"
+scenarios:
+  - name: "Siswa Buka Web"
+    flow:
+      - get:
+          url: "/"
+      - think: 3
+      - get:
+          url: "/login"
+      - think: 2
+      - get:
+          url: "/daftar/step1"

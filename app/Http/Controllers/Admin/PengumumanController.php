@@ -15,14 +15,16 @@ class PengumumanController extends Controller
     public function index(Request $request)
     {
         $search = $request->input('search', '');
+        $perPage = $request->input('per_page', 10);
+        
         $pengumumans = Pengumuman::when($search, function ($query, $search) {
                 return $query->where('judul', 'like', "%{$search}%");
             })
             ->latest()
-            ->paginate(10)
+            ->paginate($perPage)
             ->withQueryString();
 
-        return view('admin.pengumuman.index', compact('pengumumans', 'search'));
+        return view('admin.pengumuman.index', compact('pengumumans', 'search', 'perPage'));
     }
 
     /**

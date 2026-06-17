@@ -1,6 +1,3 @@
-<!-- jQuery & DataTables JS -->
-<script defer src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>
-<script defer src="{{ asset('vendor/datatables/jquery.dataTables.min.js') }}"></script>
 
 <!-- SweetAlert2 -->
 <script defer src="{{ asset('vendor/sweetalert2/sweetalert2.min.js') }}"></script>
@@ -36,6 +33,7 @@
     document.addEventListener('alpine:init', () => {
         Alpine.data('ajaxTable', () => ({
             isLoading: false,
+            _safetyTimer: null,
             
             fetchData(e) {
                 let form = null;
@@ -66,22 +64,52 @@
             },
 
             doFetch(urlStr) {
+                // Prevent double-fetch while loading
+                if (this.isLoading) return;
+
                 this.isLoading = true;
+
+                // Safety timeout: force-reset loading after 15 seconds
+                clearTimeout(this._safetyTimer);
+                this._safetyTimer = setTimeout(() => {
+                    if (this.isLoading) {
+                        console.warn('AJAX safety timeout: force-resetting loading state');
+                        this.isLoading = false;
+                        if (typeof App !== 'undefined' && App.Progress) {
+                            App.Progress.fail();
+                        }
+                    }
+                }, 15000);
                 
                 fetch(urlStr, {
                     headers: { 'X-Requested-With': 'XMLHttpRequest' }
                 })
-                .then(res => res.text())
+                .then(res => {
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    return res.text();
+                })
                 .then(html => {
                     let parser = new DOMParser();
                     let doc = parser.parseFromString(html, 'text/html');
                     
-                    // Update Elements safely without losing focus on inputs
+                    // Update elements safely, preserving the loading overlay
                     const updateElement = (id) => {
                         let newEl = doc.getElementById(id);
                         let oldEl = document.getElementById(id);
                         if (newEl && oldEl) {
+                            // Save loading overlay (controlled by Alpine x-show)
+                            // before replacing innerHTML to preserve Alpine bindings
+                            const loadingOverlay = oldEl.querySelector('[x-show="isLoading"]');
+                            
                             oldEl.innerHTML = newEl.innerHTML;
+                            
+                            // Remove the non-reactive loading overlay from new HTML
+                            // and re-insert the original Alpine-bound one
+                            if (loadingOverlay) {
+                                const staleOverlay = oldEl.querySelector('[x-show="isLoading"]');
+                                if (staleOverlay) staleOverlay.remove();
+                                oldEl.insertBefore(loadingOverlay, oldEl.firstChild);
+                            }
                         }
                     };
 
@@ -94,9 +122,12 @@
                 })
                 .catch(error => {
                     console.error('AJAX Error:', error);
-                    // optionally show alert or toast
+                    if (typeof App !== 'undefined' && App.Toast) {
+                        App.Toast.error('Gagal Memuat', 'Terjadi kesalahan saat memuat data. Silakan coba lagi.');
+                    }
                 })
                 .finally(() => {
+                    clearTimeout(this._safetyTimer);
                     this.isLoading = false;
                     if (typeof App !== 'undefined' && App.Progress) {
                         App.Progress.done();

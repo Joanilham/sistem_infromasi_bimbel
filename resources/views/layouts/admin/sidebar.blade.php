@@ -37,9 +37,10 @@
         </a>
     </nav>
 
+    @include('layouts.admin.sidebar-components.menu-pengguna')
     @include('layouts.admin.sidebar-components.menu-akademik')
     @include('layouts.admin.sidebar-components.menu-keuangan')
-    @include('layouts.admin.sidebar-components.menu-operasional')
+    @include('layouts.admin.sidebar-components.menu-laporan')
     @include('layouts.admin.sidebar-components.menu-pengaturan')
     <script>
         document.addEventListener("DOMContentLoaded", function() {

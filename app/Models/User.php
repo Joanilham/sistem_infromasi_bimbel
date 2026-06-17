@@ -71,8 +71,8 @@ class User extends Authenticatable
             return true;
         }
 
-        // Admin biasa dicek melalui kolom permissions
-        if ($this->level === 'Admin') {
+        // Admin biasa dan Staff dicek melalui kolom permissions
+        if (in_array($this->level, ['Admin', 'Staff'])) {
             return is_array($this->permissions) && in_array($permission, $this->permissions);
         }
 

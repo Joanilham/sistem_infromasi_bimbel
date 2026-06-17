@@ -1,5 +1,5 @@
     {{-- MENU KEUANGAN --}}
-    @if(auth()->user()->hasPermission('manage_keuangan') || auth()->user()->hasPermission('manage_pembayaran_siswa') || auth()->user()->hasPermission('manage_pemasukan') || auth()->user()->hasPermission('manage_pengeluaran') || auth()->user()->hasPermission('manage_tagihan'))
+    @if(in_array(strtolower(auth()->user()->level), ['super admin', 'administrator']) || auth()->user()->hasPermission('manage_keuangan') || auth()->user()->hasPermission('manage_pembayaran_siswa') || auth()->user()->hasPermission('manage_pemasukan') || auth()->user()->hasPermission('manage_pengeluaran') || auth()->user()->hasPermission('manage_tagihan') || auth()->user()->hasPermission('manage_bank'))
     <div class="mb-6">
         <h3 class="px-3 text-[10px] font-bold uppercase text-slate-400 dark:text-slate-500 tracking-widest mb-2">MENU KEUANGAN</h3>
         <nav class="space-y-1">
@@ -107,6 +107,19 @@
                     </svg>
                 </div>
                 <span class="text-sm font-semibold {{ request()->routeIs('keuangan.tagihan.*') ? 'text-white' : 'text-slate-700 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-white' }}">Tagihan Siswa</span>
+            </a>
+            @endif
+
+            {{-- Rekening Bank --}}
+            @if(in_array(strtolower(auth()->user()->level), ['super admin', 'administrator']) || auth()->user()->hasPermission('manage_bank'))
+            <a href="{{ route('bank.index') }}"
+                class="flex items-center px-3 py-2.5 rounded-2xl transition-all duration-200 {{ request()->routeIs('bank.*') ? 'bg-indigo-500 shadow-md shadow-indigo-500/30' : 'hover:bg-slate-100 dark:hover:bg-zinc-800' }} group">
+                <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mr-3 {{ request()->routeIs('bank.*') ? 'bg-white/25' : 'bg-indigo-500 shadow-sm shadow-indigo-500/40' }}">
+                    <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                    </svg>
+                </div>
+                <span class="text-sm font-semibold {{ request()->routeIs('bank.*') ? 'text-white' : 'text-slate-700 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-white' }}">Rekening Bank</span>
             </a>
             @endif
 

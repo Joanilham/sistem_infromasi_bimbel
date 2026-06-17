@@ -30,7 +30,7 @@ services:
       - PORT=8080
       - ENFORCE_MODSECURITY=1
       - PARANOIA=1
-      - SEC_RULE_ENGINE=On
+      - SEC_RULE_ENGINE=DetectionOnly
     volumes:
       - .:/var/www/html
       - ./docker/nginx/default.conf:/etc/nginx/templates/conf.d/default.conf.template

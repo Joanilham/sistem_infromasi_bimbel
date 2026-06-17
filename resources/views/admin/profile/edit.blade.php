@@ -28,7 +28,7 @@
                     {{-- Avatar Preview --}}
                     <div class="relative group">
                         <div class="w-24 h-24 rounded-2xl overflow-hidden border-2 border-slate-200 dark:border-slate-700 shadow-lg">
-                            @if($user->photo)
+                            @if($user->photo && Storage::disk('public')->exists($user->photo))
                                 <img src="{{ asset('storage/' . $user->photo) }}" alt="Foto Profil" class="w-full h-full object-cover" x-show="!preview">
                             @else
                                 <img src="https://ui-avatars.com/api/?name={{ urlencode(trim($user->name)) }}&background=4318FF&color=fff&size=256&bold=true&format=svg" alt="Foto Profil" class="w-full h-full object-cover" x-show="!preview">

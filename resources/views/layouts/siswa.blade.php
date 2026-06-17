@@ -1,7 +1,7 @@
 @php
     $user = Auth::user();
     $pesertaDidik = $user ? $user->pesertaDidik : null;
-    $isPending = $user ? $user->status !== 'aktif' : false;
+    $isPending = $user ? strtolower($user->status) !== 'aktif' : false;
     $pembayaranOverdue = false;
     
     if ($pesertaDidik) {

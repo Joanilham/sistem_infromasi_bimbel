@@ -58,9 +58,13 @@ class PenggunaController extends Controller
      */
     public function store(StorePenggunaRequest $request)
     {
-        // Cegah Admin biasa membuat Super Admin atau mengubah permission orang lain
-        if (auth()->user()->level === 'Admin' && $request->level === 'Super Admin') {
-            abort(403, 'Akses ditolak.');
+        if ($request->level === 'Super Admin') {
+            abort(403, 'Pembuatan akun Super Admin baru tidak diizinkan demi keamanan sistem.');
+        }
+
+        // Cegah Admin biasa membuat Admin
+        if (strtolower(auth()->user()->level) === 'admin' && in_array($request->level, ['Admin'])) {
+            abort(403, 'Admin hanya dapat membuat akun Staff.');
         }
 
         $validated = $request->validated();
@@ -68,7 +72,8 @@ class PenggunaController extends Controller
         $validated['password']  = Hash::make($validated['password']);
         $validated['is_active'] = true;
 
-        if ($validated['level'] !== 'Admin') {
+        // Super Admin memiliki semua akses, tidak perlu array permissions
+        if ($validated['level'] === 'Super Admin') {
             $validated['permissions'] = null;
         }
 
@@ -89,6 +94,11 @@ class PenggunaController extends Controller
             abort(403, 'Anda tidak memiliki akses untuk mengelola Super Admin.');
         }
 
+        // Admin biasa tidak boleh mengedit Admin
+        if (strtolower(auth()->user()->level) === 'admin' && strtolower($pengguna->level) === 'admin') {
+            abort(403, 'Admin hanya dapat mengelola akun Staff.');
+        }
+
         if (!in_array($pengguna->level, $this->allowedLevels)) {
             return back()->withErrors(['error' => 'Pengguna ini tidak dapat dikelola dari halaman ini.']);
         }
@@ -104,9 +114,19 @@ class PenggunaController extends Controller
         if (strtolower($pengguna->level) === 'super admin' && strtolower(auth()->user()->level) !== 'super admin') {
             abort(403, 'Anda tidak memiliki akses untuk mengelola Super Admin.');
         }
-        // Cegah update ke Super Admin oleh Admin biasa
-        if (auth()->user()->level === 'Admin' && $request->level === 'Super Admin' && $pengguna->level !== 'Super Admin') {
-            abort(403, 'Akses ditolak.');
+        
+        // Admin biasa tidak boleh mengedit Admin (termasuk dirinya sendiri lewat menu ini)
+        if (strtolower(auth()->user()->level) === 'admin' && strtolower($pengguna->level) === 'admin') {
+            abort(403, 'Admin hanya dapat mengelola akun Staff.');
+        }
+
+        if ($request->level === 'Super Admin' && $pengguna->level !== 'Super Admin') {
+            abort(403, 'Perubahan role ke Super Admin tidak diizinkan demi keamanan sistem.');
+        }
+
+        // Cegah update ke Admin oleh Admin biasa
+        if (strtolower(auth()->user()->level) === 'admin' && in_array($request->level, ['Admin']) && strtolower($pengguna->level) !== $request->level) {
+            abort(403, 'Admin hanya dapat mengatur level sebagai Staff.');
         }
 
         $validated = $request->validated();
@@ -128,7 +148,7 @@ class PenggunaController extends Controller
             return back()->withErrors(['error' => 'Anda tidak dapat mengubah level akun Anda sendiri.']);
         }
 
-        if ($validated['level'] !== 'Admin') {
+        if ($validated['level'] === 'Super Admin') {
             $validated['permissions'] = null;
         }
 
@@ -147,6 +167,10 @@ class PenggunaController extends Controller
 
         if (strtolower($pengguna->level) === 'super admin' && strtolower(auth()->user()->level) !== 'super admin') {
             abort(403, 'Anda tidak memiliki akses untuk mengelola Super Admin.');
+        }
+
+        if (strtolower(auth()->user()->level) === 'admin' && strtolower($pengguna->level) === 'admin') {
+            abort(403, 'Admin hanya dapat mengelola akun Staff.');
         }
 
         if ($pengguna->id === Auth::id()) {

@@ -269,7 +269,7 @@
                     aria-haspopup="true"
                     aria-label="Menu akun"
                 >
-                    @if(Auth::user() && Auth::user()->photo)
+                    @if(Auth::user() && Auth::user()->photo && Storage::disk('public')->exists(Auth::user()->photo))
                         <img src="{{ asset('storage/' . Auth::user()->photo) }}" alt="" class="header-avatar" width="40" height="40" style="object-fit: cover;">
                     @else
                         <div class="header-avatar">{{ strtoupper(substr(Auth::user()->name ?? 'S', 0, 2)) }}</div>

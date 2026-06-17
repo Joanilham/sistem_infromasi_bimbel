@@ -133,7 +133,7 @@ class PesertaDidik extends Model
 
     public function paketBimbingan(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(PaketBimbingan::class, 'paket_bimbingan_id');
+        return $this->belongsTo(PaketBimbingan::class, 'paket_bimbingan_id')->withTrashed();
     }
 
     public function kelompokBelajar(): \Illuminate\Database\Eloquent\Relations\BelongsTo

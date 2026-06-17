@@ -49,7 +49,17 @@ Route::middleware([\App\Http\Middleware\RestrictApiAccess::class])->group(functi
         Route::get('/guru/bank-soal', [\App\Http\Controllers\Api\GuruBankSoalController::class, 'index']);
         Route::post('/guru/bank-soal', [\App\Http\Controllers\Api\GuruBankSoalController::class, 'store']);
         Route::delete('/guru/bank-soal/{id}', [\App\Http\Controllers\Api\GuruBankSoalController::class, 'destroy']);
+        Route::get('/guru/ujian/form-data', [\App\Http\Controllers\Api\GuruUjianController::class, 'formData']);
         Route::get('/guru/ujian', [\App\Http\Controllers\Api\GuruUjianController::class, 'index']);
+        Route::post('/guru/ujian', [\App\Http\Controllers\Api\GuruUjianController::class, 'store']);
+        Route::get('/guru/ujian/{id}', [\App\Http\Controllers\Api\GuruUjianController::class, 'show']);
+        Route::delete('/guru/ujian/{id}', [\App\Http\Controllers\Api\GuruUjianController::class, 'destroy']);
+        Route::post('/guru/ujian/{id}/soal', [\App\Http\Controllers\Api\GuruUjianController::class, 'tambahSoal']);
+        Route::delete('/guru/ujian/{id}/soal/{soalId}', [\App\Http\Controllers\Api\GuruUjianController::class, 'hapusSoal']);
+        Route::post('/guru/ujian/{id}/peserta', [\App\Http\Controllers\Api\GuruUjianController::class, 'setPeserta']);
+        Route::get('/guru/ujian/{id}/monitoring', [\App\Http\Controllers\Api\GuruUjianController::class, 'monitoring']);
+        Route::get('/guru/ujian/{id}/koreksi/{peserta_id}', [\App\Http\Controllers\Api\GuruUjianController::class, 'koreksi']);
+        Route::post('/guru/ujian/{id}/koreksi/{peserta_id}', [\App\Http\Controllers\Api\GuruUjianController::class, 'simpanKoreksi']);
 
         // Fitur yang dibekukan jika ada tunggakan (Semua fitur kelas/akademik/ujian diblokir)
         Route::middleware('check_payment')->group(function () {

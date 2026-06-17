@@ -14,20 +14,49 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .bg-pattern {
-            background-color: #f8fafc;
-            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23e2e8f0' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-        }
         .input-animated {
             transition: all 0.2s ease-in-out;
         }
         .input-animated:focus-within {
             transform: translateY(-1px);
         }
+        /* Animated Blobs */
+        @keyframes blob {
+            0% { transform: translate(0px, 0px) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+            100% { transform: translate(0px, 0px) scale(1); }
+        }
+        .blob-shape {
+            position: absolute;
+            border-radius: 9999px;
+            mix-blend-mode: multiply;
+            filter: blur(64px);
+            opacity: 0.6;
+            width: 24rem;
+            height: 24rem;
+            animation: blob 7s infinite;
+        }
+        @media (max-width: 640px) {
+            .blob-shape {
+                width: 18rem;
+                height: 18rem;
+            }
+        }
+        .blob-1 { background-color: #d8b4fe; top: -5%; left: 15%; }
+        .blob-2 { background-color: #93c5fd; top: 15%; right: 15%; animation-delay: 2s; }
+        .blob-3 { background-color: #a5b4fc; bottom: -5%; left: 25%; animation-delay: 4s; }
     </style>
     <link rel="stylesheet" href="{{ asset('css/loading.css') }}">
 </head>
-<body class="min-h-screen bg-pattern flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 text-slate-900 antialiased selection:bg-blue-200 selection:text-blue-900">
+<body class="min-h-screen bg-slate-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 text-slate-900 antialiased selection:bg-blue-200 selection:text-blue-900 overflow-hidden relative">
+
+    <!-- Background Animated Blobs (Pure CSS to ensure they always show) -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none flex items-center justify-center z-0">
+        <div class="blob-shape blob-1"></div>
+        <div class="blob-shape blob-2"></div>
+        <div class="blob-shape blob-3"></div>
+    </div>
     
     <div class="w-full max-w-md relative z-10">
         
