@@ -34,9 +34,9 @@ class CheckPermission
         $routeName = $request->route() ? $request->route()->getName() : '';
 
         // Deteksi Create (Tambah)
-        if ($method === 'POST' || (is_string($routeName) && str_ends_with($routeName, '.create'))) {
+        if (($method === 'POST' && is_string($routeName) && str_ends_with($routeName, '.store')) || (is_string($routeName) && str_ends_with($routeName, '.create'))) {
             $requiredPermission = 'create_' . $baseModule;
-        } 
+        }
         // Deteksi Update (Edit)
         elseif (in_array($method, ['PUT', 'PATCH']) || (is_string($routeName) && str_ends_with($routeName, '.edit'))) {
             $requiredPermission = 'update_' . $baseModule;
