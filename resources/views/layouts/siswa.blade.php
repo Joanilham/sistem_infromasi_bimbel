@@ -239,10 +239,18 @@
                 const savedScrollTop = localStorage.getItem('sidebarScrollTopSiswa');
                 if (savedScrollTop) {
                     sidebarScrollArea.scrollTop = savedScrollTop;
+                    setTimeout(() => { sidebarScrollArea.scrollTop = savedScrollTop; }, 50);
+                    setTimeout(() => { sidebarScrollArea.scrollTop = savedScrollTop; }, 150);
                 }
 
+                let scrollTimeout;
                 sidebarScrollArea.addEventListener('scroll', function() {
-                    localStorage.setItem('sidebarScrollTopSiswa', this.scrollTop);
+                    clearTimeout(scrollTimeout);
+                    scrollTimeout = setTimeout(() => {
+                        if (this.scrollTop > 0 || savedScrollTop == 0) {
+                            localStorage.setItem('sidebarScrollTopSiswa', this.scrollTop);
+                        }
+                    }, 100);
                 });
             }
         });
