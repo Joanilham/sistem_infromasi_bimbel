@@ -6,6 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="turbo-cache-control" content="no-preview">
     <meta name="description" content="Dashboard Sistem Informasi Manajemen Pendidikan Genius Education">
     <meta name="author" content="Genius Education">
     <meta name="robots" content="index, follow">

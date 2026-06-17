@@ -17,6 +17,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="turbo-cache-control" content="no-preview">
     <title>@yield('title', 'Dashboard Siswa') - Genius Education</title>
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{{ isset($masterData) && $masterData->logo ? Storage::url($masterData->logo) : asset('favicon.png') }}">
