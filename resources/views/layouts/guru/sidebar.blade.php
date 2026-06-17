@@ -11,7 +11,7 @@
 </div>
 
 <!-- Sidebar Content -->
-<div class="flex-1 min-h-0 overflow-y-auto p-4 pb-24 custom-scrollbar bg-white dark:bg-zinc-950">
+<div id="sidebar-scroll-container" class="flex-1 min-h-0 overflow-y-auto p-4 pb-24 custom-scrollbar bg-white dark:bg-zinc-950">
     <nav class="space-y-1 mb-8">
         <a href="{{ route('guru.dashboard') }}"
             class="flex items-center px-3 py-2.5 rounded-2xl transition-all duration-200 {{ request()->routeIs('guru.dashboard') ? 'bg-[#388782] shadow-md shadow-[#388782]/30' : 'hover:bg-slate-100 dark:hover:bg-zinc-800' }} group">

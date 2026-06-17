@@ -32,7 +32,7 @@
     </div>
 </div>
 
-<div class="flex-1 min-h-0 overflow-y-auto p-4 pb-28 custom-scrollbar bg-white dark:bg-zinc-950">
+<div id="sidebar-scroll-container" class="flex-1 min-h-0 overflow-y-auto p-4 pb-28 custom-scrollbar bg-white dark:bg-zinc-950">
     <nav class="space-y-1 mb-6">
         @if($isRestricted)
         <a href="javascript:void(0)" onclick="Swal.fire({icon: 'warning', title: '{{ $alertTitle }}', text: '{{ $alertText }}', confirmButtonColor: '#d33'})"

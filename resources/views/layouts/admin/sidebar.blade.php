@@ -42,29 +42,4 @@
     @include('layouts.admin.sidebar-components.menu-keuangan')
     @include('layouts.admin.sidebar-components.menu-laporan')
     @include('layouts.admin.sidebar-components.menu-pengaturan')
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const sidebarScroll = document.getElementById("sidebar-scroll-container");
-            if (sidebarScroll) {
-                // Pulihkan posisi scroll
-                const savedScroll = localStorage.getItem("sidebar-scroll-position");
-                if (savedScroll) {
-                    sidebarScroll.scrollTop = parseInt(savedScroll, 10);
-                }
-
-                // Simpan posisi scroll saat di-scroll
-                sidebarScroll.addEventListener("scroll", function() {
-                    localStorage.setItem("sidebar-scroll-position", sidebarScroll.scrollTop);
-                });
-                
-                // Simpan posisi scroll saat link diklik (opsi tambahan)
-                const links = sidebarScroll.querySelectorAll("a");
-                links.forEach(link => {
-                    link.addEventListener("click", function() {
-                        localStorage.setItem("sidebar-scroll-position", sidebarScroll.scrollTop);
-                    });
-                });
-            }
-        });
-    </script>
 </div>
