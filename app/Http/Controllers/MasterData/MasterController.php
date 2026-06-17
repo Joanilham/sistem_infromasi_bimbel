@@ -56,6 +56,7 @@ class MasterController extends Controller
             
             // Hapus cache agar logo dan data master langsung ter-update di seluruh sistem
             \Illuminate\Support\Facades\Cache::forget('global_master');
+            \Illuminate\Support\Facades\Cache::forget('welcome_page_data');
 
             return redirect()->route('master.index')->with('success', 'Data Master berhasil diperbarui.');
         } catch (\Exception $e) {
