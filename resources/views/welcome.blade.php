@@ -28,7 +28,7 @@
             -webkit-backdrop-filter: blur(12px);
         }
         /* Fix for mobile horizontal scroll */
-        html, body {
+        body {
             max-width: 100%;
             overflow-x: hidden;
         }
@@ -52,10 +52,14 @@
     <!-- AOS JS -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        AOS.init({
-            once: true,
-            duration: 800,
-            offset: 50,
+        document.addEventListener('DOMContentLoaded', () => {
+            AOS.init({
+                once: true,
+                duration: 800,
+                offset: 50,
+            });
+            // Trigger refresh after fonts/images load
+            window.addEventListener('load', () => AOS.refresh());
         });
 
         // Modal Logic
