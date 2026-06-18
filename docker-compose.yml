@@ -12,6 +12,8 @@ services:
       - node_modules_data:/var/www/html/node_modules
     networks:
       - geniusedu
+    mem_limit: 512m
+    memswap_limit: 768m
     depends_on:
       mysql:
         condition: service_healthy
@@ -36,6 +38,8 @@ services:
       - ./docker/nginx/default.conf:/etc/nginx/templates/conf.d/default.conf.template
     networks:
       - geniusedu
+    mem_limit: 128m
+    memswap_limit: 192m
     healthcheck:
       test: ["CMD", "curl", "-sf", "http://127.0.0.1:8080/"]
       interval: 30s
@@ -56,11 +60,14 @@ services:
       MYSQL_PASSWORD: ${DB_PASSWORD}
       MYSQL_ALLOW_EMPTY_PASSWORD: "no"
     ports:
-      - "3307:3306"
+      - "127.0.0.1:3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./docker/mysql/my.cnf:/etc/mysql/conf.d/optimized.cnf:ro
     networks:
       - geniusedu
+    mem_limit: 1g
+    memswap_limit: 1280m
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
@@ -72,26 +79,11 @@ services:
     image: redis:alpine
     container_name: geniusedu-redis
     restart: unless-stopped
+    command: redis-server --maxmemory 64mb --maxmemory-policy allkeys-lru --save ""
     networks:
       - geniusedu
-
-  # phpMyAdmin
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    container_name: geniusedu-pma
-    restart: unless-stopped
-    environment:
-      PMA_HOST: mysql
-      PMA_PORT: 3306
-      PMA_USER: ${DB_USERNAME}
-      PMA_PASSWORD: ${DB_PASSWORD}
-    ports:
-      - "8081:80"
-    networks:
-      - geniusedu
-    depends_on:
-      mysql:
-        condition: service_healthy
+    mem_limit: 96m
+    memswap_limit: 128m
 
   # Queue Worker
   queue:
@@ -107,6 +99,8 @@ services:
       - vendor_data:/var/www/html/vendor
     networks:
       - geniusedu
+    mem_limit: 256m
+    memswap_limit: 384m
     depends_on:
       mysql:
         condition: service_healthy
@@ -125,6 +119,8 @@ services:
       - vendor_data:/var/www/html/vendor
     networks:
       - geniusedu
+    mem_limit: 256m
+    memswap_limit: 384m
     depends_on:
       mysql:
         condition: service_healthy
