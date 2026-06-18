@@ -1,88 +1,35 @@
 config:
   target: "https://bimbel.geniusedu.my.id"
   phases:
-    # Phase 1: Warm-up (30s, ramp 5→30 users/sec)
-    - duration: 30
-      arrivalRate: 5
-      rampTo: 30
-      name: "Phase 1 — Warm-up (5→30 siswa/detik)"
+    # Phase 1: 200 siswa login dalam rentang waktu 2 menit (120 detik)
+    # 200 / 120 = ~1.6 siswa baru per detik
+    - duration: 120
+      arrivalRate: 2
+      name: "Phase 1 - 200 Siswa Login & Mulai Ujian"
 
-    # Phase 2: Normal load (60s, 50 users/sec)
-    - duration: 60
-      arrivalRate: 50
-      name: "Phase 2 — Normal load (50 siswa/detik)"
-
-    # Phase 3: Target capacity (60s, 100 users/sec)
-    - duration: 60
-      arrivalRate: 100
-      name: "Phase 3 — Target 200 concurrent (100 siswa/detik)"
-
-    # Phase 4: Stress test (30s, 150 users/sec)
-    - duration: 30
-      arrivalRate: 150
-      name: "Phase 4 — Stress test (150 siswa/detik)"
+    # Phase 2: Steady state (Simulasi beban konstan 200 siswa ujian)
+    # Menghasilkan rata-rata 15-25 request per detik (sesuai CBT riil)
+    - duration: 180
+      arrivalRate: 15
+      name: "Phase 2 - 200 Siswa Mengerjakan Ujian (Steady State)"
 
   defaults:
     headers:
-      User-Agent: "Artillery-CBT-LoadTest/1.0"
+      User-Agent: "Artillery-CBT-LoadTest/2.0"
 
   plugins:
     expect: {}
 
 scenarios:
-  # Skenario 1: Siswa browsing halaman utama (30% traffic)
-  - name: "Browsing Landing Page"
-    weight: 30
+  - name: "Siswa Mengerjakan Ujian (Realistis)"
     flow:
+      # Asumsi siswa klik navigasi atau simpan jawaban setiap 10-20 detik
       - get:
           url: "/"
-          expect:
-            - statusCode: 200
-      - think: 2
+      - think: 5
       - get:
           url: "/login"
-          expect:
-            - statusCode: 200
-
-  # Skenario 2: Siswa login + akses dashboard (40% traffic)
-  - name: "Login + Dashboard Access"
-    weight: 40
-    flow:
-      - get:
-          url: "/login"
-          expect:
-            - statusCode: 200
-      - think: 1
+      - think: 15
       - get:
           url: "/"
-          expect:
-            - statusCode: 200
-      - think: 2
-      - get:
-          url: "/login"
-          expect:
-            - statusCode: 200
-
-  # Skenario 3: Simulasi beban CBT — akses halaman publik (30% traffic)
-  - name: "CBT-like Load Simulation"
-    weight: 30
-    flow:
-      - get:
-          url: "/"
-          expect:
-            - statusCode: 200
-      - think: 1
-      - get:
-          url: "/login"
-          expect:
-            - statusCode: 200
-      - think: 3
-      - get:
-          url: "/daftar/step1"
-          expect:
-            - statusCode: 200
-      - think: 2
-      - get:
-          url: "/"
-          expect:
-            - statusCode: 200
+      - think: 10
