@@ -69,6 +69,18 @@ class AppServiceProvider extends ServiceProvider
             View::share('kantors', $kantors);
             View::share('periodes', $periodes);
             View::share('masterData', $masterData);
+
+            if ($masterData && $masterData->mail_host) {
+                config([
+                    'mail.mailers.smtp.host' => $masterData->mail_host,
+                    'mail.mailers.smtp.port' => $masterData->mail_port,
+                    'mail.mailers.smtp.encryption' => $masterData->mail_encryption,
+                    'mail.mailers.smtp.username' => $masterData->mail_username,
+                    'mail.mailers.smtp.password' => $masterData->mail_password,
+                    'mail.from.address' => $masterData->mail_from_address,
+                    'mail.from.name' => $masterData->mail_from_name,
+                ]);
+            }
         } catch (\Exception $e) {
             View::share('galleries', collect());
             View::share('testimonials', collect());

@@ -59,9 +59,8 @@
                     <select name="level" id="level" required class="no-tomselect w-full bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all dark:text-white">
                         <option value="" disabled selected>Pilih Level</option>
                         @if(strtolower(auth()->user()->level) === 'super admin')
-                            <option value="Super Admin" {{ old('level') == 'Super Admin' ? 'selected' : '' }}>Super Admin</option>
+                            <option value="Admin" {{ old('level') == 'Admin' ? 'selected' : '' }}>Admin</option>
                         @endif
-                        <option value="Admin" {{ old('level') == 'Admin' ? 'selected' : '' }}>Admin</option>
                         <option value="Staff" {{ old('level') == 'Staff' ? 'selected' : '' }}>Staff</option>
                     </select>
                 </div>
@@ -82,118 +81,130 @@
 
             </div>
 
-            {{-- Permissions (Only show if Admin) --}}
-            <div id="permissions-container-create" class="{{ old('level') == 'Admin' ? '' : 'hidden' }} mt-8 pt-8 border-t border-slate-100 dark:border-zinc-800">
-                <div class="mb-4">
-                    <h3 class="text-lg font-bold text-slate-800 dark:text-white">Hak Akses Modul</h3>
-                    <p class="text-sm text-slate-500 dark:text-slate-400">Pilih modul mana saja yang dapat dikelola oleh Admin ini.</p>
+            @php
+                $modules = [
+                    'Akademik & Operasional' => [
+                        ['key' => 'paket_bimbingan', 'label' => 'Paket Bimbingan', 'actions' => ['manage', 'create', 'update', 'delete']],
+                        ['key' => 'kelompok_belajar', 'label' => 'Kelompok Belajar', 'actions' => ['manage', 'create', 'update', 'delete']],
+                        ['key' => 'pendaftaran', 'label' => 'Verifikasi Pendaftaran', 'actions' => ['manage', 'create', 'update', 'delete']],
+                        ['key' => 'peserta_didik', 'label' => 'Peserta Didik', 'actions' => ['manage', 'create', 'update', 'delete']],
+                        ['key' => 'guru', 'label' => 'Data Guru', 'actions' => ['manage', 'create', 'update', 'delete']],
+                        ['key' => 'absensi', 'label' => 'Absensi', 'actions' => ['manage', 'create', 'update', 'delete']],
+                        ['key' => 'jadwal', 'label' => 'Jadwal', 'actions' => ['manage', 'create', 'update', 'delete']],
+                        ['key' => 'rekapitulasi', 'label' => 'Rekapitulasi Data', 'actions' => ['manage']],
+                        ['key' => 'pengumuman', 'label' => 'Berita & Informasi', 'actions' => ['manage', 'create', 'update', 'delete']],
+                    ],
+                    'Keuangan' => [
+                        ['key' => 'keuangan', 'label' => 'Akses Menu Keuangan', 'actions' => ['manage']],
+                        ['key' => 'pembayaran_siswa', 'label' => 'Pembayaran Siswa', 'actions' => ['manage', 'create', 'update', 'delete']],
+                        ['key' => 'pemasukan', 'label' => 'Pemasukan', 'actions' => ['manage', 'create', 'update', 'delete']],
+                        ['key' => 'pengeluaran', 'label' => 'Pengeluaran', 'actions' => ['manage', 'create', 'update', 'delete']],
+                        ['key' => 'tagihan', 'label' => 'Tagihan Siswa', 'actions' => ['manage', 'create', 'update', 'delete']],
+                        ['key' => 'bank', 'label' => 'Rekening Bank', 'actions' => ['manage', 'create', 'update', 'delete']],
+                    ],
+                    'Pengaturan Sistem & Lainnya' => [
+                        ['key' => 'master', 'label' => 'Pengaturan Master', 'actions' => ['manage', 'update']],
+                        ['key' => 'kantor', 'label' => 'Pengaturan Kantor', 'actions' => ['manage', 'create', 'update', 'delete']],
+                        ['key' => 'periode', 'label' => 'Pengaturan Periode', 'actions' => ['manage', 'create', 'update', 'delete']],
+                        ['key' => 'landing_page', 'label' => 'Landing Page', 'actions' => ['manage', 'create', 'update', 'delete']],
+                        ['key' => 'pengguna', 'label' => 'Kelola Admin / Staff', 'actions' => ['manage', 'create', 'update', 'delete']],
+                        ['key' => 'backup', 'label' => 'Backup Database', 'actions' => ['manage', 'create', 'delete']],
+                        ['key' => 'audit_logs', 'label' => 'Log Aktivitas', 'actions' => ['manage', 'delete']],
+                        ['key' => 'recycle_bin', 'label' => 'Recycle Bin', 'actions' => ['manage', 'update', 'delete']],
+                    ]
+                ];
+                $oldPerms = old('permissions', []);
+            @endphp
+
+            {{-- Permissions (Show for Admin and Staff) --}}
+            <div id="permissions-container-create" class="{{ in_array(old('level'), ['Admin', 'Staff']) ? '' : 'hidden' }} mt-8 pt-8 border-t border-slate-100 dark:border-zinc-800">
+                <div class="mb-4 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-800 dark:text-white">Hak Akses Modul</h3>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Beri centang pada aksi yang diperbolehkan untuk pengguna ini.</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button type="button" onclick="document.querySelectorAll('input[name=\'permissions[]\']').forEach(cb => cb.checked = true)" class="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 px-4 py-2 rounded-xl transition-colors border border-emerald-100 dark:border-emerald-500/20 flex items-center gap-1.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                            Pilih Semua Fitur
+                        </button>
+                        <button type="button" onclick="document.querySelectorAll('input[name=\'permissions[]\']').forEach(cb => cb.checked = false)" class="text-xs font-bold text-rose-600 dark:text-rose-400 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 dark:bg-rose-500/10 dark:hover:bg-rose-500/20 px-4 py-2 rounded-xl transition-colors border border-rose-100 dark:border-rose-500/20 flex items-center gap-1.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                            Kosongkan Semua
+                        </button>
+                    </div>
                 </div>
 
-                <div class="space-y-6">
-                    {{-- Akademik & Operasional --}}
-                    <div>
-                        <h4 class="text-sm font-bold text-slate-600 dark:text-slate-400 mb-3 uppercase tracking-wider">Akademik & Operasional</h4>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 cursor-pointer transition-colors">
-                                <input type="checkbox" name="permissions[]" value="manage_paket_bimbingan" class="w-5 h-5 text-indigo-600 rounded border-slate-300 dark:border-zinc-600 focus:ring-indigo-500">
-                                <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Kelola Paket Bimbingan</span>
-                            </label>
-                            <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 cursor-pointer transition-colors">
-                                <input type="checkbox" name="permissions[]" value="manage_pendaftaran" class="w-5 h-5 text-indigo-600 rounded border-slate-300 dark:border-zinc-600 focus:ring-indigo-500">
-                                <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Kelola Verifikasi Pendaftaran</span>
-                            </label>
-                            <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 cursor-pointer transition-colors">
-                                <input type="checkbox" name="permissions[]" value="manage_peserta_didik" class="w-5 h-5 text-indigo-600 rounded border-slate-300 dark:border-zinc-600 focus:ring-indigo-500">
-                                <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Kelola Peserta & Kelompok</span>
-                            </label>
-                            <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 cursor-pointer transition-colors">
-                                <input type="checkbox" name="permissions[]" value="manage_guru" class="w-5 h-5 text-indigo-600 rounded border-slate-300 dark:border-zinc-600 focus:ring-indigo-500">
-                                <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Kelola Data Guru</span>
-                            </label>
-                            <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 cursor-pointer transition-colors">
-                                <input type="checkbox" name="permissions[]" value="manage_absensi" class="w-5 h-5 text-indigo-600 rounded border-slate-300 dark:border-zinc-600 focus:ring-indigo-500">
-                                <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Kelola Absensi</span>
-                            </label>
-                            <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 cursor-pointer transition-colors">
-                                <input type="checkbox" name="permissions[]" value="manage_jadwal" class="w-5 h-5 text-indigo-600 rounded border-slate-300 dark:border-zinc-600 focus:ring-indigo-500">
-                                <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Kelola Jadwal</span>
-                            </label>
-                            <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 cursor-pointer transition-colors">
-                                <input type="checkbox" name="permissions[]" value="manage_rekapitulasi" class="w-5 h-5 text-indigo-600 rounded border-slate-300 dark:border-zinc-600 focus:ring-indigo-500">
-                                <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Kelola Rekapitulasi Data</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    {{-- Keuangan --}}
-                    <div>
-                        <h4 class="text-sm font-bold text-slate-600 dark:text-slate-400 mb-3 uppercase tracking-wider">Keuangan</h4>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 cursor-pointer transition-colors">
-                                <input type="checkbox" name="permissions[]" value="manage_keuangan" class="w-5 h-5 text-indigo-600 rounded border-slate-300 dark:border-zinc-600 focus:ring-indigo-500">
-                                <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Kelola Semua Keuangan</span>
-                            </label>
-                            <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 cursor-pointer transition-colors">
-                                <input type="checkbox" name="permissions[]" value="manage_pembayaran_siswa" class="w-5 h-5 text-indigo-600 rounded border-slate-300 dark:border-zinc-600 focus:ring-indigo-500">
-                                <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Kelola Pembayaran Siswa</span>
-                            </label>
-                            <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 cursor-pointer transition-colors">
-                                <input type="checkbox" name="permissions[]" value="manage_pemasukan" class="w-5 h-5 text-indigo-600 rounded border-slate-300 dark:border-zinc-600 focus:ring-indigo-500">
-                                <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Kelola Pemasukan</span>
-                            </label>
-                            <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 cursor-pointer transition-colors">
-                                <input type="checkbox" name="permissions[]" value="manage_pengeluaran" class="w-5 h-5 text-indigo-600 rounded border-slate-300 dark:border-zinc-600 focus:ring-indigo-500">
-                                <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Kelola Pengeluaran</span>
-                            </label>
-                            <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 cursor-pointer transition-colors">
-                                <input type="checkbox" name="permissions[]" value="manage_tagihan" class="w-5 h-5 text-indigo-600 rounded border-slate-300 dark:border-zinc-600 focus:ring-indigo-500">
-                                <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Kelola Tagihan Siswa</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    {{-- Pengaturan Sistem --}}
-                    <div>
-                        <h4 class="text-sm font-bold text-slate-600 dark:text-slate-400 mb-3 uppercase tracking-wider">Pengaturan Sistem & Lainnya</h4>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 cursor-pointer transition-colors">
-                                <input type="checkbox" name="permissions[]" value="manage_master" class="w-5 h-5 text-indigo-600 rounded border-slate-300 dark:border-zinc-600 focus:ring-indigo-500">
-                                <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Kelola Pengaturan Master</span>
-                            </label>
-                            <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 cursor-pointer transition-colors">
-                                <input type="checkbox" name="permissions[]" value="manage_bank" class="w-5 h-5 text-indigo-600 rounded border-slate-300 dark:border-zinc-600 focus:ring-indigo-500">
-                                <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Kelola Rekening Bank</span>
-                            </label>
-                            <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 cursor-pointer transition-colors">
-                                <input type="checkbox" name="permissions[]" value="manage_kantor" class="w-5 h-5 text-indigo-600 rounded border-slate-300 dark:border-zinc-600 focus:ring-indigo-500">
-                                <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Kelola Pengaturan Kantor</span>
-                            </label>
-                            <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 cursor-pointer transition-colors">
-                                <input type="checkbox" name="permissions[]" value="manage_periode" class="w-5 h-5 text-indigo-600 rounded border-slate-300 dark:border-zinc-600 focus:ring-indigo-500">
-                                <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Kelola Pengaturan Periode</span>
-                            </label>
-                            <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 cursor-pointer transition-colors">
-                                <input type="checkbox" name="permissions[]" value="manage_landing_page" class="w-5 h-5 text-indigo-600 rounded border-slate-300 dark:border-zinc-600 focus:ring-indigo-500">
-                                <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Kelola Landing Page</span>
-                            </label>
-                            <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 cursor-pointer transition-colors">
-                                <input type="checkbox" name="permissions[]" value="manage_pengguna" class="w-5 h-5 text-indigo-600 rounded border-slate-300 dark:border-zinc-600 focus:ring-indigo-500">
-                                <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Kelola Admin / Pengguna</span>
-                            </label>
-                            <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 cursor-pointer transition-colors">
-                                <input type="checkbox" name="permissions[]" value="manage_pengumuman" class="w-5 h-5 text-indigo-600 rounded border-slate-300 dark:border-zinc-600 focus:ring-indigo-500">
-                                <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Kelola Berita & Informasi</span>
-                            </label>
-                            <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 cursor-pointer transition-colors">
-                                <input type="checkbox" name="permissions[]" value="manage_backup" class="w-5 h-5 text-indigo-600 rounded border-slate-300 dark:border-zinc-600 focus:ring-indigo-500">
-                                <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Kelola Backup Database</span>
-                            </label>
-                            <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 cursor-pointer transition-colors">
-                                <input type="checkbox" name="permissions[]" value="manage_audit_logs" class="w-5 h-5 text-indigo-600 rounded border-slate-300 dark:border-zinc-600 focus:ring-indigo-500">
-                                <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Kelola Log Aktivitas</span>
-                            </label>
-                        </div>
-                    </div>
+                <div class="overflow-x-auto border border-slate-200 dark:border-zinc-700 rounded-2xl">
+                    <table class="w-full text-left text-sm whitespace-nowrap">
+                        <thead class="bg-slate-50 dark:bg-zinc-800/80 text-slate-600 dark:text-slate-400 font-bold">
+                            <tr>
+                                <th class="p-4 border-b border-slate-200 dark:border-zinc-700">Nama Modul</th>
+                                <th class="p-4 border-b border-slate-200 dark:border-zinc-700 text-center w-24">Lihat</th>
+                                <th class="p-4 border-b border-slate-200 dark:border-zinc-700 text-center w-24">Tambah</th>
+                                <th class="p-4 border-b border-slate-200 dark:border-zinc-700 text-center w-24">Edit</th>
+                                <th class="p-4 border-b border-slate-200 dark:border-zinc-700 text-center w-24">Hapus</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 dark:divide-zinc-800 text-slate-700 dark:text-slate-300">
+                            @foreach($modules as $group => $items)
+                                @php $groupSlug = \Illuminate\Support\Str::slug($group); @endphp
+                                <tr class="bg-slate-50/80 dark:bg-zinc-800/60 border-y border-slate-200 dark:border-zinc-700">
+                                    <td colspan="5" class="px-4 py-3">
+                                        <div class="flex items-center justify-between">
+                                            <span class="font-black text-[12px] uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                                                {{ $group }}
+                                            </span>
+                                            <div class="flex gap-2">
+                                                <button type="button" onclick="document.querySelectorAll('.chk-{{ $groupSlug }}').forEach(cb => cb.checked = true)" class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 px-3 py-1.5 rounded-lg transition-colors border border-emerald-100 dark:border-emerald-500/20 flex items-center gap-1">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                                                    Pilih
+                                                </button>
+                                                <button type="button" onclick="document.querySelectorAll('.chk-{{ $groupSlug }}').forEach(cb => cb.checked = false)" class="text-[10px] font-bold text-rose-600 dark:text-rose-400 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 dark:bg-rose-500/10 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-lg transition-colors border border-rose-100 dark:border-rose-500/20 flex items-center gap-1">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                                    Kosongkan
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @foreach($items as $item)
+                                    <tr class="hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors group">
+                                        <td class="p-4 font-semibold text-slate-700 dark:text-slate-300">{{ $item['label'] }}</td>
+                                        
+                                        <td class="p-4 text-center">
+                                            @if(in_array('manage', $item['actions']))
+                                                <input type="checkbox" name="permissions[]" value="manage_{{ $item['key'] }}" class="chk-{{ $groupSlug }} w-5 h-5 text-indigo-600 rounded border-slate-300 dark:border-zinc-600 dark:bg-zinc-900 focus:ring-indigo-500" {{ in_array('manage_'.$item['key'], $oldPerms) ? 'checked' : '' }}>
+                                            @else
+                                                <span class="text-slate-300 dark:text-zinc-600">-</span>
+                                            @endif
+                                        </td>
+                                        <td class="p-4 text-center">
+                                            @if(in_array('create', $item['actions']))
+                                                <input type="checkbox" name="permissions[]" value="create_{{ $item['key'] }}" class="chk-{{ $groupSlug }} w-5 h-5 text-emerald-500 rounded border-slate-300 dark:border-zinc-600 dark:bg-zinc-900 focus:ring-emerald-500" {{ in_array('create_'.$item['key'], $oldPerms) ? 'checked' : '' }}>
+                                            @else
+                                                <span class="text-slate-300 dark:text-zinc-600">-</span>
+                                            @endif
+                                        </td>
+                                        <td class="p-4 text-center">
+                                            @if(in_array('update', $item['actions']))
+                                                <input type="checkbox" name="permissions[]" value="update_{{ $item['key'] }}" class="chk-{{ $groupSlug }} w-5 h-5 text-amber-500 rounded border-slate-300 dark:border-zinc-600 dark:bg-zinc-900 focus:ring-amber-500" {{ in_array('update_'.$item['key'], $oldPerms) ? 'checked' : '' }}>
+                                            @else
+                                                <span class="text-slate-300 dark:text-zinc-600">-</span>
+                                            @endif
+                                        </td>
+                                        <td class="p-4 text-center">
+                                            @if(in_array('delete', $item['actions']))
+                                                <input type="checkbox" name="permissions[]" value="delete_{{ $item['key'] }}" class="chk-{{ $groupSlug }} w-5 h-5 text-rose-500 rounded border-slate-300 dark:border-zinc-600 dark:bg-zinc-900 focus:ring-rose-500" {{ in_array('delete_'.$item['key'], $oldPerms) ? 'checked' : '' }}>
+                                            @else
+                                                <span class="text-slate-300 dark:text-zinc-600">-</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
@@ -218,7 +229,7 @@
         const permContainer = document.getElementById('permissions-container-create');
 
         levelSelect.addEventListener('change', function() {
-            if (this.value === 'Admin') {
+            if (this.value === 'Admin' || this.value === 'Staff') {
                 permContainer.classList.remove('hidden');
             } else {
                 permContainer.classList.add('hidden');

@@ -83,7 +83,7 @@
         .top-header {
             display: flex; align-items: center; justify-content: space-between;
             padding: 12px 16px; background: var(--white);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 30; border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 50; border-bottom: 1px solid var(--border-color);
         }
         .header-mobile-brand { display: flex; align-items: center; gap: 8px; font-size: 1.1rem; font-weight: 800; color: var(--text-main); text-decoration: none; }
         .header-mobile-brand svg { width: 22px; height: 22px; color: var(--primary); }
@@ -269,7 +269,7 @@
                     aria-haspopup="true"
                     aria-label="Menu akun"
                 >
-                    @if(Auth::user() && Auth::user()->photo)
+                    @if(Auth::user() && Auth::user()->photo && Storage::disk('public')->exists(Auth::user()->photo))
                         <img src="{{ asset('storage/' . Auth::user()->photo) }}" alt="" class="header-avatar" width="40" height="40" style="object-fit: cover;">
                     @else
                         <div class="header-avatar">{{ strtoupper(substr(Auth::user()->name ?? 'S', 0, 2)) }}</div>

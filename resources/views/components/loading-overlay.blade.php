@@ -1,15 +1,6 @@
-<!-- Top progress bar (di atas semua konten) -->
-<div id="top-progress"></div>
+<!-- Top progress bar removed as requested -->
 
-<!-- Page loader overlay -->
-<div id="page-loader" role="status" aria-label="Memuat halaman">
-    <div class="elegant-spinner"></div>
-    <p class="loader-text">
-        Memuat halaman<span class="loader-dots">
-            <span>.</span><span>.</span><span>.</span>
-        </span>
-    </p>
-</div>
+<!-- Page loader overlay removed as requested -->
 
 <!-- Toast container -->
 <div id="toast-container" role="region" aria-live="polite"></div>

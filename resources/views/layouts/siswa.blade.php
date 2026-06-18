@@ -1,7 +1,7 @@
 @php
     $user = Auth::user();
     $pesertaDidik = $user ? $user->pesertaDidik : null;
-    $isPending = $user ? $user->status !== 'aktif' : false;
+    $isPending = $user ? strtolower($user->status) !== 'aktif' : false;
     $pembayaranOverdue = false;
     
     if ($pesertaDidik) {
@@ -17,6 +17,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="turbo-cache-control" content="no-preview">
     <title>@yield('title', 'Dashboard Siswa') - Genius Education</title>
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{{ isset($masterData) && $masterData->logo ? Storage::url($masterData->logo) : asset('favicon.png') }}">
@@ -61,7 +62,7 @@
         :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
         class="fixed z-40 inset-y-0 left-0 w-64 transition-transform duration-300 transform bg-white dark:bg-zinc-900 shadow-2xl lg:shadow-none border-r border-slate-200 dark:border-zinc-800 flex flex-col"
         style="will-change: transform;">
-        <div class="flex flex-col h-full overflow-y-auto custom-scrollbar">
+        <div class="flex flex-col h-full custom-scrollbar">
             @include('layouts.siswa.sidebar')
         </div>
     </aside>
@@ -182,7 +183,7 @@
     <!-- TomSelect JS -->
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('turbo:load', function() {
             // TomSelect Init
             document.querySelectorAll('select').forEach((el) => {
                 if (el.classList.contains('no-tomselect')) return;
@@ -232,8 +233,28 @@
                     });
                 }
             });
+
+            // Persist Sidebar Scroll Position
+            const sidebarScrollArea = document.getElementById('sidebar-scroll-container');
+            if (sidebarScrollArea) {
+                const savedScrollTop = localStorage.getItem('sidebarScrollTopSiswa');
+                if (savedScrollTop !== null) {
+                    const pos = parseInt(savedScrollTop, 10);
+                    sidebarScrollArea.scrollTop = pos;
+                    setTimeout(() => { sidebarScrollArea.scrollTop = pos; }, 50);
+                    setTimeout(() => { sidebarScrollArea.scrollTop = pos; }, 150);
+                    setTimeout(() => { sidebarScrollArea.scrollTop = pos; }, 300);
+                }
+
+                sidebarScrollArea.addEventListener('scroll', function() {
+                    localStorage.setItem('sidebarScrollTopSiswa', this.scrollTop);
+                });
+            }
         });
     </script>
     @include('components.loading-overlay')
+
+    <!-- Turbo Drive SPA -->
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.4/dist/turbo.es2017-esm.js"></script>
 </body>
 </html>

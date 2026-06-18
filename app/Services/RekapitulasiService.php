@@ -68,7 +68,8 @@ class RekapitulasiService
             ->groupBy('kelompok_belajar_id')
             ->get();
             
-        $data['list_siswa'] = (clone $siswaQuery)->with(['kelompokBelajar', 'paketBimbingan'])->paginate(10)->withQueryString();
+        $perPage = $request->query('per_page', 10);
+        $data['list_siswa'] = (clone $siswaQuery)->with(['kelompokBelajar', 'paketBimbingan'])->paginate($perPage)->withQueryString();
 
         return $data;
     }
@@ -108,7 +109,8 @@ class RekapitulasiService
             ->groupBy('matapelajaran')
             ->get();
             
-        $data['list_guru'] = (clone $guruQuery)->paginate(10)->withQueryString();
+        $perPage = $request->query('per_page', 10);
+        $data['list_guru'] = (clone $guruQuery)->paginate($perPage)->withQueryString();
 
         return $data;
     }
@@ -233,7 +235,7 @@ class RekapitulasiService
             ->values();
 
         $currentPage = Paginator::resolveCurrentPage();
-        $perPage = 10;
+        $perPage = $request->query('per_page', 10);
         $currentPageItems = $allTransaksi->slice(($currentPage - 1) * $perPage, $perPage)->all();
         $data['list_keuangan'] = new LengthAwarePaginator($currentPageItems, count($allTransaksi), $perPage, $currentPage, [
             'path' => Paginator::resolveCurrentPath(),
@@ -292,7 +294,8 @@ class RekapitulasiService
         if ($data['search']) {
             $rekapSiswaQuery->where('nama_lengkap', 'like', '%' . $data['search'] . '%');
         }
-        $data['rekap_siswa'] = $rekapSiswaQuery->get();
+        $perPage = $request->query('per_page', 10);
+        $data['rekap_siswa'] = $rekapSiswaQuery->paginate($perPage)->withQueryString();
 
         return $data;
     }

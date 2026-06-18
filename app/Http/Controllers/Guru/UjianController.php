@@ -9,6 +9,8 @@ use App\Models\CBT\CbtUjianSoal;
 use App\Models\CBT\CbtUjianAssign;
 use App\Models\CBT\CbtBankSoal;
 use App\Models\CBT\CbtMapel;
+use App\Models\CBT\CbtPeserta;
+use App\Models\CBT\CbtPesertaJawaban;
 use App\Models\Akademik\KelompokBelajar;
 use App\Models\User;
 use App\Services\CbtService;
@@ -69,6 +71,7 @@ class UjianController extends Controller
             'acak_soal'      => 'boolean',
             'acak_opsi'      => 'boolean',
             'tampilkan_hasil' => 'boolean',
+            'limit_attempt'  => 'required|integer|min:0',
             'token'          => 'nullable|string|max:20',
         ]);
 
@@ -82,6 +85,7 @@ class UjianController extends Controller
             'acak_soal'       => $request->boolean('acak_soal'),
             'acak_opsi'       => $request->boolean('acak_opsi'),
             'tampilkan_hasil' => $request->boolean('tampilkan_hasil', true),
+            'limit_attempt'   => $request->limit_attempt,
             'token'           => $request->token,
             'created_by'      => Auth::id(),
         ]);
@@ -131,6 +135,7 @@ class UjianController extends Controller
             'acak_soal'      => 'boolean',
             'acak_opsi'      => 'boolean',
             'tampilkan_hasil' => 'boolean',
+            'limit_attempt'  => 'required|integer|min:0',
             'token'          => 'nullable|string|max:20',
         ]);
 
@@ -144,6 +149,7 @@ class UjianController extends Controller
             'acak_soal'       => $request->boolean('acak_soal'),
             'acak_opsi'       => $request->boolean('acak_opsi'),
             'tampilkan_hasil' => $request->boolean('tampilkan_hasil', true),
+            'limit_attempt'   => $request->limit_attempt,
             'token'           => $request->token,
         ]);
 

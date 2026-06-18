@@ -22,24 +22,14 @@
         <div class="p-5 sm:p-6 border-b border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-900/50 relative">
             
             {{-- Loading Overlay --}}
-            <div x-show="isLoading" class="absolute inset-0 z-50 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-sm flex items-center justify-center transition-opacity duration-300" style="display: none;">
-                <div class="bg-white dark:bg-zinc-800 p-4 rounded-2xl shadow-xl border border-slate-100 dark:border-zinc-700 flex items-center gap-3">
-                    <svg class="animate-spin h-5 w-5 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <span class="text-sm font-bold text-slate-700 dark:text-slate-200">Memuat data...</span>
-                </div>
-            </div>
+            <x-table.loading-overlay />
 
-            <form @submit.prevent="fetchData" action="{{ route('admin.pengumuman.index') }}" method="GET" class="flex flex-col sm:flex-row sm:items-center justify-end gap-4 w-full">
-                <div class="flex items-center gap-2 w-full sm:w-auto shrink-0">
-                    <div class="relative group flex-1 md:w-64">
-                        <input type="text" name="search" value="{{ $search }}" placeholder="Cari judul berita..." class="w-full bg-white dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-sm font-bold py-2.5 pl-10 pr-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-sm">
-                        <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 group-focus-within:text-indigo-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                    </div>
+            <form @submit.prevent="fetchData" method="GET" class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full">
+                {{-- Per Page --}}
+                <x-table.filter-limit :alpine="true" />
+
+                <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full md:w-auto shrink-0">
+                    <x-table.search :alpine="true" placeholder="Cari judul berita..." />
                     <button type="submit"
                         class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-sm shadow-indigo-500/30 shrink-0">
                         Filter
@@ -59,22 +49,22 @@
         </div>
 
         <div id="ajax-table-body" class="overflow-x-auto" @click="if($event.target.closest('th a')) { navigate($event, $event.target.closest('a').href) }">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-slate-50 dark:bg-zinc-800/50">
-                        <th class="px-6 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider">No</th>
-                        <th class="px-6 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider">Berita</th>
-                        <th class="px-6 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider">Status</th>
-                        <th class="px-6 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider text-right">Aksi</th>
+            <table class="w-full text-sm border-collapse border border-slate-200 dark:border-zinc-800">
+                <thead class="bg-indigo-600 dark:bg-indigo-900/80 text-[10px] uppercase tracking-widest text-white font-black">
+                    <tr>
+                        <th class="px-4 py-3 text-center w-16 border border-white/20">No</th>
+                        <th class="px-4 py-3 text-left border border-white/20">Berita</th>
+                        <th class="px-4 py-3 text-center border border-white/20">Status</th>
+                        <th class="px-4 py-3 text-center border border-white/20 w-32">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100 dark:divide-zinc-800">
+                <tbody class="bg-white dark:bg-zinc-900">
                     @forelse($pengumumans as $item)
-                        <tr class="hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors group">
-                            <td class="px-6 py-4 text-sm text-slate-500 dark:text-slate-400 font-medium">
+                        <tr class="hover:bg-indigo-50/50 dark:hover:bg-indigo-900/10 transition-all even:bg-slate-50/50 dark:even:bg-zinc-800/30 group">
+                            <td class="px-4 py-3 text-slate-500 font-bold text-xs border border-slate-200 dark:border-zinc-800 text-center">
                                 {{ $pengumumans->firstItem() + $loop->index }}
                             </td>
-                            <td class="px-6 py-4">
+                            <td class="px-4 py-3 border border-slate-200 dark:border-zinc-800">
                                 <div class="flex items-center gap-4">
                                     <div class="w-12 h-12 rounded-xl bg-slate-100 dark:bg-zinc-800 overflow-hidden shrink-0 flex items-center justify-center border border-slate-200 dark:border-zinc-700">
                                         @if($item->foto)
@@ -91,7 +81,7 @@
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-6 py-4">
+                            <td class="px-4 py-3 border border-slate-200 dark:border-zinc-800 text-center">
                                 <form action="{{ route('admin.pengumuman.toggle-active', $item->id) }}" method="POST">
                                     @csrf
                                     @method('PATCH')
@@ -100,8 +90,8 @@
                                     </button>
                                 </form>
                             </td>
-                            <td class="px-6 py-4">
-                                <div class="flex items-center justify-end gap-2">
+                            <td class="px-4 py-3 border border-slate-200 dark:border-zinc-800">
+                                <div class="flex items-center justify-center gap-2">
                                     <a href="{{ route('admin.pengumuman.edit', $item->id) }}" class="w-8 h-8 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:hover:bg-indigo-900/50 dark:text-indigo-400 flex items-center justify-center transition-colors tooltip" data-tip="Edit">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -121,13 +111,10 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="px-6 py-12 text-center text-slate-500 dark:text-slate-400">
-                                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-50 dark:bg-zinc-800 mb-4">
-                                    <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5L18.5 8M6 12h.01M6 16h.01M12 12h.01M12 16h.01M18 12h.01M18 16h.01" />
-                                    </svg>
-                                </div>
-                                <p class="text-sm font-bold text-slate-700 dark:text-slate-300">Belum ada berita / informasi</p>
+                            <td colspan="4" class="px-8 py-24 text-center border border-slate-200 dark:border-zinc-800">
+                                <div class="w-20 h-20 bg-slate-50 dark:bg-zinc-800 rounded-[2.5rem] flex items-center justify-center mx-auto mb-6 text-4xl shadow-inner">📰</div>
+                                <h3 class="font-black text-slate-900 dark:text-white text-lg">Belum ada berita</h3>
+                                <p class="text-slate-400 text-sm mt-2 font-medium max-w-xs mx-auto">Silakan tambahkan berita atau informasi baru.</p>
                             </td>
                         </tr>
                     @endforelse
@@ -135,12 +122,17 @@
             </table>
         </div>
 
-        @if($pengumumans->hasPages())
-            <div id="ajax-pagination" class="p-6 border-t border-slate-100 dark:border-zinc-800"
-                 @click="if($event.target.closest('nav[role=navigation] a')) { navigate($event, $event.target.closest('a').href) }">
-                {{ $pengumumans->links() }}
-            </div>
-        @endif
+        <div id="ajax-pagination" class="px-8 py-6 border-t border-slate-100 dark:border-zinc-800 bg-slate-50/30 dark:bg-zinc-900/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+             @click="if($event.target.closest('nav[role=navigation] a')) { navigate($event, $event.target.closest('a').href) }">
+            <p class="text-xs text-slate-500 dark:text-slate-400 font-bold">
+                Menampilkan <span class="text-slate-900 dark:text-white">{{ $pengumumans->firstItem() ?? 0 }}</span> – <span class="text-slate-900 dark:text-white">{{ $pengumumans->lastItem() ?? 0 }}</span> dari <span class="text-slate-900 dark:text-white">{{ $pengumumans->total() ?? 0 }}</span> Berita
+            </p>
+            @if($pengumumans->hasPages())
+                <div class="flex justify-end">
+                    {{ $pengumumans->withQueryString()->links() }}
+                </div>
+            @endif
+        </div>
     </div>
 </div>
 @endsection

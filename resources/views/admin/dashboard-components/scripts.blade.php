@@ -1,6 +1,6 @@
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('turbo:load', function () {
         const isDark = document.documentElement.classList.contains('dark');
         const gridColor = isDark ? '#334155' : '#f1f5f9';
 

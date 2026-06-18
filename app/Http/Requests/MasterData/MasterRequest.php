@@ -31,6 +31,13 @@ class MasterRequest extends FormRequest
             'wa_token'          => 'nullable|string|max:255',
             'api_key'           => 'nullable|string|max:255',
             'logo'              => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'mail_host'         => 'nullable|string|max:255',
+            'mail_port'         => 'nullable|string|max:10',
+            'mail_username'     => 'nullable|string|max:255',
+            'mail_password'     => 'nullable|string|max:255',
+            'mail_encryption'   => 'nullable|string|max:50',
+            'mail_from_address' => 'nullable|email|max:255',
+            'mail_from_name'    => 'nullable|string|max:255',
         ];
     }
 }

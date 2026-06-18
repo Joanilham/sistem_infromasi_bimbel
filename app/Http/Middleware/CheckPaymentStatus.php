@@ -27,7 +27,7 @@ class CheckPaymentStatus
             // =========================================================================
             // 1. CEK STATUS VERIFIKASI PENDAFTARAN (Logika Baru)
             // =========================================================================
-            if ($user->status !== 'aktif') {
+            if (strtolower($user->status) !== 'aktif' && strtolower($user->level) !== 'guru') {
                 
                 // Rute pengecualian yang boleh diakses meskipun belum diverifikasi
                 if ($request->routeIs('siswa.dashboard') || 

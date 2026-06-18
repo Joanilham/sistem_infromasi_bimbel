@@ -33,6 +33,14 @@ class MasterController extends Controller
             $master->instance_id    = $validated['instance_id'] ?? $master->instance_id;
             $master->wa_token       = $validated['wa_token'] ?? $master->wa_token;
             $master->api_key        = $validated['api_key'] ?? $master->api_key;
+            
+            $master->mail_host         = $validated['mail_host'] ?? $master->mail_host;
+            $master->mail_port         = $validated['mail_port'] ?? $master->mail_port;
+            $master->mail_username     = $validated['mail_username'] ?? $master->mail_username;
+            $master->mail_password     = $validated['mail_password'] ?? $master->mail_password;
+            $master->mail_encryption   = $validated['mail_encryption'] ?? $master->mail_encryption;
+            $master->mail_from_address = $validated['mail_from_address'] ?? $master->mail_from_address;
+            $master->mail_from_name    = $validated['mail_from_name'] ?? $master->mail_from_name;
 
             if ($request->hasFile('logo')) {
                 // Hapus logo lama jika ada
@@ -48,6 +56,7 @@ class MasterController extends Controller
             
             // Hapus cache agar logo dan data master langsung ter-update di seluruh sistem
             \Illuminate\Support\Facades\Cache::forget('global_master');
+            \Illuminate\Support\Facades\Cache::forget('welcome_page_data');
 
             return redirect()->route('master.index')->with('success', 'Data Master berhasil diperbarui.');
         } catch (\Exception $e) {
@@ -67,6 +76,25 @@ class MasterController extends Controller
             return redirect()->back()->with('success', 'Pesan Uji Coba WhatsApp berhasil dikirim!');
         } else {
             return redirect()->back()->withErrors(['wa_error' => 'Gagal mengirim pesan: ' . ($response['message'] ?? 'Periksa kembali pengaturan Gateway.')]);
+        }
+    }
+
+    public function testEmail(\Illuminate\Http\Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+        ]);
+
+        try {
+            \Illuminate\Support\Facades\Mail::raw('Halo! Ini adalah pesan uji coba dari konfigurasi Layanan Email (SMTP) Sistem Informasi Bimbel GeniusEdu. Jika Anda menerima email ini, berarti pengaturan email Anda sudah benar dan berfungsi dengan baik.', function ($message) use ($request) {
+                $message->to($request->email)
+                        ->subject('Uji Coba Pengaturan Email - GeniusEdu');
+            });
+
+            return redirect()->back()->with('success', 'Email uji coba berhasil dikirim ke ' . $request->email);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Test Email Error: ' . $e->getMessage());
+            return redirect()->back()->withErrors(['email_error' => 'Gagal mengirim email: ' . $e->getMessage()]);
         }
     }
 }

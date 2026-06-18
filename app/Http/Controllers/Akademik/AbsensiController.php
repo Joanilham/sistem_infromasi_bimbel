@@ -39,6 +39,8 @@ class AbsensiController extends Controller
         $tahun = (int) $request->input('tahun', now()->year);
         $paketId = $request->input('paket_id');
         $kelompokId = $request->input('kelompok_id');
+        $search = $request->input('search');
+        $perPage = $request->input('per_page', 10);
 
         $sort    = in_array($request->input('sort'), ['id', 'nama_lengkap']) ? $request->input('sort') : 'nama_lengkap';
         $order   = in_array($request->input('order'), ['asc', 'desc']) ? $request->input('order') : 'asc';
@@ -47,9 +49,15 @@ class AbsensiController extends Controller
             ->inContext()
             ->when($paketId, fn($q) => $q->where('paket_bimbingan_id', $paketId))
             ->when($kelompokId, fn($q) => $q->where('kelompok_belajar_id', $kelompokId))
+            ->when($search, function($q) use ($search) {
+                $q->where(function($query) use ($search) {
+                    $query->where('nama_lengkap', 'like', "%{$search}%")
+                          ->orWhere('nisn', 'like', "%{$search}%");
+                });
+            })
             ->with('paketBimbingan')
             ->orderBy($sort, $order)
-            ->get();
+            ->paginate($perPage);
 
         $absensisMap = $this->buildAbsensiMap($pesertaDidiks->pluck('id'), $bulan, $tahun);
         $this->buildAbsensiStats($pesertaDidiks, $absensisMap, $bulan, $tahun);

@@ -54,12 +54,20 @@ class Master extends Model
         'youtube_url',
         'tiktok_url',
         'whatsapp_number',
+        'mail_host',
+        'mail_port',
+        'mail_username',
+        'mail_password',
+        'mail_encryption',
+        'mail_from_address',
+        'mail_from_name',
     ];
 
     protected $casts = [
         'landing_sections_visibility' => 'array',
         'wa_token'                    => 'encrypted',
         'api_key'                     => 'encrypted',
+        'mail_password'               => 'encrypted',
     ];
 }
 

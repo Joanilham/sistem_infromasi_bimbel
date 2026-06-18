@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Siswa;
 use App\Models\Akademik\PesertaDidik;
 
 use App\Http\Controllers\Controller;
+use App\Models\CBT\CbtBankSoal;
 use App\Models\CBT\CbtUjian;
 use App\Models\CBT\CbtPeserta;
 use App\Models\CBT\CbtPesertaJawaban;
@@ -11,6 +12,7 @@ use App\Models\CBT\CbtUjianAssign;
 use App\Services\CbtService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class CbtSiswaController extends Controller
@@ -164,6 +166,9 @@ class CbtSiswaController extends Controller
                 'ip_address'    => $request->ip(),
             ]);
 
+            $sesi->load('ujian');
+            Cache::put("cbt_sesi:{$sesi->id}", $sesi, 3600);
+
             return redirect()->route('siswa.ujian.soal', [$sesi->id, 1]);
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal memulai ujian: ' . $e->getMessage());
@@ -176,9 +181,12 @@ class CbtSiswaController extends Controller
     public function soal($id, $no)
     {
         /** @var \App\Models\CBT\CbtPeserta $sesi */
-        $sesi = CbtPeserta::with(['ujian'])->findOrFail($id);
+        // ✅ Cache sesi+ujian di Redis — hemat 1 query DB per request
+        $sesi = Cache::remember("cbt_sesi:{$id}", 3600, function () use ($id) {
+            return CbtPeserta::with(['ujian'])->find($id);
+        });
 
-        if ($sesi->user_id !== Auth::id()) {
+        if (!$sesi || $sesi->user_id !== Auth::id()) {
             abort(403);
         }
 
@@ -191,7 +199,7 @@ class CbtSiswaController extends Controller
             return redirect()->route('siswa.dashboard')->with('error', 'Sesi ujian Anda tidak valid (mungkin login di perangkat lain).');
         }
 
-        // Load semua jawaban untuk navigasi grid
+        // Load semua jawaban untuk navigasi grid (indexed query, tetap dari DB)
         $semuaJawaban = CbtPesertaJawaban::where('cbt_peserta_id', $sesi->id)
             ->orderBy('urutan')
             ->get(['id', 'urutan', 'cbt_opsi_jawaban_id', 'jawaban_essay', 'ragu_ragu']);
@@ -201,11 +209,19 @@ class CbtSiswaController extends Controller
             return redirect()->route('siswa.ujian.soal', [$sesi->id, 1]);
         }
 
-        // Load soal saat ini
+        // Load jawaban saat ini (lightweight, tanpa eager load bankSoal)
         $jawabanSaatIni = CbtPesertaJawaban::where('cbt_peserta_id', $sesi->id)
             ->where('urutan', $no)
-            ->with(['bankSoal.opsiJawabans'])
             ->firstOrFail();
+
+        // ✅ Cache bank soal di Redis — SHARED antar semua siswa yang ujian sama
+        // 50 soal × 1 cache entry = 50 entries total (bukan 200×50)
+        $bankSoal = Cache::remember(
+            "cbt_banksoal:{$jawabanSaatIni->cbt_bank_soal_id}",
+            7200,
+            fn () => CbtBankSoal::with('opsiJawabans')->find($jawabanSaatIni->cbt_bank_soal_id)
+        );
+        $jawabanSaatIni->setRelation('bankSoal', $bankSoal);
 
         // Hitung sisa waktu
         $durasiDetik = $sesi->ujian->durasi * 60;
@@ -224,26 +240,32 @@ class CbtSiswaController extends Controller
      */
     public function simpanJawaban(Request $request, $id)
     {
-        $sesi = CbtPeserta::findOrFail($id);
-        if ($sesi->user_id !== Auth::id() || in_array($sesi->status, ['selesai', 'timeout'])) {
+        // ✅ Auth check via Redis cache — 0 query DB (sebelumnya 1 query)
+        $sesi = Cache::remember("cbt_sesi:{$id}", 3600, function () use ($id) {
+            return CbtPeserta::find($id);
+        });
+
+        if (!$sesi || $sesi->user_id !== Auth::id() || in_array($sesi->status, ['selesai', 'timeout'])) {
             return response()->json(['status' => 'error'], 403);
         }
 
-        $jawaban = CbtPesertaJawaban::where('cbt_peserta_id', $sesi->id)
-            ->where('urutan', $request->urutan)
-            ->firstOrFail();
+        // ✅ Direct DB update — 1 query (sebelumnya 2 query: load + save)
+        $updateData = ['updated_at' => now()];
 
         if ($request->has('cbt_opsi_jawaban_id')) {
-            $jawaban->cbt_opsi_jawaban_id = $request->cbt_opsi_jawaban_id;
+            $updateData['cbt_opsi_jawaban_id'] = $request->cbt_opsi_jawaban_id;
         } elseif ($request->has('jawaban_essay')) {
-            $jawaban->jawaban_essay = $request->jawaban_essay;
+            $updateData['jawaban_essay'] = $request->jawaban_essay;
         }
 
         if ($request->has('ragu_ragu')) {
-            $jawaban->ragu_ragu = $request->boolean('ragu_ragu');
+            $updateData['ragu_ragu'] = $request->boolean('ragu_ragu');
         }
 
-        $jawaban->save();
+        DB::table('cbt_peserta_jawabans')
+            ->where('cbt_peserta_id', $id)
+            ->where('urutan', $request->urutan)
+            ->update($updateData);
 
         return response()->json(['status' => 'saved', 'saved_at' => now()->format('H:i:s')]);
     }
@@ -253,8 +275,8 @@ class CbtSiswaController extends Controller
      */
     public function submit(Request $request, $id)
     {
-        $sesi = CbtPeserta::findOrFail($id);
-        if ($sesi->user_id !== Auth::id()) {
+        $sesi = Cache::remember("cbt_sesi:{$id}", 3600, fn () => CbtPeserta::find($id));
+        if (!$sesi || $sesi->user_id !== Auth::id()) {
             abort(403);
         }
 
@@ -266,12 +288,15 @@ class CbtSiswaController extends Controller
      */
     public function logBlur($id)
     {
-        $sesi = CbtPeserta::findOrFail($id);
-        if ($sesi->user_id == Auth::id()) {
-            $sesi->increment('blur_count');
-            return response()->json(['status' => 'logged', 'count' => $sesi->blur_count]);
+        // ✅ Auth via cached sesi + direct DB increment — 1 query (sebelumnya 2)
+        $sesi = Cache::remember("cbt_sesi:{$id}", 3600, fn () => CbtPeserta::find($id));
+        if (!$sesi || $sesi->user_id != Auth::id()) {
+            return response()->json(['status' => 'error'], 403);
         }
-        return response()->json(['status' => 'error'], 403);
+
+        DB::table('cbt_pesertas')->where('id', $id)->increment('blur_count');
+
+        return response()->json(['status' => 'logged']);
     }
 
     /**
@@ -305,6 +330,9 @@ class CbtSiswaController extends Controller
 
     private function prosesSubmit(CbtPeserta $sesi, $status)
     {
+        // ✅ Hapus cache sesi saat ujian selesai
+        Cache::forget("cbt_sesi:{$sesi->id}");
+
         return $this->cbtService->gradeAndSubmit($sesi, $status)
             ? redirect()->route('siswa.ujian.hasil', $sesi->id)->with('success', 'Ujian telah diselesaikan.')
             : redirect()->route('siswa.ujian.hasil', $sesi->id);

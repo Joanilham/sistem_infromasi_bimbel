@@ -1,0 +1,35 @@
+config:
+  target: "https://bimbel.geniusedu.my.id"
+  phases:
+    # Phase 1: 200 siswa login dalam rentang waktu 2 menit (120 detik)
+    # 200 / 120 = ~1.6 siswa baru per detik
+    - duration: 120
+      arrivalRate: 2
+      name: "Phase 1 - 200 Siswa Login & Mulai Ujian"
+
+    # Phase 2: Steady state (Simulasi beban konstan 200 siswa ujian)
+    # Menghasilkan rata-rata 15-25 request per detik (sesuai CBT riil)
+    - duration: 180
+      arrivalRate: 15
+      name: "Phase 2 - 200 Siswa Mengerjakan Ujian (Steady State)"
+
+  defaults:
+    headers:
+      User-Agent: "Artillery-CBT-LoadTest/2.0"
+
+  plugins:
+    expect: {}
+
+scenarios:
+  - name: "Siswa Mengerjakan Ujian (Realistis)"
+    flow:
+      # Asumsi siswa klik navigasi atau simpan jawaban setiap 10-20 detik
+      - get:
+          url: "/"
+      - think: 5
+      - get:
+          url: "/login"
+      - think: 15
+      - get:
+          url: "/"
+      - think: 10

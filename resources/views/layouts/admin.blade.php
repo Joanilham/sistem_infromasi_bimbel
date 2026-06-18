@@ -6,6 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="turbo-cache-control" content="no-preview">
     <meta name="description" content="Dashboard Sistem Informasi Manajemen Pendidikan Genius Education">
     <meta name="author" content="Genius Education">
     <meta name="robots" content="index, follow">
@@ -18,9 +19,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
     
-    <!-- DataTables TailwindCSS -->
-    <link rel="stylesheet" href="{{ asset('vendor/datatables/dataTables.tailwindcss.min.css') }}" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="{{ asset('vendor/datatables/dataTables.tailwindcss.min.css') }}"></noscript>
+
 
     <script defer src="{{ asset('vendor/alpinejs/alpine.min.js') }}"></script>
     
@@ -71,7 +70,7 @@
         :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" 
         class="fixed z-40 inset-y-0 left-0 w-64 transition-transform duration-300 transform bg-white dark:bg-zinc-900 shadow-2xl lg:shadow-none border-r border-slate-200 dark:border-zinc-800 flex flex-col"
         style="will-change: transform;">
-        <div class="flex flex-col h-full overflow-y-auto custom-scrollbar">
+        <div class="flex flex-col h-full custom-scrollbar">
             @include('layouts.admin.sidebar')
         </div>
     </aside>
@@ -151,9 +150,12 @@
     <!-- TomSelect JS -->
     <script defer src="{{ asset('vendor/tom-select/tom-select.complete.min.js') }}"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        // Init pada saat load awal atau setelah pergantian halaman via Turbo
+        document.addEventListener('turbo:load', function() {
             document.querySelectorAll('select').forEach((el) => {
-                if (el.classList.contains('no-tomselect')) return;
+                // Jangan inisialisasi ulang jika sudah memiliki tomselect (Turbo membiarkan node lama atau mengembalikan node dari cache)
+                if (el.classList.contains('no-tomselect') || el.tomselect) return;
+                
                 new TomSelect(el, {
                     create: false,
                     sortField: [{field: '$order'}],
@@ -175,7 +177,7 @@
     <script defer src="{{ asset('vendor/flatpickr/flatpickr.min.js') }}"></script>
     <script defer src="{{ asset('vendor/flatpickr/id.js') }}"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('turbo:load', function() {
             flatpickr("input[type='date']", {
                 locale: "id",
                 dateFormat: "Y-m-d",
@@ -188,26 +190,7 @@
 
     @include('components.loading-overlay')
 
-    <!-- Scroll Position Preserver -->
     <script>
-        document.addEventListener("DOMContentLoaded", function() { 
-            const scrollpos = sessionStorage.getItem('scrollpos_' + window.location.pathname);
-            const mainArea = document.getElementById('main-scroll-area');
-            if (scrollpos && mainArea) {
-                // Gunakan requestAnimationFrame agar render selesai dulu
-                requestAnimationFrame(() => {
-                    mainArea.scrollTop = parseInt(scrollpos, 10);
-                });
-            }
-        });
-
-        window.addEventListener("beforeunload", function() {
-            const mainArea = document.getElementById('main-scroll-area');
-            if (mainArea) {
-                sessionStorage.setItem('scrollpos_' + window.location.pathname, mainArea.scrollTop);
-            }
-        });
-
         // Global Format Rupiah
         function formatRupiah(value) {
             if (!value) return '';
@@ -226,28 +209,54 @@
             return rupiah;
         }
 
-        document.querySelectorAll('input.nominal-format, input.nominal-input, input[name="nominal"], input[name="biaya_pendaftaran"]').forEach(input => {
-            if(input.type === 'number') {
-                input.type = 'text';
-                input.setAttribute('inputmode', 'numeric');
-            }
-            
-            if(input.value) {
-                input.value = formatRupiah(input.value);
-            }
+        document.addEventListener('turbo:load', function() {
+            document.querySelectorAll('input.nominal-format, input.nominal-input, input[name="nominal"], input[name="biaya_pendaftaran"]').forEach(input => {
+                // Cegah multiple event listener jika Turbo cache dikembalikan
+                if (input.dataset.rupiahBound) return;
+                input.dataset.rupiahBound = "true";
 
-            input.addEventListener('input', function(e) {
-                this.value = formatRupiah(this.value);
+                if(input.type === 'number') {
+                    input.type = 'text';
+                    input.setAttribute('inputmode', 'numeric');
+                }
+                
+                if(input.value) {
+                    input.value = formatRupiah(input.value);
+                }
+
+                input.addEventListener('input', function(e) {
+                    this.value = formatRupiah(this.value);
+                });
+                
+                const form = input.closest('form');
+                if (form) {
+                    form.addEventListener('submit', function() {
+                        input.value = input.value.replace(/\./g, '');
+                    });
+                }
             });
-            
-            const form = input.closest('form');
-            if (form) {
-                form.addEventListener('submit', function() {
-                    input.value = input.value.replace(/\./g, '');
+
+            // Persist Sidebar Scroll Position
+            const sidebarScrollArea = document.getElementById('sidebar-scroll-container');
+            if (sidebarScrollArea) {
+                const savedScrollTop = localStorage.getItem('sidebarScrollTopAdmin');
+                if (savedScrollTop !== null) {
+                    const pos = parseInt(savedScrollTop, 10);
+                    sidebarScrollArea.scrollTop = pos;
+                    setTimeout(() => { sidebarScrollArea.scrollTop = pos; }, 50);
+                    setTimeout(() => { sidebarScrollArea.scrollTop = pos; }, 150);
+                    setTimeout(() => { sidebarScrollArea.scrollTop = pos; }, 300);
+                }
+
+                sidebarScrollArea.addEventListener('scroll', function() {
+                    localStorage.setItem('sidebarScrollTopAdmin', this.scrollTop);
                 });
             }
         });
     </script>
+    
+    <!-- Turbo Drive SPA -->
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.4/dist/turbo.es2017-esm.js"></script>
 </body>
 
 </html>

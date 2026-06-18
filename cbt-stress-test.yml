@@ -1,0 +1,18 @@
+config:
+  target: "https://bimbel.geniusedu.my.id"
+  phases:
+    - duration: 60
+      arrivalRate: 5
+      rampTo: 30
+      name: "Penyiksaan Server (Naik dari 5 ke 30 Siswa per detik)"
+scenarios:
+  - name: "Siswa Mengakses Halaman CBT"
+    flow:
+      - get:
+          url: "/"
+      - think: 1
+      - get:
+          url: "/login"
+      - think: 1
+      - get:
+          url: "/daftar/step1"

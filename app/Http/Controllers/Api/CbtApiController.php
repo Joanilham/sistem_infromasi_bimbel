@@ -24,21 +24,27 @@ class CbtApiController extends Controller
     public function daftarUjian(Request $request)
     {
         $user = $request->user();
+        $userId = $user->id;
 
         if (strtolower($user->level) !== 'siswa' && !in_array($user->level, ['Super Admin', 'Admin'])) {
             return $this->errorResponse('Fitur CBT hanya tersedia untuk siswa.', 403);
         }
 
-        $ujianAktif = CbtUjian::aktif()->orderBy('waktu_mulai', 'asc')->get();
+        $ujianAktif = CbtUjian::where(function ($q) {
+            $q->whereNull('waktu_selesai')
+              ->orWhere('waktu_selesai', '>=', now());
+        })->orderBy('waktu_mulai', 'asc')->get();
 
-        // Tambahkan info status percobaan terakhir user untuk setiap ujian
-        $userId = $user->id;
-        $ujianAktif->each(function ($ujian) use ($userId) {
-            $peserta = CbtPeserta::where('cbt_ujian_id', $ujian->id)
-                ->where('user_id', $userId)
-                ->latest('created_at')
-                ->first();
+        // Ambil SEMUA peserta user sekaligus — satu query, bukan N query per ujian
+        $ujianIds = $ujianAktif->pluck('id');
+        $pesertas = CbtPeserta::whereIn('cbt_ujian_id', $ujianIds)
+            ->where('user_id', $userId)
+            ->latest('created_at')
+            ->get()
+            ->keyBy('cbt_ujian_id'); // map by ujian_id agar O(1) lookup
 
+        $ujianAktif->each(function ($ujian) use ($pesertas) {
+            $peserta = $pesertas->get($ujian->id);
             // null = belum pernah, 'mengerjakan', 'selesai', 'timeout'
             $ujian->status_peserta = $peserta?->status;
             $ujian->skor_peserta   = $peserta?->skor;
@@ -56,6 +62,13 @@ class CbtApiController extends Controller
 
         if ($ujian->ujianSoals()->count() === 0) {
             return $this->errorResponse('Ujian belum memiliki soal.', 400);
+        }
+
+        if ($ujian->waktu_mulai && $ujian->waktu_mulai > now()) {
+            return $this->errorResponse('Ujian belum dimulai. Silakan tunggu hingga waktu yang ditentukan.', 403);
+        }
+        if ($ujian->waktu_selesai && $ujian->waktu_selesai < now()) {
+            return $this->errorResponse('Waktu ujian telah berakhir.', 403);
         }
 
         // Cek limit attempt (canAttempt ignores 'mengerjakan' sessions if they exist)

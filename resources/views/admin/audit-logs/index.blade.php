@@ -123,42 +123,66 @@
     </div>
 
     <!-- Filter & Search -->
-    <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-100 dark:border-zinc-800 shadow-sm p-5">
-        <form action="{{ route('admin.audit-logs.index') }}" method="GET" class="flex flex-col md:flex-row gap-4">
-            <!-- Search -->
-            <div class="flex-1">
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                        <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+    <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] border border-slate-100 dark:border-zinc-800 shadow-sm p-5 sm:p-6 mb-6">
+        <form action="{{ route('admin.audit-logs.index') }}" method="GET" class="flex flex-col gap-4 sm:gap-5">
+            
+            {{-- Top Row: Universal Controls --}}
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full">
+                {{-- Per Page --}}
+                <div class="flex items-stretch bg-white dark:bg-zinc-950 rounded-xl border border-slate-200 dark:border-zinc-800 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all overflow-hidden w-max">
+                    <div class="px-3 py-2 bg-slate-50 dark:bg-zinc-900 border-r border-slate-200 dark:border-zinc-800 flex items-center justify-center">
+                        <span class="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Lihat</span>
+                    </div>
+                    <select name="per_page" onchange="this.form.submit()"
+                        class="no-tomselect bg-transparent border-none text-xs font-black focus:ring-0 py-2 pl-3 pr-8 text-slate-800 dark:text-white cursor-pointer h-full hover:bg-slate-50 dark:hover:bg-zinc-900/50 transition-colors">
+                        @foreach([10, 25, 50, 100] as $n)
+                            <option value="{{ $n }}" {{ request('per_page', 10) == $n ? 'selected' : '' }}>{{ $n }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                {{-- Search & Reset --}}
+                <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto shrink-0">
+                    <div class="relative group flex-1 sm:w-64">
+                        <input type="text" name="search" value="{{ request('search') }}"
+                            placeholder="Cari user, model, atau IP…"
+                            class="w-full bg-white dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-sm font-bold py-2.5 pl-10 pr-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-sm">
+                        <svg class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
                     </div>
-                    <input type="text" name="search" id="search" value="{{ $search }}" 
-                           class="block w-full pl-11 pr-4 py-2.5 border border-slate-200 dark:border-zinc-700 bg-slate-50/50 dark:bg-zinc-800/50 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm transition-all dark:text-white dark:placeholder-zinc-500"
-                           placeholder="Cari user, model, detail aktivitas, atau alamat IP...">
+                    <button type="submit"
+                        class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-sm shadow-indigo-500/30 shrink-0">
+                        Filter
+                    </button>
+                    @if(request()->anyFilled(['search', 'event']))
+                        <a href="{{ route('admin.audit-logs.index') }}" 
+                           class="flex items-center gap-2 bg-slate-100 dark:bg-zinc-800 hover:bg-rose-100 dark:hover:bg-rose-900/40 text-slate-600 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 px-4 py-2.5 rounded-xl text-sm font-bold transition-all shrink-0"
+                           title="Reset Filter">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                            Clear
+                        </a>
+                    @endif
                 </div>
             </div>
 
-            <!-- Event Filter -->
-            <div class="w-full md:w-56">
-                <select name="event" class="block w-full pl-4 pr-10 py-2.5 text-sm border-slate-200 dark:border-zinc-700 bg-slate-50/50 dark:bg-zinc-800/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all dark:text-white">
-                    <option value="">Semua Jenis Aksi</option>
-                    <option value="created" {{ $event == 'created' ? 'selected' : '' }}>Dibuat (Created)</option>
-                    <option value="updated" {{ $event == 'updated' ? 'selected' : '' }}>Diubah (Updated)</option>
-                    <option value="deleted" {{ $event == 'deleted' ? 'selected' : '' }}>Dihapus (Deleted)</option>
-                </select>
-            </div>
-
-            <!-- Buttons -->
-            <div class="flex gap-2">
-                <button type="submit" class="w-full md:w-auto inline-flex justify-center items-center px-5 py-2.5 border border-transparent text-sm font-semibold rounded-xl shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
-                    Filter
-                </button>
-                @if($search || $event)
-                <a href="{{ route('admin.audit-logs.index') }}" class="w-full md:w-auto inline-flex justify-center items-center px-5 py-2.5 border border-slate-200 dark:border-zinc-700 text-sm font-semibold rounded-xl text-slate-700 dark:text-slate-300 bg-white dark:bg-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-700 focus:outline-none transition-colors">
-                    Reset
-                </a>
-                @endif
+            {{-- Bottom Row: Data Filters --}}
+            <div class="flex flex-wrap items-center gap-3 pt-4 border-t border-slate-100 dark:border-zinc-800/50">
+                {{-- Event Filter --}}
+                <div class="flex items-stretch bg-white dark:bg-zinc-950 rounded-xl border border-slate-200 dark:border-zinc-800 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all overflow-hidden">
+                    <div class="px-3 py-2 bg-slate-50 dark:bg-zinc-900 border-r border-slate-200 dark:border-zinc-800 flex items-center justify-center">
+                        <span class="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Jenis Aksi</span>
+                    </div>
+                    <select name="event" onchange="this.form.submit()"
+                        class="no-tomselect bg-transparent border-none text-xs font-bold focus:ring-0 py-2 pl-3 pr-8 text-slate-800 dark:text-white cursor-pointer h-full hover:bg-slate-50 dark:hover:bg-zinc-900/50 transition-colors max-w-[150px] sm:max-w-[200px] truncate">
+                        <option value="">Semua Aksi</option>
+                        <option value="created" {{ request('event') == 'created' ? 'selected' : '' }}>Dibuat (Created)</option>
+                        <option value="updated" {{ request('event') == 'updated' ? 'selected' : '' }}>Diubah (Updated)</option>
+                        <option value="deleted" {{ request('event') == 'deleted' ? 'selected' : '' }}>Dihapus (Deleted)</option>
+                    </select>
+                </div>
             </div>
         </form>
     </div>
@@ -254,274 +278,24 @@
                 </tbody>
             </table>
         </div>
-        
-        @if($logs->hasPages())
-        <div class="bg-white dark:bg-zinc-900 px-6 py-4 border-t border-slate-100 dark:border-zinc-800">
-            {{ $logs->links() }}
+        {{-- Footer Pagination --}}
+        <div class="px-8 py-6 border-t border-slate-100 dark:border-zinc-800 bg-slate-50/30 dark:bg-zinc-900/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <p class="text-xs text-slate-500 dark:text-slate-400 font-bold">
+                @if(method_exists($logs, 'total'))
+                    Menampilkan <span class="text-slate-900 dark:text-white">{{ $logs->firstItem() ?? 0 }}</span> – <span class="text-slate-900 dark:text-white">{{ $logs->lastItem() ?? 0 }}</span> dari <span class="text-slate-900 dark:text-white">{{ $logs->total() ?? 0 }}</span> Log
+                @else
+                    Menampilkan <span class="text-slate-900 dark:text-white">{{ $logs->count() }}</span> Log
+                @endif
+            </p>
+            @if(method_exists($logs, 'hasPages') && $logs->hasPages())
+                <div class="flex justify-end">
+                    {{ $logs->withQueryString()->links() }}
+                </div>
+            @endif
         </div>
-        @endif
     </div>
 
-    <!-- DETAIL POPUP MODAL -->
-    <template x-teleport="body">
-        <div x-show="showModal" 
-             class="fixed inset-0 z-50 overflow-y-auto" 
-             style="display: none;"
-             x-transition:enter="transition ease-out duration-300"
-             x-transition:enter-start="opacity-0"
-             x-transition:enter-end="opacity-100"
-             x-transition:leave="transition ease-in duration-200"
-             x-transition:leave-start="opacity-100"
-             x-transition:leave-end="opacity-0">
-         
-        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <!-- Background overlay -->
-            <div class="fixed inset-0 transition-opacity bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm z-40" @click="showModal = false"></div>
-
-            <!-- This element is to trick the browser into centering the modal contents. -->
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
-            <!-- Modal panel -->
-            <div class="relative z-50 inline-block align-bottom bg-white dark:bg-zinc-900 rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full border border-slate-100 dark:border-zinc-800">
-                 
-                <!-- Modal Header -->
-                <div class="bg-slate-50 dark:bg-zinc-800/40 px-6 py-5 border-b border-slate-100 dark:border-zinc-800 flex justify-between items-center">
-                    <div>
-                        <span class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">Detail Jejak Audit</span>
-                        <h3 class="text-lg font-bold text-slate-800 dark:text-white mt-0.5" x-text="selectedLog ? selectedLog.formatted_model_name + (selectedLog.auditable_id ? ' (ID: ' + selectedLog.auditable_id + (selectedLog.record_title ? ' - ' + selectedLog.record_title : '') + ')' : '') : ''"></h3>
-                    </div>
-                    <button @click="showModal = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors cursor-pointer">
-                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                    </button>
-                </div>
-
-                <!-- Modal Content -->
-                <div class="p-6 space-y-6">
-                    <!-- Metadata Info Grid -->
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-slate-50 dark:bg-zinc-850 rounded-2xl border border-slate-100 dark:border-zinc-800 text-xs">
-                        <div>
-                            <span class="text-slate-400 block mb-0.5">Pelaku Utama</span>
-                            <span class="font-bold text-slate-800 dark:text-slate-200" x-text="selectedLog?.user?.name || 'System/Guest'"></span>
-                        </div>
-                        <div>
-                            <span class="text-slate-400 block mb-0.5">Alamat IP</span>
-                            <span class="font-mono font-bold text-slate-800 dark:text-slate-200" x-text="selectedLog?.ip_address"></span>
-                        </div>
-                        <div>
-                            <span class="text-slate-400 block mb-0.5">Sistem Pengoperasi / Browser</span>
-                            <span class="font-bold text-slate-800 dark:text-slate-200" x-text="selectedLog?.formatted_user_agent"></span>
-                        </div>
-                        <div>
-                            <span class="text-slate-400 block mb-0.5">Waktu Eksekusi</span>
-                            <span class="font-bold text-slate-800 dark:text-slate-200" x-text="selectedLog ? new Date(selectedLog.created_at).toLocaleString('id-ID') : ''"></span>
-                        </div>
-                    </div>
-
-                    <!-- URL Web Info -->
-                    <div class="text-xs">
-                        <span class="text-slate-400 block mb-1">Halaman URL Yang Diakses:</span>
-                        <span class="font-mono bg-slate-100 dark:bg-zinc-850 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-zinc-700 block text-slate-700 dark:text-slate-300 overflow-x-auto" x-text="selectedLog?.url"></span>
-                    </div>
-
-                    <!-- COMPARATIVE VALUE VIEWER (Github-Style side-by-side diff) -->
-                    <div>
-                        <span class="text-xs font-semibold text-slate-400 block mb-2.5">Rekaman Perubahan Data:</span>
-                        
-                        <div class="space-y-4">
-                            <!-- IF EVENT IS UPDATE (Unified Diff Table) -->
-                            <template x-if="selectedLog?.event === 'updated' && ((selectedLog?.old_values && Object.keys(selectedLog.old_values).length > 0) || (selectedLog?.new_values && Object.keys(selectedLog.new_values).length > 0))">
-                                <div class="bg-white dark:bg-zinc-800 rounded-2xl border border-slate-200 dark:border-zinc-700 shadow-sm overflow-hidden">
-                                    <div class="overflow-x-auto custom-scrollbar">
-                                        <table class="w-full text-left text-xs border-collapse">
-                                            <thead>
-                                                <tr>
-                                                    <th class="p-4 bg-slate-50 dark:bg-zinc-800/80 border-b border-r border-slate-200 dark:border-zinc-700 font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest w-1/4">
-                                                        Modul / Kolom
-                                                    </th>
-                                                    <th class="p-4 bg-rose-50/50 dark:bg-rose-950/20 border-b border-r border-slate-200 dark:border-zinc-700 font-black text-rose-600 dark:text-rose-400 uppercase tracking-widest w-[37.5%]">
-                                                        Data Sebelumnya <span class="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[9px] bg-rose-100 dark:bg-rose-900/50 text-rose-700 dark:text-rose-300">- Hapus</span>
-                                                    </th>
-                                                    <th class="p-4 bg-emerald-50/50 dark:bg-emerald-950/20 border-b border-slate-200 dark:border-zinc-700 font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest w-[37.5%]">
-                                                        Data Terbaru <span class="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[9px] bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300">+ Tambah</span>
-                                                    </th>
-                                                </tr>
-                                            </thead>
-                                            <tbody class="divide-y divide-slate-100 dark:divide-zinc-700/50">
-                                                <!-- Loop keys that changed -->
-                                                <template x-for="key in Array.from(new Set([...Object.keys(selectedLog?.old_values || {}), ...Object.keys(selectedLog?.new_values || {})]))" :key="key">
-                                                    <tr class="hover:bg-slate-50/50 dark:hover:bg-zinc-700/20 transition-colors group">
-                                                        <!-- Field Name -->
-                                                        <td class="p-4 border-r border-slate-100 dark:border-zinc-700/50 bg-slate-50/30 dark:bg-zinc-800/40">
-                                                            <div class="flex items-center gap-2">
-                                                                <svg class="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                                                <span class="font-bold text-slate-700 dark:text-slate-300 tracking-wider uppercase text-[10px]" x-text="formatKey(key)"></span>                                                            </div>
-                                                        </td>
-                                                        <!-- Old Value -->
-                                                        <td class="p-4 border-r border-slate-100 dark:border-zinc-700/50 bg-rose-50/10 dark:bg-rose-950/10 relative">
-                                                            <div class="font-medium text-rose-600 dark:text-rose-400 break-all line-through decoration-rose-200 dark:decoration-rose-900/50" 
-                                                                 x-text="selectedLog?.old_values?.[key] !== undefined ? formatValue(selectedLog.old_values[key], key) : '—'">
-                                                            </div>
-                                                        </td>
-                                                        <!-- New Value -->
-                                                        <td class="p-4 bg-emerald-50/10 dark:bg-emerald-950/10 relative">
-                                                            <div class="absolute inset-y-0 left-0 w-0.5 bg-emerald-400/50 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                                            <div class="font-bold text-emerald-600 dark:text-emerald-400 break-all"
-                                                                 x-text="selectedLog?.new_values?.[key] !== undefined ? formatValue(selectedLog.new_values[key], key) : '—'">
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                </template>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </template>
-
-                            <!-- IF EVENT IS CREATED -->
-                            <template x-if="selectedLog?.event === 'created' && (selectedLog?.new_values && Object.keys(selectedLog.new_values).length > 0)">
-                                <div class="bg-white dark:bg-zinc-800 rounded-2xl border border-emerald-200 dark:border-emerald-900/50 shadow-sm overflow-hidden">
-                                    <div class="overflow-x-auto custom-scrollbar">
-                                        <table class="w-full text-left text-xs border-collapse">
-                                            <thead>
-                                                <tr>
-                                                    <th class="p-4 bg-emerald-50 dark:bg-emerald-950/30 border-b border-r border-emerald-100 dark:border-emerald-900/50 font-black text-emerald-700 dark:text-emerald-400 uppercase tracking-widest w-1/3">Modul / Kolom</th>
-                                                    <th class="p-4 bg-emerald-50 dark:bg-emerald-950/30 border-b border-emerald-100 dark:border-emerald-900/50 font-black text-emerald-700 dark:text-emerald-400 uppercase tracking-widest w-2/3">Data Baru Ditambahkan</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody class="divide-y divide-emerald-50 dark:divide-emerald-900/20">
-                                                <template x-for="(value, key) in selectedLog?.new_values" :key="key">
-                                                    <tr class="hover:bg-emerald-50/30 dark:hover:bg-emerald-900/10 transition-colors">
-                                                        <td class="p-4 border-r border-emerald-50 dark:border-emerald-900/20 bg-emerald-50/10 dark:bg-emerald-950/10">
-                                                            <span class="font-bold text-slate-700 dark:text-slate-300 tracking-wider uppercase text-[10px]" x-text="formatKey(key)"></span>
-                                                        </td>
-                                                        <td class="p-4 font-medium text-emerald-600 dark:text-emerald-400 break-all"
-                                                            x-text="formatValue(value, key)">
-                                                        </td>
-                                                    </tr>
-                                                </template>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </template>
-
-                            <!-- IF EVENT IS DELETED -->
-                            <template x-if="selectedLog?.event === 'deleted' && (selectedLog?.old_values && Object.keys(selectedLog.old_values).length > 0)">
-                                <div class="bg-white dark:bg-zinc-800 rounded-2xl border border-rose-200 dark:border-rose-900/50 shadow-sm overflow-hidden">
-                                    <div class="overflow-x-auto custom-scrollbar">
-                                        <table class="w-full text-left text-xs border-collapse">
-                                            <thead>
-                                                <tr>
-                                                    <th class="p-4 bg-rose-50 dark:bg-rose-950/30 border-b border-r border-rose-100 dark:border-rose-900/50 font-black text-rose-700 dark:text-rose-400 uppercase tracking-widest w-1/3">Modul / Kolom</th>
-                                                    <th class="p-4 bg-rose-50 dark:bg-rose-950/30 border-b border-rose-100 dark:border-rose-900/50 font-black text-rose-700 dark:text-rose-400 uppercase tracking-widest w-2/3">Data Dihapus</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody class="divide-y divide-rose-50 dark:divide-rose-900/20">
-                                                <template x-for="(value, key) in selectedLog?.old_values" :key="key">
-                                                    <tr class="hover:bg-rose-50/30 dark:hover:bg-rose-900/10 transition-colors">
-                                                        <td class="p-4 border-r border-rose-50 dark:border-rose-900/20 bg-rose-50/10 dark:bg-rose-950/10">
-                                                            <span class="font-bold text-slate-700 dark:text-slate-300 tracking-wider uppercase text-[10px]" x-text="formatKey(key)"></span>
-                                                        </td>
-                                                        <td class="p-4 font-medium text-rose-600 dark:text-rose-400 break-all line-through decoration-rose-200"
-                                                            x-text="formatValue(value, key)">
-                                                        </td>
-                                                    </tr>
-                                                </template>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </template> 
-                        </div>
-
-                            <!-- FALLBACK IF CHANGES ARE EMPTY (Authentication events or filtered sensitive attributes) -->
-                            <template x-if="(!selectedLog?.old_values || Object.keys(selectedLog.old_values).length === 0) && (!selectedLog?.new_values || Object.keys(selectedLog.new_values).length === 0)">
-                                <div class="p-8 bg-slate-50/50 dark:bg-zinc-850 rounded-[2rem] border border-dashed border-slate-200 dark:border-zinc-800 text-center space-y-4">
-                                    <div class="w-14 h-14 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 rounded-2xl flex items-center justify-center mx-auto text-2xl shadow-inner">
-                                        🔒
-                                    </div>
-                                    <div class="space-y-1">
-                                        <h4 class="font-black text-slate-800 dark:text-white text-sm">Aktivitas Non-Substantif / Data Terlindungi</h4>
-                                        <p class="text-xs text-slate-500 dark:text-slate-400 max-w-lg mx-auto leading-relaxed">
-                                            Operasi ini tidak mengubah nilai data substantif, atau seluruh perubahan data bersifat sangat sensitif (seperti token akses, kata sandi, atau kunci keamanan sesi) yang disaring secara otomatis demi kepatuhan regulasi perlindungan data.
-                                        </p>
-                                    </div>
-                                </div>
-                            </template>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Modal Footer -->
-                <div class="bg-slate-50 dark:bg-zinc-800/40 px-6 py-4 border-t border-slate-100 dark:border-zinc-800 flex justify-end">
-                    <button type="button" 
-                            @click="showModal = false"
-                            class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-white text-xs font-bold rounded-xl shadow transition-colors cursor-pointer">
-                        Selesai Membaca
-                    </button>
-                </div>
-            </div>
-        </div>
-    </template>
-
-    <!-- PRUNE MODAL -->
-    <template x-teleport="body">
-        <div x-show="showPruneModal" 
-             class="fixed inset-0 z-50 overflow-y-auto" 
-             style="display: none;"
-             x-transition:enter="transition ease-out duration-300"
-             x-transition:enter-start="opacity-0"
-             x-transition:enter-end="opacity-100"
-             x-transition:leave="transition ease-in duration-200"
-             x-transition:leave-start="opacity-100"
-             x-transition:leave-end="opacity-0">
-         
-        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <!-- Background overlay -->
-            <div class="fixed inset-0 transition-opacity bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm z-40" @click="showPruneModal = false"></div>
-
-            <!-- This element is to trick the browser into centering the modal contents. -->
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
-            <!-- Modal panel -->
-            <div class="relative z-50 inline-block align-bottom bg-white dark:bg-zinc-900 rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full border border-slate-100 dark:border-zinc-800">
-                
-                <form action="{{ route('admin.audit-logs.prune') }}" method="POST">
-                    @csrf
-                    @method('DELETE')
-                    
-                    <div class="p-6">
-                        <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 mb-5">
-                            <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                            </svg>
-                        </div>
-                        <h3 class="text-xl font-bold text-center text-slate-800 dark:text-white mb-2">Autentikasi Diperlukan</h3>
-                        <p class="text-sm text-slate-500 dark:text-slate-400 text-center mb-6 leading-relaxed">
-                            Peringatan! Aksi ini akan menghapus log aktivitas yang umurnya lebih dari 30 hari secara <b class="text-red-500 dark:text-red-400">permanen</b>. Masukkan kata sandi Anda untuk memverifikasi hak akses.
-                        </p>
-                        
-                        <div>
-                            <label for="password" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Kata Sandi (Password)</label>
-                            <input type="password" name="password" id="password" required autocomplete="current-password"
-                                   class="block w-full px-4 py-3 border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800/50 rounded-xl focus:ring-2 focus:ring-red-500/20 focus:border-red-500 text-sm transition-all dark:text-white placeholder-slate-400 dark:placeholder-slate-500"
-                                   placeholder="Masukkan kata sandi akun Anda">
-                        </div>
-                    </div>
-                    
-                    <div class="bg-slate-50 dark:bg-zinc-800/40 px-6 py-4 border-t border-slate-100 dark:border-zinc-800 flex justify-end gap-3">
-                        <button type="button" @click="showPruneModal = false"
-                                class="px-5 py-2.5 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-700 text-slate-700 dark:text-slate-300 text-sm font-semibold rounded-xl transition-colors cursor-pointer shadow-sm">
-                            Batal
-                        </button>
-                        <button type="submit"
-                                class="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-xl shadow-sm transition-colors cursor-pointer flex items-center justify-center min-w-[140px]">
-                            Verifikasi & Hapus
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </template>
+    
+    @include('admin.audit-logs.partials.modals')
 </div>
 @endsection

@@ -89,16 +89,55 @@
                     </div>
 
                     <div class="mt-8 pt-6 border-t border-slate-200 dark:border-zinc-800">
-                        <div class="flex items-center gap-3 mb-6">
-                            <div class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                </div>
+                                <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Layanan Email (SMTP)</h3>
                             </div>
-                            <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Layanan Email</h3>
+                            <span class="px-2.5 py-1 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 text-xs font-medium rounded-md border border-amber-200 dark:border-amber-800">Sensitif</span>
                         </div>
-                        <div class="space-y-1.5">
-                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">SMTP/Service API Key</label>
-                            <input type="password" name="api_key" value="{{ old('api_key', $master->api_key) }}"
-                                class="w-full bg-white dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 rounded-lg text-sm py-2 px-3 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="space-y-1.5">
+                                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Mail Host</label>
+                                <input type="text" name="mail_host" value="{{ old('mail_host', $master->mail_host) }}" placeholder="smtp.gmail.com"
+                                    class="w-full bg-white dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 rounded-lg text-sm py-2 px-3 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Mail Port</label>
+                                <input type="text" name="mail_port" value="{{ old('mail_port', $master->mail_port) }}" placeholder="465 / 587"
+                                    class="w-full bg-white dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 rounded-lg text-sm py-2 px-3 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Mail Username</label>
+                                <input type="text" name="mail_username" value="{{ old('mail_username', $master->mail_username) }}" placeholder="email@domain.com"
+                                    class="w-full bg-white dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 rounded-lg text-sm py-2 px-3 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Mail Password</label>
+                                <input type="password" name="mail_password" value="{{ old('mail_password', $master->mail_password) }}"
+                                    class="w-full bg-white dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 rounded-lg text-sm py-2 px-3 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Mail Encryption</label>
+                                <select name="mail_encryption" class="w-full bg-white dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 rounded-lg text-sm py-2 px-3 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                                    <option value="">Pilih Enkripsi (Opsional)</option>
+                                    <option value="tls" {{ old('mail_encryption', $master->mail_encryption) == 'tls' ? 'selected' : '' }}>TLS</option>
+                                    <option value="ssl" {{ old('mail_encryption', $master->mail_encryption) == 'ssl' ? 'selected' : '' }}>SSL</option>
+                                </select>
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">From Name</label>
+                                <input type="text" name="mail_from_name" value="{{ old('mail_from_name', $master->mail_from_name) }}" placeholder="Bimbel GeniusEdu"
+                                    class="w-full bg-white dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 rounded-lg text-sm py-2 px-3 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                            </div>
+                            <div class="sm:col-span-2 space-y-1.5">
+                                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">From Address</label>
+                                <input type="email" name="mail_from_address" value="{{ old('mail_from_address', $master->mail_from_address) }}" placeholder="no-reply@domain.com"
+                                    class="w-full bg-white dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 rounded-lg text-sm py-2 px-3 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                            </div>
                         </div>
                     </div>
 
@@ -176,11 +215,32 @@
                         </button>
                     </div>
                 </div>
+
+                <!-- Test Email Box -->
+                <div class="bg-blue-50 dark:bg-blue-900/10 rounded-xl p-6 border border-blue-100 dark:border-blue-900/30">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-800/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        </div>
+                        <h3 class="text-sm font-semibold text-blue-900 dark:text-blue-100">Uji Layanan Email</h3>
+                    </div>
+                    <div class="space-y-3">
+                        <input type="email" name="email" form="form-uji-email" required placeholder="Alamat Email Tujuan..." 
+                            class="w-full bg-white dark:bg-zinc-950 border border-blue-200 dark:border-blue-800 rounded-lg text-sm py-2 px-3 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                        <button type="submit" form="form-uji-email" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm py-2 rounded-lg transition-colors">
+                            Kirim Email Tes
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </form>
     
     <form id="form-uji-wa" action="{{ route('master.test.wa') }}" method="POST" class="hidden">
+        @csrf
+    </form>
+    
+    <form id="form-uji-email" action="{{ route('master.test.email') }}" method="POST" class="hidden">
         @csrf
     </form>
 </div>

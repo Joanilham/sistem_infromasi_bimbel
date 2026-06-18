@@ -102,9 +102,6 @@ class CbtService
             return $sesi;
         }
 
-        $sesi->status        = $status;
-        $sesi->waktu_selesai = now();
-
         $jawabans = $sesi->jawabans()->with(['bankSoal.opsiJawabans'])->get();
 
         // Pre-load bobot soal — satu query untuk menghindari N+1
@@ -116,6 +113,7 @@ class CbtService
 
         $totalSkor  = 0;
         $totalBobot = 0;
+        $updates    = []; // Kumpulkan update dulu, simpan sekaligus
 
         foreach ($jawabans as $j) {
             $soal        = $j->bankSoal;
@@ -126,21 +124,36 @@ class CbtService
                 $kunci = $soal->opsiJawabans->where('is_benar', true)->first();
 
                 if ($kunci && $j->cbt_opsi_jawaban_id == $kunci->id) {
-                    $j->is_benar  = true;
-                    $j->skor      = $bobot;
-                    $totalSkor   += $bobot;
+                    $isBenar = true;
+                    $skorJawaban = $bobot;
+                    $totalSkor  += $bobot;
                 } else {
-                    $j->is_benar = false;
-                    $j->skor     = 0;
+                    $isBenar = false;
+                    $skorJawaban = 0;
                 }
-                $j->save();
+
+                // ✅ Kumpulkan update — jangan save() satu per satu
+                $updates[$j->id] = ['is_benar' => $isBenar, 'skor' => $skorJawaban];
             }
         }
 
-        $sesi->skor = $totalBobot > 0 ? ($totalSkor / $totalBobot) * 100 : 0;
-        $sesi->save();
+        $skorAkhir = $totalBobot > 0 ? ($totalSkor / $totalBobot) * 100 : 0;
 
-        return $sesi;
+        // ✅ BULK UPDATE dalam satu transaksi — jauh lebih efisien dari N save()
+        DB::transaction(function () use ($updates, $sesi, $status, $skorAkhir) {
+            foreach ($updates as $jawabanId => $data) {
+                DB::table('cbt_peserta_jawabans')
+                    ->where('id', $jawabanId)
+                    ->update($data);
+            }
+
+            $sesi->skor         = $skorAkhir;
+            $sesi->status       = $status;
+            $sesi->waktu_selesai = now();
+            $sesi->saveQuietly(); // saveQuietly() agar tidak trigger Auditable event
+        });
+
+        return $sesi->refresh();
     }
 
     /**

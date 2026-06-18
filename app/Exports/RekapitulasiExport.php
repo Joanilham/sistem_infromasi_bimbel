@@ -195,7 +195,7 @@ class RekapitulasiExport
         foreach ($rekap_pemasukan_lain as $rpl) {
             $style = $i % 2 === 0 ? 's_data2' : 's_data';
             $xml .= '<Row ss:Height="20">';
-            $xml .= $this->xmlStr($rpl->kategori->nama_kategori ?? 'Lainnya', $style);
+            $xml .= $this->xmlStr($rpl->kategori->nama ?? 'Lainnya', $style);
             $xml .= $this->xmlNum($rpl->total, $style);
             $xml .= '</Row>';
             $i++;
@@ -209,7 +209,7 @@ class RekapitulasiExport
         foreach ($rekap_pengeluaran as $rp) {
             $style = $i % 2 === 0 ? 's_data2' : 's_data';
             $xml .= '<Row ss:Height="20">';
-            $xml .= $this->xmlStr($rp->kategori->nama_kategori ?? 'Lainnya', $style);
+            $xml .= $this->xmlStr($rp->kategori->nama ?? 'Lainnya', $style);
             $xml .= $this->xmlNum($rp->total, $style);
             $xml .= '</Row>';
             $i++;

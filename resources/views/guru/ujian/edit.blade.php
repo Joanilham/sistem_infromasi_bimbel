@@ -71,6 +71,12 @@
                     <input type="text" name="token" value="{{ old('token', $ujian->token) }}" placeholder="Kosongkan jika tidak perlu"
                         class="w-full border border-slate-200 dark:border-zinc-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-zinc-800 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500">
                 </div>
+                <div class="p-3 rounded-xl border border-slate-100 dark:border-zinc-800">
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">Batas Mengerjakan (Kali)</label>
+                    <input type="number" name="limit_attempt" value="{{ old('limit_attempt', $ujian->limit_attempt) }}" required min="0"
+                        class="w-full border border-slate-200 dark:border-zinc-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-zinc-800 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500">
+                    <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">Isi 0 untuk unlimited.</p>
+                </div>
             </div>
         </div>
 

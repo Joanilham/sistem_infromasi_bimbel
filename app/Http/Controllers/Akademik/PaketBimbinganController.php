@@ -71,6 +71,7 @@ class PaketBimbinganController extends Controller
             }
 
             PaketBimbingan::create($validated);
+            \Illuminate\Support\Facades\Cache::forget('welcome_page_data');
             return redirect()->route('paket-bimbingan.index')->with('success', 'Paket Global berhasil ditambahkan.');
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Store Paket Error: ' . $e->getMessage());
@@ -99,6 +100,7 @@ class PaketBimbinganController extends Controller
             }
 
             $paketBimbingan->update($validated);
+            \Illuminate\Support\Facades\Cache::forget('welcome_page_data');
             return redirect()->route('paket-bimbingan.index')->with('success', 'Paket Global berhasil diperbarui.');
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Update Paket Error: ' . $e->getMessage());
@@ -115,6 +117,8 @@ class PaketBimbinganController extends Controller
 
         try {
             $paketBimbingan->delete();
+
+            \Illuminate\Support\Facades\Cache::forget('welcome_page_data');
 
             return redirect()->route('paket-bimbingan.index')
                 ->with('success', 'Data Paket Bimbingan berhasil dihapus.');

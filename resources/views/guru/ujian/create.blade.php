@@ -120,6 +120,14 @@
                         class="w-full border border-slate-200 dark:border-zinc-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-zinc-800 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
                     <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">Kode yang harus dimasukkan siswa untuk memulai</p>
                 </div>
+
+                <div class="p-3 rounded-xl border border-slate-100 dark:border-zinc-800">
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">Batas Mengerjakan (Kali) <span class="text-red-500">*</span></label>
+                    <input type="number" name="limit_attempt" value="{{ old('limit_attempt', 1) }}" required min="0"
+                        class="w-full border border-slate-200 dark:border-zinc-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-zinc-800 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">Isi 0 untuk tanpa batas (unlimited).</p>
+                    @error('limit_attempt') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+                </div>
             </div>
         </div>
 
