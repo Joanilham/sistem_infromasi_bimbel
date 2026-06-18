@@ -37,10 +37,15 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         // Pengecualian CSRF untuk endpoint scanner QR & logout (menghindari error 419 via Ngrok/AJAX)
+        // Login & siswa/ujian/* juga dikecualikan sementara untuk keperluan load testing Artillery
         $middleware->validateCsrfTokens(except: [
             'absensi/scan-masuk',
             'absensi/scan-pulang',
             'logout',
+            'login',
+            'siswa/ujian/*/mulai',
+            'siswa/ujian/*/jawab',
+            'siswa/ujian/*/submit',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
@@ -72,6 +77,10 @@ return Application::configure(basePath: dirname(__DIR__))
                 $code = $e->getStatusCode();
                 $viewPath = "errors.{$code}";
 
+                if ($code >= 500) {
+                    \Illuminate\Support\Facades\Log::error("HTTP ERROR $code: " . $e->getMessage());
+                }
+
                 // Fallback ke 500 jika tidak ada view untuk kode tersebut
                 if (!view()->exists($viewPath)) {
                     $viewPath = 'errors.500';
@@ -85,7 +94,13 @@ return Application::configure(basePath: dirname(__DIR__))
         // ── Exception lain yang tidak tertangkap ───────────────
         // (hanya aktif saat APP_DEBUG=false / production)
         $exceptions->render(function (\Throwable $e, Request $request) {
+            // Jangan intercept ValidationException, biarkan Laravel meredirect back
+            if ($e instanceof \Illuminate\Validation\ValidationException) {
+                return null;
+            }
+
             if (!$request->expectsJson() && !config('app.debug')) {
+                \Illuminate\Support\Facades\Log::error("FATAL ERROR: " . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
                 return response()->view('errors.500', [], 500);
             }
         });

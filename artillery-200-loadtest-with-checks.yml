@@ -1,34 +1,60 @@
 config:
-  target: "https://bimbel.geniusedu.my.id"
-  
+  # Target nama container langsung (bypass Cloudflare)
+  target: "http://geniusedu-nginx:8080"
+  processor: "./processor.cjs"
+
   # Konfigurasi Plugin Expect untuk Functional Checks
   plugins:
     expect: {}
 
   # Menggunakan payload CSV untuk data login dinamis (dari hasil generate)
   payload:
-    path: "siswa_data.csv"
+    path: "storage/app/siswa_data.csv"
     fields:
       - "email"
       - "password"
       - "ujian_id"
     order: sequence
+    skipHeader: true
+    skipEmptyLines: true
 
-
+  # ── Fase Test yang Realistis ───────────────────────────────────────────────
+  # Total durasi: 15 menit
+  # Setiap VU membutuhkan ± (2+3+1 + 10×(0.5+2) + 5 + 5) ≈ 56 detik untuk selesai
+  # Sehingga server bisa terpapar selama cukup lama
   phases:
-    - duration: 120
-      arrivalRate: 2
-      name: "Phase 1 - 200 Siswa Login & Mulai Ujian"
+    - duration: 60
+      arrivalRate: 1
+      maxVusers: 10
+      name: "Warm-up (10 siswa)"
 
     - duration: 180
-      arrivalRate: 15
-      name: "Phase 2 - 200 Siswa Mengerjakan Ujian (Steady State)"
+      arrivalRate: 1
+      maxVusers: 100
+      name: "Ramp-up (100 siswa)"
+
+    - duration: 240
+      arrivalRate: 1
+      maxVusers: 200
+      name: "Peak load (200 siswa bersamaan)"
+
+    - duration: 120
+      arrivalRate: 1
+      maxVusers: 50
+      name: "Cool-down"
+
+  # HTTP timeout: 15 detik agar VU tidak langsung mati saat server lambat
+  http:
+    timeout: 15
 
   defaults:
     headers:
       User-Agent: "Artillery-CBT-LoadTest/WithChecks"
+      Origin: "http://geniusedu-nginx:8080"
+      Referer: "http://geniusedu-nginx:8080/"
 
 scenarios:
+  - name: "Skenario Ujian Lengkap"
     flow:
       # ==============================================================
       # STEP 1: Buka Halaman Login & Ambil CSRF Token
@@ -36,8 +62,8 @@ scenarios:
       - get:
           url: "/login"
           capture:
-            # Mengekstrak value dari <input type="hidden" name="_token" value="...">
             - regexp: "name=\"_token\" value=\"([^\"]+)\""
+              group: 1
               as: "csrf_token"
           expect:
             - statusCode: 200
@@ -56,74 +82,66 @@ scenarios:
           expect:
             - statusCode: 302
 
-      - think: 3
+      - think: 2
 
       # ==============================================================
-      # STEP 2.5: Mulai Ujian (Mendapatkan Sesi ID)
+      # STEP 3: Mulai Ujian (Mendapatkan Sesi ID dari redirect URL)
       # ==============================================================
       - post:
           url: "/siswa/ujian/{{ ujian_id }}/mulai"
           form:
             _token: "{{ csrf_token }}"
-          # Laravel akan me-redirect ke /siswa/ujian/{sesi_id}/soal/1
-          # Kita tangkap URL redirect-nya untuk mengambil sesi_id
-          capture:
-            - header: "location"
-              as: "redirect_url"
+          # Laravel me-redirect ke /siswa/ujian/{sesi_id}/soal/1
+          # Kita ekstrak sesi_id dengan JS processor
+          afterResponse: "extractSesiId"
           expect:
             - statusCode: 302
 
       - think: 1
 
       # ==============================================================
-      # STEP 3: Ambil Halaman Soal (URL didapat dari redirect)
+      # STEP 4: Loop Mengerjakan 10 Soal
+      # (Think 2 detik per soal — cukup realistis untuk stress test)
       # ==============================================================
-      - get:
-          url: "{{ redirect_url }}"
-          # Ekstrak sesi_id dari redirect url untuk endpoint submit & jawab
-          capture:
-            - regexp: "/siswa/ujian/([0-9]+)/"
-              as: "sesi_id"
-          expect:
-            - statusCode: 200
-            # TODO: Cek apakah HTML response mengandung kata kunci tertentu
-            # - hasProperty: ... (Jika API berbentuk JSON)
+      - loop:
+          - get:
+              url: "/siswa/ujian/{{ sesi_id }}/soal/{{ $loopCount }}"
+              expect:
+                - statusCode: 200
 
-      - think: 15
+          - think: 2 # Dikurangi dari 15 → 2 detik agar VU bisa selesai
 
-      # ==============================================================
-      # STEP 4: Submit Jawaban (AJAX)
-      # ==============================================================
-      - post:
-          url: "/siswa/ujian/{{ sesi_id }}/jawab"
-          headers:
-            "X-CSRF-TOKEN": "{{ csrf_token }}"
-            "X-Requested-With": "XMLHttpRequest"
-            "Accept": "application/json"
-          form:
-            _token: "{{ csrf_token }}"
-            urutan: "1"
-            # TODO: Sesuaikan dengan ID opsi yang valid di DB
-            cbt_opsi_jawaban_id: "1" 
-          capture:
-            - json: "$.status"
-              as: "response_status"
-          expect:
-            - statusCode: 200
-            - contentType: "json"
-            - equals:
-                - "saved"
-                - "{{ response_status }}"
+          - post:
+              url: "/siswa/ujian/{{ sesi_id }}/jawab"
+              headers:
+                "X-CSRF-TOKEN": "{{ csrf_token }}"
+                "X-Requested-With": "XMLHttpRequest"
+                "Accept": "application/json"
+              form:
+                _token: "{{ csrf_token }}"
+                urutan: "{{ $loopCount }}"
+                jawaban_essay: "Jawaban Load Test ke-{{ $loopCount }}"
+              capture:
+                - json: "$.status"
+                  as: "response_status"
+              expect:
+                - statusCode: 200
+                - contentType: "json"
+                - equals:
+                    - "saved"
+                    - "{{ response_status }}"
 
-      - think: 5
+        # 10 soal per sesi ujian (dari 50, cukup untuk stress test DB write)
+        count: 10
+
+      - think: 3
 
       # ==============================================================
-      # STEP 5: Selesai Ujian / Submit Akhir
+      # STEP 5: Submit Ujian
       # ==============================================================
       - post:
           url: "/siswa/ujian/{{ sesi_id }}/submit"
           form:
             _token: "{{ csrf_token }}"
           expect:
-            # Redirect ke halaman hasil
-            - statusCode: 302 
+            - statusCode: 302
