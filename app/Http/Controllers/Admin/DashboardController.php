@@ -110,9 +110,7 @@ class DashboardController extends Controller
         });
 
         // --- DATA UNTUK GRAFIK (PESERTA DIDIK & KEUANGAN) ---
-        $chartData = Cache::remember("dash_chart_{$kantorId}_{$periodeId}", 3600, function() use ($periodeId, $filterKantorId) {
-            return $this->generateChartData($periodeId, $filterKantorId);
-        });
+        $chartData = $this->generateChartData($periodeId, $filterKantorId);
         
         $chartLabels        = $chartData['labels'];
         $chartPesertaMasuk  = $chartData['pesertaMasuk'];
