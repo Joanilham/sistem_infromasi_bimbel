@@ -19,10 +19,38 @@
     <style>
         [x-cloak] { display: none !important; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .bg-pattern {
-            background-color: #f8fafc;
-            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23e2e8f0' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        .input-animated {
+            transition: all 0.2s ease-in-out;
         }
+        .input-animated:focus-within {
+            transform: translateY(-1px);
+        }
+        /* Animated Blobs */
+        @keyframes blob {
+            0% { transform: translate(0px, 0px) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+            100% { transform: translate(0px, 0px) scale(1); }
+        }
+        .blob-shape {
+            position: absolute;
+            border-radius: 9999px;
+            mix-blend-mode: multiply;
+            filter: blur(64px);
+            opacity: 0.6;
+            width: 24rem;
+            height: 24rem;
+            animation: blob 7s infinite;
+        }
+        @media (max-width: 640px) {
+            .blob-shape {
+                width: 18rem;
+                height: 18rem;
+            }
+        }
+        .blob-1 { background-color: #d8b4fe; top: -5%; left: 15%; }
+        .blob-2 { background-color: #93c5fd; top: 15%; right: 15%; animation-delay: 2s; }
+        .blob-3 { background-color: #a5b4fc; bottom: -5%; left: 25%; animation-delay: 4s; }
         .custom-scrollbar::-webkit-scrollbar { width: 5px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
@@ -36,19 +64,29 @@
     </style>
     <link rel="stylesheet" href="{{ asset('css/loading.css') }}">
 </head>
-<body class="min-h-screen bg-pattern flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 text-slate-900 antialiased selection:bg-blue-200 selection:text-blue-900">
+<body class="min-h-screen bg-slate-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 text-slate-900 antialiased selection:bg-blue-200 selection:text-blue-900 overflow-hidden relative">
     
+    <!-- Background Animated Blobs (Pure CSS to ensure they always show) -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none flex items-center justify-center z-0">
+        <div class="blob-shape blob-1"></div>
+        <div class="blob-shape blob-2"></div>
+        <div class="blob-shape blob-3"></div>
+    </div>
     <div class="w-full max-w-md relative z-10">
         
         <!-- Logo -->
         <div class="flex justify-center mb-8">
             <div class="flex items-center gap-3">
-                <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-600/20">
-                    <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
-                </div>
-                <span class="text-2xl font-extrabold tracking-tight text-slate-900">Genius<span class="text-blue-600">Edu</span></span>
+                @if(isset($masterData) && $masterData->logo)
+                    <img src="{{ Storage::url($masterData->logo) }}" alt="Logo" class="h-12 w-auto object-contain drop-shadow-sm">
+                @else
+                    <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-600/20">
+                        <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                    </div>
+                @endif
+                <span class="text-2xl font-extrabold tracking-tight text-slate-900">{{ $masterData->nama_lembaga ?? 'Genius Education' }}</span>
             </div>
         </div>
 
