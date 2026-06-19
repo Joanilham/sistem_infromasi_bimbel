@@ -4,6 +4,10 @@
 
 @section('content')
 <div class="space-y-6">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.4/build/css/intlTelInput.css">
+    <style>
+        .iti { width: 100%; }
+    </style>
     {{-- Header --}}
     <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-zinc-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div>
@@ -201,12 +205,7 @@
 </div>
 @endsection
 
-@push('head')
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.4/build/css/intlTelInput.css">
-<style>
-    .iti { width: 100%; }
-</style>
-@endpush
+
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.4/build/js/intlTelInput.min.js"></script>
@@ -247,10 +246,7 @@ document.addEventListener('turbo:load', function() {
             });
             itiInstances.push({ input: input, iti: iti });
             
-            // Cegah input/paste teks (hanya boleh angka dan +)
-            input.addEventListener('input', function() {
-                this.value = this.value.replace(/[^\d+]/g, '');
-            });
+            // intlTelInput strictMode sudah mencegah input huruf, tidak perlu regex manual
         }
     });
 

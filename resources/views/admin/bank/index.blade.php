@@ -47,7 +47,7 @@
                                 {{ $bank->nama_bank }}
                             </td>
                             <td class="px-4 py-3 font-mono font-bold text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-zinc-800">
-                                {{ $bank->nomor_rekening }}
+                                {{ trim(chunk_split($bank->nomor_rekening, 4, '-'), '-') }}
                             </td>
                             <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-bold border border-slate-200 dark:border-zinc-800 leading-tight">
                                 {{ $bank->atas_nama }}

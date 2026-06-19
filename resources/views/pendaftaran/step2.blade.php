@@ -194,10 +194,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             itiInstances.push({ input: input, iti: iti });
             
-            // Cegah input/paste teks (hanya boleh angka dan +)
-            input.addEventListener('input', function() {
-                this.value = this.value.replace(/[^\d+]/g, '');
-            });
+            // intlTelInput strictMode sudah mencegah input huruf, tidak perlu regex manual
         }
     });
 
