@@ -28,26 +28,30 @@
             -webkit-backdrop-filter: blur(12px);
         }
         /* Fix for mobile horizontal scroll */
-        body {
+        html, body {
             max-width: 100%;
+        }
+        .wrapper {
             overflow-x: hidden;
+            width: 100%;
         }
     </style>
     <link rel="stylesheet" href="{{ asset('css/loading.css') }}">
 </head>
 <body class="bg-slate-50 text-slate-900 antialiased">
 
-    
-    @include('landing.partials.navbar')
-    @include('landing.partials.hero')
-    @include('landing.partials.features')
-    @include('landing.partials.programs')
-    @include('landing.partials.guru')
-    @include('landing.partials.about')
-    @include('landing.partials.mitra')
-    @include('landing.partials.footer')
-    @include('landing.partials.widget')
-    @include('landing.partials.modals')
+    <div class="wrapper">
+        @include('landing.partials.navbar')
+        @include('landing.partials.hero')
+        @include('landing.partials.features')
+        @include('landing.partials.programs')
+        @include('landing.partials.guru')
+        @include('landing.partials.about')
+        @include('landing.partials.mitra')
+        @include('landing.partials.footer')
+        @include('landing.partials.widget')
+        @include('landing.partials.modals')
+    </div>
 
     <!-- AOS JS -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
