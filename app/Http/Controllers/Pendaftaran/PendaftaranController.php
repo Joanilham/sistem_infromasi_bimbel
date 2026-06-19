@@ -223,7 +223,9 @@ class PendaftaranController extends Controller
     public function adminShow(PendaftaranSiswa $pendaftaran)
     {
         $pendaftaran->load(['paketBimbingan', 'kelompokBelajar', 'pembayaran', 'kantor']);
-        $kelompoks = KelompokBelajar::withCount('pesertaDidiks')->get();
+        $kelompoks = KelompokBelajar::withCount(['pesertaDidiks' => function ($query) {
+            $query->aktif()->inContext();
+        }])->get();
         return view('admin.pendaftaran.show', compact('pendaftaran', 'kelompoks'));
     }
 
