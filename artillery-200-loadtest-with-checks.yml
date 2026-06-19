@@ -64,7 +64,7 @@ scenarios:
       - get:
           url: "/login"
           capture:
-            - regexp: "name=\"csrf-token\" content=\"([^\"]+)\""
+            - regexp: "name=\"_token\" value=\"([^\"]+)\""
               group: 1
               as: "csrf_token"
           expect:
