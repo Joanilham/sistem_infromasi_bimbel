@@ -98,7 +98,7 @@ class PesertaDidikController extends Controller
 
             \App\Services\CacheService::clearPesertaCache();
 
-            return redirect()->route('peserta-didik.index')->with('success', 'Data Peserta Didik dan Akun berhasil ditambahkan!');
+            return redirect()->route('keuangan.pembayaran.show', $peserta->id)->with('success', 'Data Peserta Didik dan Akun berhasil ditambahkan. Silakan atur pembayaran siswa di sini.');
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Student Store Error: ' . $e->getMessage());
             return back()->withInput()->with('error', 'Terjadi kesalahan sistem saat menambahkan data siswa.');
