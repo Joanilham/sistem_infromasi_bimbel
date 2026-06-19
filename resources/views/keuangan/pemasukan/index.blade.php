@@ -13,13 +13,6 @@
         </div>
     </div>
 
-    @if(session('success'))
-        <div class="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800 text-emerald-800 dark:text-emerald-400 rounded-3xl px-8 py-4 text-sm font-bold flex items-center gap-3">
-            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-            {{ session('success') }}
-        </div>
-    @endif
-
     @if($errors->any())
         <div class="bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-800 text-rose-800 dark:text-rose-400 rounded-3xl px-8 py-4 text-sm font-bold flex flex-col gap-2">
             <div class="flex items-center gap-3">

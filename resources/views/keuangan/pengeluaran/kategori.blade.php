@@ -28,15 +28,6 @@
         </div>
     </div>
 
-    @if(session('success'))
-        <div class="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800 text-emerald-800 dark:text-emerald-400 rounded-3xl px-8 py-5 text-sm font-bold flex items-center gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
-            <div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-white shrink-0 shadow-lg shadow-emerald-500/20">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
-            </div>
-            {{ session('success') }}
-        </div>
-    @endif
-
     {{-- Form Tambah Section --}}
     <div class="bg-white dark:bg-zinc-900 rounded-[2rem] p-6 sm:p-8 border border-slate-100 dark:border-zinc-800 shadow-sm">
         <h2 class="font-black text-slate-900 dark:text-white mb-6 flex items-center justify-between gap-3 text-xs uppercase tracking-wider">
