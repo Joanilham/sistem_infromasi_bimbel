@@ -81,9 +81,9 @@ class PesertaDidikRequest extends FormRequest
         }
 
         if ($this->isMethod('put') || $this->isMethod('patch')) {
-            $rules['status']         = 'required|in:Aktif,Keluar';
-            $rules['tanggal_keluar'] = 'required_if:status,Keluar|nullable|date';
-            $rules['alasan_keluar']  = 'required_if:status,Keluar|nullable|string';
+            $rules['status']         = 'required|in:Aktif,Keluar,Lulus';
+            $rules['tanggal_keluar'] = 'required_if:status,Keluar,Lulus|nullable|date';
+            $rules['alasan_keluar']  = 'required_if:status,Keluar,Lulus|nullable|string';
             $rules['email']          = 'required|email|max:255|unique:users,email,' . $userId;
             $rules['password']       = 'nullable|string|min:8';
         } else {

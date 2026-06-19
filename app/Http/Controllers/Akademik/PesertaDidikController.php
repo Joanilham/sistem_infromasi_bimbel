@@ -125,8 +125,8 @@ class PesertaDidikController extends Controller
 
         $validated = $request->validated();
 
-        // Hapus field keluar jika status bukan Keluar
-        if ($validated['status'] !== 'Keluar') {
+        // Hapus field keluar jika status bukan Keluar atau Lulus
+        if (!in_array($validated['status'], ['Keluar', 'Lulus'])) {
             $validated['tanggal_keluar'] = null;
             $validated['alasan_keluar']  = null;
         }

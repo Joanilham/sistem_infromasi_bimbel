@@ -137,9 +137,9 @@
                     </div>
                     
                     {{-- Keluar Section --}}
-                    <div x-show="status === 'Keluar'" x-collapse>
+                    <div x-show="status === 'Keluar' || status === 'Lulus'" x-collapse>
                         <div class="p-6 bg-rose-50 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-900/50 rounded-2xl space-y-6 mt-4">
-                            <h4 class="text-[10px] font-black text-rose-600 dark:text-rose-500 uppercase tracking-widest border-b border-rose-200/50 pb-2">Informasi Keluar</h4>
+                            <h4 class="text-[10px] font-black text-rose-600 dark:text-rose-500 uppercase tracking-widest border-b border-rose-200/50 pb-2">Informasi Keluar / Lulus</h4>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                 <div class="space-y-2">
                                     <label class="block text-[10px] font-black text-rose-500 uppercase tracking-widest ml-1">Tanggal Keluar <span class="text-rose-500">*</span></label>
