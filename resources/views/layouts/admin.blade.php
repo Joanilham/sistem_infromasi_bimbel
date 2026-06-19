@@ -74,14 +74,14 @@
         /* Select Box */
         .flatpickr-monthDropdown-months { 
             appearance: none !important; -moz-appearance: none !important; -webkit-appearance: none !important; 
-            background: transparent !important; 
+            background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e") no-repeat right 0.1rem center/1.25rem 1.25rem !important;
             border: none !important; 
             color: #0f172a !important; 
             font-weight: 700 !important; 
             font-size: 1.05rem !important; 
             outline: none !important; 
             margin: 0 !important; 
-            padding: 0 0.25rem !important; 
+            padding: 0 1.25rem 0 0.25rem !important; 
             cursor: pointer !important; 
             width: auto !important; 
             box-shadow: none !important;
@@ -267,8 +267,7 @@
                     dateFormat: "Y-m-d",
                     altInput: true,
                     altFormat: "d F Y",
-                    allowInput: false,
-                    monthSelectorType: "static"
+                    allowInput: false
                 });
             });
 
@@ -297,8 +296,7 @@
                         dateFormat: "Y-m-d",
                         altInput: true,
                         altFormat: "d F Y",
-                        allowInput: false,
-                        monthSelectorType: "static"
+                        allowInput: false
                     });
                 }
             }, 50);
