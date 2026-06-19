@@ -27,16 +27,8 @@
     <link href="{{ asset('vendor/tom-select/tom-select.css') }}" rel="stylesheet" media="print" onload="this.media='all'">
     <noscript><link href="{{ asset('vendor/tom-select/tom-select.css') }}" rel="stylesheet"></noscript>
     
-    <!-- Flatpickr CSS -->
-    <link rel="stylesheet" href="{{ asset('vendor/flatpickr/flatpickr.min.css') }}" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="{{ asset('vendor/flatpickr/flatpickr.min.css') }}"></noscript>
-    
     <!-- TomSelect JS -->
     <script defer src="{{ asset('vendor/tom-select/tom-select.complete.min.js') }}"></script>
-    
-    <!-- Flatpickr JS -->
-    <script defer src="{{ asset('vendor/flatpickr/flatpickr.min.js') }}"></script>
-    <script defer src="{{ asset('vendor/flatpickr/id.js') }}"></script>
     
     <style>
         .ts-control { border-radius: 0.75rem !important; border: 1px solid #e2e8f0 !important; padding: 0.625rem 0.875rem !important; font-size: 0.875rem !important; box-shadow: none !important; }
@@ -59,78 +51,6 @@
         .ts-dropdown .dropdown-input { border: 1px solid #e2e8f0 !important; border-radius: 0.5rem !important; padding: 0.375rem 0.75rem !important; font-size: 0.875rem !important; }
         .dark .ts-dropdown .dropdown-input { border-color: #27272a !important; background-color: #27272a !important; color: #f4f4f5 !important; }
         .dark .ts-dropdown .dropdown-input::placeholder { color: #a1a1aa !important; }
-
-        /* =====================================================
-           FLATPICKR TAILWIND FIXES
-           ===================================================== */
-        .flatpickr-calendar { box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1) !important; border: 1px solid #e2e8f0 !important; border-radius: 1rem !important; padding-bottom: 5px !important; }
-        .dark .flatpickr-calendar { background: #18181b !important; border-color: #27272a !important; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3) !important; }
-
-        .flatpickr-current-month {
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            padding: 0 !important;
-            text-align: center !important;
-        }
-
-        /* Select Box */
-        .flatpickr-monthDropdown-months { 
-            appearance: none !important; -moz-appearance: none !important; -webkit-appearance: none !important; 
-            background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e") no-repeat right 0.1rem center/1.25rem 1.25rem !important;
-            border: none !important; 
-            color: #0f172a !important; 
-            font-weight: 700 !important; 
-            font-size: 1.05rem !important; 
-            outline: none !important; 
-            margin: 0 0.25rem 0 0 !important; 
-            padding: 0 1.25rem 0 0 !important; 
-            cursor: pointer !important; 
-            box-shadow: none !important;
-            width: auto !important;
-            display: inline-block !important;
-        }
-        .dark .flatpickr-monthDropdown-months { color: #f8fafc !important; }
-
-        /* Year Input */
-        .flatpickr-current-month .numInputWrapper {
-            width: auto !important;
-            display: inline-block !important;
-        }
-        .flatpickr-current-month .numInputWrapper input.cur-year { 
-            color: #0f172a !important; 
-            font-weight: 700 !important; 
-            font-size: 1.05rem !important; 
-            padding: 0 0.25rem !important; 
-            margin: 0 !important; 
-            border: none !important; 
-            background: transparent !important; 
-            box-shadow: none !important;
-            appearance: none !important;
-            -moz-appearance: none !important;
-            -webkit-appearance: none !important;
-            width: 6ch !important;
-            display: inline-block !important;
-        }
-        .dark .flatpickr-current-month .numInputWrapper input.cur-year { color: #f8fafc !important; }
-
-        /* Arrows */
-        .flatpickr-prev-month, .flatpickr-next-month { fill: #475569 !important; }
-        .dark .flatpickr-prev-month, .dark .flatpickr-next-month { fill: #94a3b8 !important; }
-
-        /* Days */
-        .flatpickr-day { border-radius: 0.5rem !important; margin: 2px !important; max-width: 36px !important; height: 36px !important; line-height: 36px !important; font-weight: 500 !important; color: #334155 !important; border: none !important; }
-        .flatpickr-day.selected { background: #4f46e5 !important; color: white !important; font-weight: 700 !important; }
-        .dark .flatpickr-day { color: #cbd5e1 !important; }
-        .dark .flatpickr-day.selected { background: #6366f1 !important; }
-        .dark .flatpickr-monthDropdown-months option { background: #18181b !important; color: #f4f4f5 !important; }
-        .dark .flatpickr-day:hover:not(.selected) { background: #27272a !important; }
-        .flatpickr-day:hover:not(.selected) { background: #f1f5f9 !important; }
-
-        span.flatpickr-weekday { color: #64748b !important; font-weight: 700 !important; font-size: 0.8rem !important; }
-        .dark span.flatpickr-weekday { color: #94a3b8 !important; }
-        .flatpickr-innerContainer { overflow: hidden !important; }
-        .flatpickr-rContainer { padding-bottom: 0 !important; }
     </style>
 
     @stack('head')
@@ -252,66 +172,6 @@
         });
     </script>
     
-    <!-- Flatpickr JS Initialization -->
-    <script>
-        const localeID = {
-            weekdays: {
-                shorthand: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
-                longhand: ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']
-            },
-            months: {
-                shorthand: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'],
-                longhand: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
-            },
-            firstDayOfWeek: 1
-        };
-
-        if (!window.hasRegisteredFlatpickrTurbo) {
-            document.addEventListener('turbo:load', function() {
-                // Clean up any stray flatpickr calendars before init
-                document.querySelectorAll('.flatpickr-calendar').forEach(el => el.remove());
-                
-                window.flatpickrInstances = flatpickr("input[type='date']", {
-                    locale: localeID,
-                    dateFormat: "Y-m-d",
-                    altInput: true,
-                    altFormat: "d F Y",
-                    allowInput: false
-                });
-            });
-
-            document.addEventListener('turbo:before-cache', function() {
-                if (window.flatpickrInstances) {
-                    if (Array.isArray(window.flatpickrInstances)) {
-                        window.flatpickrInstances.forEach(instance => {
-                            try { instance.destroy(); } catch(e){}
-                        });
-                    } else if (typeof window.flatpickrInstances.destroy === 'function') {
-                        try { window.flatpickrInstances.destroy(); } catch(e){}
-                    }
-                }
-            });
-            
-            window.hasRegisteredFlatpickrTurbo = true;
-        } else {
-            // If already registered but turbo replaces the body, turbo:load might have already fired,
-            // or will fire. Just to be absolutely safe, we manually call flatpickr if the inputs are raw.
-            setTimeout(() => {
-                const uninitialized = document.querySelectorAll("input[type='date']:not(.flatpickr-input)");
-                if (uninitialized.length > 0) {
-                    document.querySelectorAll('.flatpickr-calendar').forEach(el => el.remove());
-                    window.flatpickrInstances = flatpickr("input[type='date']", {
-                        locale: localeID,
-                        dateFormat: "Y-m-d",
-                        altInput: true,
-                        altFormat: "d F Y",
-                        allowInput: false
-                    });
-                }
-            }, 50);
-        }
-    </script>
-
     @include('components.loading-overlay')
 
     <script>
