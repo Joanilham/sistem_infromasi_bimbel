@@ -43,7 +43,7 @@ class GenerateLoadTestData extends Command
         $this->info("- Kelompok Belajar 'Kelas Load Test CBT' siap (ID: {$kelompok->id})");
 
         // 2. Cari ujian CBT yang aktif
-        $ujian = CbtUjian::where('is_aktif', true)->first();
+        $ujian = CbtUjian::aktif()->first();
         if (!$ujian) {
             $this->error("TIDAK ADA UJIAN AKTIF! Buat minimal 1 ujian CBT yang aktif dari panel Admin terlebih dahulu.");
             return 1;
