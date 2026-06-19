@@ -1,7 +1,10 @@
 config:
-  # Target nama container langsung (bypass Cloudflare)
-  target: "http://geniusedu-nginx:8080"
+  # Target diubah kembali ke domain publik (HTTPS) untuk mencegah masalah Cookie Session
+  # dan mismatch Origin/Referer yang menyebabkan error 419 CSRF Token Mismatch.
+  target: "https://bimbel.geniusedu.my.id"
   processor: "./processor.cjs"
+  tls:
+    rejectUnauthorized: false
 
   # Konfigurasi Plugin Expect untuk Functional Checks
   plugins:
@@ -49,9 +52,8 @@ config:
 
   defaults:
     headers:
-      User-Agent: "Artillery-CBT-LoadTest/WithChecks"
-      Origin: "http://geniusedu-nginx:8080"
-      Referer: "http://geniusedu-nginx:8080/"
+      User-Agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+      # Origin dan Referer dihapus karena jika hardcode, Laravel akan menolak request (419 Page Expired)
 
 scenarios:
   - name: "Skenario Ujian Lengkap"
@@ -62,7 +64,7 @@ scenarios:
       - get:
           url: "/login"
           capture:
-            - regexp: "name=\"_token\" value=\"([^\"]+)\""
+            - regexp: "name=\"csrf-token\" content=\"([^\"]+)\""
               group: 1
               as: "csrf_token"
           expect:

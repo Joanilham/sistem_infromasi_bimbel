@@ -42,18 +42,66 @@ class GenerateLoadTestData extends Command
         );
         $this->info("- Kelompok Belajar 'Kelas Load Test CBT' siap (ID: {$kelompok->id})");
 
-        // 2. Cari ujian CBT yang aktif
-        $ujian = CbtUjian::where('is_aktif', true)->first();
+        // 2. Cari ujian CBT yang aktif, jika tidak ada, buat otomatis 50 soal
+        $ujian = CbtUjian::aktif()->first();
         if (!$ujian) {
-            $this->error("TIDAK ADA UJIAN AKTIF! Buat minimal 1 ujian CBT yang aktif dari panel Admin terlebih dahulu.");
-            return 1;
+            $ujian = CbtUjian::first();
+            if ($ujian) {
+                $ujian->waktu_mulai = now()->subMinutes(10);
+                $ujian->waktu_selesai = now()->addDays(1);
+                $ujian->save();
+                $this->info("- Ujian '{$ujian->judul}' (ID: {$ujian->id}) tidak aktif, mengaktifkannya secara otomatis...");
+            } else {
+                $this->info("TIDAK ADA UJIAN DI DATABASE! Membangun Ujian Dummy 50 Soal otomatis...");
+                
+                $ujian = CbtUjian::create([
+                    'judul' => 'Ujian Load Test (50 Soal)',
+                    'deskripsi' => 'Ujian ini di-generate otomatis untuk keperluan Load Testing.',
+                    'durasi' => 120,
+                    'waktu_mulai' => now()->subMinutes(10),
+                    'waktu_selesai' => now()->addDays(1),
+                    'mode' => 'resmi',
+                    'acak_soal' => false,
+                    'acak_opsi' => false,
+                    'limit_attempt' => 1,
+                    'tampilkan_hasil' => true,
+                ]);
+
+                for ($i = 1; $i <= 50; $i++) {
+                    $bankSoal = \App\Models\CBT\CbtBankSoal::create([
+                        'tipe_soal' => 'pg',
+                        'tingkat_kesulitan' => 'easy',
+                        'pertanyaan' => "<p>Ini adalah pertanyaan dummy ke-{$i} untuk load test. Berapakah hasil dari {$i} + {$i}?</p>",
+                        'status' => 'published',
+                        'versi' => 1,
+                    ]);
+
+                    \App\Models\CBT\CbtUjianSoal::create([
+                        'cbt_ujian_id' => $ujian->id,
+                        'cbt_bank_soal_id' => $bankSoal->id,
+                        'bobot' => 2,
+                        'urutan' => $i,
+                    ]);
+
+                    for ($j = 0; $j < 5; $j++) {
+                        $opsi = chr(65 + $j); // A, B, C, D, E
+                        \App\Models\CBT\CbtOpsiJawaban::create([
+                            'cbt_bank_soal_id' => $bankSoal->id,
+                            'teks_opsi' => "<p>Opsi {$opsi} untuk soal {$i}</p>",
+                            'is_benar' => $j === 0, // Opsi A selalu benar
+                        ]);
+                    }
+                }
+                $this->info("- Berhasil membangun Ujian (ID: {$ujian->id}) dengan 50 soal pilihan ganda.");
+            }
+        } else {
+            $this->info("- Ditemukan Ujian Aktif: '{$ujian->judul}' (ID: {$ujian->id})");
         }
-        $this->info("- Ditemukan Ujian Aktif: '{$ujian->nama_ujian}' (ID: {$ujian->id})");
 
         // 3. Assign Kelompok Belajar ke Ujian tersebut (jika belum)
         CbtUjianAssign::firstOrCreate([
             'cbt_ujian_id' => $ujian->id,
-            'assign_type'  => 'kelompok',
+            'tipe_assign'  => 'kelas',
             'assign_id'    => $kelompok->id,
         ]);
         $this->info("- Ujian berhasil di-assign ke Kelompok Belajar.");
@@ -70,7 +118,19 @@ class GenerateLoadTestData extends Command
         for ($i = 1; $i <= $count; $i++) {
             $email = "loadtest{$i}@example.com";
 
-            // Buat User
+            // Buat Profil Peserta Didik terlebih dahulu (status otomatis Aktif)
+            $peserta = PesertaDidik::updateOrCreate(
+                ['nomor_induk' => "LT-{$i}"],
+                [
+                    'nama_lengkap' => "Siswa LoadTest {$i}",
+                    'jenis_kelamin' => 'L',
+                    'asal_sekolah' => 'SMA Load Test',
+                    'kelompok_belajar_id' => $kelompok->id,
+                    'status' => 'Aktif'
+                ]
+            );
+
+            // Buat User lalu hubungkan dengan profil Peserta Didik yang baru dibuat
             $user = User::updateOrCreate(
                 ['email' => $email],
                 [
@@ -79,18 +139,7 @@ class GenerateLoadTestData extends Command
                     'level' => 'siswa',
                     'is_active' => true,
                     'email_verified_at' => now(),
-                ]
-            );
-
-            // Buat Profil Peserta Didik (status otomatis Aktif)
-            PesertaDidik::updateOrCreate(
-                ['user_id' => $user->id],
-                [
-                    'nama_lengkap' => "Siswa LoadTest {$i}",
-                    'jenis_kelamin' => 'L',
-                    'asal_sekolah' => 'SMA Load Test',
-                    'kelompok_belajar_id' => $kelompok->id,
-                    'status' => 'Aktif'
+                    'peserta_didik_id' => $peserta->id,
                 ]
             );
 
@@ -103,12 +152,12 @@ class GenerateLoadTestData extends Command
         $this->newLine();
 
         // 5. Tulis file CSV
-        $csvPath = base_path('siswa_data.csv');
+        $csvPath = storage_path('app/siswa_data.csv');
         File::put($csvPath, $csvData);
 
         $this->info("✅ Berhasil generate {$count} data siswa.");
         $this->info("✅ File CSV berhasil dibuat: {$csvPath}");
-        $this->info("Sekarang Anda bisa menjalankan tes dengan Artillery!");
+        $this->info("Silakan pindahkan file tersebut ke folder yang sama dengan script Artillery Anda.");
 
         return 0;
     }
