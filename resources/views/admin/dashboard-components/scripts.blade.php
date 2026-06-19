@@ -1,6 +1,10 @@
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script>
-    (function () {
+    if (window.renderDashboardCharts) {
+        document.removeEventListener('turbo:load', window.renderDashboardCharts);
+    }
+
+    window.renderDashboardCharts = function () {
         const isDark = document.documentElement.classList.contains('dark');
         const gridColor = isDark ? '#334155' : '#f1f5f9';
 
@@ -64,10 +68,10 @@
 
         const containerPeserta = document.querySelector("#chart-peserta-didik");
         if (containerPeserta) {
-            containerPeserta.innerHTML = '';
             if (window.chartPesertaInstance) {
-                window.chartPesertaInstance.destroy();
+                try { window.chartPesertaInstance.destroy(); } catch(e){}
             }
+            containerPeserta.innerHTML = '';
             window.chartPesertaInstance = new ApexCharts(containerPeserta, optionsPeserta);
             window.chartPesertaInstance.render();
         }
@@ -139,14 +143,24 @@
 
         const containerKeuangan = document.querySelector("#chart-keuangan");
         if (containerKeuangan) {
-            containerKeuangan.innerHTML = '';
             if (window.chartKeuanganInstance) {
-                window.chartKeuanganInstance.destroy();
+                try { window.chartKeuanganInstance.destroy(); } catch(e){}
             }
+            containerKeuangan.innerHTML = '';
             window.chartKeuanganInstance = new ApexCharts(containerKeuangan, optionsKeuangan);
             window.chartKeuanganInstance.render();
         }
-    })();
+    };
+
+    document.addEventListener('turbo:load', window.renderDashboardCharts);
+    
+    // Fallback: render after a short delay if turbo:load is missed
+    setTimeout(() => {
+        if (document.querySelector("#chart-peserta-didik") && !document.querySelector("#chart-peserta-didik").innerHTML.trim()) {
+            window.renderDashboardCharts();
+        }
+    }, 150);
+
 
     window.dashboardClock = () => ({
         time: '00:00:00',
