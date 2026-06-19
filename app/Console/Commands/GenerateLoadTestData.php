@@ -53,7 +53,7 @@ class GenerateLoadTestData extends Command
         // 3. Assign Kelompok Belajar ke Ujian tersebut (jika belum)
         CbtUjianAssign::firstOrCreate([
             'cbt_ujian_id' => $ujian->id,
-            'assign_type'  => 'kelompok',
+            'tipe_assign'  => 'kelas',
             'assign_id'    => $kelompok->id,
         ]);
         $this->info("- Ujian berhasil di-assign ke Kelompok Belajar.");
