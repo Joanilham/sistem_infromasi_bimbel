@@ -66,6 +66,14 @@
         .flatpickr-calendar { box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1) !important; border: 1px solid #e2e8f0 !important; border-radius: 1rem !important; padding-bottom: 5px !important; }
         .dark .flatpickr-calendar { background: #18181b !important; border-color: #27272a !important; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3) !important; }
 
+        .flatpickr-current-month {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 0 !important;
+            text-align: center !important;
+        }
+
         /* Select Box */
         .flatpickr-monthDropdown-months { 
             appearance: none !important; -moz-appearance: none !important; -webkit-appearance: none !important; 
@@ -75,14 +83,20 @@
             font-weight: 700 !important; 
             font-size: 1.05rem !important; 
             outline: none !important; 
-            margin: 0 !important; 
+            margin: 0 0.25rem 0 0 !important; 
             padding: 0 1.25rem 0 0 !important; 
             cursor: pointer !important; 
             box-shadow: none !important;
+            width: auto !important;
+            display: inline-block !important;
         }
         .dark .flatpickr-monthDropdown-months { color: #f8fafc !important; }
 
         /* Year Input */
+        .flatpickr-current-month .numInputWrapper {
+            width: auto !important;
+            display: inline-block !important;
+        }
         .flatpickr-current-month .numInputWrapper input.cur-year { 
             color: #0f172a !important; 
             font-weight: 700 !important; 
@@ -95,6 +109,8 @@
             appearance: none !important;
             -moz-appearance: none !important;
             -webkit-appearance: none !important;
+            width: 6ch !important;
+            display: inline-block !important;
         }
         .dark .flatpickr-current-month .numInputWrapper input.cur-year { color: #f8fafc !important; }
 
