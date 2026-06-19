@@ -200,7 +200,7 @@ window.toggleInformasiLainnya = function(selectEl) {
     }
 };
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('turbo:load', function() {
     const phoneInputs = [
         document.querySelector("#no_telepon"),
         document.querySelector("#no_telepon_ayah"),
