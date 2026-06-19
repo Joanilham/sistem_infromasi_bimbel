@@ -84,9 +84,13 @@ class GuruController extends Controller
             \App\Services\CacheService::clearGuruCache();
 
             return redirect()->route('manajemen-guru.index')->with('success', 'Guru berhasil ditambahkan.');
-        } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Guru Store Error: ' . $e->getMessage());
-            return back()->withInput()->with('error', 'Terjadi kesalahan sistem saat menambahkan data guru.');
+        } catch (\Throwable $e) {
+            try {
+                \Illuminate\Support\Facades\Log::error('Guru Store Error: ' . $e->getMessage());
+            } catch (\Throwable $logError) {
+                // Ignore log errors (e.g. permission denied on storage/logs)
+            }
+            return back()->withInput()->with('error', 'Error: ' . $e->getMessage());
         }
     }
 
@@ -134,9 +138,13 @@ class GuruController extends Controller
             \App\Services\CacheService::clearGuruCache();
 
             return redirect()->route('manajemen-guru.index')->with('success', 'Data guru berhasil diperbarui.');
-        } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Guru Update Error: ' . $e->getMessage());
-            return back()->withInput()->with('error', 'Terjadi kesalahan sistem saat memperbarui data guru.');
+        } catch (\Throwable $e) {
+            try {
+                \Illuminate\Support\Facades\Log::error('Guru Update Error: ' . $e->getMessage());
+            } catch (\Throwable $logError) {
+                // Ignore log errors
+            }
+            return back()->withInput()->with('error', 'Error: ' . $e->getMessage());
         }
     }
 
