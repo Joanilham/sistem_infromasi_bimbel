@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Peserta Didik Keluar')
+@section('title', 'Peserta Didik Keluar / Lulus')
 
 @section('content')
 <div class="space-y-6" x-data="ajaxTable()">
@@ -8,8 +8,8 @@
     {{-- Header --}}
     <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-zinc-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div>
-            <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Peserta Didik Keluar</h1>
-            <p class="text-slate-500 dark:text-slate-400 mt-2 text-sm font-medium">Monitoring dan rekap data peserta didik yang sudah tidak aktif belajar di lembaga.</p>
+            <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Peserta Didik Keluar / Lulus</h1>
+            <p class="text-slate-500 dark:text-slate-400 mt-2 text-sm font-medium">Monitoring dan rekap data peserta didik yang sudah lulus atau tidak aktif belajar di lembaga.</p>
         </div>
         <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto shrink-0">
             <a href="{{ route('peserta-didik.keluar.export') }}"
