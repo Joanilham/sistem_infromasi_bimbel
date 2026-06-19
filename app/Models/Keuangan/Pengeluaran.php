@@ -16,7 +16,7 @@ class Pengeluaran extends Model
 
     protected $table = 'pengeluaran';
 
-    protected $fillable = ['tanggal', 'kategori_id', 'nominal', 'keterangan', 'user_id'];
+    protected $fillable = ['kantor_id', 'tanggal', 'kategori_id', 'nominal', 'keterangan', 'user_id'];
 
 
     protected $casts = ['tanggal' => 'date', 'nominal' => 'integer'];
