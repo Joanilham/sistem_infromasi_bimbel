@@ -69,6 +69,19 @@ class GenerateLoadTestData extends Command
 
         for ($i = 1; $i <= $count; $i++) {
             $email = "loadtest{$i}@example.com";
+            $nisn = "LDTST" . str_pad($i, 5, '0', STR_PAD_LEFT);
+
+            // Buat Profil Peserta Didik (status otomatis Aktif)
+            $peserta = PesertaDidik::updateOrCreate(
+                ['nisn' => $nisn],
+                [
+                    'nama_lengkap' => "Siswa LoadTest {$i}",
+                    'jenis_kelamin' => 'L',
+                    'asal_sekolah' => 'SMA Load Test',
+                    'kelompok_belajar_id' => $kelompok->id,
+                    'status' => 'Aktif'
+                ]
+            );
 
             // Buat User
             $user = User::updateOrCreate(
@@ -77,20 +90,9 @@ class GenerateLoadTestData extends Command
                     'name' => "Siswa LoadTest {$i}",
                     'password' => $hashedPassword,
                     'level' => 'siswa',
+                    'peserta_didik_id' => $peserta->id,
                     'is_active' => true,
                     'email_verified_at' => now(),
-                ]
-            );
-
-            // Buat Profil Peserta Didik (status otomatis Aktif)
-            PesertaDidik::updateOrCreate(
-                ['user_id' => $user->id],
-                [
-                    'nama_lengkap' => "Siswa LoadTest {$i}",
-                    'jenis_kelamin' => 'L',
-                    'asal_sekolah' => 'SMA Load Test',
-                    'kelompok_belajar_id' => $kelompok->id,
-                    'status' => 'Aktif'
                 ]
             );
 
