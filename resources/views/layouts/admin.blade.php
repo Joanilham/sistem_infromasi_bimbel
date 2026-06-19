@@ -267,7 +267,8 @@
                     dateFormat: "Y-m-d",
                     altInput: true,
                     altFormat: "d F Y",
-                    allowInput: false
+                    allowInput: false,
+                    monthSelectorType: "static"
                 });
             });
 
@@ -296,7 +297,8 @@
                         dateFormat: "Y-m-d",
                         altInput: true,
                         altFormat: "d F Y",
-                        allowInput: false
+                        allowInput: false,
+                        monthSelectorType: "static"
                     });
                 }
             }, 50);
