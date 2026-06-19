@@ -264,11 +264,18 @@ document.addEventListener('turbo:load', function() {
                 utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.4/build/js/utils.js",
                 showSelectedDialCode: true,
                 countrySearch: true,
-                strictMode: true
+                strictMode: false
             });
             itiInstances.push({ input: input, iti: iti });
             
-            // intlTelInput strictMode sudah mencegah input huruf, tidak perlu regex manual
+            // Izinkan angka, spasi, dan strip, format pada saat inisialisasi
+            input.addEventListener('input', function() {
+                this.value = this.value.replace(/[^0-9\-\s+]/g, '');
+            });
+            
+            if (input.value) {
+                setTimeout(() => iti.setNumber(input.value), 500);
+            }
         }
     });
 
