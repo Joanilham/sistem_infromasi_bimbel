@@ -90,7 +90,7 @@ export default function () {
     for (let i = 1; i <= 10; i++) {
         // A. Buka Halaman Soal
         let soalRes = http.get(`${BASE_URL}/siswa/ujian/${sesi_id}/soal/${i}`);
-        check(soalRes, { `Buka Soal ke-${i} berhasil`: (r) => r.status === 200 });
+        check(soalRes, { [`Buka Soal ke-${i} berhasil`]: (r) => r.status === 200 });
         
         // Simulasikan waktu berpikir untuk menjawab (3 detik)
         sleep(3);
@@ -111,7 +111,7 @@ export default function () {
                 }
             }
         );
-        check(jawabRes, { `Jawab Soal ke-${i} sukses`: (r) => r.status === 200 });
+        check(jawabRes, { [`Jawab Soal ke-${i} sukses`]: (r) => r.status === 200 });
     }
 
     // ==============================================================
