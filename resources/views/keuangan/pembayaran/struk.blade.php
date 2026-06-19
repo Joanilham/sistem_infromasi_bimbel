@@ -29,8 +29,6 @@
             margin: 0; 
             padding: 40px 20px; 
             background-color: var(--bg-body); 
-            display: flex; 
-            justify-content: center; 
             color: var(--text-main);
             -webkit-font-smoothing: antialiased;
         }
@@ -43,6 +41,7 @@
             border-radius: 16px;
             position: relative;
             overflow: hidden;
+            margin: 0 auto;
         }
         .receipt-container::before {
             content: '';
