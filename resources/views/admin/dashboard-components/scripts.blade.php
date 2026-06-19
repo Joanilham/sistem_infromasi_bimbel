@@ -1,6 +1,6 @@
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script>
-    document.addEventListener('turbo:load', function () {
+    (function () {
         const isDark = document.documentElement.classList.contains('dark');
         const gridColor = isDark ? '#334155' : '#f1f5f9';
 
@@ -64,6 +64,7 @@
 
         const containerPeserta = document.querySelector("#chart-peserta-didik");
         if (containerPeserta) {
+            containerPeserta.innerHTML = '';
             if (window.chartPesertaInstance) {
                 window.chartPesertaInstance.destroy();
             }
@@ -138,48 +139,47 @@
 
         const containerKeuangan = document.querySelector("#chart-keuangan");
         if (containerKeuangan) {
+            containerKeuangan.innerHTML = '';
             if (window.chartKeuanganInstance) {
                 window.chartKeuanganInstance.destroy();
             }
             window.chartKeuanganInstance = new ApexCharts(containerKeuangan, optionsKeuangan);
             window.chartKeuanganInstance.render();
         }
-    });
+    })();
 
-    document.addEventListener('alpine:init', () => {
-        window.dashboardClock = () => ({
-            time: '00:00:00',
-            date: 'Memuat...',
-            zonaWaktu: 'WIB',
+    window.dashboardClock = () => ({
+        time: '00:00:00',
+        date: 'Memuat...',
+        zonaWaktu: 'WIB',
 
-            init() {
-                this.updateClock();
-                setInterval(() => this.updateClock(), 1000);
-            },
+        init() {
+            this.updateClock();
+            setInterval(() => this.updateClock(), 1000);
+        },
 
-            updateClock() {
-                const now = new Date();
+        updateClock() {
+            const now = new Date();
 
-                this.time = now.toLocaleTimeString('id-ID', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                    hour12: false
-                }).replace(/\./g, ':');
+            this.time = now.toLocaleTimeString('id-ID', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            }).replace(/\./g, ':');
 
-                this.date = now.toLocaleDateString('id-ID', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                });
+            this.date = now.toLocaleDateString('id-ID', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
 
-                const offset = -now.getTimezoneOffset() / 60;
-                if (offset === 7) this.zonaWaktu = 'Waktu Indonesia Barat (WIB)';
-                else if (offset === 8) this.zonaWaktu = 'Waktu Indonesia Tengah (WITA)';
-                else if (offset === 9) this.zonaWaktu = 'Waktu Indonesia Timur (WIT)';
-                else this.zonaWaktu = 'Waktu Lokal: GMT' + (offset > 0 ? '+' : '') + offset;
-            }
-        });
+            const offset = -now.getTimezoneOffset() / 60;
+            if (offset === 7) this.zonaWaktu = 'Waktu Indonesia Barat (WIB)';
+            else if (offset === 8) this.zonaWaktu = 'Waktu Indonesia Tengah (WITA)';
+            else if (offset === 9) this.zonaWaktu = 'Waktu Indonesia Timur (WIT)';
+            else this.zonaWaktu = 'Waktu Lokal: GMT' + (offset > 0 ? '+' : '') + offset;
+        }
     });
 </script>
