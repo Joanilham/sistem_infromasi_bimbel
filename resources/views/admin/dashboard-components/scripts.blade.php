@@ -62,8 +62,14 @@
             }
         };
 
-        var chartPeserta = new ApexCharts(document.querySelector("#chart-peserta-didik"), optionsPeserta);
-        chartPeserta.render();
+        const containerPeserta = document.querySelector("#chart-peserta-didik");
+        if (containerPeserta) {
+            if (window.chartPesertaInstance) {
+                window.chartPesertaInstance.destroy();
+            }
+            window.chartPesertaInstance = new ApexCharts(containerPeserta, optionsPeserta);
+            window.chartPesertaInstance.render();
+        }
 
         // 2. Chart Keuangan
         var optionsKeuangan = {
@@ -130,8 +136,14 @@
             }
         };
 
-        var chartKeuangan = new ApexCharts(document.querySelector("#chart-keuangan"), optionsKeuangan);
-        chartKeuangan.render();
+        const containerKeuangan = document.querySelector("#chart-keuangan");
+        if (containerKeuangan) {
+            if (window.chartKeuanganInstance) {
+                window.chartKeuanganInstance.destroy();
+            }
+            window.chartKeuanganInstance = new ApexCharts(containerKeuangan, optionsKeuangan);
+            window.chartKeuanganInstance.render();
+        }
     });
 
     document.addEventListener('alpine:init', () => {
