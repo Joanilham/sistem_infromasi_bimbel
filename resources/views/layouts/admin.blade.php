@@ -181,13 +181,25 @@
     
     <!-- Flatpickr JS Initialization -->
     <script>
+        const localeID = {
+            weekdays: {
+                shorthand: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
+                longhand: ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']
+            },
+            months: {
+                shorthand: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'],
+                longhand: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
+            },
+            firstDayOfWeek: 1
+        };
+
         if (!window.hasRegisteredFlatpickrTurbo) {
             document.addEventListener('turbo:load', function() {
                 // Clean up any stray flatpickr calendars before init
                 document.querySelectorAll('.flatpickr-calendar').forEach(el => el.remove());
                 
                 window.flatpickrInstances = flatpickr("input[type='date']", {
-                    locale: "id",
+                    locale: localeID,
                     dateFormat: "Y-m-d",
                     altInput: true,
                     altFormat: "d F Y",
@@ -216,7 +228,7 @@
                 if (uninitialized.length > 0) {
                     document.querySelectorAll('.flatpickr-calendar').forEach(el => el.remove());
                     window.flatpickrInstances = flatpickr("input[type='date']", {
-                        locale: "id",
+                        locale: localeID,
                         dateFormat: "Y-m-d",
                         altInput: true,
                         altFormat: "d F Y",
