@@ -178,13 +178,28 @@
     <script defer src="{{ asset('vendor/flatpickr/id.js') }}"></script>
     <script>
         document.addEventListener('turbo:load', function() {
-            flatpickr("input[type='date']", {
+            // Clean up any stray flatpickr calendars before init
+            document.querySelectorAll('.flatpickr-calendar').forEach(el => el.remove());
+            
+            window.flatpickrInstances = flatpickr("input[type='date']", {
                 locale: "id",
                 dateFormat: "Y-m-d",
                 altInput: true,
                 altFormat: "d F Y",
                 allowInput: false
             });
+        });
+
+        document.addEventListener('turbo:before-cache', function() {
+            if (window.flatpickrInstances) {
+                if (Array.isArray(window.flatpickrInstances)) {
+                    window.flatpickrInstances.forEach(instance => {
+                        try { instance.destroy(); } catch(e){}
+                    });
+                } else if (typeof window.flatpickrInstances.destroy === 'function') {
+                    try { window.flatpickrInstances.destroy(); } catch(e){}
+                }
+            }
         });
     </script>
 
