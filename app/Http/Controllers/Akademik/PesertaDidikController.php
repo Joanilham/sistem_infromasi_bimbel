@@ -67,22 +67,38 @@ class PesertaDidikController extends Controller
         $validated = $request->validated();
 
         try {
-            $peserta = PesertaDidik::create($validated + [
-                'status' => 'Aktif',
-                'kantor_id' => session('kantor_id'),
-                'periode_id' => session('periode_id')
-            ]);
+            \Illuminate\Support\Facades\DB::transaction(function () use ($validated, $request, &$peserta) {
+                $peserta = PesertaDidik::create($validated + [
+                    'status' => 'Aktif',
+                    'kantor_id' => session('kantor_id'),
+                    'periode_id' => session('periode_id')
+                ]);
+
+                // Buat akun User
+                \App\Models\User::create([
+                    'name'             => $peserta->nama_lengkap,
+                    'email'            => $validated['email'],
+                    'username'         => $validated['email'],
+                    'password'         => \Illuminate\Support\Facades\Hash::make($validated['password']),
+                    'level'            => 'siswa',
+                    'is_active'        => true,
+                    'status'           => 'aktif',
+                    'kantor_id'        => $peserta->kantor_id,
+                    'periode_id'       => $peserta->periode_id,
+                    'peserta_didik_id' => $peserta->id,
+                ]);
+            });
 
             // Kirim Notifikasi WA (Manual Add)
             $nomor = $peserta->no_telepon ?? $peserta->no_telepon_ayah ?? $peserta->no_telepon_ibu;
             if ($nomor) {
-                $pesan = "📚 *Data Siswa Aktif*\n\nHalo *{$peserta->nama_lengkap}*,\n\nAdmin telah menambahkan data Anda ke dalam sistem Bimbingan Belajar. Anda sekarang telah terdaftar sebagai siswa aktif.\n\nSelamat belajar dan sukses selalu! 🙏";
+                $pesan = "📚 *Data Siswa Aktif*\n\nHalo *{$peserta->nama_lengkap}*,\n\nAdmin telah menambahkan data Anda ke dalam sistem Bimbingan Belajar. Anda sekarang telah terdaftar sebagai siswa aktif.\n\nAkun Login Anda:\nEmail: {$request->email}\nPassword: {$request->password}\n\nSelamat belajar dan sukses selalu! 🙏";
                 \App\Services\WhatsAppService::sendAsync($nomor, $pesan);
             }
 
             \App\Services\CacheService::clearPesertaCache();
 
-            return redirect()->route('peserta-didik.index')->with('success', 'Data Peserta Didik berhasil ditambahkan!');
+            return redirect()->route('peserta-didik.index')->with('success', 'Data Peserta Didik dan Akun berhasil ditambahkan!');
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Student Store Error: ' . $e->getMessage());
             return back()->withInput()->with('error', 'Terjadi kesalahan sistem saat menambahkan data siswa.');
@@ -116,7 +132,41 @@ class PesertaDidikController extends Controller
         }
 
         try {
-            $pesertaDidik->update($validated);
+            \Illuminate\Support\Facades\DB::transaction(function () use ($pesertaDidik, $validated, $request) {
+                $pesertaDidik->update($validated);
+
+                // Update User
+                $user = \App\Models\User::where('peserta_didik_id', $pesertaDidik->id)->first();
+                if ($user) {
+                    $userData = [
+                        'name'     => $validated['nama_lengkap'],
+                        'email'    => $validated['email'],
+                        'username' => $validated['email'],
+                        'status'   => strtolower($validated['status']),
+                    ];
+                    if (!empty($validated['password'])) {
+                        $userData['password'] = \Illuminate\Support\Facades\Hash::make($validated['password']);
+                    }
+                    $user->update($userData);
+                } else {
+                    // Jika sebelumnya belum punya akun, buatkan
+                    if (!empty($validated['email']) && !empty($validated['password'])) {
+                        \App\Models\User::create([
+                            'name'             => $pesertaDidik->nama_lengkap,
+                            'email'            => $validated['email'],
+                            'username'         => $validated['email'],
+                            'password'         => \Illuminate\Support\Facades\Hash::make($validated['password']),
+                            'level'            => 'siswa',
+                            'is_active'        => true,
+                            'status'           => strtolower($validated['status']),
+                            'kantor_id'        => $pesertaDidik->kantor_id,
+                            'periode_id'       => $pesertaDidik->periode_id,
+                            'peserta_didik_id' => $pesertaDidik->id,
+                        ]);
+                    }
+                }
+            });
+
             \App\Services\CacheService::clearPesertaCache();
             return redirect()->route('peserta-didik.index')->with('success', 'Data Peserta Didik berhasil diperbarui!');
         } catch (\Exception $e) {
@@ -131,11 +181,18 @@ class PesertaDidikController extends Controller
     public function destroy(string $id)
     {
         $pesertaDidik = PesertaDidik::inContext()->findOrFail($id);
-        $pesertaDidik->delete();
+        
+        \Illuminate\Support\Facades\DB::transaction(function () use ($pesertaDidik) {
+            $user = \App\Models\User::where('peserta_didik_id', $pesertaDidik->id)->first();
+            if ($user) {
+                $user->delete();
+            }
+            $pesertaDidik->delete();
+        });
 
         \App\Services\CacheService::clearPesertaCache();
 
-        return redirect()->back()->with('success', 'Data Peserta Didik berhasil dihapus!');
+        return redirect()->back()->with('success', 'Data Peserta Didik beserta Akun berhasil dihapus!');
     }
 
     /**

@@ -193,6 +193,28 @@
                     </div>
                 </div>
 
+                {{-- Akun Siswa --}}
+                @php
+                    $userAkun = \App\Models\User::where('peserta_didik_id', $pesertaDidik->id)->first();
+                @endphp
+                <div class="space-y-4">
+                    <h3 class="text-xs font-black uppercase tracking-widest text-emerald-500 flex items-center gap-2 border-b border-slate-100 dark:border-zinc-800 pb-2">
+                        <span class="w-6 h-6 rounded bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center">4</span> Akun Login Siswa
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-slate-50/50 dark:bg-zinc-900/50 p-6 rounded-3xl border border-slate-100 dark:border-zinc-800">
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Email Aktif <span class="text-rose-500">*</span></label>
+                            <input type="email" name="email" required value="{{ old('email', $userAkun ? $userAkun->email : '') }}" placeholder="Email untuk login aplikasi" class="w-full border bg-white dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-sm font-bold py-2.5 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
+                            @error('email')<p class="text-xs text-rose-500 mt-1 font-bold">{{ $message }}</p>@enderror
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Password Baru</label>
+                            <input type="password" name="password" placeholder="{{ $userAkun ? 'Kosongkan jika tidak ingin diubah' : 'Minimal 8 karakter' }}" class="w-full border bg-white dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-sm font-bold py-2.5 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
+                            @error('password')<p class="text-xs text-rose-500 mt-1 font-bold">{{ $message }}</p>@enderror
+                        </div>
+                    </div>
+                </div>
+
             </div>
             
             {{-- Footer --}}

@@ -71,10 +71,24 @@ class PesertaDidikRequest extends FormRequest
             'kelompok_belajar_id' => 'nullable|exists:kelompok_belajars,id',
         ];
 
+        // Dapatkan user terkait jika sedang update
+        $userId = null;
+        if ($id) {
+            $user = \App\Models\User::where('peserta_didik_id', $id)->first();
+            if ($user) {
+                $userId = $user->id;
+            }
+        }
+
         if ($this->isMethod('put') || $this->isMethod('patch')) {
             $rules['status']         = 'required|in:Aktif,Keluar';
             $rules['tanggal_keluar'] = 'required_if:status,Keluar|nullable|date';
             $rules['alasan_keluar']  = 'required_if:status,Keluar|nullable|string';
+            $rules['email']          = 'required|email|max:255|unique:users,email,' . $userId;
+            $rules['password']       = 'nullable|string|min:8';
+        } else {
+            $rules['email']          = 'required|email|max:255|unique:users,email';
+            $rules['password']       = 'required|string|min:8';
         }
 
         return $rules;
