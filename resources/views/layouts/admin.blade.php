@@ -31,6 +31,13 @@
     <link rel="stylesheet" href="{{ asset('vendor/flatpickr/flatpickr.min.css') }}" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="{{ asset('vendor/flatpickr/flatpickr.min.css') }}"></noscript>
     
+    <!-- TomSelect JS -->
+    <script defer src="{{ asset('vendor/tom-select/tom-select.complete.min.js') }}"></script>
+    
+    <!-- Flatpickr JS -->
+    <script defer src="{{ asset('vendor/flatpickr/flatpickr.min.js') }}"></script>
+    <script defer src="{{ asset('vendor/flatpickr/id.js') }}"></script>
+    
     <style>
         .ts-control { border-radius: 0.75rem !important; border: 1px solid #e2e8f0 !important; padding: 0.625rem 0.875rem !important; font-size: 0.875rem !important; box-shadow: none !important; }
         .ts-dropdown { border-radius: 0.75rem !important; border: 1px solid #e2e8f0 !important; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important; font-size: 0.875rem !important; }
@@ -147,8 +154,7 @@
 
     @stack('scripts')
     
-    <!-- TomSelect JS -->
-    <script defer src="{{ asset('vendor/tom-select/tom-select.complete.min.js') }}"></script>
+    <!-- TomSelect JS Initialization -->
     <script>
         // Init pada saat load awal atau setelah pergantian halaman via Turbo
         document.addEventListener('turbo:load', function() {
@@ -173,9 +179,7 @@
         });
     </script>
     
-    <!-- Flatpickr JS -->
-    <script defer src="{{ asset('vendor/flatpickr/flatpickr.min.js') }}"></script>
-    <script defer src="{{ asset('vendor/flatpickr/id.js') }}"></script>
+    <!-- Flatpickr JS Initialization -->
     <script>
         if (!window.hasRegisteredFlatpickrTurbo) {
             document.addEventListener('turbo:load', function() {
