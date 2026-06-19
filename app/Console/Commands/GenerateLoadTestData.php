@@ -109,7 +109,7 @@ class GenerateLoadTestData extends Command
         $this->newLine();
 
         // 5. Tulis file JSON
-        $jsonPath = base_path('siswa_data.json');
+        $jsonPath = storage_path('app/siswa_data.json');
         File::put($jsonPath, json_encode($jsonData, JSON_PRETTY_PRINT));
 
         $this->info("✅ Berhasil generate {$count} data siswa.");

@@ -5,7 +5,7 @@ import { SharedArray } from 'k6/data';
 
 // 1. Membaca data siswa yang dihasilkan oleh GenerateLoadTestData
 const siswaData = new SharedArray('siswa', function () {
-    return JSON.parse(open('./siswa_data.json')); 
+    return JSON.parse(open('./storage/app/siswa_data.json')); 
 });
 
 export const options = {
