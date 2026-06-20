@@ -52,7 +52,16 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
-                        Peserta Didik Keluar / Lulus
+                        Peserta Didik Keluar
+                    </a>
+                    <a href="{{ route('peserta-didik.lulus') }}"
+                        class="flex items-center gap-3 px-3 py-2 rounded-xl {{ request()->routeIs('peserta-didik.lulus') ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 font-bold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-zinc-800 hover:text-slate-900 dark:hover:text-white' }} transition-all text-sm font-medium">
+                        <div class="w-7 h-7 rounded-lg flex items-center justify-center {{ request()->routeIs('peserta-didik.lulus') ? 'bg-indigo-500' : 'bg-indigo-100 dark:bg-indigo-900/50' }}">
+                            <svg class="w-4 h-4 {{ request()->routeIs('peserta-didik.lulus') ? 'text-white' : 'text-indigo-600 dark:text-indigo-400' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                            </svg>
+                        </div>
+                        Peserta Didik Lulus
                     </a>
                 </div>
             </div>

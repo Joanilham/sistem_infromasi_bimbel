@@ -197,6 +197,8 @@ Route::middleware('auth')->group(function () {
                 Route::get('/peserta-didik/export', [\App\Http\Controllers\Akademik\PesertaDidikController::class, 'export'])->name('peserta-didik.export');
                 Route::get('/peserta-didik/keluar', [\App\Http\Controllers\Akademik\PesertaDidikController::class, 'keluar'])->name('peserta-didik.keluar');
                 Route::get('/peserta-didik/keluar/export', [\App\Http\Controllers\Akademik\PesertaDidikController::class, 'exportKeluar'])->name('peserta-didik.keluar.export');
+                Route::get('/peserta-didik/lulus', [\App\Http\Controllers\Akademik\PesertaDidikController::class, 'lulus'])->name('peserta-didik.lulus');
+                Route::get('/peserta-didik/lulus/export', [\App\Http\Controllers\Akademik\PesertaDidikController::class, 'exportLulus'])->name('peserta-didik.lulus.export');
                 Route::get('/peserta-didik/{id}/edit', [\App\Http\Controllers\Akademik\PesertaDidikController::class, 'edit'])->name('peserta-didik.edit');
                 Route::resource('peserta-didik', \App\Http\Controllers\Akademik\PesertaDidikController::class)->except(['edit', 'show']);
                 Route::resource('kelompok-belajar', \App\Http\Controllers\Akademik\KelompokBelajarController::class)->except(['show']);

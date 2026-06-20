@@ -115,6 +115,14 @@ class PesertaDidik extends Model
         return $query->where('status', 'Keluar');
     }
 
+    /**
+     * Hanya peserta yang sudah Lulus.
+     */
+    public function scopeLulus(Builder $query): Builder
+    {
+        return $query->where('status', 'Lulus');
+    }
+
     // ─── Relationships ─────────────────────────────────────────────
     public function kantor(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {

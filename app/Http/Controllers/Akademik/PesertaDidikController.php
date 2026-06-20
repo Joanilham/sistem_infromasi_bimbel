@@ -50,6 +50,21 @@ class PesertaDidikController extends Controller
     }
 
     /**
+     * Daftar peserta didik yang sudah lulus.
+     */
+    public function lulus(Request $request)
+    {
+        $search = $request->input('search', '');
+        $perPage = in_array($request->input('per_page'), [10, 25, 50, 100]) ? (int) $request->input('per_page') : 10;
+        
+        $pesertaDidiks = $this->pesertaDidikService->getLulusData($request);
+        $paketBimbingans = PaketBimbingan::get();
+        $kelompokBelajars = KelompokBelajar::get();
+
+        return view('admin.peserta_didik.lulus', compact('pesertaDidiks', 'paketBimbingans', 'kelompokBelajars', 'search', 'perPage'));
+    }
+
+    /**
      * Show the form for creating a new resource.
      */
     public function create()
@@ -201,6 +216,14 @@ class PesertaDidikController extends Controller
     public function exportKeluar()
     {
         return $this->pesertaDidikExport->exportKeluar();
+    }
+
+    /**
+     * Export lulus students to Excel (XML Spreadsheet 2003).
+     */
+    public function exportLulus()
+    {
+        return $this->pesertaDidikExport->exportLulus();
     }
 
     /**
