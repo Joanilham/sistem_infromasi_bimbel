@@ -8,5 +8,10 @@ php artisan optimize 2>/dev/null || true
 
 echo "[Entrypoint] Laravel optimized successfully."
 
+if [ ! -f "rr" ]; then
+    echo "[Entrypoint] Installing RoadRunner binary..."
+    php artisan octane:install --server=roadrunner || true
+fi
+
 # Execute the original CMD (php-fpm, queue:work, schedule:work, etc.)
 exec "$@"

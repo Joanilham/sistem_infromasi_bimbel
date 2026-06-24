@@ -1,0 +1,3 @@
+@ECHO OFF
+echo Menjalankan K6 Load Test ke http://host.docker.internal:8080 (Localhost)...
+docker run --rm -i --add-host=host.docker.internal:host-gateway -v "%cd%:/app" -w /app grafana/k6 run -e BASE_URL=http://host.docker.internal:8080 k6-loadtest.js

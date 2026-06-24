@@ -6,6 +6,8 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     working_dir: /var/www/html
+    deploy:
+      replicas: 3
     volumes:
       - .:/var/www/html
       - vendor_data:/var/www/html/vendor

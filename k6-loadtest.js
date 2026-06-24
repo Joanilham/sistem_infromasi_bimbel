@@ -19,7 +19,7 @@ export const options = {
     insecureSkipTLSVerify: true, // Abaikan error sertifikat SSL
 };
 
-const BASE_URL = 'https://bimbel.geniusedu.my.id';
+const BASE_URL = __ENV.BASE_URL || 'https://bimbel.geniusedu.my.id';
 
 export default function () {
     // K6 akan men-generate Virtual User ID (__VU) dari 1 sampai 200.
