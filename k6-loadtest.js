@@ -53,6 +53,15 @@ export default function () {
 
     // Laravel meredirect (302) setelah sukses login, dan K6 mengikutinya secara otomatis
     check(loginRes, { 'Login berhasil': (r) => r.status === 200 && r.url.indexOf('/dashboard') !== -1 });
+    
+    // AMBIL CSRF TOKEN YANG BARU DARI HALAMAN DASHBOARD
+    // Karena Laravel me-regenerate CSRF token setiap kali user berhasil login demi keamanan
+    let dashboardDoc = parseHTML(loginRes.body);
+    let newCsrfToken = dashboardDoc.find('meta[name="csrf-token"]').attr('content');
+    if (newCsrfToken) {
+        csrfToken = newCsrfToken; // Update token lama
+    }
+
     sleep(2);
 
     // ==============================================================

@@ -7,15 +7,15 @@ services:
     restart: unless-stopped
     working_dir: /var/www/html
     deploy:
-      replicas: 3
+      replicas: 1
     volumes:
       - .:/var/www/html
       - vendor_data:/var/www/html/vendor
       - node_modules_data:/var/www/html/node_modules
     networks:
       - geniusedu
-    mem_limit: 512m
-    memswap_limit: 768m
+    mem_limit: 2g
+    memswap_limit: 2560m
     depends_on:
       mysql:
         condition: service_healthy
