@@ -72,3 +72,9 @@ Untuk masuk ke dalam sistem, gunakan kredensial bawaan berikut (hasil dari prose
 
 ---
 *Dokumentasi arsitektur lebih detail dapat dilihat di [docs/PROJECT_GUIDE.md](docs/PROJECT_GUIDE.md).*
+
+## ⚖️ Lisensi
+
+Hak Cipta (c) 2026 Joan Ilham Dwi Putra. Seluruh hak cipta dilindungi undang-undang.
+
+Source code ini diunggah **murni untuk keperluan evaluasi akademik/penilaian tugas**. Dilarang keras menggunakan, menyalin, memodifikasi, atau mendistribusikan kode ini untuk tujuan komersial atau proyek lain tanpa izin tertulis dari pemegang hak cipta. Silakan baca file [LICENSE](LICENSE) untuk detail lebih lanjut.
