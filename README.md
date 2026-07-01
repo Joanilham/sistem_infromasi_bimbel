@@ -8,7 +8,7 @@ Sistem Informasi Bimbingan Belajar adalah platform manajemen edukasi berbasis we
 - **Manajemen Pengguna**: Pendaftaran, pengelolaan, dan penugasan pengguna.
 - **Sistem Periode & Penjadwalan**: Mendukung berbagai siklus tahun ajaran atau periode belajar (PeriodeSeeder).
 - **Keamanan Lanjut**: Dilengkapi dengan ModSecurity Web Application Firewall (WAF) dari Nginx untuk menangkal serangan eksternal.
-- **Antarmuka Responsif**: UI modern menggunakan TailwindCSS v4 yang cepat dan dinamis.
+- **Antarmuka Responsif**: UI modern menggunakan TailwindCSS v4.
 - **Pemrosesan Latar Belakang**: Manajemen antrean tugas dan cron scheduler berjalan otomatis (Redis & Queue Worker).
 
 ## 🛠 Tech Stack & Framework
@@ -34,7 +34,7 @@ Pastikan sistem Anda sudah terinstal **Docker** dan **Docker Compose**.
 
 1. **Clone dan Masuk ke Direktori Proyek**
    ```bash
-   git clone <url-repo-anda>
+   git clone https://github.com/TRPL-JBI/pbl-2026-l6-tim-7
    cd sistem_informasi
    ```
 
@@ -65,10 +65,10 @@ Untuk masuk ke dalam sistem, gunakan kredensial bawaan berikut (hasil dari prose
 
 ## 👨‍💻 Anggota Kelompok / Tim Pengembang
 
-- **[Nama Anda/Teman 1]** - [NIM/Peran]
-- **[Nama Teman 2]** - [NIM/Peran]
-- **[Nama Teman 3]** - [NIM/Peran]
-- *(Silakan sesuaikan dengan nama anggota kelompok yang sebenarnya)*
+- **Joan Ilham Dwi Putra** - [362458302077]
+- **[Stefano Tesari Abur]** - [362458302014]
+- **[Rizwar Ardian Pradana]** - [362458302076]
+- **[Darius Bagaskara Josandro A.]** - [362458302074]
 
 ---
 *Dokumentasi arsitektur lebih detail dapat dilihat di [docs/PROJECT_GUIDE.md](docs/PROJECT_GUIDE.md).*
