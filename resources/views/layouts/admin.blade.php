@@ -27,9 +27,8 @@
     <link href="{{ asset('vendor/tom-select/tom-select.css') }}" rel="stylesheet" media="print" onload="this.media='all'">
     <noscript><link href="{{ asset('vendor/tom-select/tom-select.css') }}" rel="stylesheet"></noscript>
     
-    <!-- Flatpickr CSS -->
-    <link rel="stylesheet" href="{{ asset('vendor/flatpickr/flatpickr.min.css') }}" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="{{ asset('vendor/flatpickr/flatpickr.min.css') }}"></noscript>
+    <!-- TomSelect JS -->
+    <script defer src="{{ asset('vendor/tom-select/tom-select.complete.min.js') }}"></script>
     
     <style>
         .ts-control { border-radius: 0.75rem !important; border: 1px solid #e2e8f0 !important; padding: 0.625rem 0.875rem !important; font-size: 0.875rem !important; box-shadow: none !important; }
@@ -48,9 +47,10 @@
         
         /* TomSelect Dropdown Input Fixes */
         .ts-dropdown .dropdown-input-wrap { padding: 0.5rem !important; border-bottom: 1px solid #e2e8f0; }
-        .dark .ts-dropdown .dropdown-input-wrap { border-bottom: 1px solid #27272a; }
-        .ts-dropdown .dropdown-input { border: 1px solid #e2e8f0 !important; border-radius: 0.5rem !important; padding: 0.5rem 0.75rem !important; width: 100% !important; font-size: 0.875rem !important; outline: none !important; box-shadow: none !important; box-sizing: border-box !important; }
-        .dark .ts-dropdown .dropdown-input { background-color: #18181b !important; border-color: #3f3f46 !important; color: #f4f4f5 !important; }
+        .dark .ts-dropdown .dropdown-input-wrap { border-bottom-color: #27272a; }
+        .ts-dropdown .dropdown-input { border: 1px solid #e2e8f0 !important; border-radius: 0.5rem !important; padding: 0.375rem 0.75rem !important; font-size: 0.875rem !important; }
+        .dark .ts-dropdown .dropdown-input { border-color: #27272a !important; background-color: #27272a !important; color: #f4f4f5 !important; }
+        .dark .ts-dropdown .dropdown-input::placeholder { color: #a1a1aa !important; }
     </style>
 
     @stack('head')
@@ -147,8 +147,7 @@
 
     @stack('scripts')
     
-    <!-- TomSelect JS -->
-    <script defer src="{{ asset('vendor/tom-select/tom-select.complete.min.js') }}"></script>
+    <!-- TomSelect JS Initialization -->
     <script>
         // Init pada saat load awal atau setelah pergantian halaman via Turbo
         document.addEventListener('turbo:load', function() {
@@ -173,21 +172,6 @@
         });
     </script>
     
-    <!-- Flatpickr JS -->
-    <script defer src="{{ asset('vendor/flatpickr/flatpickr.min.js') }}"></script>
-    <script defer src="{{ asset('vendor/flatpickr/id.js') }}"></script>
-    <script>
-        document.addEventListener('turbo:load', function() {
-            flatpickr("input[type='date']", {
-                locale: "id",
-                dateFormat: "Y-m-d",
-                altInput: true,
-                altFormat: "d F Y",
-                allowInput: false
-            });
-        });
-    </script>
-
     @include('components.loading-overlay')
 
     <script>

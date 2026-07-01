@@ -20,40 +20,7 @@
         </button>
     </div>
 
-    {{-- Blok pesan @if(session('success')) lokal SAYA HAPUS di sini agar tidak tumpang tindih dengan bawaan layouts.admin --}}
-
-    {{-- Table Card --}}
-    <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] border border-slate-100 dark:border-zinc-800 shadow-sm overflow-hidden">
-
-        {{-- Toolbar Filter & Search --}}
-        <div class="p-5 sm:p-6 border-b border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-900/50 relative">
-
-            {{-- Loading Overlay --}}
-            <x-table.loading-overlay />
-
-            <form @submit.prevent="fetchData" method="GET" action="{{ route('bank.index') }}" class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full">
-                
-                {{-- Per Page --}}
-                <x-table.filter-limit :alpine="true" />
-
-                {{-- Search & Reset --}}
-                <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full md:w-auto shrink-0">
-                    <x-table.search :alpine="true" placeholder="Cari bank, no. rek, nama…" />
-                    <button type="submit"
-                        class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-sm shadow-indigo-500/30 shrink-0">
-                        Filter
-                    </button>
-                    @if(request()->anyFilled(['search']))
-                        <a href="{{ route('bank.index') }}" 
-                           class="flex items-center gap-2 bg-slate-100 dark:bg-zinc-800 hover:bg-rose-100 dark:hover:bg-rose-900/40 text-slate-600 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 px-4 py-2.5 rounded-xl text-sm font-bold transition-all shrink-0"
-                           title="Reset Filter">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                            Clear
-                        </a>
-                    @endif
-                </div>
+    {{-- Blok pesan </div>
             </form>
         </div>
 
@@ -80,7 +47,7 @@
                                 {{ $bank->nama_bank }}
                             </td>
                             <td class="px-4 py-3 font-mono font-bold text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-zinc-800">
-                                {{ $bank->nomor_rekening }}
+                                {{ trim(chunk_split($bank->nomor_rekening, 4, '-'), '-') }}
                             </td>
                             <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-bold border border-slate-200 dark:border-zinc-800 leading-tight">
                                 {{ $bank->atas_nama }}

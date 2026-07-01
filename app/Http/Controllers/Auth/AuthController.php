@@ -63,8 +63,10 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        // Redirect to welcome with explicit headers to prevent browser caching
-        return redirect()->route('welcome')->withHeaders([
+        // Redirect to welcome or login based on query parameter
+        $redirectRoute = $request->query('redirect') === 'login' ? 'login' : 'welcome';
+
+        return redirect()->route($redirectRoute)->withHeaders([
             'Cache-Control' => 'no-cache, no-store, max-age=0, must-revalidate',
             'Pragma'        => 'no-cache',
             'Expires'       => 'Sun, 02 Jan 1990 00:00:00 GMT',

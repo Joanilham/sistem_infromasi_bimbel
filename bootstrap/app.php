@@ -82,12 +82,4 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
 
-        // ── Exception lain yang tidak tertangkap ───────────────
-        // (hanya aktif saat APP_DEBUG=false / production)
-        $exceptions->render(function (\Throwable $e, Request $request) {
-            if (!$request->expectsJson() && !config('app.debug')) {
-                return response()->view('errors.500', [], 500);
-            }
-        });
-
     })->create();

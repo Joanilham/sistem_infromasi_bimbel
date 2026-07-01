@@ -42,7 +42,7 @@ Route::get('/login', function () {
     return view('auth.login');
 })->name('login')->middleware('guest');
 
-Route::post('/login', [AuthController::class, 'authenticate'])->middleware('throttle:5,1');
+Route::post('/login', [AuthController::class, 'authenticate'])->middleware('throttle:1000,1');
 
 // Lupa Password
 Route::middleware('guest')->group(function () {
@@ -197,6 +197,8 @@ Route::middleware('auth')->group(function () {
                 Route::get('/peserta-didik/export', [\App\Http\Controllers\Akademik\PesertaDidikController::class, 'export'])->name('peserta-didik.export');
                 Route::get('/peserta-didik/keluar', [\App\Http\Controllers\Akademik\PesertaDidikController::class, 'keluar'])->name('peserta-didik.keluar');
                 Route::get('/peserta-didik/keluar/export', [\App\Http\Controllers\Akademik\PesertaDidikController::class, 'exportKeluar'])->name('peserta-didik.keluar.export');
+                Route::get('/peserta-didik/lulus', [\App\Http\Controllers\Akademik\PesertaDidikController::class, 'lulus'])->name('peserta-didik.lulus');
+                Route::get('/peserta-didik/lulus/export', [\App\Http\Controllers\Akademik\PesertaDidikController::class, 'exportLulus'])->name('peserta-didik.lulus.export');
                 Route::get('/peserta-didik/{id}/edit', [\App\Http\Controllers\Akademik\PesertaDidikController::class, 'edit'])->name('peserta-didik.edit');
                 Route::resource('peserta-didik', \App\Http\Controllers\Akademik\PesertaDidikController::class)->except(['edit', 'show']);
                 Route::resource('kelompok-belajar', \App\Http\Controllers\Akademik\KelompokBelajarController::class)->except(['show']);
@@ -366,8 +368,8 @@ Route::middleware('auth')->group(function () {
             Route::get('/ujian/{id}', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'show'])->name('ujian.show');
             Route::post('/ujian/{id}/mulai', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'mulai'])->name('ujian.mulai');
             Route::get('/ujian/{id}/soal/{no}', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'soal'])->name('ujian.soal');
-            Route::post('/ujian/{id}/jawab', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'simpanJawaban'])->name('ujian.jawab')->middleware('throttle:60,1');
-            Route::post('/ujian/{id}/log-blur', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'logBlur'])->name('ujian.log-blur')->middleware('throttle:20,1');
+            Route::post('/ujian/{id}/jawab', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'simpanJawaban'])->name('ujian.jawab')->middleware('throttle:5000,1');
+            Route::post('/ujian/{id}/log-blur', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'logBlur'])->name('ujian.log-blur')->middleware('throttle:1000,1');
             Route::post('/ujian/{id}/submit', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'submit'])->name('ujian.submit');
             Route::get('/ujian/{id}/hasil', [\App\Http\Controllers\Siswa\CbtSiswaController::class, 'hasil'])->name('ujian.hasil');
             

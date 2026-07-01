@@ -71,6 +71,36 @@ class PesertaDidikExport
         return $this->xlsResponse($xml, $filename);
     }
 
+    public function exportLulus()
+    {
+        $rows = PesertaDidik::lulus()
+            ->inContext()
+            ->with('paketBimbingan', 'kelompokBelajar')
+            ->orderBy('tanggal_keluar', 'desc')
+            ->get();
+
+        $filename = 'Peserta_Didik_Lulus_' . date('d-m-Y') . '.xls';
+        $headers = ['No', 'Nama Lengkap', 'NISN', 'Jenis Kelamin', 'Asal Sekolah', 'Paket Bimbingan', 'Kelompok', 'No. Telepon', 'Tanggal Lulus', 'Nama Ayah', 'Nama Ibu', 'Keterangan Lulus'];
+        $cols    = count($headers);
+
+        $xml = $this->xmlOpen('Peserta Didik Lulus', $cols, '#065F46', '#10B981', '#ECFDF5');
+        
+        $widths = [30, 140, 80, 80, 160, 130, 80, 100, 100, 110, 110, 200];
+        $xml .= '<Worksheet ss:Name="Peserta Didik Lulus"><Table ss:DefaultRowHeight="18">';
+        foreach ($widths as $w) {
+            $xml .= '<Column ss:Width="' . $w . '"/>' . "\n";
+        }
+
+        $xml .= $this->xmlTitleRow('DATA PESERTA DIDIK LULUS — GENIUS EDUCATION', $cols);
+        $xml .= $this->xmlInfoRow('Diekspor: ' . now()->format('d/m/Y H:i') . ' WIB  |  Jumlah: ' . $rows->count() . ' Peserta', $cols);
+        $xml .= $this->xmlHeaderRow($headers);
+
+        $xml .= $this->generateXmlRowsKeluar($rows); // Can reuse the same row generator
+
+        $xml .= '</Table></Worksheet></Workbook>';
+        return $this->xlsResponse($xml, $filename);
+    }
+
     private function generateXmlRowsAktif($rows)
     {
         $xml = '';

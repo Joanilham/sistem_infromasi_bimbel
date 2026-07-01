@@ -65,7 +65,7 @@
 
                             <div class="border-t border-slate-100 dark:border-zinc-700 my-1"></div>
 
-                            <form method="POST" action="{{ route('logout') }}" role="none">
+                            <form method="POST" action="{{ route('logout') }}" role="none" data-turbo="false">
                                 @csrf
                                 <button type="submit" class="flex w-full items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors" role="menuitem">
                                     <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>

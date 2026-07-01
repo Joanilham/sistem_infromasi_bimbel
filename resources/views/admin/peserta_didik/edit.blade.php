@@ -4,6 +4,10 @@
 
 @section('content')
 <div class="space-y-6">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.4/build/css/intlTelInput.css">
+    <style>
+        .iti { width: 100%; }
+    </style>
     {{-- Header --}}
     <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-zinc-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div>
@@ -133,9 +137,9 @@
                     </div>
                     
                     {{-- Keluar Section --}}
-                    <div x-show="status === 'Keluar'" x-collapse>
+                    <div x-show="status === 'Keluar' || status === 'Lulus'" x-collapse>
                         <div class="p-6 bg-rose-50 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-900/50 rounded-2xl space-y-6 mt-4">
-                            <h4 class="text-[10px] font-black text-rose-600 dark:text-rose-500 uppercase tracking-widest border-b border-rose-200/50 pb-2">Informasi Keluar</h4>
+                            <h4 class="text-[10px] font-black text-rose-600 dark:text-rose-500 uppercase tracking-widest border-b border-rose-200/50 pb-2">Informasi Keluar / Lulus</h4>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                 <div class="space-y-2">
                                     <label class="block text-[10px] font-black text-rose-500 uppercase tracking-widest ml-1">Tanggal Keluar <span class="text-rose-500">*</span></label>
@@ -189,6 +193,28 @@
                     </div>
                 </div>
 
+                {{-- Akun Siswa --}}
+                @php
+                    $userAkun = \App\Models\User::where('peserta_didik_id', $pesertaDidik->id)->first();
+                @endphp
+                <div class="space-y-4">
+                    <h3 class="text-xs font-black uppercase tracking-widest text-emerald-500 flex items-center gap-2 border-b border-slate-100 dark:border-zinc-800 pb-2">
+                        <span class="w-6 h-6 rounded bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center">4</span> Akun Login Siswa
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-slate-50/50 dark:bg-zinc-900/50 p-6 rounded-3xl border border-slate-100 dark:border-zinc-800">
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Email Aktif <span class="text-rose-500">*</span></label>
+                            <input type="email" name="email" required value="{{ old('email', $userAkun ? $userAkun->email : '') }}" placeholder="Email untuk login aplikasi" class="w-full border bg-white dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-sm font-bold py-2.5 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
+                            @error('email')<p class="text-xs text-rose-500 mt-1 font-bold">{{ $message }}</p>@enderror
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Password Baru</label>
+                            <input type="password" name="password" placeholder="{{ $userAkun ? 'Kosongkan jika tidak ingin diubah' : 'Minimal 8 karakter' }}" class="w-full border bg-white dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-sm font-bold py-2.5 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
+                            @error('password')<p class="text-xs text-rose-500 mt-1 font-bold">{{ $message }}</p>@enderror
+                        </div>
+                    </div>
+                </div>
+
             </div>
             
             {{-- Footer --}}
@@ -201,12 +227,7 @@
 </div>
 @endsection
 
-@push('head')
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.4/build/css/intlTelInput.css">
-<style>
-    .iti { width: 100%; }
-</style>
-@endpush
+
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.4/build/js/intlTelInput.min.js"></script>
@@ -226,7 +247,7 @@ window.toggleInformasiLainnya = function(selectEl) {
     }
 };
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('turbo:load', function() {
     const phoneInputs = [
         document.querySelector("#no_telepon"),
         document.querySelector("#no_telepon_ayah"),
@@ -243,14 +264,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.4/build/js/utils.js",
                 showSelectedDialCode: true,
                 countrySearch: true,
-                strictMode: true
+                strictMode: false
             });
             itiInstances.push({ input: input, iti: iti });
             
-            // Cegah input/paste teks (hanya boleh angka dan +)
+            // Izinkan angka, spasi, dan strip, format pada saat inisialisasi
             input.addEventListener('input', function() {
-                this.value = this.value.replace(/[^\d+]/g, '');
+                this.value = this.value.replace(/[^0-9\-\s+]/g, '');
             });
+            
+            if (input.value) {
+                setTimeout(() => iti.setNumber(input.value), 500);
+            }
         }
     });
 

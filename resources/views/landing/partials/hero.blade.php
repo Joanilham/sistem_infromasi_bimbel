@@ -12,10 +12,10 @@
         @endif
         
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center w-full mt-8 sm:mt-0 my-auto">
-            <h1 class="text-3xl sm:text-5xl lg:text-7xl font-black text-white mb-4 sm:mb-6 lg:mb-8 leading-[1.2] sm:leading-[1.1] tracking-tight max-w-4xl mx-auto" data-aos="fade-up" data-aos-delay="100">
+            <h1 class="text-3xl sm:text-5xl lg:text-7xl font-black text-white drop-shadow-lg mb-4 sm:mb-6 lg:mb-8 leading-[1.2] sm:leading-[1.1] tracking-tight max-w-4xl mx-auto" data-aos="fade-up" data-aos-delay="100">
                 {{ $masterData->hero_title ?? 'Wujudkan Impian Akademik Bersama Kami' }}
             </h1>
-            <p class="text-slate-300 text-sm sm:text-base lg:text-xl max-w-2xl mx-auto mb-8 sm:mb-10 lg:mb-12 leading-relaxed font-medium px-2 sm:px-4" data-aos="fade-up" data-aos-delay="200">
+            <p class="text-slate-200 text-sm sm:text-base lg:text-xl drop-shadow-md max-w-2xl mx-auto mb-8 sm:mb-10 lg:mb-12 leading-relaxed font-medium px-2 sm:px-4" data-aos="fade-up" data-aos-delay="200">
                 {{ $masterData->hero_subtitle ?? 'Platform pembelajaran terintegrasi yang memudahkan manajemen pendaftaran, progres belajar, dan evaluasi hasil belajar.' }}
             </p>
             <div class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 px-4 sm:px-6" data-aos="fade-up" data-aos-delay="300">

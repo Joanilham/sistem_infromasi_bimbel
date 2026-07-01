@@ -25,7 +25,10 @@ class KelompokBelajarController extends Controller
 
         // 1. HAPUS inContext() agar Admin bisa melihat semua kelompok belajar secara global
         $kelompokBelajars = KelompokBelajar::query()
-            ->withCount('pesertaDidiks')
+            ->withCount(['pesertaDidiks' => function ($query) {
+                // Hanya hitung siswa yang Aktif DAN berada di periode/kantor yang sedang dipilih (Context)
+                $query->aktif()->inContext();
+            }])
             ->when($search, fn($q) =>
                 $q->where('nama_kelompok', 'like', "%{$search}%")
             )

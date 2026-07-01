@@ -77,8 +77,12 @@ class PemasukanController extends Controller
     public function store(PemasukanRequest $request)
     {
         $validated = $request->validated();
+        $kantorId = session('kantor_id') === 'all' ? null : session('kantor_id');
 
-        Pemasukan::create(array_merge($validated, ['user_id' => Auth::id()]));
+        Pemasukan::create(array_merge($validated, [
+            'user_id' => Auth::id(),
+            'kantor_id' => $kantorId
+        ]));
         return back()->with('success', 'Pemasukan berhasil disimpan.');
     }
 
@@ -132,7 +136,7 @@ class PemasukanController extends Controller
     private function buildIndexQuery($kantorId, $search, $kategoriId, $startDate, $endDate)
     {
         return Pemasukan::with('kategori')
-            ->when($kantorId, fn($q) => $q->whereHas('user', fn($qu) => $qu->where('kantor_id', $kantorId)))
+            ->when($kantorId, fn($q) => $q->where('kantor_id', $kantorId))
             ->when($search, fn($q) =>
                 $q->where(function($sub) use ($search) {
                     $sub->where('keterangan', 'like', "%{$search}%")
@@ -146,7 +150,7 @@ class PemasukanController extends Controller
 
     private function calculateTotalCabangIni($kantorId, $startDate, $endDate)
     {
-        return Pemasukan::when($kantorId, fn($q) => $q->whereHas('user', fn($qu) => $qu->where('kantor_id', $kantorId)))
+        return Pemasukan::when($kantorId, fn($q) => $q->where('kantor_id', $kantorId))
             ->when($startDate, fn($q) => $q->whereDate('tanggal', '>=', $startDate))
             ->when($endDate, fn($q) => $q->whereDate('tanggal', '<=', $endDate))
             ->sum('nominal');

@@ -25,7 +25,7 @@ class GenerateLoadTestData extends Command
      *
      * @var string
      */
-    protected $description = 'Generate dummy siswa, masukkan ke kelompok belajar, assign ke ujian aktif, dan buat siswa_data.csv untuk Artillery';
+    protected $description = 'Generate dummy siswa, masukkan ke kelompok belajar, assign ke ujian aktif, dan buat siswa_data.json untuk K6';
 
     /**
      * Execute the console command.
@@ -33,7 +33,7 @@ class GenerateLoadTestData extends Command
     public function handle()
     {
         $count = (int) $this->option('count');
-        $this->info("Memulai proses generate {$count} data siswa untuk load test...");
+        $this->info("Memulai proses generate {$count} data siswa untuk load test K6...");
 
         // 1. Cari atau buat Kelompok Belajar khusus Load Test
         $kelompok = KelompokBelajar::firstOrCreate(
@@ -43,7 +43,7 @@ class GenerateLoadTestData extends Command
         $this->info("- Kelompok Belajar 'Kelas Load Test CBT' siap (ID: {$kelompok->id})");
 
         // 2. Cari ujian CBT yang aktif
-        $ujian = CbtUjian::where('is_aktif', true)->first();
+        $ujian = CbtUjian::aktif()->first();
         if (!$ujian) {
             $this->error("TIDAK ADA UJIAN AKTIF! Buat minimal 1 ujian CBT yang aktif dari panel Admin terlebih dahulu.");
             return 1;
@@ -53,7 +53,7 @@ class GenerateLoadTestData extends Command
         // 3. Assign Kelompok Belajar ke Ujian tersebut (jika belum)
         CbtUjianAssign::firstOrCreate([
             'cbt_ujian_id' => $ujian->id,
-            'assign_type'  => 'kelompok',
+            'tipe_assign'  => 'kelas',
             'assign_id'    => $kelompok->id,
         ]);
         $this->info("- Ujian berhasil di-assign ke Kelompok Belajar.");
@@ -62,29 +62,18 @@ class GenerateLoadTestData extends Command
         $password = 'password';
         $hashedPassword = Hash::make($password);
         
-        $csvData = "email,password,ujian_id\n";
+        $jsonData = [];
 
         $bar = $this->output->createProgressBar($count);
         $bar->start();
 
         for ($i = 1; $i <= $count; $i++) {
             $email = "loadtest{$i}@example.com";
-
-            // Buat User
-            $user = User::updateOrCreate(
-                ['email' => $email],
-                [
-                    'name' => "Siswa LoadTest {$i}",
-                    'password' => $hashedPassword,
-                    'level' => 'siswa',
-                    'is_active' => true,
-                    'email_verified_at' => now(),
-                ]
-            );
+            $nisn = "LDTST" . str_pad($i, 5, '0', STR_PAD_LEFT);
 
             // Buat Profil Peserta Didik (status otomatis Aktif)
-            PesertaDidik::updateOrCreate(
-                ['user_id' => $user->id],
+            $peserta = PesertaDidik::updateOrCreate(
+                ['nisn' => $nisn],
                 [
                     'nama_lengkap' => "Siswa LoadTest {$i}",
                     'jenis_kelamin' => 'L',
@@ -94,21 +83,38 @@ class GenerateLoadTestData extends Command
                 ]
             );
 
-            // Tambahkan ke CSV
-            $csvData .= "{$email},{$password},{$ujian->id}\n";
+            // Buat User
+            $user = User::updateOrCreate(
+                ['email' => $email],
+                [
+                    'name' => "Siswa LoadTest {$i}",
+                    'password' => $hashedPassword,
+                    'level' => 'siswa',
+                    'peserta_didik_id' => $peserta->id,
+                    'is_active' => true,
+                    'email_verified_at' => now(),
+                ]
+            );
+
+            // Tambahkan ke Array
+            $jsonData[] = [
+                'email' => $email,
+                'password' => $password,
+                'ujian_id' => $ujian->id
+            ];
             $bar->advance();
         }
 
         $bar->finish();
         $this->newLine();
 
-        // 5. Tulis file CSV
-        $csvPath = base_path('siswa_data.csv');
-        File::put($csvPath, $csvData);
+        // 5. Tulis file JSON
+        $jsonPath = storage_path('app/siswa_data.json');
+        File::put($jsonPath, json_encode($jsonData, JSON_PRETTY_PRINT));
 
         $this->info("✅ Berhasil generate {$count} data siswa.");
-        $this->info("✅ File CSV berhasil dibuat: {$csvPath}");
-        $this->info("Sekarang Anda bisa menjalankan tes dengan Artillery!");
+        $this->info("✅ File JSON berhasil dibuat: {$jsonPath}");
+        $this->info("Sekarang Anda bisa menjalankan K6 Load Test!");
 
         return 0;
     }

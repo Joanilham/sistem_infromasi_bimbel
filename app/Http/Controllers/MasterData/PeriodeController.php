@@ -38,13 +38,14 @@ class PeriodeController extends Controller
         return redirect()->route('periode.index');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(PeriodeRequest $request)
     {
         $validated = $request->validated();
         $validated['is_active'] = $request->has('is_active');
+
+        if ($validated['is_active']) {
+            Periode::where('is_active', true)->update(['is_active' => false]);
+        }
 
         Periode::create($validated);
 
@@ -60,6 +61,10 @@ class PeriodeController extends Controller
 
         $validated = $request->validated();
         $validated['is_active'] = $request->has('is_active');
+
+        if ($validated['is_active']) {
+            Periode::where('id', '!=', $id)->where('is_active', true)->update(['is_active' => false]);
+        }
 
         $periode->update($validated);
 

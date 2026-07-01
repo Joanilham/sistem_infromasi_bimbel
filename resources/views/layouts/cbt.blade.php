@@ -14,7 +14,7 @@
             <div class="flex gap-4">
                 <a href="{{ route('ujian.index') }}" class="hover:underline">Daftar Ujian</a>
                 <a href="{{ route('hasil.index') }}" class="hover:underline">Hasil</a>
-                <form method="POST" action="{{ route('logout') }}" class="inline">
+                <form method="POST" action="{{ route('logout') }}" class="inline" data-turbo="false">
                     @csrf
                     <button type="submit" class="hover:underline">Logout</button>
                 </form>

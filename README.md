@@ -1,8 +1,74 @@
-# SISTEM INFORMASI BIMBEL
+# Sistem Informasi Bimbingan Belajar (Genius Education Platform)
 
-Panduan singkat dan tautan ke dokumentasi lengkap proyek.
+Sistem Informasi Bimbingan Belajar adalah platform manajemen edukasi berbasis web yang dirancang khusus untuk mempermudah operasional tempat bimbingan belajar (bimbel). Sistem ini menggunakan arsitektur containerized dengan performa tinggi yang disajikan melalui Laravel Octane dan Nginx Reverse Proxy.
 
-- Dokumentasi lengkap proyek: [docs/PROJECT_GUIDE.md](docs/PROJECT_GUIDE.md)
-- Struktur proyek: [docs/STRUCTURE.md](docs/STRUCTURE.md)
+## 🚀 Fitur-Fitur Tersedia
 
-Ikuti `docs/PROJECT_GUIDE.md` untuk instruksi setup, arsitektur, contoh alur kerja, dan panduan bagi anggota tim.
+- **Manajemen Autentikasi & Otorisasi**: Login aman dengan manajemen akses multi-role (misal: Super Admin, Admin, Siswa, Tentor).
+- **Manajemen Pengguna**: Pendaftaran, pengelolaan, dan penugasan pengguna.
+- **Sistem Periode & Penjadwalan**: Mendukung berbagai siklus tahun ajaran atau periode belajar (PeriodeSeeder).
+- **Keamanan Lanjut**: Dilengkapi dengan ModSecurity Web Application Firewall (WAF) dari Nginx untuk menangkal serangan eksternal.
+- **Antarmuka Responsif**: UI modern menggunakan TailwindCSS v4 yang cepat dan dinamis.
+- **Pemrosesan Latar Belakang**: Manajemen antrean tugas dan cron scheduler berjalan otomatis (Redis & Queue Worker).
+
+## 🛠 Tech Stack & Framework
+
+- **Backend**: Laravel 13, PHP 8.2 (menjalankan Laravel Octane dengan server RoadRunner)
+- **Frontend**: Vite 7, TailwindCSS 4 (Vanilla JS & Blade Templates)
+- **Database**: MySQL 8.0
+- **Caching & Queue**: Redis (Alpine)
+- **Web Server & Security**: Nginx 1.30.3 (dengan OWASP ModSecurity)
+- **DevOps**: Docker & Docker Compose
+
+## 📂 Struktur Folder Penting
+
+- `/app` - Logika utama aplikasi (Controllers, Models, Middleware).
+- `/docker` - Berisi file konfigurasi kustom untuk Nginx, PHP, dan MySQL.
+- `/public` - Aset statis dan hasil build Vite (`public/build`).
+- `/database/seeders` - Data dummy dan konfigurasi awal (seperti Super Admin dan Periode).
+- `/docs` - Berisi dokumentasi arsitektur aplikasi lebih lanjut.
+
+## ⚙️ Panduan Instalasi dan Menjalankan Aplikasi
+
+Pastikan sistem Anda sudah terinstal **Docker** dan **Docker Compose**.
+
+1. **Clone dan Masuk ke Direktori Proyek**
+   ```bash
+   git clone <url-repo-anda>
+   cd sistem_informasi
+   ```
+
+2. **Jalankan Aplikasi dengan Docker**
+   Karena aplikasi ini sepenuhnya menggunakan container, Anda hanya perlu menjalankan:
+   ```bash
+   sudo docker compose up -d
+   ```
+   *Perintah ini akan secara otomatis mem-build image, menginstal dependensi Composer & NPM, serta menjalankan Nginx, App (RoadRunner), MySQL, Redis, Queue, dan Scheduler.*
+
+3. **Inisialisasi Database (Migrasi & Seeder)**
+   Setelah semua container berjalan (status `Up`), jalankan perintah ini untuk membangun tabel dan memasukkan data admin awal:
+   ```bash
+   sudo docker compose exec app php artisan migrate:fresh --seed
+   ```
+
+4. **Akses Aplikasi**
+   Buka browser Anda dan akses aplikasi melalui:
+   - URL Lokal: `http://localhost:8080`
+   - URL Ngrok (jika menggunakan tunneling): `https://<domain-ngrok>.ngrok-free.dev`
+
+## 👤 Informasi Akun Demo
+
+Untuk masuk ke dalam sistem, gunakan kredensial bawaan berikut (hasil dari proses seeder):
+- **Email**: `superadmin@admin.com`
+- **Password**: `password` *(atau sesuai konfigurasi seeder Anda)*
+- **Role**: Super Admin
+
+## 👨‍💻 Anggota Kelompok / Tim Pengembang
+
+- **[Nama Anda/Teman 1]** - [NIM/Peran]
+- **[Nama Teman 2]** - [NIM/Peran]
+- **[Nama Teman 3]** - [NIM/Peran]
+- *(Silakan sesuaikan dengan nama anggota kelompok yang sebenarnya)*
+
+---
+*Dokumentasi arsitektur lebih detail dapat dilihat di [docs/PROJECT_GUIDE.md](docs/PROJECT_GUIDE.md).*

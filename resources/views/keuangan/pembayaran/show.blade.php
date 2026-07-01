@@ -206,12 +206,27 @@
             
             <form id="form-catat-pembayaran" action="{{ route('keuangan.pembayaran.transaksi.store', $pembayaran->id) }}" method="POST" class="space-y-4">
                 @csrf
+                
+                @if($kekurangan > 0)
+                <div class="flex gap-4 mb-2 p-2 rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-100 dark:border-zinc-700/50">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="opsi_bayar" value="lunas" checked class="text-emerald-600 focus:ring-emerald-500 w-4 h-4 bg-white dark:bg-zinc-900 border-slate-300 dark:border-zinc-600" onchange="toggleOpsiBayar()">
+                        <span class="text-xs font-black text-slate-700 dark:text-slate-300">Bayar Lunas</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="opsi_bayar" value="cicil" class="text-emerald-600 focus:ring-emerald-500 w-4 h-4 bg-white dark:bg-zinc-900 border-slate-300 dark:border-zinc-600" onchange="toggleOpsiBayar()">
+                        <span class="text-xs font-black text-slate-700 dark:text-slate-300">Cicilan / Sebagian</span>
+                    </label>
+                </div>
+                @endif
+
                 <div class="relative mb-2">
                     <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tanggal Transaksi Pembayaran</label>
                     <input type="date" name="tanggal" required value="{{ now()->format('Y-m-d') }}" class="w-full rounded-xl border border-slate-200 dark:border-zinc-700 dark:bg-zinc-950 text-sm px-4 py-2 focus:ring-indigo-500">
                 </div>
                 <div class="relative mb-2">
-                    <input type="text" name="nominal" id="catat-nominal" required inputmode="numeric" placeholder="Nominal Rp" class="w-full rounded-xl border border-slate-200 dark:border-zinc-700 dark:bg-zinc-950 text-sm px-4 py-2 focus:ring-indigo-500 nominal-format">
+                    <input type="text" name="nominal" id="catat-nominal" required inputmode="numeric" placeholder="Nominal Rp" value="{{ number_format($kekurangan, 0, '', '') }}" readonly class="w-full rounded-xl border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-900 text-sm px-4 py-2 focus:ring-indigo-500 nominal-format">
+                    <p id="hint-nominal" class="text-[9px] font-medium text-emerald-600 dark:text-emerald-400 mt-1">Nominal otomatis disesuaikan dengan sisa tagihan.</p>
                 </div>
                 <div class="flex gap-2">
                     <select name="tipe_pembayaran" class="flex-1 rounded-xl border border-slate-200 dark:border-zinc-700 dark:bg-zinc-950 text-xs px-3 py-2 focus:ring-indigo-500">
@@ -357,5 +372,48 @@
 
 
 @include('keuangan.pembayaran.partials.modals')
+
+@push('scripts')
+<script>
+    function toggleOpsiBayar() {
+        const opsi = document.querySelector('input[name="opsi_bayar"]:checked').value;
+        const inputNominal = document.getElementById('catat-nominal');
+        const hintNominal = document.getElementById('hint-nominal');
+        const kekurangan = {{ $kekurangan }};
+
+        if (opsi === 'lunas') {
+            inputNominal.readOnly = true;
+            inputNominal.classList.replace('bg-white', 'bg-slate-50');
+            inputNominal.classList.replace('dark:bg-zinc-950', 'dark:bg-zinc-900');
+            // Format number directly without comma separator to allow nominal-format to pick it up or format it manually
+            inputNominal.value = new Intl.NumberFormat('id-ID').format(kekurangan);
+            hintNominal.innerHTML = 'Nominal otomatis disesuaikan dengan sisa tagihan.';
+            hintNominal.classList.replace('text-slate-400', 'text-emerald-600');
+            hintNominal.classList.replace('dark:text-slate-500', 'dark:text-emerald-400');
+        } else {
+            inputNominal.readOnly = false;
+            inputNominal.classList.replace('bg-slate-50', 'bg-white');
+            inputNominal.classList.replace('dark:bg-zinc-900', 'dark:bg-zinc-950');
+            inputNominal.value = '';
+            inputNominal.focus();
+            hintNominal.innerHTML = 'Silakan masukkan nominal cicilan yang dibayarkan.';
+            hintNominal.classList.replace('text-emerald-600', 'text-slate-400');
+            hintNominal.classList.replace('dark:text-emerald-400', 'dark:text-slate-500');
+        }
+    }
+
+    // Initialize formatting on load if lunas is checked
+    document.addEventListener('turbo:load', function() {
+        const inputNominal = document.getElementById('catat-nominal');
+        if(inputNominal && inputNominal.value && inputNominal.readOnly) {
+            let val = inputNominal.value.replace(/\D/g, '');
+            if(val !== '') {
+                inputNominal.value = new Intl.NumberFormat('id-ID').format(val);
+            }
+        }
+    });
+</script>
+@endpush
+
 @endsection
 

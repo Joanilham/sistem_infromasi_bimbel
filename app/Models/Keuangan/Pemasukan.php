@@ -15,7 +15,7 @@ class Pemasukan extends Model
 
     protected $table = 'pemasukan';
 
-    protected $fillable = ['tanggal', 'kategori_id', 'nominal', 'keterangan', 'user_id'];
+    protected $fillable = ['kantor_id', 'tanggal', 'kategori_id', 'nominal', 'keterangan', 'user_id'];
 
 
     protected $casts = ['tanggal' => 'date', 'nominal' => 'integer'];

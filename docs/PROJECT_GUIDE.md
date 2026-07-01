@@ -1,115 +1,73 @@
 # Panduan Proyek — Sistem Informasi Bimbel
 
-Dokumen ini ditujukan untuk: dosen penguji dan anggota tim. Berisi penjelasan lengkap tentang tujuan proyek, arsitektur, cara setup, alur kerja pengembangan, cara menambahkan fitur, pengujian, dan troubleshooting.
+Dokumen ini ditujukan untuk dosen penguji dan anggota tim. Berisi penjelasan mendalam tentang tujuan proyek, arsitektur, cara setup, alur kerja pengembangan, dan pengujian.
 
-1) Ringkasan Proyek
-- Nama: Sistem Informasi Bimbel
-- Tujuan: Sistem manajemen bimbingan belajar termasuk pendaftaran, jadwal, CBT, keuangan, dan laporan.
-- Stack utama: Laravel (PHP 8.2, laravel/framework ^12), Vite, Tailwind CSS, Pest untuk testing.
+## 1) Ringkasan Proyek
+- **Nama**: Sistem Informasi Bimbel (Genius Education)
+- **Tujuan**: Sistem manajemen bimbingan belajar terpadu (pendaftaran, jadwal, CBT, keuangan, dan pelaporan).
+- **Arsitektur**: Containerized Micro-services (Docker).
+- **Stack Utama**: Laravel 13 (Octane + RoadRunner), PHP 8.2, Nginx WAF (ModSecurity), Redis, MySQL 8.0, Vite, Tailwind CSS v4.
 
-2) Tim & Peran
-- Project Owner / Koordinator: Nama (hubungi via email/WA)
-- Backend: bertanggung jawab untuk `app/`, `database/`, API
-- Frontend: bertanggung jawab untuk `resources/`, styling, integrasi Vite
-- QA / Testing: menulis dan menjalankan test di `tests/`
-- DevOps (opsional): deployment, konfigurasi Docker/nginx
+## 2) Tim & Peran
+- **Project Owner / Koordinator**: (Isi nama dan kontak)
+- **Backend & Infrastruktur**: Bertanggung jawab untuk Laravel API, Docker, Nginx, dan Queue Worker.
+- **Frontend**: Bertanggung jawab untuk desain UI/UX, integrasi Tailwind v4, dan Vite.
+- **QA / Testing**: Menulis dan menjalankan pengujian (Pest).
 
-3) Struktur & Alur Navigasi Cepat
-- Lihat [docs/STRUCTURE.md](STRUCTURE.md) untuk peta direktori lengkap.
-- File entrypoint: `public/index.php` dan perintah developer utama `artisan`.
+## 3) Setup Lingkungan (Untuk Anggota Tim)
 
-4) Setup Lingkungan (Langkah untuk anggota tim)
+Proyek ini **wajib** dijalankan menggunakan Docker agar semua environment (Nginx, Redis, MySQL, Octane) terisolasi dan konsisten.
 
-- Prasyarat: PHP 8.2+, Composer, Node.js & npm, database (MySQL/Postgres/SQLite), Git
-- Langkah:
-
+**Langkah-Langkah:**
 ```bash
-git clone <repo-url>
+# 1. Kloning repositori
+git clone https://github.com/TRPL-JBI/pbl-2026-l6-tim-7
 cd sistem_informasi
-composer install
-cp .env.example .env
-php artisan key:generate
-# atur konfigurasi DB di .env
-php artisan migrate --seed
-npm install
-npm run dev
-php artisan serve
+
+# 2. Menjalankan Docker Containers di background
+sudo docker compose up -d
+
+# 3. Setup Database & Seeding Data Awal
+# Ini akan membuat struktur tabel dan mengisi data dummy (seperti akun superadmin)
+sudo docker compose exec app php artisan migrate:fresh --seed
 ```
+*Catatan: Anda tidak perlu menginstal PHP atau Node.js di komputer host Anda secara manual, karena semua dependensi (Composer & NPM) sudah dibuild di dalam container Docker!*
 
-Catatan: Jika menggunakan Laragon, sesuaikan virtual host dan paths.
+## 4) Konvensi Kode & Standar
+- **PHP**: Mengikuti PSR-12. Gunakan `laravel/pint` untuk format otomatis.
+- **Penamaan**: Model singular (`User`), controller `PascalCaseController`, migrations `snake_case`.
+- **Eksekusi Perintah**: Karena menggunakan Docker, setiap perintah artisan harus dijalankan di dalam container `app`. Contoh:
+  `sudo docker compose exec app php artisan make:controller NamaController`
 
-5) Konvensi Kode & Standar
-- PHP: PSR-12. Gunakan `laravel/pint` untuk format.
-- Penamaan: Model singular (`User`), controller `PascalCaseController`, migrations snake_case.
-- Routes: pisahkan rute domain di `routes/` (mis. `routes/admin.php`) bila perlu.
+## 5) Testing & Troubleshooting Umum
+- **Menjalankan Test**:
+  `sudo docker compose exec app php artisan test`
+- **Error 502 Bad Gateway (Nginx)**:
+  Berarti container `app` (Laravel Octane) belum siap atau crash. Cek logs dengan `sudo docker compose logs app`.
+- **Masalah Permission (Failed to open stream)**:
+  Sering terjadi jika container gagal menulis ke folder cache/log. Jalankan di komputer Anda:
+  `chmod -R 777 storage bootstrap/cache`
+- **Melihat Log Aplikasi**:
+  `sudo docker compose exec app tail -f storage/logs/laravel.log`
 
-6) Menambahkan Fitur — Langkah Praktis (contoh: fitur Pendaftaran)
+## 6) Tips Presentasi ke Dosen
+- **Persiapan Demo**: Pastikan Docker sudah berjalan dengan `sudo docker compose up -d`. Tunjukkan bahwa aplikasi menggunakan Nginx WAF dan Laravel Octane untuk keamanan & kecepatan maksimal.
+- **Buka Akses Web**: Akses aplikasi di `http://localhost:8080`. Jika harus dipresentasikan secara jarak jauh, gunakan perintah `ngrok http 8080`.
+- **Siapkan slide singkat**: Bahas tentang tujuan, fitur unggulan (WAF, Octane, Multi-role), flow user, dan pembagian tugas yang jelas antar anggota kelompok.
+- **Akun Demo**: Jangan lupa menyiapkan akun demo seperti `superadmin@admin.com` dengan password yang mudah diingat agar saat presentasi tidak terjadi kendala login.
 
-a. Buat migration dan model:
-
+## 7) Lampiran — Perintah Docker Berguna
 ```bash
-php artisan make:model Pendaftaran -m
-```
+# Melihat status seluruh layanan
+sudo docker compose ps
 
-b. Buat controller dan request validation:
+# Mematikan seluruh container
+sudo docker compose down
 
-```bash
-php artisan make:controller PendaftaranController --resource
-php artisan make:request StorePendaftaranRequest
-```
+# Merestart hanya aplikasi Laravel (Misal: setelah merubah .env)
+sudo docker compose restart app
 
-c. Tambah route di `routes/web.php`:
-
-```php
-Route::resource('pendaftaran', PendaftaranController::class)->middleware('auth');
-```
-
-d. Buat view di `resources/views/pendaftaran/` (index, create, edit)
-e. Tambah seeder jika butuh data awal dan jalankan `php artisan db:seed --class=PendaftaranSeeder`
-
-7) Testing
-- Jalankan semua test:
-
-```bash
-composer test
-// atau
-php artisan test
-```
-
-- Buat test baru dengan Pest/PhpUnit di `tests/Feature` atau `tests/Unit`.
-
-8) Deployment singkat
-- Build assets: `npm run build`
-- Taruh aplikasi di server PHP + nginx/Apache, set `APP_ENV=production` dan jalankan migrasi.
-- Pastikan `storage/` dan `bootstrap/cache` writable.
-
-9) Troubleshooting umum
-- Error koneksi DB: periksa `.env` dan jalankan `php artisan migrate` untuk melihat pesan error.
-- Error 500: cek `storage/logs/laravel.log` untuk stack trace.
-- Missing dependency: jalankan `composer install` / `npm install`.
-
-10) Dokumentasi & Referensi kode
-- Dokumentasi struktur: `docs/STRUCTURE.md`
-- Dokumen per-folder: `docs/app.md`, `docs/resources.md`, `docs/database.md`, `docs/routes.md`
-
-11) Tips presentasi ke dosen
-- Siapkan demo: jalankan `php artisan serve` dan tunjukkan fitur utama (pendaftaran, login, pembuatan ujian CBT, laporan keuangan).
-- Siapkan slide singkat: tujuan, fitur, arsitektur, flow user, pembagian tugas anggota.
-- Sertakan catatan tentang area yang belum lengkap dan rencana pengembangan lanjutan.
-
-12) Lampiran — Perintah Berguna
-
-```bash
-# Setup sekali (script composer 'setup')
-composer run setup
-
-# Jalankan dev environment (dengan concurrently di package.json)
-composer run dev
-
-# Menjalankan Pint (format)
-./vendor/bin/pint
-
-# Menjalankan larastan/analysis
-./vendor/bin/phpstan analyse
+# Masuk ke dalam terminal container app
+sudo docker compose exec app bash
 ```
 

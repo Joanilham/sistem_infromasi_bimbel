@@ -110,9 +110,7 @@ class DashboardController extends Controller
         });
 
         // --- DATA UNTUK GRAFIK (PESERTA DIDIK & KEUANGAN) ---
-        $chartData = Cache::remember("dash_chart_{$kantorId}_{$periodeId}", 3600, function() use ($periodeId, $filterKantorId) {
-            return $this->generateChartData($periodeId, $filterKantorId);
-        });
+        $chartData = $this->generateChartData($periodeId, $filterKantorId);
         
         $chartLabels        = $chartData['labels'];
         $chartPesertaMasuk  = $chartData['pesertaMasuk'];
@@ -233,14 +231,14 @@ class DashboardController extends Controller
             ->pluck('total', 'month')->toArray();
 
         // 3. Keuangan - Pemasukan Lainnya
-        $pemasukanLainRaw = Pemasukan::when($filterKantorId, fn($q) => $q->whereHas('user', fn($qu) => $qu->where('kantor_id', $filterKantorId)))
+        $pemasukanLainRaw = Pemasukan::when($filterKantorId, fn($q) => $q->where('kantor_id', $filterKantorId))
             ->whereBetween('tanggal', [$startDateStr, $endDateStr])
             ->selectRaw('DATE_FORMAT(tanggal, "%Y-%m") as month, sum(nominal) as total')
             ->groupBy('month')
             ->pluck('total', 'month')->toArray();
 
         // 4. Keuangan - Pengeluaran
-        $pengeluaranRaw = Pengeluaran::when($filterKantorId, fn($q) => $q->whereHas('user', fn($qu) => $qu->where('kantor_id', $filterKantorId)))
+        $pengeluaranRaw = Pengeluaran::when($filterKantorId, fn($q) => $q->where('kantor_id', $filterKantorId))
             ->whereBetween('tanggal', [$startDateStr, $endDateStr])
             ->selectRaw('DATE_FORMAT(tanggal, "%Y-%m") as month, sum(nominal) as total')
             ->groupBy('month')
