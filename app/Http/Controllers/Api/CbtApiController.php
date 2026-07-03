@@ -125,6 +125,16 @@ class CbtApiController extends Controller
             return $this->errorResponse('Ujian sudah selesai atau sesi tidak ditemukan.', 400);
         }
 
+        // Validasi waktu server-side (Grace period 15 detik)
+        $peserta->loadMissing('ujian');
+        $durasiDetik = $peserta->ujian->durasi * 60;
+        $detikBerlalu = $peserta->waktu_mulai->diffInSeconds(now());
+        if ($detikBerlalu > ($durasiDetik + 15)) {
+            // Auto submit jika kedaluwarsa
+            $this->cbtService->gradeAndSubmit($peserta, 'timeout');
+            return $this->errorResponse('Waktu ujian telah habis.', 403);
+        }
+
         $jawaban = CbtPesertaJawaban::where('cbt_peserta_id', $peserta->id)
             ->where('cbt_bank_soal_id', $request->cbt_bank_soal_id)
             ->first();
@@ -185,6 +195,19 @@ class CbtApiController extends Controller
             return $this->errorResponse('Hasil ujian tidak ditemukan.', 404);
         }
 
+        $peserta->loadMissing('ujian');
+
+        if (!$peserta->ujian->tampilkan_hasil) {
+            return $this->successResponse([
+                'skor'    => $peserta->skor,
+                'status'  => $peserta->status,
+                'peserta' => new CbtPesertaResource($peserta),
+                'soal'    => [],
+                'tampilkan_hasil' => false,
+                'message' => 'Detail disembunyikan oleh guru untuk menjaga kerahasiaan ujian.'
+            ], 'Hasil ujian berhasil dimuat');
+        }
+
         $soal = CbtPesertaJawaban::with(['bankSoal' => function($q) {
             $q->select('id', 'pertanyaan', 'tipe_soal');
         }, 'bankSoal.opsiJawabans' => function($q) {
@@ -199,6 +222,7 @@ class CbtApiController extends Controller
             'status'  => $peserta->status,
             'soal'    => CbtPesertaJawabanResource::collection($soal),
             'peserta' => new CbtPesertaResource($peserta),
+            'tampilkan_hasil' => true,
         ], 'Hasil ujian berhasil dimuat');
     }
 }

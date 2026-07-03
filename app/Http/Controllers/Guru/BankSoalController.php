@@ -460,7 +460,7 @@ class BankSoalController extends Controller
                     'cbt_bab_id'        => $finalBabId,
                     'tipe_soal'         => in_array($tipe_soal, ['pg', 'essay']) ? $tipe_soal : 'pg',
                     'tingkat_kesulitan' => in_array($kesulitan, ['easy', 'medium', 'hard']) ? $kesulitan : 'medium',
-                    'pertanyaan'        => $pertanyaan,
+                    'pertanyaan'        => HtmlSanitizer::clean($pertanyaan),
                     'status'            => 'published',
                     'created_by'        => Auth::id()
                 ]);
@@ -473,7 +473,7 @@ class BankSoalController extends Controller
                         if (empty(trim($teks_opsi))) continue;
                         CbtOpsiJawaban::create([
                             'cbt_bank_soal_id' => $soal->id,
-                            'teks_opsi'        => $teks_opsi,
+                            'teks_opsi'        => HtmlSanitizer::clean($teks_opsi),
                             'is_benar'         => ($idx === $kunciIdx)
                         ]);
                     }
@@ -482,7 +482,7 @@ class BankSoalController extends Controller
                 if (!empty(trim($pembahasan))) {
                     CbtPembahasan::create([
                         'cbt_bank_soal_id' => $soal->id,
-                        'teks_pembahasan'  => $pembahasan
+                        'teks_pembahasan'  => HtmlSanitizer::clean($pembahasan)
                     ]);
                 }
             }
