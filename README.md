@@ -34,7 +34,7 @@ Pastikan sistem Anda sudah terinstal **Docker** dan **Docker Compose**.
 
 1. **Clone dan Masuk ke Direktori Proyek**
    ```bash
-   git clone https://github.com/TRPL-JBI/pbl-2026-l6-tim-7
+   git clone https://github.com/Joanilham/sistem_infromasi_bimbel.git
    cd sistem_informasi
    ```
 
