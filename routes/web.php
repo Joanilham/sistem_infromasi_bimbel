@@ -42,7 +42,7 @@ Route::get('/login', function () {
     return view('auth.login');
 })->name('login')->middleware('guest');
 
-Route::post('/login', [AuthController::class, 'authenticate'])->middleware('throttle:1000,1');
+Route::post('/login', [AuthController::class, 'authenticate'])->middleware('throttle:5,1');
 
 // Lupa Password
 Route::middleware('guest')->group(function () {
@@ -73,7 +73,6 @@ Route::prefix('daftar')->name('daftar.')->group(function () {
 Route::middleware('auth')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-    Route::get('/logout', [AuthController::class, 'logout']);
 
     // ----------------------------------------------------------
     // AREA ADMINISTRATOR & STAFF

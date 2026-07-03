@@ -18,23 +18,21 @@
                 data: @json($chartPesertaKeluar)
             }],
             chart: {
-                type: 'area',
+                type: 'bar',
                 height: 320,
                 toolbar: { show: false },
                 fontFamily: 'Plus Jakarta Sans, sans-serif'
             },
-            colors: ['#4F46E5', '#EF4444'], // Indigo & Red
-            fill: {
-                type: 'gradient',
-                gradient: {
-                    shadeIntensity: 1,
-                    opacityFrom: 0.3,
-                    opacityTo: 0.02,
-                    stops: [0, 90, 100]
-                }
+            plotOptions: {
+                bar: {
+                    horizontal: false,
+                    columnWidth: '55%',
+                    borderRadius: 4
+                },
             },
+            colors: ['#4F46E5', '#EF4444'], // Indigo & Red
             dataLabels: { enabled: false },
-            stroke: { curve: 'smooth', width: 3 },
+            stroke: { show: true, width: 2, colors: ['transparent'] },
             xaxis: {
                 categories: @json($chartLabels),
                 axisBorder: { show: false },
@@ -44,7 +42,11 @@
                 }
             },
             yaxis: {
+                decimalsInFloat: 0,
                 labels: {
+                    formatter: function (val) {
+                        return Math.round(val);
+                    },
                     style: { colors: '#94a3b8', fontSize: '11px', fontWeight: 600 }
                 }
             },
@@ -62,7 +64,11 @@
             },
             tooltip: {
                 theme: isDark ? 'dark' : 'light',
-                x: { format: 'dd MMM yyyy' }
+                y: {
+                    formatter: function (val) {
+                        return val + " Siswa"
+                    }
+                }
             }
         };
 
@@ -86,23 +92,21 @@
                 data: @json($chartUangKeluar)
             }],
             chart: {
-                type: 'area',
+                type: 'bar',
                 height: 320,
                 toolbar: { show: false },
                 fontFamily: 'Plus Jakarta Sans, sans-serif'
             },
-            colors: ['#10B981', '#F43F5E'], // Emerald & Rose
-            fill: {
-                type: 'gradient',
-                gradient: {
-                    shadeIntensity: 1,
-                    opacityFrom: 0.3,
-                    opacityTo: 0.02,
-                    stops: [0, 90, 100]
-                }
+            plotOptions: {
+                bar: {
+                    horizontal: false,
+                    columnWidth: '55%',
+                    borderRadius: 4
+                },
             },
+            colors: ['#10B981', '#F43F5E'], // Emerald & Rose
             dataLabels: { enabled: false },
-            stroke: { curve: 'smooth', width: 3 },
+            stroke: { show: true, width: 2, colors: ['transparent'] },
             xaxis: {
                 categories: @json($chartLabels),
                 axisBorder: { show: false },
@@ -114,7 +118,10 @@
             yaxis: {
                 labels: {
                     formatter: function (value) {
-                        return "Rp " + new Intl.NumberFormat('id-ID').format(value);
+                        if (value >= 1000000000) return "Rp" + (value / 1000000000).toFixed(1).replace(/\.0$/, '') + "M";
+                        if (value >= 1000000) return "Rp" + (value / 1000000).toFixed(1).replace(/\.0$/, '') + "Jt";
+                        if (value >= 1000) return "Rp" + (value / 1000).toFixed(1).replace(/\.0$/, '') + "K";
+                        return "Rp" + value;
                     },
                     style: { colors: '#94a3b8', fontSize: '11px', fontWeight: 600 }
                 }

@@ -89,14 +89,14 @@ class DashboardController extends Controller
         // Tagihan Jatuh Tempo Count
         $tagihanJatuhTempoCount = Cache::remember("dash_tagihan_jt_{$kantorId}_{$periodeId}", 1800, function() use ($kantorId, $periodeId) {
             if (!$kantorId || !$periodeId) return 0;
-            $tagihanRaw = PembayaranSiswa::withSum(['transaksi' => fn($q) => $q->where('status', 'sukses')], 'nominal')
+            return PembayaranSiswa::withSum(['transaksi' => fn($q) => $q->where('status', 'sukses')], 'nominal')
                 ->whereHas('pesertaDidik', fn($q) => $q->inContext()->aktif())
                 ->where(function($q) {
                     $q->where('batas_waktu', '<=', Carbon::now()->addDays(7))
                       ->orWhereNull('batas_waktu');
                 })
-                ->get();
-            return $tagihanRaw->filter(fn($p) => $p->total_harus_dibayar - ($p->transaksi_sum_nominal ?? 0) > 0)->count();
+                ->havingRaw('total_harus_dibayar > COALESCE(transaksi_sum_nominal, 0)')
+                ->count();
         });
 
         // Lead Tracking: 10 Pendaftar Terbaru

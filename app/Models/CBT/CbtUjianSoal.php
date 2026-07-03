@@ -26,7 +26,9 @@ class CbtUjianSoal extends Model
     use Auditable;
 
     protected $table = 'cbt_ujian_soals';
-    protected $guarded = [];
+    protected $fillable = [
+        'cbt_ujian_id', 'cbt_bank_soal_id', 'bobot', 'urutan'
+    ];
 
     public function ujian(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {

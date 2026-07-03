@@ -38,7 +38,11 @@ class CbtUjian extends Model
     use SoftDeletes, Auditable;
 
     protected $table = 'cbt_ujians';
-    protected $guarded = [];
+    protected $fillable = [
+        'judul', 'deskripsi', 'durasi', 'waktu_mulai', 'waktu_selesai',
+        'mode', 'acak_soal', 'acak_opsi', 'limit_attempt', 'token',
+        'tampilkan_hasil', 'created_by'
+    ];
 
     protected $casts = [
         'acak_soal'         => 'boolean',

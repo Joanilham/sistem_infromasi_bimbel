@@ -7,7 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="turbo-cache-control" content="no-preview">
-    <title>@yield('title', 'Dashboard Guru') - Genius Education</title>
+    <meta name="app-version" content="v1.0.1" data-turbo-track="reload">
+    <title>@yield('title', 'Guru Dashboard') - Genius Education</title>
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{{ isset($masterData) && $masterData->logo ? Storage::url($masterData->logo) : asset('favicon.png') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -15,6 +16,19 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Turbo Drive SPA -->
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.4/dist/turbo.es2017-esm.js"></script>
+    <script>
+        // Disable Turbo Drive specifically for all forms to prevent Alpine.js state lock
+        document.addEventListener('turbo:load', function() {
+            document.querySelectorAll('form').forEach(form => {
+                if (!form.hasAttribute('data-turbo')) {
+                    form.setAttribute('data-turbo', 'false');
+                }
+            });
+        });
+    </script>
     
     <!-- TomSelect CSS -->
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
@@ -51,7 +65,7 @@
         @include('layouts.guru.header')
 
         <!-- Main Body Area -->
-        <main class="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950 p-4 pb-24 sm:p-6 sm:pb-8 lg:p-8 custom-scrollbar">
+        <main id="main-scroll-area" class="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950 p-4 pb-24 sm:p-6 sm:pb-8 lg:p-8 custom-scrollbar">
             <div class="max-w-7xl mx-auto">
                 @if(session('success'))
                 <div x-data="{ show: true }" 
@@ -140,6 +154,12 @@
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
     <script>
         document.addEventListener('turbo:load', function() {
+            // Scroll to top of main content area on navigation
+            const mainScrollArea = document.getElementById('main-scroll-area');
+            if (mainScrollArea) {
+                mainScrollArea.scrollTop = 0;
+            }
+
             document.querySelectorAll('select').forEach((el) => {
                 if (el.classList.contains('no-tomselect') || el.closest('.ql-toolbar')) return;
                 new TomSelect(el, {
@@ -169,7 +189,5 @@
     </script>
     @include('components.loading-overlay')
 
-    <!-- Turbo Drive SPA -->
-    <script type="module" src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.4/dist/turbo.es2017-esm.js"></script>
 </body>
 </html>

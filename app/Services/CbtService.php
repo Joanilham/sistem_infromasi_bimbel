@@ -139,12 +139,36 @@ class CbtService
 
         $skorAkhir = $totalBobot > 0 ? ($totalSkor / $totalBobot) * 100 : 0;
 
-        // ✅ BULK UPDATE dalam satu transaksi — jauh lebih efisien dari N save()
+        // ✅ BULK UPDATE dalam satu query (Raw SQL) — Menurunkan beban DB secara drastis
         DB::transaction(function () use ($updates, $sesi, $status, $skorAkhir) {
-            foreach ($updates as $jawabanId => $data) {
-                DB::table('cbt_peserta_jawabans')
-                    ->where('id', $jawabanId)
-                    ->update($data);
+            if (!empty($updates)) {
+                $casesBenar = [];
+                $casesSkor = [];
+                $ids = [];
+                $bindingsBenar = [];
+                $bindingsSkor = [];
+
+                foreach ($updates as $jawabanId => $data) {
+                    $ids[] = $jawabanId;
+                    
+                    $casesBenar[] = "WHEN id = ? THEN ?";
+                    $bindingsBenar[] = $jawabanId;
+                    $bindingsBenar[] = $data['is_benar'] ? 1 : 0; // Boolean to tinyint
+                    
+                    $casesSkor[] = "WHEN id = ? THEN ?";
+                    $bindingsSkor[] = $jawabanId;
+                    $bindingsSkor[] = $data['skor'];
+                }
+
+                $idsPlaceholder = implode(',', array_fill(0, count($ids), '?'));
+                $sql = "UPDATE cbt_peserta_jawabans SET 
+                        is_benar = CASE " . implode(' ', $casesBenar) . " END,
+                        skor = CASE " . implode(' ', $casesSkor) . " END,
+                        updated_at = ?
+                        WHERE id IN ({$idsPlaceholder})";
+
+                $bindings = array_merge($bindingsBenar, $bindingsSkor, [now()->toDateTimeString()], $ids);
+                DB::statement($sql, $bindings);
             }
 
             $sesi->skor         = $skorAkhir;

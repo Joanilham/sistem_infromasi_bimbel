@@ -32,7 +32,11 @@ class CbtPesertaJawaban extends Model
     use Auditable;
 
     protected $table = 'cbt_peserta_jawabans';
-    protected $guarded = [];
+    protected $fillable = [
+        'cbt_peserta_id', 'cbt_bank_soal_id', 'jawaban_essay',
+        'cbt_opsi_jawaban_id', 'jawaban_multi', 'opsi_order',
+        'ragu_ragu', 'is_benar', 'skor'
+    ];
 
     protected $casts = [
         'jawaban_multi' => 'array',

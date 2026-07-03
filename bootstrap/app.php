@@ -23,8 +23,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->trustProxies(at: '*');
 
         // Global middleware — berjalan di SEMUA request
-        // $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
-        // $middleware->append(\App\Http\Middleware\CameraPermissionHeaders::class);
+        $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
+        $middleware->append(\App\Http\Middleware\CameraPermissionHeaders::class);
 
         // Alias middleware
         $middleware->alias([

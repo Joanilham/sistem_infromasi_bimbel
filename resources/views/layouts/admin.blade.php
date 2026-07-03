@@ -8,6 +8,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="turbo-cache-control" content="no-preview">
     <meta name="description" content="Dashboard Sistem Informasi Manajemen Pendidikan Genius Education">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="turbo-cache-control" content="no-preview">
+    <meta name="app-version" content="v1.0.1" data-turbo-track="reload">
     <meta name="author" content="Genius Education">
     <meta name="robots" content="index, follow">
     <title>@yield('title', 'Dashboard') - Genius Education</title>
@@ -193,30 +196,41 @@
             return rupiah;
         }
 
-        document.addEventListener('turbo:load', function() {
-            document.querySelectorAll('input.nominal-format, input.nominal-input, input[name="nominal"], input[name="biaya_pendaftaran"]').forEach(input => {
-                // Cegah multiple event listener jika Turbo cache dikembalikan
-                if (input.dataset.rupiahBound) return;
-                input.dataset.rupiahBound = "true";
+        // Event delegation untuk format rupiah saat input
+        document.addEventListener('input', function(e) {
+            if (e.target && e.target.matches('input.nominal-format, input.nominal-input, input[name="nominal"], input[name="biaya_pendaftaran"]')) {
+                if (e.target.type === 'number') {
+                    e.target.type = 'text';
+                    e.target.setAttribute('inputmode', 'numeric');
+                }
+                e.target.value = formatRupiah(e.target.value);
+            }
+        });
 
+        // Hapus titik sebelum form disubmit
+        document.addEventListener('submit', function(e) {
+            if (e.target && e.target.tagName === 'FORM') {
+                e.target.querySelectorAll('input.nominal-format, input.nominal-input, input[name="nominal"], input[name="biaya_pendaftaran"]').forEach(input => {
+                    input.value = input.value.replace(/\./g, '');
+                });
+            }
+        });
+
+        document.addEventListener('turbo:load', function() {
+            // Scroll to top of main content area on navigation
+            const mainScrollArea = document.getElementById('main-scroll-area');
+            if (mainScrollArea) {
+                mainScrollArea.scrollTop = 0;
+            }
+
+            // Format nilai awal saat halaman dimuat
+            document.querySelectorAll('input.nominal-format, input.nominal-input, input[name="nominal"], input[name="biaya_pendaftaran"]').forEach(input => {
                 if(input.type === 'number') {
                     input.type = 'text';
                     input.setAttribute('inputmode', 'numeric');
                 }
-                
                 if(input.value) {
                     input.value = formatRupiah(input.value);
-                }
-
-                input.addEventListener('input', function(e) {
-                    this.value = formatRupiah(this.value);
-                });
-                
-                const form = input.closest('form');
-                if (form) {
-                    form.addEventListener('submit', function() {
-                        input.value = input.value.replace(/\./g, '');
-                    });
                 }
             });
 
@@ -241,6 +255,16 @@
     
     <!-- Turbo Drive SPA -->
     <script type="module" src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.4/dist/turbo.es2017-esm.js"></script>
+    <script>
+        // Disable Turbo Drive specifically for all forms to prevent Alpine.js state lock
+        document.addEventListener('turbo:load', function() {
+            document.querySelectorAll('form').forEach(form => {
+                if (!form.hasAttribute('data-turbo')) {
+                    form.setAttribute('data-turbo', 'false');
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>

@@ -60,7 +60,7 @@ class PendaftaranController extends Controller
         ]);
 
         Session::put('daftar_email', $request->email);
-        Session::put('daftar_password', $request->password);
+        Session::put('daftar_password', Hash::make($request->password));
         Session::put('daftar_kantor_id', $request->kantor_id);
 
         return redirect()->route('daftar.step2');
