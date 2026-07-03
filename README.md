@@ -41,14 +41,14 @@ Pastikan sistem Anda sudah terinstal **Docker** dan **Docker Compose**.
 2. **Jalankan Aplikasi dengan Docker**
    Karena aplikasi ini sepenuhnya menggunakan container, Anda hanya perlu menjalankan:
    ```bash
-   sudo docker compose up -d
+   docker compose up -d
    ```
    *Perintah ini akan secara otomatis mem-build image, menginstal dependensi Composer & NPM, serta menjalankan Nginx, App (RoadRunner), MySQL, Redis, Queue, dan Scheduler.*
 
 3. **Inisialisasi Database (Migrasi & Seeder)**
    Setelah semua container berjalan (status `Up`), jalankan perintah ini untuk membangun tabel dan memasukkan data admin awal:
    ```bash
-   sudo docker compose exec app php artisan migrate:fresh --seed
+   docker compose exec app php artisan migrate:fresh --seed
    ```
 
 4. **Akses Aplikasi**
