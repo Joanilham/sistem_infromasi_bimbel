@@ -94,6 +94,15 @@ class CbtSiswaController extends Controller
      */
     public function show($id)
     {
+        $user = Auth::user();
+        $pesertaDidik = $user->pesertaDidik;
+        $kelompokId = $pesertaDidik ? $pesertaDidik->kelompok_belajar_id : null;
+        $assignedUjianIds = $this->getAssignedUjianIds($user->id, $kelompokId);
+        
+        if (!in_array($id, $assignedUjianIds)) {
+            abort(403, 'Anda tidak terdaftar untuk ujian ini.');
+        }
+
         $ujian = CbtUjian::withCount('ujianSoals as soals_count')->findOrFail($id);
         
         // Cari sesi yang sedang aktif
@@ -138,6 +147,15 @@ class CbtSiswaController extends Controller
         }
 
         try {
+            $user = Auth::user();
+            $pesertaDidik = $user->pesertaDidik;
+            $kelompokId = $pesertaDidik ? $pesertaDidik->kelompok_belajar_id : null;
+            $assignedUjianIds = $this->getAssignedUjianIds($userId, $kelompokId);
+            
+            if (!in_array($id, $assignedUjianIds)) {
+                return back()->with('error', 'Anda tidak terdaftar untuk mengikuti ujian ini.');
+            }
+
             $ujian = CbtUjian::with(['ujianSoals.bankSoal.opsiJawabans'])->findOrFail($id);
 
             if (!$ujian->is_aktif) {

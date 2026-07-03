@@ -18,21 +18,34 @@
                 data: @json($chartPesertaKeluar)
             }],
             chart: {
-                type: 'bar',
+                type: 'area',
                 height: 320,
                 toolbar: { show: false },
-                fontFamily: 'Plus Jakarta Sans, sans-serif'
+                fontFamily: 'Plus Jakarta Sans, sans-serif',
+                dropShadow: {
+                    enabled: true,
+                    color: '#000',
+                    top: 18,
+                    left: 7,
+                    blur: 10,
+                    opacity: 0.05
+                }
             },
-            plotOptions: {
-                bar: {
-                    horizontal: false,
-                    columnWidth: '55%',
-                    borderRadius: 4
-                },
-            },
-            colors: ['#4F46E5', '#EF4444'], // Indigo & Red
+            colors: ['#6366F1', '#F43F5E'], // Indigo & Rose
             dataLabels: { enabled: false },
-            stroke: { show: true, width: 2, colors: ['transparent'] },
+            stroke: { 
+                curve: 'smooth', 
+                width: 3 
+            },
+            fill: {
+                type: 'gradient',
+                gradient: {
+                    shadeIntensity: 1,
+                    opacityFrom: 0.4,
+                    opacityTo: 0.05,
+                    stops: [0, 100]
+                }
+            },
             xaxis: {
                 categories: @json($chartLabels),
                 axisBorder: { show: false },
@@ -53,7 +66,8 @@
             grid: {
                 borderColor: gridColor,
                 strokeDashArray: 4,
-                xaxis: { lines: { show: false } }
+                xaxis: { lines: { show: false } },
+                yaxis: { lines: { show: true } }
             },
             legend: {
                 position: 'top',
@@ -92,21 +106,34 @@
                 data: @json($chartUangKeluar)
             }],
             chart: {
-                type: 'bar',
+                type: 'area',
                 height: 320,
                 toolbar: { show: false },
-                fontFamily: 'Plus Jakarta Sans, sans-serif'
-            },
-            plotOptions: {
-                bar: {
-                    horizontal: false,
-                    columnWidth: '55%',
-                    borderRadius: 4
-                },
+                fontFamily: 'Plus Jakarta Sans, sans-serif',
+                dropShadow: {
+                    enabled: true,
+                    color: '#000',
+                    top: 18,
+                    left: 7,
+                    blur: 10,
+                    opacity: 0.05
+                }
             },
             colors: ['#10B981', '#F43F5E'], // Emerald & Rose
             dataLabels: { enabled: false },
-            stroke: { show: true, width: 2, colors: ['transparent'] },
+            stroke: { 
+                curve: 'smooth', 
+                width: 3 
+            },
+            fill: {
+                type: 'gradient',
+                gradient: {
+                    shadeIntensity: 1,
+                    opacityFrom: 0.4,
+                    opacityTo: 0.05,
+                    stops: [0, 100]
+                }
+            },
             xaxis: {
                 categories: @json($chartLabels),
                 axisBorder: { show: false },
@@ -129,7 +156,8 @@
             grid: {
                 borderColor: gridColor,
                 strokeDashArray: 4,
-                xaxis: { lines: { show: false } }
+                xaxis: { lines: { show: false } },
+                yaxis: { lines: { show: true } }
             },
             legend: {
                 position: 'top',
