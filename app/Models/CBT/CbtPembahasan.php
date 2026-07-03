@@ -13,7 +13,9 @@ class CbtPembahasan extends Model
     use Auditable;
 
     protected $table = 'cbt_pembahasans';
-    protected $guarded = [];
+    protected $fillable = [
+        'cbt_bank_soal_id', 'teks_pembahasan', 'file_pembahasan'
+    ];
 
     public function bankSoal()
     {

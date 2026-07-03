@@ -128,40 +128,49 @@ class CbtSiswaController extends Controller
      */
     public function mulai(Request $request, $id)
     {
-        $ujian = CbtUjian::with(['ujianSoals.bankSoal.opsiJawabans'])->findOrFail($id);
+        $userId = Auth::id();
+        $lockKey = "mulai_ujian_{$id}_{$userId}";
 
-        if (!$ujian->is_aktif) {
-            return back()->with('error', 'Ujian belum aktif atau sudah berakhir.');
-        }
-
-        if ($ujian->ujianSoals->isEmpty()) {
-            return back()->with('error', 'Ujian belum memiliki soal.');
-        }
-
-        if ($ujian->token) {
-            $request->validate(['token' => 'required|string']);
-            if ($request->token !== $ujian->token) {
-                return back()->with('error', 'Token ujian tidak valid.');
-            }
-        }
-
-        // 1. Cek Sesi Aktif
-        $sesiAktif = CbtPeserta::where('cbt_ujian_id', $ujian->id)
-            ->where('user_id', Auth::id())
-            ->where('status', 'mengerjakan')
-            ->first();
-
-        if ($sesiAktif) {
-            return redirect()->route('siswa.ujian.soal', [$sesiAktif->id, 1]);
-        }
-
-        // 2. Cek Limit Attempt
-        if (!$ujian->canAttempt(Auth::id())) {
-            return redirect()->route('siswa.ujian.index')->with('error', 'Anda telah mencapai batas maksimal percobaan untuk ujian ini.');
+        // Coba dapatkan lock selama 10 detik, cegah spam klik (Race Condition)
+        $lock = Cache::lock($lockKey, 10);
+        if (!$lock->get()) {
+            return back()->with('error', 'Sistem sedang memproses permintaan Anda, harap tunggu sebentar.');
         }
 
         try {
-            $sesi = $this->cbtService->initiateSesi($ujian, Auth::id(), [
+            $ujian = CbtUjian::with(['ujianSoals.bankSoal.opsiJawabans'])->findOrFail($id);
+
+            if (!$ujian->is_aktif) {
+                return back()->with('error', 'Ujian belum aktif atau sudah berakhir.');
+            }
+
+            if ($ujian->ujianSoals->isEmpty()) {
+                return back()->with('error', 'Ujian belum memiliki soal.');
+            }
+
+            if ($ujian->token) {
+                $request->validate(['token' => 'required|string']);
+                if ($request->token !== $ujian->token) {
+                    return back()->with('error', 'Token ujian tidak valid.');
+                }
+            }
+
+            // 1. Cek Sesi Aktif
+            $sesiAktif = CbtPeserta::where('cbt_ujian_id', $ujian->id)
+                ->where('user_id', $userId)
+                ->where('status', 'mengerjakan')
+                ->first();
+
+            if ($sesiAktif) {
+                return redirect()->route('siswa.ujian.soal', [$sesiAktif->id, 1]);
+            }
+
+            // 2. Cek Limit Attempt
+            if (!$ujian->canAttempt($userId)) {
+                return redirect()->route('siswa.ujian.index')->with('error', 'Anda telah mencapai batas maksimal percobaan untuk ujian ini.');
+            }
+
+            $sesi = $this->cbtService->initiateSesi($ujian, $userId, [
                 'session_token' => session()->getId(),
                 'ip_address'    => $request->ip(),
             ]);
@@ -172,6 +181,8 @@ class CbtSiswaController extends Controller
             return redirect()->route('siswa.ujian.soal', [$sesi->id, 1]);
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal memulai ujian: ' . $e->getMessage());
+        } finally {
+            $lock->release();
         }
     }
 
@@ -247,6 +258,16 @@ class CbtSiswaController extends Controller
 
         if (!$sesi || $sesi->user_id !== Auth::id() || in_array($sesi->status, ['selesai', 'timeout'])) {
             return response()->json(['status' => 'error'], 403);
+        }
+
+        // Validasi waktu server-side (Grace period 15 detik)
+        $sesi->loadMissing('ujian');
+        $durasiDetik = $sesi->ujian->durasi * 60;
+        $detikBerlalu = $sesi->waktu_mulai->diffInSeconds(now());
+        if ($detikBerlalu > ($durasiDetik + 15)) {
+            // Auto submit jika kedaluwarsa
+            app(\App\Services\CbtService::class)->gradeAndSubmit($sesi, 'timeout');
+            return response()->json(['status' => 'timeout', 'message' => 'Waktu ujian telah habis.'], 403);
         }
 
         // ✅ Direct DB update — 1 query (sebelumnya 2 query: load + save)
@@ -330,12 +351,24 @@ class CbtSiswaController extends Controller
 
     private function prosesSubmit(CbtPeserta $sesi, $status)
     {
-        // ✅ Hapus cache sesi saat ujian selesai
-        Cache::forget("cbt_sesi:{$sesi->id}");
+        $lockKey = "submit_sesi_{$sesi->id}";
+        $lock = Cache::lock($lockKey, 15); // Lock 15 detik selama proses grading
+        
+        if (!$lock->get()) {
+            // Jika ada request ganda di milidetik yang sama, alihkan yang kedua ke hasil
+            return redirect()->route('siswa.ujian.hasil', $sesi->id);
+        }
 
-        return $this->cbtService->gradeAndSubmit($sesi, $status)
-            ? redirect()->route('siswa.ujian.hasil', $sesi->id)->with('success', 'Ujian telah diselesaikan.')
-            : redirect()->route('siswa.ujian.hasil', $sesi->id);
+        try {
+            // ✅ Hapus cache sesi saat ujian selesai
+            Cache::forget("cbt_sesi:{$sesi->id}");
+
+            $this->cbtService->gradeAndSubmit($sesi, $status);
+
+            return redirect()->route('siswa.ujian.hasil', $sesi->id)->with('success', 'Ujian telah diselesaikan.');
+        } finally {
+            $lock->release();
+        }
     }
 
     private function getAssignedUjianIds($userId, $kelompokId): array

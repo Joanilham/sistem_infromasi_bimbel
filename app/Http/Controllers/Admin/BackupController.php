@@ -198,6 +198,16 @@ class BackupController extends Controller
                 return back()->with('error', 'File backup kosong.');
             }
 
+            // Validasi SQL injection / perintah berbahaya
+            $dangerousCommands = ['DROP DATABASE', 'GRANT ', 'CREATE USER', 'ALTER USER', 'FLUSH PRIVILEGES'];
+            $upperSql = strtoupper($sqlContent);
+            foreach ($dangerousCommands as $cmd) {
+                if (str_contains($upperSql, $cmd)) {
+                    Log::warning("Restore DB Ditolak: Ditemukan perintah berbahaya ({$cmd}) oleh User ID " . auth()->id());
+                    return back()->with('error', "Gagal memulihkan database: File backup mengandung perintah SQL yang tidak diizinkan ({$cmd}).");
+                }
+            }
+
             // Jalankan impor SQL secara aman menggunakan unprepared query di dalam transaksi
             \Illuminate\Support\Facades\DB::transaction(function () use ($sqlContent) {
                 \Illuminate\Support\Facades\DB::unprepared("SET FOREIGN_KEY_CHECKS=0;");

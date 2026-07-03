@@ -40,7 +40,11 @@ class CbtBankSoal extends Model
     use SoftDeletes, Auditable;
 
     protected $table = 'cbt_bank_soals';
-    protected $guarded = [];
+    protected $fillable = [
+        'cbt_mapel_id', 'cbt_bab_id', 'tipe_soal', 'tingkat_kesulitan',
+        'tags', 'pertanyaan', 'file_media', 'tipe_media', 'status',
+        'versi', 'created_by'
+    ];
 
     protected $casts = [
         'tags' => 'array',

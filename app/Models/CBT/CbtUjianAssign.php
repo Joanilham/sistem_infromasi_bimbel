@@ -13,7 +13,9 @@ class CbtUjianAssign extends Model
     use Auditable;
 
     protected $table = 'cbt_ujian_assigns';
-    protected $guarded = [];
+    protected $fillable = [
+        'cbt_ujian_id', 'assignable_type', 'assignable_id'
+    ];
 
     public function ujian()
     {

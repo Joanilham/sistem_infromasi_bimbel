@@ -58,10 +58,10 @@ class PembayaranController extends Controller
         );
 
         $validated = $request->validate([
-            'nominal' => 'required|integer|min:1',
+            'nominal' => 'required|numeric|min:10000',
             'tanggal' => 'required|date',
             'bank_tujuan_id' => 'required|exists:banks,id',
-            'bukti_pembayaran' => 'required|image|mimes:jpeg,png,jpg|max:5120',
+            'bukti_pembayaran' => 'required|image|mimes:jpeg,png,jpg|dimensions:min_width=1,min_height=1|max:5120',
             'catatan_siswa' => 'nullable|string',
         ], [
             'nominal.required' => 'Jumlah nominal pembayaran harus diisi.',

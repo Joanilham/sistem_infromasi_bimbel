@@ -100,7 +100,7 @@ class KeuanganController extends Controller
         $request->validate([
             'nominal' => 'required|numeric|min:10000',
             'bank_id' => 'required|exists:banks,id',
-            'bukti_pembayaran' => 'required|image|mimes:jpeg,png,jpg|max:5120',
+            'bukti_pembayaran' => 'required|image|mimes:jpeg,png,jpg|dimensions:min_width=1,min_height=1|max:5120',
         ]);
 
         $kekurangan = $pembayaran->kekurangan;

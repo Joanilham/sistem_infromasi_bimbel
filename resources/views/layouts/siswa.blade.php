@@ -18,6 +18,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="turbo-cache-control" content="no-preview">
+    <meta name="app-version" content="v1.0.1" data-turbo-track="reload">
     <title>@yield('title', 'Dashboard Siswa') - Genius Education</title>
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{{ isset($masterData) && $masterData->logo ? Storage::url($masterData->logo) : asset('favicon.png') }}">
@@ -184,6 +185,12 @@
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
     <script>
         document.addEventListener('turbo:load', function() {
+            // Scroll to top of main content area on navigation
+            const mainScrollArea = document.getElementById('main-scroll-area');
+            if (mainScrollArea) {
+                mainScrollArea.scrollTop = 0;
+            }
+
             // TomSelect Init
             document.querySelectorAll('select').forEach((el) => {
                 if (el.classList.contains('no-tomselect')) return;
@@ -212,23 +219,21 @@
                 return rupiah;
             }
 
-            document.querySelectorAll('input.nominal-format, input.nominal-input, input[name="nominal"], input[name="biaya_pendaftaran"]').forEach(input => {
-                if(input.type === 'number') {
-                    input.type = 'text';
-                    input.setAttribute('inputmode', 'numeric');
+            // Event delegation untuk format rupiah saat input
+            document.addEventListener('input', function(e) {
+                if (e.target && e.target.matches('input.nominal-format, input.nominal-input, input[name="nominal"], input[name="biaya_pendaftaran"]')) {
+                    if (e.target.type === 'number') {
+                        e.target.type = 'text';
+                        e.target.setAttribute('inputmode', 'numeric');
+                    }
+                    e.target.value = formatRupiah(e.target.value);
                 }
-                
-                if(input.value) {
-                    input.value = formatRupiah(input.value);
-                }
+            });
 
-                input.addEventListener('input', function(e) {
-                    this.value = formatRupiah(this.value);
-                });
-                
-                const form = input.closest('form');
-                if (form) {
-                    form.addEventListener('submit', function() {
+            // Hapus titik sebelum form disubmit
+            document.addEventListener('submit', function(e) {
+                if (e.target && e.target.tagName === 'FORM') {
+                    e.target.querySelectorAll('input.nominal-format, input.nominal-input, input[name="nominal"], input[name="biaya_pendaftaran"]').forEach(input => {
                         input.value = input.value.replace(/\./g, '');
                     });
                 }
@@ -253,8 +258,17 @@
         });
     </script>
     @include('components.loading-overlay')
-
     <!-- Turbo Drive SPA -->
     <script type="module" src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.4/dist/turbo.es2017-esm.js"></script>
+    <script>
+        // Disable Turbo Drive specifically for all forms to prevent Alpine.js state lock
+        document.addEventListener('turbo:load', function() {
+            document.querySelectorAll('form').forEach(form => {
+                if (!form.hasAttribute('data-turbo')) {
+                    form.setAttribute('data-turbo', 'false');
+                }
+            });
+        });
+    </script>
 </body>
 </html>

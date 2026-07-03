@@ -24,7 +24,9 @@ class CbtOpsiJawaban extends Model
     use Auditable;
 
     protected $table = 'cbt_opsi_jawabans';
-    protected $guarded = [];
+    protected $fillable = [
+        'cbt_bank_soal_id', 'teks_opsi', 'file_media', 'is_benar'
+    ];
 
     protected $casts = [
         'is_benar' => 'boolean',

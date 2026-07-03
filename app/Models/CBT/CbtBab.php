@@ -24,7 +24,9 @@ class CbtBab extends Model
     use Auditable;
 
     protected $table = 'cbt_babs';
-    protected $guarded = [];
+    protected $fillable = [
+        'cbt_mapel_id', 'nama'
+    ];
 
     public function mapel(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {

@@ -30,7 +30,10 @@ class CbtPeserta extends Model
     use Auditable;
 
     protected $table = 'cbt_pesertas';
-    protected $guarded = [];
+    protected $fillable = [
+        'cbt_ujian_id', 'user_id', 'status', 'waktu_mulai', 'waktu_selesai',
+        'skor', 'attempt_ke', 'blur_count'
+    ];
 
     protected $casts = [
         'waktu_mulai'   => 'datetime',
