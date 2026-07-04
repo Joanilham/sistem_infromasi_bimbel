@@ -1,16 +1,18 @@
-// Sidebar Scroll Persistence — handles x-cloak and Alpine.js rendering
+// Sidebar Scroll Persistence (Fixed Glitch on Manual Scroll)
 (function() {
     const STORAGE_KEY = 'sidebarScrollTop';
+    let latestScrollTop = null;
+    let isRestoring = false;
 
-    // Save current scroll position
     function saveScroll() {
+        if (isRestoring) return; // Don't save while restoring
         var sidebar = document.getElementById('sidebar-scroll-container');
-        if (sidebar && sidebar.scrollTop > 0) {
+        if (sidebar) {
+            latestScrollTop = sidebar.scrollTop;
             localStorage.setItem(STORAGE_KEY, sidebar.scrollTop);
         }
     }
 
-    // Restore scroll position
     function restoreScroll() {
         var sidebar = document.getElementById('sidebar-scroll-container');
         if (!sidebar) return;
@@ -19,51 +21,80 @@
         if (saved === null) return;
 
         var targetPos = parseInt(saved, 10);
-        if (targetPos <= 0) return;
+        isRestoring = true;
+        
+        let animationFrameId;
+        let timeoutIds = [];
 
-        // Function to attempt setting the scroll
+        // Stop restoring if user manually scrolls or interacts
+        function cancelRestore() {
+            isRestoring = false;
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            timeoutIds.forEach(clearTimeout);
+            sidebar.removeEventListener('wheel', cancelRestore);
+            sidebar.removeEventListener('touchstart', cancelRestore);
+            sidebar.removeEventListener('mousedown', cancelRestore);
+        }
+
+        // Listen for user interaction to cancel the forced scroll
+        sidebar.addEventListener('wheel', cancelRestore, { passive: true });
+        sidebar.addEventListener('touchstart', cancelRestore, { passive: true });
+        sidebar.addEventListener('mousedown', cancelRestore, { passive: true });
+
         function attemptScroll() {
-            // Only set if the sidebar is actually visible (x-cloak removed)
-            if (sidebar.offsetHeight > 0 || sidebar.clientHeight > 0) {
+            if (!isRestoring) return true; // Abort if cancelled
+            
+            if (sidebar.offsetHeight > 0) {
                 sidebar.scrollTop = targetPos;
-                return sidebar.scrollTop >= targetPos - 5;
+                var maxScroll = sidebar.scrollHeight - sidebar.clientHeight;
+                var acceptablePos = Math.min(targetPos, maxScroll);
+                // Return true if we reached the target or the true max limit
+                if (sidebar.scrollTop >= acceptablePos - 5 && maxScroll >= targetPos) {
+                    return true;
+                }
             }
             return false;
         }
 
-        // Try immediately
-        attemptScroll();
+        if (attemptScroll()) {
+            cancelRestore();
+            return;
+        }
 
-        // Keep trying aggressively for the first 1 second (to catch Alpine.js removing x-cloak)
         var start = performance.now();
         function poll() {
+            if (!isRestoring) return;
             var success = attemptScroll();
-            if (!success && performance.now() - start < 1500) {
-                requestAnimationFrame(poll);
+            if (!success && performance.now() - start < 800) {
+                animationFrameId = requestAnimationFrame(poll);
+            } else {
+                cancelRestore();
             }
         }
-        requestAnimationFrame(poll);
+        animationFrameId = requestAnimationFrame(poll);
 
-        // Fallbacks for deeply nested/slow rendering
-        var intervals = [50, 100, 200, 400, 800, 1500];
+        var intervals = [50, 150, 300];
         intervals.forEach(function(ms) {
-            setTimeout(attemptScroll, ms);
+            timeoutIds.push(setTimeout(function() {
+                if (isRestoring) attemptScroll();
+            }, ms));
         });
     }
 
-    // Save before leaving the page
-    window.addEventListener('beforeunload', saveScroll);
-
-    // Save on every scroll (debounced)
     var scrollTimer;
     document.addEventListener('scroll', function(e) {
         if (e.target && e.target.id === 'sidebar-scroll-container') {
             clearTimeout(scrollTimer);
-            scrollTimer = setTimeout(saveScroll, 100);
+            scrollTimer = setTimeout(saveScroll, 50);
+        }
+    }, true);
+    
+    document.addEventListener('click', function(e) {
+        if (e.target && e.target.closest('#sidebar-scroll-container a')) {
+            saveScroll();
         }
     }, true);
 
-    // Restore when DOM is ready
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', restoreScroll);
     } else {

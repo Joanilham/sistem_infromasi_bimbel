@@ -113,7 +113,7 @@
 
     <!-- Scripts -->
     <script defer src="{{ asset('vendor/alpinejs/alpine.min.js') }}"></script>
-    <script defer src="{{ asset('js/sidebar-scroll.js') }}"></script>
+    <script defer src="{{ asset('js/sidebar-scroll.js') }}?v={{ time() }}"></script>
 
     <!-- Global Delete Confirmation Script -->
     <script>

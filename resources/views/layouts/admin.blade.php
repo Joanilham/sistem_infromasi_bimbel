@@ -23,7 +23,7 @@
 
 
     <script defer src="{{ asset('vendor/alpinejs/alpine.min.js') }}"></script>
-    <script defer src="{{ asset('js/sidebar-scroll.js') }}"></script>
+    <script defer src="{{ asset('js/sidebar-scroll.js') }}?v={{ time() }}"></script>
     
     <!-- TomSelect CSS -->
     <link href="{{ asset('vendor/tom-select/tom-select.css') }}" rel="stylesheet" media="print" onload="this.media='all'">
