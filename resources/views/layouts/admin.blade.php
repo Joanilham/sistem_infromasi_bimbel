@@ -237,17 +237,25 @@
             // Persist Sidebar Scroll Position
             const sidebarScrollArea = document.getElementById('sidebar-scroll-container');
             if (sidebarScrollArea) {
-                const savedScrollTop = localStorage.getItem('sidebarScrollTopAdmin');
-                if (savedScrollTop !== null) {
-                    const pos = parseInt(savedScrollTop, 10);
-                    sidebarScrollArea.scrollTop = pos;
-                    setTimeout(() => { sidebarScrollArea.scrollTop = pos; }, 50);
-                    setTimeout(() => { sidebarScrollArea.scrollTop = pos; }, 150);
-                    setTimeout(() => { sidebarScrollArea.scrollTop = pos; }, 300);
-                }
-
+                const restoreScroll = () => {
+                    const savedScrollTop = localStorage.getItem('sidebarScrollTopAdmin');
+                    if (savedScrollTop !== null) {
+                        const pos = parseInt(savedScrollTop, 10);
+                        sidebarScrollArea.scrollTop = pos;
+                        setTimeout(() => { sidebarScrollArea.scrollTop = pos; }, 50);
+                    }
+                };
+                
+                restoreScroll();
+                
+                // Save on scroll
                 sidebarScrollArea.addEventListener('scroll', function() {
                     localStorage.setItem('sidebarScrollTopAdmin', this.scrollTop);
+                }, { passive: true });
+                
+                // Save before leaving page
+                window.addEventListener('beforeunload', function() {
+                    localStorage.setItem('sidebarScrollTopAdmin', sidebarScrollArea.scrollTop);
                 });
             }
         });
