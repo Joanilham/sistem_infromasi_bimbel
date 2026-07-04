@@ -1,4 +1,4 @@
-// Sidebar Scroll Persistence — waits for Alpine.js to finish rendering submenus
+// Sidebar Scroll Persistence — handles x-cloak and Alpine.js rendering
 (function() {
     const STORAGE_KEY = 'sidebarScrollTop';
 
@@ -10,7 +10,7 @@
         }
     }
 
-    // Restore scroll position, retrying until the sidebar is tall enough
+    // Restore scroll position
     function restoreScroll() {
         var sidebar = document.getElementById('sidebar-scroll-container');
         if (!sidebar) return;
@@ -21,52 +21,45 @@
         var targetPos = parseInt(saved, 10);
         if (targetPos <= 0) return;
 
-        // Attempt to set scroll immediately
-        sidebar.scrollTop = targetPos;
-
-        // Use MutationObserver to keep retrying as Alpine.js reveals hidden submenus
-        // (x-show elements change from display:none to display:block, increasing scrollHeight)
-        var attempts = 0;
-        var maxAttempts = 30; // stop after ~3 seconds
-        var observer = new MutationObserver(function() {
-            attempts++;
-            sidebar.scrollTop = targetPos;
-            // Stop observing once we've reached the target or exhausted attempts
-            if (sidebar.scrollTop >= targetPos - 5 || attempts >= maxAttempts) {
-                observer.disconnect();
+        // Function to attempt setting the scroll
+        function attemptScroll() {
+            // Only set if the sidebar is actually visible (x-cloak removed)
+            if (sidebar.offsetHeight > 0 || sidebar.clientHeight > 0) {
+                sidebar.scrollTop = targetPos;
+                return sidebar.scrollTop >= targetPos - 5;
             }
-        });
+            return false;
+        }
 
-        observer.observe(sidebar, {
-            childList: true,
-            subtree: true,
-            attributes: true,
-            attributeFilter: ['style', 'class']
-        });
+        // Try immediately
+        attemptScroll();
 
-        // Also use timed fallbacks for safety
+        // Keep trying aggressively for the first 1 second (to catch Alpine.js removing x-cloak)
+        var start = performance.now();
+        function poll() {
+            var success = attemptScroll();
+            if (!success && performance.now() - start < 1500) {
+                requestAnimationFrame(poll);
+            }
+        }
+        requestAnimationFrame(poll);
+
+        // Fallbacks for deeply nested/slow rendering
         var intervals = [50, 100, 200, 400, 800, 1500];
         intervals.forEach(function(ms) {
-            setTimeout(function() {
-                sidebar.scrollTop = targetPos;
-            }, ms);
+            setTimeout(attemptScroll, ms);
         });
-
-        // Clean up observer after 3 seconds no matter what
-        setTimeout(function() {
-            observer.disconnect();
-        }, 3000);
     }
 
     // Save before leaving the page
     window.addEventListener('beforeunload', saveScroll);
 
-    // Also save on every scroll (debounced)
+    // Save on every scroll (debounced)
     var scrollTimer;
     document.addEventListener('scroll', function(e) {
         if (e.target && e.target.id === 'sidebar-scroll-container') {
             clearTimeout(scrollTimer);
-            scrollTimer = setTimeout(saveScroll, 150);
+            scrollTimer = setTimeout(saveScroll, 100);
         }
     }, true);
 
