@@ -248,6 +248,9 @@
                         const pos = parseInt(savedScrollTop, 10);
                         sidebarScrollArea.scrollTop = pos;
                         setTimeout(() => { sidebarScrollArea.scrollTop = pos; }, 50);
+                        setTimeout(() => { sidebarScrollArea.scrollTop = pos; }, 150);
+                        setTimeout(() => { sidebarScrollArea.scrollTop = pos; }, 300);
+                        setTimeout(() => { sidebarScrollArea.scrollTop = pos; }, 600);
                     }
                 };
                 
