@@ -60,5 +60,5 @@ USER www-data
 
 EXPOSE 8000
 ENTRYPOINT ["entrypoint.sh"]
-CMD ["php", "artisan", "octane:start", "--server=roadrunner", "--host=0.0.0.0", "--port=8000"]
+CMD ["php", "artisan", "octane:start", "--server=roadrunner", "--host=0.0.0.0", "--port=8000", "--workers=8", "--max-requests=500"]
 
