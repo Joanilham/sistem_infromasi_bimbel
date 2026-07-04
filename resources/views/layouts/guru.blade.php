@@ -186,14 +186,12 @@
                 
                 restoreScroll();
                 
-                // Save on scroll
-                sidebarScrollArea.addEventListener('scroll', function() {
-                    localStorage.setItem('sidebarScrollTopGuru', this.scrollTop);
-                }, { passive: true });
-                
-                // Save before leaving page
-                window.addEventListener('beforeunload', function() {
-                    localStorage.setItem('sidebarScrollTopGuru', sidebarScrollArea.scrollTop);
+                // Gunakan event click pada link sidebar untuk menyimpan posisi sebelum berpindah halaman
+                sidebarScrollArea.addEventListener('click', function(e) {
+                    const link = e.target.closest('a');
+                    if (link && link.href) {
+                        localStorage.setItem('sidebarScrollTopGuru', sidebarScrollArea.scrollTop);
+                    }
                 });
             }
         });

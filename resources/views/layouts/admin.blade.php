@@ -241,7 +241,6 @@
                     const savedScrollTop = localStorage.getItem('sidebarScrollTopAdmin');
                     if (savedScrollTop !== null) {
                         const pos = parseInt(savedScrollTop, 10);
-                        // Coba pulihkan dalam beberapa interval untuk menunggu AlpineJS merender submenu
                         sidebarScrollArea.scrollTop = pos;
                         setTimeout(() => { sidebarScrollArea.scrollTop = pos; }, 50);
                         setTimeout(() => { sidebarScrollArea.scrollTop = pos; }, 150);
@@ -252,14 +251,12 @@
                 
                 restoreScroll();
                 
-                // Save on scroll
-                sidebarScrollArea.addEventListener('scroll', function() {
-                    localStorage.setItem('sidebarScrollTopAdmin', this.scrollTop);
-                }, { passive: true });
-                
-                // Save before leaving page
-                window.addEventListener('beforeunload', function() {
-                    localStorage.setItem('sidebarScrollTopAdmin', sidebarScrollArea.scrollTop);
+                // Gunakan event click pada link sidebar untuk menyimpan posisi sebelum berpindah halaman
+                sidebarScrollArea.addEventListener('click', function(e) {
+                    const link = e.target.closest('a');
+                    if (link && link.href) {
+                        localStorage.setItem('sidebarScrollTopAdmin', sidebarScrollArea.scrollTop);
+                    }
                 });
             }
         });
