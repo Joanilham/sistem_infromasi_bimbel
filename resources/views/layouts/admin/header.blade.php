@@ -108,7 +108,7 @@
 
                         <div class="border-t border-slate-50 my-1"></div>
 
-                        <form method="POST" action="{{ route('logout') }}" class="block" data-turbo="false">
+                        <form method="POST" action="{{ route('logout') }}" class="block">
                             @csrf
                             <button type="submit" class="flex w-full items-center px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-slate-50 dark:hover:bg-zinc-700 hover:text-red-700 dark:hover:text-red-300 transition-colors">
                                 <svg class="mr-3 w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

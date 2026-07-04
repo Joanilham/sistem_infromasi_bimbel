@@ -1,7 +1,7 @@
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script>
     if (window.renderDashboardCharts) {
-        document.removeEventListener('turbo:load', window.renderDashboardCharts);
+        document.removeEventListener('DOMContentLoaded', window.renderDashboardCharts);
     }
 
     window.renderDashboardCharts = function () {
@@ -187,7 +187,7 @@
         }
     };
 
-    document.addEventListener('turbo:load', window.renderDashboardCharts);
+    document.addEventListener('DOMContentLoaded', window.renderDashboardCharts);
     
     // Fallback: render after a short delay if turbo:load is missed
     setTimeout(() => {

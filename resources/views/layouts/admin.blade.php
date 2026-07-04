@@ -6,11 +6,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="turbo-cache-control" content="no-preview">
     <meta name="description" content="Dashboard Sistem Informasi Manajemen Pendidikan Genius Education">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="turbo-cache-control" content="no-preview">
-    <meta name="app-version" content="v1.0.1" data-turbo-track="reload">
+    <meta name="app-version" content="v1.0.1">
     <meta name="author" content="Genius Education">
     <meta name="robots" content="index, follow">
     <title>@yield('title', 'Dashboard') - Genius Education</title>
@@ -154,7 +152,7 @@
     <!-- TomSelect JS Initialization -->
     <script>
         // Init pada saat load awal atau setelah pergantian halaman via Turbo
-        document.addEventListener('turbo:load', function() {
+        document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('select').forEach((el) => {
                 // Jangan inisialisasi ulang jika sudah memiliki tomselect (Turbo membiarkan node lama atau mengembalikan node dari cache)
                 if (el.classList.contains('no-tomselect') || el.tomselect) return;
@@ -217,7 +215,7 @@
             }
         });
 
-        document.addEventListener('turbo:load', function() {
+        document.addEventListener('DOMContentLoaded', function() {
             // Scroll to top of main content area on navigation
             const mainScrollArea = document.getElementById('main-scroll-area');
             if (mainScrollArea) {
@@ -237,18 +235,7 @@
         });
     </script>
     
-    <!-- Turbo Drive SPA -->
-    <script type="module" src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.4/dist/turbo.es2017-esm.js"></script>
-    <script>
-        // Disable Turbo Drive specifically for all forms to prevent Alpine.js state lock
-        document.addEventListener('turbo:load', function() {
-            document.querySelectorAll('form').forEach(form => {
-                if (!form.hasAttribute('data-turbo')) {
-                    form.setAttribute('data-turbo', 'false');
-                }
-            });
-        });
-    </script>
+
 </body>
 
 </html>

@@ -1,4 +1,4 @@
-// Sidebar Scroll Persistence logic optimized for Turbo 8 and Normal Page Loads
+// Sidebar Scroll Persistence logic optimized for Normal Page Loads
 (function() {
     const STORAGE_KEY = 'sidebarScrollTop';
     
@@ -28,13 +28,9 @@
 
     // Capture state before leaving
     window.addEventListener('beforeunload', saveScroll);
-    document.addEventListener('turbo:before-visit', saveScroll);
-    document.addEventListener('turbo:before-cache', saveScroll);
 
     // Restore state when entering
     document.addEventListener('DOMContentLoaded', restoreScroll);
-    document.addEventListener('turbo:render', restoreScroll);
-    document.addEventListener('turbo:load', restoreScroll);
     
     // Also save state periodically on scroll, debounced, to ensure we catch everything
     let scrollTimeout;
