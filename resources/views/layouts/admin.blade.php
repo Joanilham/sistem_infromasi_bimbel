@@ -25,6 +25,7 @@
 
 
     <script defer src="{{ asset('vendor/alpinejs/alpine.min.js') }}"></script>
+    <script defer src="{{ asset('js/sidebar-scroll.js') }}"></script>
     
     <!-- TomSelect CSS -->
     <link href="{{ asset('vendor/tom-select/tom-select.css') }}" rel="stylesheet" media="print" onload="this.media='all'">
@@ -233,32 +234,6 @@
                     input.value = formatRupiah(input.value);
                 }
             });
-
-            // Persist Sidebar Scroll Position
-            const sidebarScrollArea = document.getElementById('sidebar-scroll-container');
-            if (sidebarScrollArea) {
-                const restoreScroll = () => {
-                    const savedScrollTop = localStorage.getItem('sidebarScrollTopAdmin');
-                    if (savedScrollTop !== null) {
-                        const pos = parseInt(savedScrollTop, 10);
-                        sidebarScrollArea.scrollTop = pos;
-                        setTimeout(() => { sidebarScrollArea.scrollTop = pos; }, 50);
-                        setTimeout(() => { sidebarScrollArea.scrollTop = pos; }, 150);
-                        setTimeout(() => { sidebarScrollArea.scrollTop = pos; }, 300);
-                        setTimeout(() => { sidebarScrollArea.scrollTop = pos; }, 600);
-                    }
-                };
-                
-                restoreScroll();
-                
-                // Gunakan event click pada link sidebar untuk menyimpan posisi sebelum berpindah halaman
-                sidebarScrollArea.addEventListener('click', function(e) {
-                    const link = e.target.closest('a');
-                    if (link && link.href) {
-                        localStorage.setItem('sidebarScrollTopAdmin', sidebarScrollArea.scrollTop);
-                    }
-                });
-            }
         });
     </script>
     

@@ -123,6 +123,10 @@
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    <!-- Scripts -->
+    <script defer src="{{ asset('vendor/alpinejs/alpine.min.js') }}"></script>
+    <script defer src="{{ asset('js/sidebar-scroll.js') }}"></script>
+
     <!-- Global Delete Confirmation Script -->
     <script>
         function confirmDelete(title, text, formElement) {
@@ -169,31 +173,16 @@
                 });
             });
 
-            // Persist Sidebar Scroll Position
-            const sidebarScrollArea = document.getElementById('sidebar-scroll-container');
-            if (sidebarScrollArea) {
-                const restoreScroll = () => {
-                    const savedScrollTop = localStorage.getItem('sidebarScrollTopGuru');
-                    if (savedScrollTop !== null) {
-                        const pos = parseInt(savedScrollTop, 10);
-                        sidebarScrollArea.scrollTop = pos;
-                        setTimeout(() => { sidebarScrollArea.scrollTop = pos; }, 50);
-                        setTimeout(() => { sidebarScrollArea.scrollTop = pos; }, 150);
-                        setTimeout(() => { sidebarScrollArea.scrollTop = pos; }, 300);
-                        setTimeout(() => { sidebarScrollArea.scrollTop = pos; }, 600);
-                    }
-                };
-                
-                restoreScroll();
-                
-                // Gunakan event click pada link sidebar untuk menyimpan posisi sebelum berpindah halaman
-                sidebarScrollArea.addEventListener('click', function(e) {
-                    const link = e.target.closest('a');
-                    if (link && link.href) {
-                        localStorage.setItem('sidebarScrollTopGuru', sidebarScrollArea.scrollTop);
-                    }
-                });
-            }
+            // Format nilai awal saat halaman dimuat
+            document.querySelectorAll('input.nominal-format, input.nominal-input, input[name="nominal"], input[name="biaya_pendaftaran"]').forEach(input => {
+                if(input.type === 'number') {
+                    input.type = 'text';
+                    input.setAttribute('inputmode', 'numeric');
+                }
+                if(input.value) {
+                    input.value = formatRupiah(input.value);
+                }
+            });
         });
     </script>
     @include('components.loading-overlay')

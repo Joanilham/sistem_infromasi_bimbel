@@ -27,6 +27,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="{{ asset('js/sidebar-scroll.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -239,31 +240,22 @@
                 }
             });
 
-            // Persist Sidebar Scroll Position
-            const sidebarScrollArea = document.getElementById('sidebar-scroll-container');
-            if (sidebarScrollArea) {
-                const restoreScroll = () => {
-                    const savedScrollTop = localStorage.getItem('sidebarScrollTopSiswa');
-                    if (savedScrollTop !== null) {
-                        const pos = parseInt(savedScrollTop, 10);
-                        sidebarScrollArea.scrollTop = pos;
-                        setTimeout(() => { sidebarScrollArea.scrollTop = pos; }, 50);
-                        setTimeout(() => { sidebarScrollArea.scrollTop = pos; }, 150);
-                        setTimeout(() => { sidebarScrollArea.scrollTop = pos; }, 300);
-                        setTimeout(() => { sidebarScrollArea.scrollTop = pos; }, 600);
-                    }
-                };
-                
-                restoreScroll();
-                
-                // Gunakan event click pada link sidebar untuk menyimpan posisi sebelum berpindah halaman
-                sidebarScrollArea.addEventListener('click', function(e) {
-                    const link = e.target.closest('a');
-                    if (link && link.href) {
-                        localStorage.setItem('sidebarScrollTopSiswa', sidebarScrollArea.scrollTop);
-                    }
-                });
+            // Scroll to top of main content area on navigation
+            const mainScrollArea = document.getElementById('main-scroll-area');
+            if (mainScrollArea) {
+                mainScrollArea.scrollTop = 0;
             }
+
+            // Format nilai awal saat halaman dimuat
+            document.querySelectorAll('input.nominal-format, input.nominal-input, input[name="nominal"], input[name="biaya_pendaftaran"]').forEach(input => {
+                if(input.type === 'number') {
+                    input.type = 'text';
+                    input.setAttribute('inputmode', 'numeric');
+                }
+                if(input.value) {
+                    input.value = formatRupiah(input.value);
+                }
+            });
         });
     </script>
     @include('components.loading-overlay')
