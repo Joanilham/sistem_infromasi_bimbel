@@ -32,7 +32,7 @@
                             :aria-expanded="open"
                             aria-haspopup="true"
                             aria-label="Menu akun">
-                            @if(auth()->user()->photo && Storage::disk('public')->exists(auth()->user()->photo))
+                            @if(auth()->user()->photo)
                                 <img src="{{ asset('storage/' . auth()->user()->photo) }}" alt="" class="w-10 h-10 rounded-full object-cover border-2 border-slate-200 dark:border-zinc-600 shadow-sm">
                             @else
                                 <div class="w-10 h-10 rounded-full bg-[#A2D5CB] dark:bg-[#388782] flex items-center justify-center text-[#388782] dark:text-white font-bold text-sm border-2 border-white dark:border-zinc-700 shadow-sm">

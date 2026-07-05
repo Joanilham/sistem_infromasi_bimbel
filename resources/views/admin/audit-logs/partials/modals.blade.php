@@ -234,14 +234,25 @@
                         </div>
                         <h3 class="text-xl font-bold text-center text-slate-800 dark:text-white mb-2">Autentikasi Diperlukan</h3>
                         <p class="text-sm text-slate-500 dark:text-slate-400 text-center mb-6 leading-relaxed">
-                            Peringatan! Aksi ini akan menghapus log aktivitas yang umurnya lebih dari 30 hari secara <b class="text-red-500 dark:text-red-400">permanen</b>. Masukkan kata sandi Anda untuk memverifikasi hak akses.
+                            Peringatan! Aksi ini akan menghapus jejak log aktivitas secara <b class="text-red-500 dark:text-red-400">permanen</b>. Masukkan kata sandi Anda untuk memverifikasi hak akses.
                         </p>
                         
-                        <div>
-                            <label for="password" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Kata Sandi (Password)</label>
-                            <input type="password" name="password" id="password" required autocomplete="current-password"
-                                   class="block w-full px-4 py-3 border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800/50 rounded-xl focus:ring-2 focus:ring-red-500/20 focus:border-red-500 text-sm transition-all dark:text-white placeholder-slate-400 dark:placeholder-slate-500"
-                                   placeholder="Masukkan kata sandi akun Anda">
+                        <div class="space-y-4">
+                            <div>
+                                <label for="periode" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Rentang Waktu</label>
+                                <select name="periode" id="periode" required
+                                        class="block w-full px-4 py-3 border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800/50 rounded-xl focus:ring-2 focus:ring-red-500/20 focus:border-red-500 text-sm transition-all dark:text-white">
+                                    <option value="30_days">Lebih dari 30 Hari</option>
+                                    <option value="all">Semua Waktu (Hapus Seluruh Log)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label for="password" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Kata Sandi (Password)</label>
+                                <input type="password" name="password" id="password" required autocomplete="current-password"
+                                       class="block w-full px-4 py-3 border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800/50 rounded-xl focus:ring-2 focus:ring-red-500/20 focus:border-red-500 text-sm transition-all dark:text-white placeholder-slate-400 dark:placeholder-slate-500"
+                                       placeholder="Masukkan kata sandi akun Anda">
+                            </div>
                         </div>
                     </div>
                     

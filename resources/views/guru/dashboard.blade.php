@@ -4,14 +4,35 @@
 
 @section('content')
 
+@push('head')
+<style>
+    .animate-blob {
+        animation: blob 7s infinite;
+    }
+    .animation-delay-2000 {
+        animation-delay: 2s;
+    }
+    .animation-delay-4000 {
+        animation-delay: 4s;
+    }
+    @keyframes blob {
+        0% { transform: translate(0px, 0px) scale(1); }
+        33% { transform: translate(60px, -60px) scale(1.2); }
+        66% { transform: translate(-40px, 40px) scale(0.8); }
+        100% { transform: translate(0px, 0px) scale(1); }
+    }
+</style>
+@endpush
+
 <div class="relative mb-8 rounded-[1.75rem] overflow-hidden shadow-2xl" x-data="dashboardClock">
 
     {{-- Animated gradient background --}}
     <div class="absolute inset-0 bg-gradient-to-br from-[#388782] via-[#206D6C] to-[#0F5253] animate-gradient-xy"></div>
 
-    {{-- Decorative circles --}}
-    <div class="absolute -top-20 -right-20 w-96 h-96 rounded-full bg-white/10 blur-3xl pointer-events-none"></div>
-    <div class="absolute -bottom-32 -left-16 w-80 h-80 rounded-full bg-[#388782]/20 blur-3xl pointer-events-none"></div>
+    {{-- Animated Blobs --}}
+    <div class="absolute -top-20 -left-20 w-80 h-80 rounded-full bg-emerald-300/40 blur-3xl animate-blob pointer-events-none"></div>
+    <div class="absolute top-0 -right-20 w-96 h-96 rounded-full bg-white/30 blur-3xl animate-blob animation-delay-2000 pointer-events-none"></div>
+    <div class="absolute -bottom-32 left-1/3 w-80 h-80 rounded-full bg-teal-200/40 blur-3xl animate-blob animation-delay-4000 pointer-events-none"></div>
     <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
 
     {{-- Dot grid overlay --}}

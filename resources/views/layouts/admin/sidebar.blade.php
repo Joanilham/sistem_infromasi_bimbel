@@ -43,3 +43,12 @@
     @include('layouts.admin.sidebar-components.menu-laporan')
     @include('layouts.admin.sidebar-components.menu-pengaturan')
 </div>
+<script>
+// Instant scroll restore — runs synchronously as the browser parses this element.
+// No x-cloak means the sidebar is already laid out, so scrollTop works immediately.
+(function(){
+    var s = document.getElementById('sidebar-scroll-container');
+    var v = localStorage.getItem('sidebarScrollTop');
+    if (s && v) s.scrollTop = parseInt(v, 10);
+})();
+</script>

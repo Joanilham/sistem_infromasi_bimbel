@@ -34,7 +34,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
                 </button>
-                <div x-show="open" x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" class="mt-1 ml-3 pl-3 border-l-2 border-slate-100 dark:border-zinc-700 space-y-1" style="display: none;">
+                <div x-show="open" x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" class="mt-1 ml-3 pl-3 border-l-2 border-slate-100 dark:border-zinc-700 space-y-1" style="{{ request()->routeIs('keuangan.pemasukan.*') ? '' : 'display: none;' }}">
                     <a href="{{ route('keuangan.pemasukan.index') }}"
                         class="flex items-center gap-3 px-3 py-2 rounded-xl {{ request()->routeIs('keuangan.pemasukan.index') ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 font-bold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-zinc-800 hover:text-slate-900 dark:hover:text-white' }} transition-all text-sm font-medium">
                         <div class="w-7 h-7 rounded-lg flex items-center justify-center {{ request()->routeIs('keuangan.pemasukan.index') ? 'bg-green-500' : 'bg-green-100 dark:bg-green-900/50' }}">
@@ -74,7 +74,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
                 </button>
-                <div x-show="open" x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" class="mt-1 ml-3 pl-3 border-l-2 border-slate-100 dark:border-zinc-700 space-y-1" style="display: none;">
+                <div x-show="open" x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" class="mt-1 ml-3 pl-3 border-l-2 border-slate-100 dark:border-zinc-700 space-y-1" style="{{ request()->routeIs('keuangan.pengeluaran.*') ? '' : 'display: none;' }}">
                     <a href="{{ route('keuangan.pengeluaran.index') }}"
                         class="flex items-center gap-3 px-3 py-2 rounded-xl {{ request()->routeIs('keuangan.pengeluaran.index') ? 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 font-bold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-zinc-800 hover:text-slate-900 dark:hover:text-white' }} transition-all text-sm font-medium">
                         <div class="w-7 h-7 rounded-lg flex items-center justify-center {{ request()->routeIs('keuangan.pengeluaran.index') ? 'bg-red-500' : 'bg-red-100 dark:bg-red-900/50' }}">

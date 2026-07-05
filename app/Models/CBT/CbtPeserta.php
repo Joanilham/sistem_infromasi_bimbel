@@ -32,7 +32,7 @@ class CbtPeserta extends Model
     protected $table = 'cbt_pesertas';
     protected $fillable = [
         'cbt_ujian_id', 'user_id', 'status', 'waktu_mulai', 'waktu_selesai',
-        'skor', 'attempt_ke', 'blur_count'
+        'skor', 'attempt_ke', 'blur_count', 'session_token', 'ip_address'
     ];
 
     protected $casts = [

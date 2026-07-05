@@ -358,7 +358,7 @@ Route::middleware('auth')->group(function () {
 
             // QR Absensi Dinamis
             Route::get('/qr', [\App\Http\Controllers\Siswa\QrController::class, 'show'])->name('qr.show');
-            Route::get('/qr/token', [\App\Http\Controllers\Siswa\QrController::class, 'token'])->name('qr.token');
+            Route::get('/qr/generate', [\App\Http\Controllers\Siswa\QrController::class, 'token'])->name('qr.token');
             Route::get('/qr/status', [\App\Http\Controllers\Siswa\QrController::class, 'status'])->name('qr.status');
 
             // ── CBT Ujian Siswa ──

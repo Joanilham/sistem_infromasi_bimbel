@@ -12,13 +12,20 @@
     .hero-gradient {
         background: linear-gradient(135deg, #0F5253 0%, #1a7471 50%, #299c98 100%);
     }
-    .animate-float {
-        animation: float 6s ease-in-out infinite;
+    .animate-blob {
+        animation: blob 7s infinite;
     }
-    @keyframes float {
-        0% { transform: translateY(0px); }
-        50% { transform: translateY(-10px); }
-        100% { transform: translateY(0px); }
+    .animation-delay-2000 {
+        animation-delay: 2s;
+    }
+    .animation-delay-4000 {
+        animation-delay: 4s;
+    }
+    @keyframes blob {
+        0% { transform: translate(0px, 0px) scale(1); }
+        33% { transform: translate(60px, -60px) scale(1.2); }
+        66% { transform: translate(-40px, 40px) scale(0.8); }
+        100% { transform: translate(0px, 0px) scale(1); }
     }
 </style>
 
@@ -26,9 +33,10 @@
 
     {{-- HERO SECTION --}}
     <div class="relative rounded-[2.5rem] overflow-hidden shadow-2xl hero-gradient p-8 sm:p-12">
-        <!-- Abstract Shapes -->
-        <div class="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-white/10 blur-3xl animate-float pointer-events-none"></div>
-        <div class="absolute -bottom-24 -left-16 w-80 h-80 rounded-full bg-[#78BBB0]/20 blur-3xl animate-float pointer-events-none" style="animation-delay: 2s;"></div>
+        <!-- Animated Blobs -->
+        <div class="absolute -top-20 -left-20 w-80 h-80 rounded-full bg-emerald-300/40 blur-3xl animate-blob pointer-events-none"></div>
+        <div class="absolute top-0 -right-20 w-96 h-96 rounded-full bg-white/30 blur-3xl animate-blob animation-delay-2000 pointer-events-none"></div>
+        <div class="absolute -bottom-32 left-1/3 w-80 h-80 rounded-full bg-teal-200/40 blur-3xl animate-blob animation-delay-4000 pointer-events-none"></div>
         <div class="absolute inset-0 opacity-[0.03]" style="background-image: radial-gradient(circle, #fff 2px, transparent 2px); background-size: 32px 32px;"></div>
 
         <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">

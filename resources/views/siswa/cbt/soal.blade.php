@@ -182,6 +182,8 @@
             min-height: 180px; outline: none; transition: all 0.2s; background: #F8FAFC;
         }
         @media (prefers-color-scheme: dark) { .essay-box { background: #27272A; border-color: #3F3F46; color: #E2E8F0; } }
+        .essay-box::placeholder { color: #94A3B8; }
+        @media (prefers-color-scheme: dark) { .essay-box::placeholder { color: #52525B; } }
         .essay-box:focus { border-color: #388782; background: white; }
 
         /* Bottom Nav */

@@ -40,11 +40,12 @@ class QrController extends Controller
         $peserta = $this->getPeserta();
 
         $timeBlock = (int) floor(time() / 30);
-        $hmac      = $this->buildHmac($peserta->nisn, $timeBlock);
+        $identifier = 'ID:' . $peserta->id;
+        $hmac      = $this->buildHmac($identifier, $timeBlock);
         $expiresIn = 30 - (time() % 30); // detik tersisa di blok ini
 
         return response()->json([
-            'qr_content' => $peserta->nisn . '|' . $timeBlock . '|' . $hmac,
+            'qr_content' => $identifier . '|' . $timeBlock . '|' . $hmac,
             'expires_in' => $expiresIn,
             'nama'       => $peserta->nama_lengkap,
             'nisn'       => $peserta->nisn,
@@ -52,9 +53,9 @@ class QrController extends Controller
     }
 
     // ── Shared: Build HMAC token ───────────────────────────────
-    public static function buildHmac(string $nisn, int $timeBlock): string
+    public static function buildHmac(string $identifier, int $timeBlock): string
     {
-        return substr(hash_hmac('sha256', $nisn . '|' . $timeBlock, self::secret()), 0, 16);
+        return substr(hash_hmac('sha256', $identifier . '|' . $timeBlock, self::secret()), 0, 16);
     }
 
     // ── Shared: Validate QR token, return NISN or null ────────
@@ -95,7 +96,7 @@ class QrController extends Controller
             return null;
         }
 
-        [$nisn, $timeBlock, $hmac] = $parts;
+        [$identifier, $timeBlock, $hmac] = $parts;
         $timeBlock = (int) $timeBlock;
 
         // Cek window waktu: max 2 blok = 60 detik toleransi
@@ -105,12 +106,12 @@ class QrController extends Controller
         }
 
         // Verifikasi HMAC (constant-time compare)
-        $expected = self::buildHmac($nisn, $timeBlock);
+        $expected = self::buildHmac($identifier, $timeBlock);
         if (!hash_equals($expected, $hmac)) {
             return null; // Token palsu
         }
 
-        return $nisn;
+        return $identifier;
     }
 
     // ── Private helpers ────────────────────────────────────────

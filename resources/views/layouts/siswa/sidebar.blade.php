@@ -182,4 +182,10 @@
     </div>
 
 </div>
-
+<script>
+(function(){
+    var s = document.getElementById('sidebar-scroll-container');
+    var v = localStorage.getItem('sidebarScrollTop');
+    if (s && v) s.scrollTop = parseInt(v, 10);
+})();
+</script>
