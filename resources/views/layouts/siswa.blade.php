@@ -17,8 +17,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="turbo-cache-control" content="no-preview">
-    <meta name="app-version" content="v1.0.1" data-turbo-track="reload">
+    <meta name="app-version" content="v1.0.1">
     <title>@yield('title', 'Dashboard Siswa') - Genius Education</title>
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{{ isset($masterData) && $masterData->logo ? Storage::url($masterData->logo) : asset('favicon.png') }}">
@@ -27,6 +26,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="{{ asset('js/sidebar-scroll.js') }}?v={{ time() }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -61,7 +61,7 @@
 
     <aside
         :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
-        class="fixed z-40 inset-y-0 left-0 w-64 transition-transform duration-300 transform bg-white dark:bg-zinc-900 shadow-2xl lg:shadow-none border-r border-slate-200 dark:border-zinc-800 flex flex-col"
+        class="fixed z-40 inset-y-0 left-0 w-64 -translate-x-full lg:translate-x-0 transition-transform duration-300 transform bg-white dark:bg-zinc-900 shadow-2xl lg:shadow-none border-r border-slate-200 dark:border-zinc-800 flex flex-col"
         style="will-change: transform;">
         <div class="flex flex-col h-full custom-scrollbar">
             @include('layouts.siswa.sidebar')
@@ -184,7 +184,7 @@
     <!-- TomSelect JS -->
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
     <script>
-        document.addEventListener('turbo:load', function() {
+        document.addEventListener('DOMContentLoaded', function() {
             // Scroll to top of main content area on navigation
             const mainScrollArea = document.getElementById('main-scroll-area');
             if (mainScrollArea) {
@@ -239,36 +239,25 @@
                 }
             });
 
-            // Persist Sidebar Scroll Position
-            const sidebarScrollArea = document.getElementById('sidebar-scroll-container');
-            if (sidebarScrollArea) {
-                const savedScrollTop = localStorage.getItem('sidebarScrollTopSiswa');
-                if (savedScrollTop !== null) {
-                    const pos = parseInt(savedScrollTop, 10);
-                    sidebarScrollArea.scrollTop = pos;
-                    setTimeout(() => { sidebarScrollArea.scrollTop = pos; }, 50);
-                    setTimeout(() => { sidebarScrollArea.scrollTop = pos; }, 150);
-                    setTimeout(() => { sidebarScrollArea.scrollTop = pos; }, 300);
-                }
-
-                sidebarScrollArea.addEventListener('scroll', function() {
-                    localStorage.setItem('sidebarScrollTopSiswa', this.scrollTop);
-                });
+            // Scroll to top of main content area on navigation
+            const mainScrollArea = document.getElementById('main-scroll-area');
+            if (mainScrollArea) {
+                mainScrollArea.scrollTop = 0;
             }
-        });
-    </script>
-    @include('components.loading-overlay')
-    <!-- Turbo Drive SPA -->
-    <script type="module" src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.4/dist/turbo.es2017-esm.js"></script>
-    <script>
-        // Disable Turbo Drive specifically for all forms to prevent Alpine.js state lock
-        document.addEventListener('turbo:load', function() {
-            document.querySelectorAll('form').forEach(form => {
-                if (!form.hasAttribute('data-turbo')) {
-                    form.setAttribute('data-turbo', 'false');
+
+            // Format nilai awal saat halaman dimuat
+            document.querySelectorAll('input.nominal-format, input.nominal-input, input[name="nominal"], input[name="biaya_pendaftaran"]').forEach(input => {
+                if(input.type === 'number') {
+                    input.type = 'text';
+                    input.setAttribute('inputmode', 'numeric');
+                }
+                if(input.value) {
+                    input.value = formatRupiah(input.value);
                 }
             });
         });
     </script>
+    @include('components.loading-overlay')
+
 </body>
 </html>

@@ -69,13 +69,13 @@ class CbtSiswaController extends Controller
         $pembayaranBelumLunas = false;
         $kekurangan = 0;
 
-        if ($pesertaDidik) {
-            $pembayaran = $pesertaDidik->pembayaran()->first();
-            if ($pembayaran && !$pembayaran->lunas && !$pembayaran->dispensasi) {
-                $pembayaranBelumLunas = true;
-                $kekurangan = $pembayaran->kekurangan;
-            }
-        }
+        // if ($pesertaDidik) {
+        //     $pembayaran = $pesertaDidik->pembayaran()->first();
+        //     if ($pembayaran && !$pembayaran->lunas && !$pembayaran->dispensasi) {
+        //         $pembayaranBelumLunas = true;
+        //         $kekurangan = $pembayaran->kekurangan;
+        //     }
+        // }
 
         $pesertas = CbtPeserta::where('user_id', Auth::id())
             ->with(['ujian'])
@@ -94,6 +94,15 @@ class CbtSiswaController extends Controller
      */
     public function show($id)
     {
+        $user = Auth::user();
+        $pesertaDidik = $user->pesertaDidik;
+        $kelompokId = $pesertaDidik ? $pesertaDidik->kelompok_belajar_id : null;
+        $assignedUjianIds = $this->getAssignedUjianIds($user->id, $kelompokId);
+        
+        if (!in_array($id, $assignedUjianIds)) {
+            abort(403, 'Anda tidak terdaftar untuk ujian ini.');
+        }
+
         $ujian = CbtUjian::withCount('ujianSoals as soals_count')->findOrFail($id);
         
         // Cari sesi yang sedang aktif
@@ -138,6 +147,15 @@ class CbtSiswaController extends Controller
         }
 
         try {
+            $user = Auth::user();
+            $pesertaDidik = $user->pesertaDidik;
+            $kelompokId = $pesertaDidik ? $pesertaDidik->kelompok_belajar_id : null;
+            $assignedUjianIds = $this->getAssignedUjianIds($userId, $kelompokId);
+            
+            if (!in_array($id, $assignedUjianIds)) {
+                return back()->with('error', 'Anda tidak terdaftar untuk mengikuti ujian ini.');
+            }
+
             $ujian = CbtUjian::with(['ujianSoals.bankSoal.opsiJawabans'])->findOrFail($id);
 
             if (!$ujian->is_aktif) {
@@ -335,14 +353,14 @@ class CbtSiswaController extends Controller
             abort(403);
         }
 
-        // Lock check
-        $pesertaDidik = Auth::user()->pesertaDidik;
-        if ($pesertaDidik) {
-            $pembayaran = $pesertaDidik->pembayaran()->first();
-            if ($pembayaran && !$pembayaran->lunas && !$pembayaran->dispensasi) {
-                return redirect()->route('siswa.ujian.riwayat')->with('error', '⚠️ Silakan melunasi tagihan Anda untuk melihat hasil & analisis ujian.');
-            }
-        }
+        // Lock check (Dihapus sesuai permintaan agar tidak perlu bayar full untuk lihat hasil)
+        // $pesertaDidik = Auth::user()->pesertaDidik;
+        // if ($pesertaDidik) {
+        //     $pembayaran = $pesertaDidik->pembayaran()->first();
+        //     if ($pembayaran && !$pembayaran->lunas && !$pembayaran->dispensasi) {
+        //         return redirect()->route('siswa.ujian.riwayat')->with('error', '⚠️ Silakan melunasi tagihan Anda untuk melihat hasil & analisis ujian.');
+        //     }
+        // }
 
         return view('siswa.cbt.hasil', compact('sesi'));
     }

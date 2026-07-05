@@ -62,7 +62,7 @@
                 <!-- User Dropdown -->
                 <div class="relative" x-data="{ open: false }">
                     <button @click="open = !open" @click.away="open = false" aria-label="User Menu" class="flex items-center gap-2 sm:gap-2.5 bg-slate-50 dark:bg-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-700/80 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-full border border-slate-200 dark:border-zinc-700 focus:outline-none transition-colors cursor-pointer">
-                        @if(auth()->user() && auth()->user()->photo && Storage::disk('public')->exists(auth()->user()->photo))
+                        @if(auth()->user() && auth()->user()->photo)
                             <img src="{{ asset('storage/' . auth()->user()->photo) }}" alt="Profile" class="w-[26px] h-[26px] rounded-full object-cover">
                         @else
                             <div class="w-[26px] h-[26px] rounded-full bg-emerald-100 dark:bg-emerald-600 flex items-center justify-center text-emerald-700 dark:text-white font-bold text-xs">
@@ -108,7 +108,7 @@
 
                         <div class="border-t border-slate-50 my-1"></div>
 
-                        <form method="POST" action="{{ route('logout') }}" class="block" data-turbo="false">
+                        <form method="POST" action="{{ route('logout') }}" class="block">
                             @csrf
                             <button type="submit" class="flex w-full items-center px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-slate-50 dark:hover:bg-zinc-700 hover:text-red-700 dark:hover:text-red-300 transition-colors">
                                 <svg class="mr-3 w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

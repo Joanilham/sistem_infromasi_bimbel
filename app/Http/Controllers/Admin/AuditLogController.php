@@ -72,27 +72,40 @@ class AuditLogController extends Controller
 
         $request->validate([
             'password' => 'required|string',
+            'periode'  => 'required|in:30_days,all',
         ]);
 
         if (!\Illuminate\Support\Facades\Hash::check($request->password, auth()->user()->password)) {
             return back()->with('error', 'Kata sandi tidak sesuai. Autentikasi gagal.');
         }
 
-        $date30DaysAgo = now()->subDays(30);
-        $deletedCount = AuditLog::where('created_at', '<', $date30DaysAgo)->delete();
+        $periode = $request->input('periode');
+        $deletedCount = 0;
+        
+        if ($periode === 'all') {
+            $deletedCount = AuditLog::count();
+            AuditLog::truncate();
+            $msg = "Berhasil menghapus seluruh {$deletedCount} log aktivitas.";
+            $infoMsg = "Tidak ada log aktivitas untuk dibersihkan.";
+        } else {
+            $date30DaysAgo = now()->subDays(30);
+            $deletedCount = AuditLog::where('created_at', '<', $date30DaysAgo)->delete();
+            $msg = "Berhasil membersihkan {$deletedCount} log aktivitas yang lebih lama dari 30 hari.";
+            $infoMsg = "Tidak ada log aktivitas yang umurnya lebih dari 30 hari untuk dibersihkan.";
+        }
 
         if ($deletedCount > 0) {
-            // Catat aktivitas pembersihan ini sendiri
+            // Catat aktivitas pembersihan ini sendiri (setelah truncate/delete selesai)
             AuditLog::logSystemEvent(
                 'Bersihkan Log Lama', 
                 'AuditLog', 
                 null, 
-                ['jumlah_dihapus' => $deletedCount, 'batas_tanggal' => $date30DaysAgo->format('Y-m-d')]
+                ['jumlah_dihapus' => $deletedCount, 'batas_tanggal' => $periode === 'all' ? 'Semua Waktu' : now()->subDays(30)->format('Y-m-d')]
             );
-            return back()->with('success', "Berhasil membersihkan {$deletedCount} log aktivitas yang lebih lama dari 30 hari.");
+            return back()->with('success', $msg);
         }
 
-        return back()->with('info', 'Tidak ada log aktivitas yang umurnya lebih dari 30 hari untuk dibersihkan.');
+        return back()->with('info', $infoMsg);
     }
 
     // ═══════════════════════════════════════════════════════

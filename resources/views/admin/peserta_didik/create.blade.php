@@ -218,7 +218,7 @@ window.toggleInformasiLainnya = function(selectEl) {
     }
 };
 
-document.addEventListener('turbo:load', function() {
+document.addEventListener('DOMContentLoaded', function() {
     const phoneInputs = [
         document.querySelector("#no_telepon"),
         document.querySelector("#no_telepon_ayah"),

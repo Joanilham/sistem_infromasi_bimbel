@@ -65,8 +65,13 @@ function navigasi(dir) {
     
     if (target < 1 || target > {{ $totalSoal }}) return;
     
-    if (typeof App !== 'undefined' && App.Progress) App.Progress.start();
-    window.location.href = '{{ url("siswa/ujian/" . $sesi->id . "/soal") }}/' + target;
+    // Disable buttons to prevent double click
+    document.querySelectorAll('.btn-nav').forEach(btn => btn.disabled = true);
+    
+    autoSave().finally(() => {
+        if (typeof App !== 'undefined' && App.Progress) App.Progress.start();
+        window.location.href = '{{ url("siswa/ujian/" . $sesi->id . "/soal") }}/' + target;
+    });
 }
 
 // Mobile Navigator Toggle
@@ -134,7 +139,7 @@ function autoSave() {
     const form = document.getElementById('jawaban-form');
     const data = new FormData(form);
     
-    fetch('{{ route("siswa.ujian.jawab", $sesi->id) }}', {
+    return fetch('{{ route("siswa.ujian.jawab", $sesi->id) }}', {
         method: 'POST',
         body: data,
         headers: { 
@@ -154,8 +159,17 @@ function autoSave() {
           if(res && res.status === 'saved') {
               showToast();
               const currentNavBtn = document.querySelector('.nav-btn.active');
-              if(currentNavBtn) currentNavBtn.classList.add('answered');
+              if(currentNavBtn) {
+                  currentNavBtn.classList.add('answered');
+                  const raguCheck = document.getElementById('ragu_check');
+                  if (raguCheck && raguCheck.checked) {
+                      currentNavBtn.classList.add('ragu');
+                  } else {
+                      currentNavBtn.classList.remove('ragu');
+                  }
+              }
           }
+          return res;
       })
       .catch(err => {
           console.error('Error saving answer:', err);

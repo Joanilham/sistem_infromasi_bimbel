@@ -5,7 +5,7 @@
         <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity z-[60]" aria-hidden="true" onclick="document.getElementById('{{ $id }}').classList.add('hidden')"></div>
         <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
         <div class="relative z-[70] inline-block align-bottom bg-white dark:bg-slate-900 rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-slate-100 dark:border-slate-700">
-            <form action="{{ $action }}" method="POST" id="form-{{ $id }}" x-data="{ submitting: false }" @submit="submitting = true" @turbo:submit-end="submitting = false; if ($event.detail.success) { document.getElementById('{{ $id }}').classList.add('hidden'); }">
+            <form action="{{ $action }}" method="POST" id="form-{{ $id }}" x-data="{ submitting: false }" @submit="submitting = true">
                 @csrf
                 {{ $method ?? '' }}
                 <div class="bg-white dark:bg-slate-900 px-6 pt-6 pb-6">

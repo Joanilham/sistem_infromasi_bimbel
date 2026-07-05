@@ -258,15 +258,21 @@ class AbsensiController extends Controller
      */
     private function resolveQrPeserta(string $token): array
     {
-        $nisn = QrController::validateToken($token);
-        if (!$nisn) {
+        $identifier = QrController::validateToken($token);
+        if (!$identifier) {
             return [null, response()->json([
                 'success' => false,
                 'message' => '⏱ QR tidak valid atau sudah kedaluwarsa. Minta siswa buka ulang halaman QR dan scan segera.',
             ])];
         }
 
-        $peserta = PesertaDidik::aktif()->inContext()->where('nisn', $nisn)->first();
+        if (str_starts_with($identifier, 'ID:')) {
+            $id = substr($identifier, 3);
+            $peserta = PesertaDidik::aktif()->inContext()->find($id);
+        } else {
+            $peserta = PesertaDidik::aktif()->inContext()->where('nisn', $identifier)->first();
+        }
+
         if (!$peserta) {
             return [null, response()->json(['success' => false, 'message' => 'Siswa tidak ditemukan di cabang ini.'])];
         }

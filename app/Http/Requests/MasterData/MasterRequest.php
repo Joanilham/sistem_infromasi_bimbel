@@ -30,7 +30,7 @@ class MasterRequest extends FormRequest
             'instance_id'       => 'nullable|string|max:255',
             'wa_token'          => 'nullable|string|max:255',
             'api_key'           => 'nullable|string|max:255',
-            'logo'              => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'logo'              => 'nullable|image|mimes:jpeg,png,jpg,webp,gif|max:5120',
             'mail_host'         => 'nullable|string|max:255',
             'mail_port'         => 'nullable|string|max:10',
             'mail_username'     => 'nullable|string|max:255',

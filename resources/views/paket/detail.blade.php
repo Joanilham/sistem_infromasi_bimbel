@@ -134,11 +134,7 @@
                             </div>
                         </div>
 
-                        @if($paket->gambar_paket)
-                            <div class="mt-8 rounded-2xl overflow-hidden border border-slate-100 shadow-sm">
-                                <img src="{{ asset('storage/' . $paket->gambar_paket) }}" alt="{{ $paket->nama_paket }}" class="w-full h-auto object-cover">
-                            </div>
-                        @endif
+
                     </div>
                 </div>
 

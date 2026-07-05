@@ -61,7 +61,7 @@
                     </svg>
                 </button>
 
-                <div x-show="open" x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" class="mt-1 ml-3 pl-3 border-l-2 border-slate-100 dark:border-zinc-700 space-y-1" style="display: none;">
+                <div x-show="open" x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" class="mt-1 ml-3 pl-3 border-l-2 border-slate-100 dark:border-zinc-700 space-y-1" style="{{ request()->routeIs('absensi.*') ? '' : 'display: none;' }}">
                     <a href="{{ route('absensi.scan.masuk.page') }}"
                         class="flex items-center gap-3 px-3 py-2 rounded-xl {{ request()->routeIs('absensi.scan.masuk.page') ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 font-bold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-zinc-800 hover:text-slate-900 dark:hover:text-white' }} transition-all text-sm font-medium">
                         <div class="w-7 h-7 rounded-lg flex items-center justify-center {{ request()->routeIs('absensi.scan.masuk.page') ? 'bg-emerald-500' : 'bg-emerald-100 dark:bg-emerald-900/50' }}">

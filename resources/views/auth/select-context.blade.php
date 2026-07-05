@@ -286,7 +286,7 @@
             </form>
             
             <div class="mt-8 pt-6 border-t border-slate-100 flex items-center justify-center">
-                <form method="POST" action="{{ route('logout', ['redirect' => 'login']) }}" data-turbo="false">
+                <form method="POST" action="{{ route('logout', ['redirect' => 'login']) }}">
                     @csrf
                     <button type="submit" class="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

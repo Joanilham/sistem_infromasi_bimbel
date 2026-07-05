@@ -73,7 +73,7 @@ class LandingPageController extends Controller
     {
         $validated = $request->validate([
             'nama_lembaga'   => 'nullable|string|max:255',
-            'logo'           => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'logo'           => 'nullable|image|mimes:jpg,jpeg,png,webp,gif|max:2048',
             'wa_number'      => 'nullable|string|max:20',
             'wa_widget_status' => 'nullable|boolean',
             'wa_widget_message' => 'nullable|string|max:255',
@@ -101,11 +101,15 @@ class LandingPageController extends Controller
             if ($request->hasFile('logo')) {
                 if ($master->logo) Storage::disk('public')->delete($master->logo);
                 $validated['logo'] = $this->compressAndStore($request->file('logo'), 'logos', 80);
+            } else {
+                unset($validated['logo']);
             }
 
             if ($request->hasFile('hero_image')) {
                 if ($master->hero_image) Storage::disk('public')->delete($master->hero_image);
                 $validated['hero_image'] = $this->compressAndStore($request->file('hero_image'), 'landing', 70);
+            } else {
+                unset($validated['hero_image']);
             }
 
             if (isset($validated['hero_overlay_opacity'])) {
@@ -218,7 +222,7 @@ class LandingPageController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'link' => 'nullable|string|max:255',
-            'logo' => 'required|image|mimes:jpg,jpeg,png,webp,svg|max:2048',
+            'logo' => 'required|image|mimes:jpg,jpeg,png,webp,svg,gif|max:2048',
         ]);
 
         if ($request->hasFile('logo')) {
@@ -240,7 +244,7 @@ class LandingPageController extends Controller
     private function clearLandingCache()
     {
         \Illuminate\Support\Facades\Cache::forget('welcome_page_data');
-        \Illuminate\Support\Facades\Cache::forget('master_data');
+        \Illuminate\Support\Facades\Cache::forget('global_master');
     }
 }
 

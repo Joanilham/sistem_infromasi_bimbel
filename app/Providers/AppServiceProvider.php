@@ -61,34 +61,46 @@ class AppServiceProvider extends ServiceProvider
 
         // Share daftar kantor dan periode ke seluruh view dengan Caching Forever
         // Cache akan terhapus otomatis via Observer jika data ditable berubah
-        try {
-            $kantors    = \Illuminate\Support\Facades\Cache::remember('global_kantors',  86400, fn() => Kantor::all());
-            $periodes   = \Illuminate\Support\Facades\Cache::remember('global_periodes',  86400, fn() => Periode::all());
-            $masterData = \Illuminate\Support\Facades\Cache::remember('global_master',    86400, fn() => Master::first());
+        // Gunakan View::composer alih-alih View::share langsung agar data di-resolve per request (kompatibel dengan Octane)
+        \Illuminate\Support\Facades\View::composer('*', function ($view) {
+            try {
+                $viewData = $view->getData();
+                
+                if (!array_key_exists('kantors', $viewData)) {
+                    $kantors = \Illuminate\Support\Facades\Cache::remember('global_kantors',  86400, fn() => \App\Models\MasterData\Kantor::all());
+                    $view->with('kantors', $kantors);
+                }
 
-            View::share('kantors', $kantors);
-            View::share('periodes', $periodes);
-            View::share('masterData', $masterData);
+                if (!array_key_exists('periodes', $viewData)) {
+                    $periodes = \Illuminate\Support\Facades\Cache::remember('global_periodes',  86400, fn() => \App\Models\MasterData\Periode::all());
+                    $view->with('periodes', $periodes);
+                }
+                
+                // masterData selalu kita butuhkan untuk config, jadi kita fetch, tapi hanya share ke view jika belum ada
+                $masterData = \Illuminate\Support\Facades\Cache::remember('global_master', 86400, fn() => \App\Models\MasterData\Master::first());
+                if (!array_key_exists('masterData', $viewData)) {
+                    $view->with('masterData', $masterData);
+                }
 
-            if ($masterData && $masterData->mail_host) {
-                config([
-                    'mail.mailers.smtp.host' => $masterData->mail_host,
-                    'mail.mailers.smtp.port' => $masterData->mail_port,
-                    'mail.mailers.smtp.encryption' => $masterData->mail_encryption,
-                    'mail.mailers.smtp.username' => $masterData->mail_username,
-                    'mail.mailers.smtp.password' => $masterData->mail_password,
-                    'mail.from.address' => $masterData->mail_from_address,
-                    'mail.from.name' => $masterData->mail_from_name,
-                ]);
+                // Set config mail per request karena Octane bisa mempertahankan state lama
+                if ($masterData && $masterData->mail_host) {
+                    config([
+                        'mail.mailers.smtp.host' => $masterData->mail_host,
+                        'mail.mailers.smtp.port' => $masterData->mail_port,
+                        'mail.mailers.smtp.encryption' => $masterData->mail_encryption,
+                        'mail.mailers.smtp.username' => $masterData->mail_username,
+                        'mail.mailers.smtp.password' => $masterData->mail_password,
+                        'mail.from.address' => $masterData->mail_from_address,
+                        'mail.from.name' => $masterData->mail_from_name,
+                    ]);
+                }
+            } catch (\Exception $e) {
+                $viewData = $view->getData();
+                if (!array_key_exists('kantors', $viewData)) $view->with('kantors', collect());
+                if (!array_key_exists('periodes', $viewData)) $view->with('periodes', collect());
+                if (!array_key_exists('masterData', $viewData)) $view->with('masterData', null);
             }
-        } catch (\Exception $e) {
-            View::share('galleries', collect());
-            View::share('testimonials', collect());
-            View::share('faqs', collect());
-            View::share('kantors', collect());
-            View::share('periodes', collect());
-            View::share('masterData', null);
-        }
+        });
     }
 }
 

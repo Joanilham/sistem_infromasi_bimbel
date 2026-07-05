@@ -12,7 +12,7 @@
             <p class="text-slate-500 dark:text-slate-400 mt-2 text-sm font-medium">Kelola data peserta didik yang sedang aktif belajar di lembaga.</p>
         </div>
         <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto shrink-0">
-            <a href="{{ route('peserta-didik.export') }}" data-turbo="false"
+            <a href="{{ route('peserta-didik.export') }}"
                class="inline-flex items-center justify-center w-full sm:w-auto gap-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs px-6 py-4 rounded-2xl shadow-xl shadow-emerald-500/20 transition-all active:scale-95">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />

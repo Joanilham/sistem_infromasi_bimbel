@@ -1,7 +1,7 @@
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script>
     if (window.renderDashboardCharts) {
-        document.removeEventListener('turbo:load', window.renderDashboardCharts);
+        document.removeEventListener('DOMContentLoaded', window.renderDashboardCharts);
     }
 
     window.renderDashboardCharts = function () {
@@ -30,9 +30,13 @@
                     borderRadius: 4
                 },
             },
-            colors: ['#4F46E5', '#EF4444'], // Indigo & Red
+            colors: ['#6366F1', '#F43F5E'], // Indigo & Rose
             dataLabels: { enabled: false },
-            stroke: { show: true, width: 2, colors: ['transparent'] },
+            stroke: { 
+                show: true,
+                width: 2,
+                colors: ['transparent']
+            },
             xaxis: {
                 categories: @json($chartLabels),
                 axisBorder: { show: false },
@@ -42,10 +46,11 @@
                 }
             },
             yaxis: {
+                forceNiceScale: true,
                 decimalsInFloat: 0,
                 labels: {
                     formatter: function (val) {
-                        return Math.round(val);
+                        return parseInt(val);
                     },
                     style: { colors: '#94a3b8', fontSize: '11px', fontWeight: 600 }
                 }
@@ -53,7 +58,8 @@
             grid: {
                 borderColor: gridColor,
                 strokeDashArray: 4,
-                xaxis: { lines: { show: false } }
+                xaxis: { lines: { show: false } },
+                yaxis: { lines: { show: true } }
             },
             legend: {
                 position: 'top',
@@ -106,7 +112,11 @@
             },
             colors: ['#10B981', '#F43F5E'], // Emerald & Rose
             dataLabels: { enabled: false },
-            stroke: { show: true, width: 2, colors: ['transparent'] },
+            stroke: { 
+                show: true,
+                width: 2,
+                colors: ['transparent']
+            },
             xaxis: {
                 categories: @json($chartLabels),
                 axisBorder: { show: false },
@@ -129,7 +139,8 @@
             grid: {
                 borderColor: gridColor,
                 strokeDashArray: 4,
-                xaxis: { lines: { show: false } }
+                xaxis: { lines: { show: false } },
+                yaxis: { lines: { show: true } }
             },
             legend: {
                 position: 'top',
@@ -159,7 +170,7 @@
         }
     };
 
-    document.addEventListener('turbo:load', window.renderDashboardCharts);
+    document.addEventListener('DOMContentLoaded', window.renderDashboardCharts);
     
     // Fallback: render after a short delay if turbo:load is missed
     setTimeout(() => {

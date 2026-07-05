@@ -403,7 +403,7 @@
     }
 
     // Initialize formatting on load if lunas is checked
-    document.addEventListener('turbo:load', function() {
+    document.addEventListener('DOMContentLoaded', function() {
         const inputNominal = document.getElementById('catat-nominal');
         if(inputNominal && inputNominal.value && inputNominal.readOnly) {
             let val = inputNominal.value.replace(/\D/g, '');

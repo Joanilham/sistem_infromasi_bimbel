@@ -24,7 +24,7 @@
         <div style="display: flex; align-items: center; gap: 24px; flex-wrap: wrap;">
             {{-- Avatar --}}
             <div style="width: 96px; height: 96px; border-radius: 20px; overflow: hidden; border: 3px solid var(--border-color); box-shadow: 0 4px 12px rgba(0,0,0,0.08); flex-shrink: 0;">
-                @if($user->photo && Storage::disk('public')->exists($user->photo))
+                @if($user->photo )
                     <img src="{{ asset('storage/' . $user->photo) }}" alt="Foto Profil" style="width: 100%; height: 100%; object-fit: cover;" x-show="!preview">
                 @else
                     <img src="https://ui-avatars.com/api/?name={{ urlencode(trim($user->name)) }}&background=4318FF&color=fff&size=256&bold=true&format=svg" alt="Foto Profil" style="width: 100%; height: 100%; object-fit: cover;" x-show="!preview">

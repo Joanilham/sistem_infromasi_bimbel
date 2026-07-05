@@ -389,7 +389,7 @@
 </div>
 
 <script>
-const TOKEN_URL = '{{ route("siswa.qr.token") }}';
+const TOKEN_URL = '/siswa/qr/generate';
 const CSRF      = '{{ csrf_token() }}';
 
 let qrInstance  = null;
@@ -401,8 +401,9 @@ let tickTimer   = null;
 async function loadToken() {
     showRefreshing(true);
     try {
-        const res  = await fetch(TOKEN_URL, {
-            headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }
+        const res  = await fetch(TOKEN_URL + '?_t=' + new Date().getTime(), {
+            headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
+            cache: 'no-store'
         });
 
         if (res.status === 403) {
@@ -413,7 +414,8 @@ async function loadToken() {
         }
 
         if (!res.ok) {
-            throw new Error('Server error');
+            let errText = await res.text();
+            throw new Error(`HTTP ${res.status}: ` + errText.substring(0, 20));
         }
 
         const data = await res.json();
@@ -424,7 +426,7 @@ async function loadToken() {
         startCountdown();
         showRefreshing(false);
     } catch (e) {
-        setStatus('Gagal memuat QR. Coba refresh halaman.', 'expired');
+        setStatus('Gagal: ' + e.message, 'expired');
         showRefreshing(false);
     }
 }
@@ -536,7 +538,7 @@ let initialJamPulang = '{{ $absensiToday->jam_pulang ?? "" }}';
 
 setInterval(async () => {
     try {
-        const res = await fetch('{{ route("siswa.qr.status") }}', {
+        const res = await fetch('/siswa/qr/status', {
             headers: { 'Accept': 'application/json' }
         });
         

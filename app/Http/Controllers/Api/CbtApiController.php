@@ -21,19 +21,36 @@ class CbtApiController extends Controller
     public function __construct(protected CbtService $cbtService)
     {}
 
+    private function getAssignedUjianIds($userId, $kelompokId): array
+    {
+        return \App\Models\CBT\CbtUjianAssign::where(function($q) use ($userId, $kelompokId) {
+            $q->where('tipe_assign', 'user')->where('assign_id', $userId);
+            if ($kelompokId) {
+                $q->orWhere(function($q2) use ($kelompokId) {
+                    $q2->where('tipe_assign', 'kelas')->where('assign_id', $kelompokId);
+                });
+            }
+        })->pluck('cbt_ujian_id')->toArray();
+    }
+
     public function daftarUjian(Request $request)
     {
         $user = $request->user();
         $userId = $user->id;
+        $pesertaDidik = $user->pesertaDidik;
+        $kelompokId = $pesertaDidik ? $pesertaDidik->kelompok_belajar_id : null;
 
         if (strtolower($user->level) !== 'siswa' && !in_array($user->level, ['Super Admin', 'Admin'])) {
             return $this->errorResponse('Fitur CBT hanya tersedia untuk siswa.', 403);
         }
 
-        $ujianAktif = CbtUjian::where(function ($q) {
-            $q->whereNull('waktu_selesai')
-              ->orWhere('waktu_selesai', '>=', now());
-        })->orderBy('waktu_mulai', 'asc')->get();
+        $assignedUjianIds = $this->getAssignedUjianIds($userId, $kelompokId);
+
+        $ujianAktif = CbtUjian::whereIn('id', $assignedUjianIds)
+            ->where(function ($q) {
+                $q->whereNull('waktu_selesai')
+                  ->orWhere('waktu_selesai', '>=', now());
+            })->orderBy('waktu_mulai', 'asc')->get();
 
         // Ambil SEMUA peserta user sekaligus — satu query, bukan N query per ujian
         $ujianIds = $ujianAktif->pluck('id');
@@ -58,6 +75,15 @@ class CbtApiController extends Controller
     public function ambilSoal(Request $request, $id)
     {
         $user = $request->user();
+        $pesertaDidik = $user->pesertaDidik;
+        $kelompokId = $pesertaDidik ? $pesertaDidik->kelompok_belajar_id : null;
+
+        $assignedUjianIds = $this->getAssignedUjianIds($user->id, $kelompokId);
+
+        if (!in_array($id, $assignedUjianIds)) {
+            return $this->errorResponse('Anda tidak terdaftar untuk mengikuti ujian ini.', 403);
+        }
+
         $ujian = CbtUjian::with(['ujianSoals.bankSoal.opsiJawabans'])->findOrFail($id);
 
         if ($ujian->ujianSoals()->count() === 0) {

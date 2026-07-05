@@ -32,7 +32,7 @@
                             :aria-expanded="open"
                             aria-haspopup="true"
                             aria-label="Menu akun">
-                            @if(auth()->user()->photo && Storage::disk('public')->exists(auth()->user()->photo))
+                            @if(auth()->user()->photo)
                                 <img src="{{ asset('storage/' . auth()->user()->photo) }}" alt="" class="w-10 h-10 rounded-full object-cover border-2 border-slate-200 dark:border-zinc-600 shadow-sm">
                             @else
                                 <div class="w-10 h-10 rounded-full bg-[#A2D5CB] dark:bg-[#388782] flex items-center justify-center text-[#388782] dark:text-white font-bold text-sm border-2 border-white dark:border-zinc-700 shadow-sm">
@@ -65,7 +65,7 @@
 
                             <div class="border-t border-slate-100 dark:border-zinc-700 my-1"></div>
 
-                            <form method="POST" action="{{ route('logout') }}" role="none" data-turbo="false">
+                            <form method="POST" action="{{ route('logout') }}" role="none">
                                 @csrf
                                 <button type="submit" class="flex w-full items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors" role="menuitem">
                                     <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
