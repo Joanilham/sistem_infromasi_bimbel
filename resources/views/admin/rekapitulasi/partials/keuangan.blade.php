@@ -52,7 +52,9 @@
                 </div>
             </div>
 
-<div class="bg-white dark:bg-zinc-900 rounded-3xl p-6 border border-slate-100 dark:border-zinc-800 shadow-sm">
+            @include('admin.rekapitulasi.partials.export-card')
+
+<div class="bg-white dark:bg-zinc-900 rounded-3xl p-6 border border-slate-100 dark:border-zinc-800 shadow-sm mt-6">
             <form @submit.prevent="fetchData" method="GET" action="{{ route('admin.rekapitulasi.index') }}" class="flex flex-col gap-4">
                 <input type="hidden" name="tab" value="{{ $tab }}">
                 
@@ -125,7 +127,8 @@
             </form>
         </div>
 
-            <div id="table-rincian" class="bg-white dark:bg-zinc-900 rounded-[2rem] p-8 border border-slate-100 dark:border-zinc-800 shadow-sm mt-6">
+            
+    <div id="table-rincian" class="bg-white dark:bg-zinc-900 rounded-[2rem] p-8 border border-slate-100 dark:border-zinc-800 shadow-sm mt-6">
                 <h2 class="text-lg font-black text-slate-900 dark:text-white mb-6">Rincian Transaksi Keuangan</h2>
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm border-collapse border border-slate-200 dark:border-zinc-800">
@@ -133,7 +136,8 @@
                             <tr>
                                 <th class="px-4 py-3 text-left border border-white/20">Tanggal</th>
                                 <th class="px-4 py-3 text-center border border-white/20">Tipe</th>
-                                <th class="px-4 py-3 text-left border border-white/20">Kategori / Jenis</th>
+                                <th class="px-4 py-3 text-left border border-white/20">Kategori</th>
+                                <th class="px-4 py-3 text-left border border-white/20">Jenis</th>
                                 <th class="px-4 py-3 text-left border border-white/20">Keterangan</th>
                                 <th class="px-4 py-3 text-right border border-white/20">Nominal</th>
                             </tr>
@@ -149,16 +153,18 @@
                                             <span class="bg-rose-100 text-rose-700 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">Pengeluaran</span>
                                         @endif
                                     </td>
-                                    <td class="px-4 py-3 text-xs border border-slate-200 dark:border-zinc-800">
-                                        <div class="font-bold text-slate-700 dark:text-slate-300">{{ $trx['jenis'] }}</div>
-                                        <div class="text-[10px] text-slate-400 uppercase tracking-widest mt-0.5">{{ $trx['kategori'] }}</div>
+                                    <td class="px-4 py-3 text-xs border border-slate-200 dark:border-zinc-800 font-bold text-slate-700 dark:text-slate-300">
+                                        {{ $trx['kategori'] }}
+                                    </td>
+                                    <td class="px-4 py-3 text-xs border border-slate-200 dark:border-zinc-800 font-bold text-slate-700 dark:text-slate-300">
+                                        {{ $trx['jenis'] }}
                                     </td>
                                     <td class="px-4 py-3 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-zinc-800">{{ $trx['keterangan'] }}</td>
                                     <td class="px-4 py-3 text-right font-black text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-zinc-800 whitespace-nowrap">Rp {{ number_format($trx['nominal'], 0, ',', '.') }}</td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="px-4 py-8 text-center text-slate-500 dark:text-slate-400 italic border border-slate-200 dark:border-zinc-800">Belum ada transaksi keuangan pada rentang tanggal ini.</td>
+                                    <td colspan="6" class="px-4 py-8 text-center text-slate-500 dark:text-slate-400 italic border border-slate-200 dark:border-zinc-800">Belum ada transaksi keuangan pada rentang tanggal ini.</td>
                                 </tr>
                             @endforelse
                         </tbody>

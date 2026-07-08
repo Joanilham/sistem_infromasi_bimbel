@@ -1,5 +1,5 @@
 <!-- Hero Section -->
-    <section class="relative pt-24 pb-16 sm:pt-32 sm:pb-20 lg:pt-48 lg:pb-32 overflow-hidden min-h-[75vh] sm:min-h-[85vh] flex flex-col bg-slate-900 w-full">
+    <section class="relative pt-24 pb-16 lg:pt-32 lg:pb-24 overflow-hidden min-h-[85vh] lg:min-h-[90vh] flex flex-col justify-center bg-slate-900 w-full">
         <!-- Dynamic Background Image -->
         @if($masterData && $masterData->hero_image)
             <div class="absolute inset-0 z-0 w-full h-full">
@@ -11,11 +11,11 @@
             <div class="absolute inset-0 z-0 bg-gradient-to-br from-indigo-900 via-slate-900 to-black opacity-90 w-full h-full"></div>
         @endif
         
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center w-full mt-8 sm:mt-0 my-auto">
-            <h1 class="text-3xl sm:text-5xl lg:text-7xl font-black text-white drop-shadow-lg mb-4 sm:mb-6 lg:mb-8 leading-[1.2] sm:leading-[1.1] tracking-tight max-w-4xl mx-auto" data-aos="fade-up" data-aos-delay="100">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center w-full">
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl 2xl:text-7xl font-black text-white drop-shadow-lg mb-4 sm:mb-6 lg:mb-8 leading-[1.2] sm:leading-[1.1] tracking-tight max-w-3xl lg:max-w-5xl mx-auto" data-aos="fade-up" data-aos-delay="100">
                 {{ $masterData->hero_title ?? 'Wujudkan Impian Akademik Bersama Kami' }}
             </h1>
-            <p class="text-slate-200 text-sm sm:text-base lg:text-xl drop-shadow-md max-w-2xl mx-auto mb-8 sm:mb-10 lg:mb-12 leading-relaxed font-medium px-2 sm:px-4" data-aos="fade-up" data-aos-delay="200">
+            <p class="text-slate-200 text-sm sm:text-base lg:text-xl 2xl:text-2xl drop-shadow-md max-w-2xl lg:max-w-3xl mx-auto mb-8 sm:mb-10 lg:mb-12 leading-relaxed font-medium px-2 sm:px-4" data-aos="fade-up" data-aos-delay="200">
                 {{ $masterData->hero_subtitle ?? 'Platform pembelajaran terintegrasi yang memudahkan manajemen pendaftaran, progres belajar, dan evaluasi hasil belajar.' }}
             </p>
             <div class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 px-4 sm:px-6" data-aos="fade-up" data-aos-delay="300">

@@ -122,7 +122,7 @@
                     @forelse($paketBimbingans as $i => $paket)
                         <tr class="hover:bg-indigo-50/50 dark:hover:bg-indigo-900/10 transition-all even:bg-slate-50/50 dark:even:bg-zinc-800/30">
                             <td class="px-4 py-3 text-slate-500 font-bold text-xs border border-slate-200 dark:border-zinc-800 text-center">
-                                #{{ str_pad((method_exists($paketBimbingans, 'firstItem') ? $paketBimbingans->firstItem() : 1) + $i, 3, '0', STR_PAD_LEFT) }}
+                                {{ (method_exists($paketBimbingans, 'firstItem') && $paketBimbingans->firstItem() ? $paketBimbingans->firstItem() - 1 : 0) + $loop->iteration }}
                             </td>
                             <td class="px-4 py-3 border border-slate-200 dark:border-zinc-800">
                                 <div class="flex items-center gap-3">
@@ -134,9 +134,9 @@
                                         </div>
                                     @endif
                                     <div>
-                                        <p class="font-bold text-slate-900 dark:text-white leading-tight">{{ $paket->nama_paket }}</p>
+                                        <p class="font-bold text-slate-900 dark:text-white leading-tight">@highlight($paket->nama_paket)</p>
                                         @if($paket->deskripsi_singkat)
-                                            <p class="text-[9px] text-slate-400 mt-0.5 line-clamp-1 font-medium">{{ $paket->deskripsi_singkat }}</p>
+                                            <p class="text-[9px] text-slate-400 mt-0.5 line-clamp-1 font-medium">@highlight($paket->deskripsi_singkat)</p>
                                         @endif
                                     </div>
                                 </div>

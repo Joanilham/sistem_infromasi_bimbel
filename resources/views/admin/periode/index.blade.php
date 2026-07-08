@@ -98,10 +98,10 @@
                     @forelse($periodes as $i => $periode)
                         <tr class="hover:bg-indigo-50/50 dark:hover:bg-indigo-900/10 transition-all even:bg-slate-50/50 dark:even:bg-zinc-800/30">
                             <td class="px-4 py-3 text-slate-400 font-bold text-xs font-mono border border-slate-200 dark:border-zinc-800 text-center">
-                                #{{ str_pad($periodes->firstItem() + $i, 3, '0', STR_PAD_LEFT) }}
+                                {{ (method_exists($periodes, 'firstItem') && $periodes->firstItem() ? $periodes->firstItem() - 1 : 0) + $loop->iteration }}
                             </td>
                             <td class="px-4 py-3 font-bold text-slate-900 dark:text-white border border-slate-200 dark:border-zinc-800">
-                                {{ $periode->tahun_periode }}
+                                @highlight($periode->tahun_periode)
                             </td>
                             <td class="px-4 py-3 text-center border border-slate-200 dark:border-zinc-800">
                                 @if($periode->is_active)

@@ -242,7 +242,7 @@
             @foreach($backups as $backup)
             <div x-show="activeFilter === 'all' || activeFilter === '{{ $backup->type }}'" class="backup-row p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/50 dark:hover:bg-zinc-800/50 transition-colors group">
                 <div class="flex items-center gap-4 min-w-0">
-                    <input type="checkbox" value="{{ $backup->filename }}" x-model="selectedFiles" class="file-checkbox rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4 cursor-pointer shrink-0">
+                    <input type="checkbox" value="{{ str_replace('.sql', '', $backup->filename) }}" x-model="selectedFiles" class="file-checkbox w-4 h-4 text-indigo-600 border-slate-300 dark:border-zinc-700 rounded focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:bg-zinc-800 transition-colors">
                     <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-zinc-800 flex items-center justify-center shrink-0 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/30 transition-colors">
                         <svg class="w-5 h-5 text-slate-400 dark:text-zinc-500 group-hover:text-indigo-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                     </div>
@@ -269,13 +269,13 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-2 shrink-0">
-                    <a href="{{ route('admin.backup.download', $backup->filename) }}" download
+                    <a href="{{ route('admin.backup.download', str_replace('.sql', '', $backup->filename)) }}" download
                         class="inline-flex items-center gap-1.5 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-400 text-xs font-bold px-4 py-2 rounded-xl transition-all">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
                         Download
                     </a>
                     
-                    <form action="{{ route('admin.backup.restore', $backup->filename) }}" method="POST" class="inline" id="form-restore-{{ $loop->index }}">
+                    <form action="{{ route('admin.backup.restore', str_replace('.sql', '', $backup->filename)) }}" method="POST" class="inline" id="form-restore-{{ $loop->index }}">
                         @csrf
                         <button type="button" onclick="Swal.fire({title: 'Restore Database?', text: 'PERINGATAN KRITIS: Mengembalikan database akan menimpa seluruh data saat ini secara permanen! Pastikan Anda telah mengunduh backup terkini.', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d97706', cancelButtonColor: '#64748b', confirmButtonText: 'Ya, Restore!', cancelButtonText: 'Batal', background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#ffffff', color: document.documentElement.classList.contains('dark') ? '#f8fafc' : '#0f172a', customClass: {popup: 'rounded-2xl border border-slate-100 dark:border-slate-700'}}).then((result) => { if (result.isConfirmed) document.getElementById('form-restore-{{ $loop->index }}').submit(); })"
                             class="inline-flex items-center gap-1.5 bg-amber-50 dark:bg-amber-900/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 text-amber-700 dark:text-amber-400 text-xs font-bold px-4 py-2 rounded-xl transition-all">
@@ -284,10 +284,10 @@
                         </button>
                     </form>
  
-                    <form action="{{ route('admin.backup.destroy', $backup->filename) }}" method="POST" class="inline">
+                    <form action="{{ route('admin.backup.destroy', str_replace('.sql', '', $backup->filename)) }}" method="POST" class="inline" id="form-delete-{{ $loop->index }}">
                         @csrf
                         @method('DELETE')
-                        <button type="button" @click="deleteSingle('{{ $backup->filename }}', $el)"
+                        <button type="button" onclick="Swal.fire({title: 'Hapus Backup?', text: 'Tindakan ini tidak bisa dibatalkan.', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#64748b', confirmButtonText: 'Ya, Hapus!', cancelButtonText: 'Batal', background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#ffffff', color: document.documentElement.classList.contains('dark') ? '#f8fafc' : '#0f172a', customClass: {popup: 'rounded-2xl border border-slate-100 dark:border-slate-700'}}).then((result) => { if (result.isConfirmed) document.getElementById('form-delete-{{ $loop->index }}').submit(); })"
                             class="inline-flex items-center gap-1.5 bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 text-red-700 dark:text-red-400 text-xs font-bold px-4 py-2 rounded-xl transition-all">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                             Hapus
@@ -335,6 +335,12 @@
 </div>
 
 @push('scripts')
+    <!-- Form Hidden untuk Bulk Delete -->
+    <form id="bulk-delete-form" action="{{ route('admin.backup.bulk_destroy') }}" method="POST" class="hidden">
+        @csrf
+        @method('DELETE')
+    </form>
+
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('backupManager', () => ({
@@ -370,55 +376,22 @@
                     color: document.documentElement.classList.contains('dark') ? '#f8fafc' : '#0f172a'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        fetch('{{ route('admin.backup.bulk_destroy') }}', {
-                            method: 'DELETE',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify({ filenames: this.selectedFiles })
-                        }).then(res => res.json()).then(data => {
-                            if(data.success) {
-                                window.location.reload();
-                            }
+                        const form = document.getElementById('bulk-delete-form');
+                        
+                        // Hapus input filenames sebelumnya jika ada
+                        form.querySelectorAll('.dynamic-input').forEach(e => e.remove());
+                        
+                        // Tambahkan yang baru
+                        this.selectedFiles.forEach(filename => {
+                            const input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = 'filenames[]';
+                            input.value = filename;
+                            input.classList.add('dynamic-input');
+                            form.appendChild(input);
                         });
-                    }
-                });
-            },
 
-            deleteSingle(filename, element) {
-                Swal.fire({
-                    title: 'Hapus Backup?',
-                    text: 'Tindakan ini tidak bisa dibatalkan.',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#ef4444',
-                    cancelButtonColor: '#64748b',
-                    confirmButtonText: 'Ya, Hapus!',
-                    cancelButtonText: 'Batal',
-                    background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#ffffff',
-                    color: document.documentElement.classList.contains('dark') ? '#f8fafc' : '#0f172a'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        fetch(`/admin/backup/${filename}`, {
-                            method: 'DELETE',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Accept': 'application/json'
-                            }
-                        }).then(res => res.json()).then(data => {
-                            if(data.success) {
-                                element.closest('.backup-row').remove();
-                                // Remove from selected array if it was checked
-                                this.selectedFiles = this.selectedFiles.filter(f => f !== filename);
-                                
-                                // Optional: reload if empty
-                                if (document.querySelectorAll('.backup-row').length === 0) {
-                                    window.location.reload();
-                                }
-                            }
-                        });
+                        form.submit();
                     }
                 });
             }

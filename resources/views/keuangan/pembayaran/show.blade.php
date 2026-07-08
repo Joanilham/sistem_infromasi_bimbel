@@ -159,7 +159,21 @@
                 </h2>
                 <div class="flex flex-col gap-3">
                     <div class="flex justify-between items-center py-2.5 border-b border-slate-100 dark:border-zinc-800/50">
-                        <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total Biaya</span>
+                        <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Biaya Program/Bimbingan</span>
+                        <span class="font-black text-sm text-slate-900 dark:text-white">Rp {{ number_format($biaya,0,',','.') }}</span>
+                    </div>
+                    <div class="flex justify-between items-center py-2.5 border-b border-slate-100 dark:border-zinc-800/50">
+                        <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Biaya Pendaftaran</span>
+                        <span class="font-black text-sm text-slate-900 dark:text-white">Rp {{ number_format($pendaftar,0,',','.') }}</span>
+                    </div>
+                    @if($diskon > 0)
+                    <div class="flex justify-between items-center py-2.5 border-b border-slate-100 dark:border-zinc-800/50">
+                        <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Diskon ({{ $pembayaran->keterangan_diskon ?? 'Potongan' }})</span>
+                        <span class="font-black text-sm text-orange-500">- Rp {{ number_format($diskon,0,',','.') }}</span>
+                    </div>
+                    @endif
+                    <div class="flex justify-between items-center py-2.5 border-b border-slate-100 dark:border-zinc-800/50">
+                        <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total Biaya Akhir</span>
                         <span class="font-black text-sm text-slate-900 dark:text-white">Rp {{ number_format($total,0,',','.') }}</span>
                     </div>
                     <div class="flex justify-between items-center py-2.5 border-b border-slate-100 dark:border-zinc-800/50">
@@ -204,6 +218,15 @@
                 Bayar Sekarang
             </h2>
             
+            @if($lunas)
+                <div class="flex-1 flex flex-col items-center justify-center text-center p-4">
+                    <div class="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 rounded-full flex items-center justify-center mb-3">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    </div>
+                    <p class="text-sm font-bold text-slate-700 dark:text-slate-300">Tagihan Sudah Lunas</p>
+                    <p class="text-[10px] text-slate-500 mt-1">Tidak dapat menambahkan pembayaran baru.</p>
+                </div>
+            @else
             <form id="form-catat-pembayaran" action="{{ route('keuangan.pembayaran.transaksi.store', $pembayaran->id) }}" method="POST" class="space-y-4">
                 @csrf
                 
@@ -238,6 +261,7 @@
                     </button>
                 </div>
             </form>
+            @endif
         </div>
 
         {{-- Row 2: Settings (1/3) & Riwayat (2/3) --}}
@@ -247,13 +271,17 @@
                 <h2 class="font-black text-slate-900 dark:text-white mb-2 text-xs uppercase tracking-wider">Pengaturan Pembayaran</h2>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Diskon (%)</label>
-                        <input type="number" name="diskon_persen" value="{{ old('diskon_persen', $pembayaran->diskon_persen) }}" min="0" max="100" step="0.01" class="w-full rounded-lg border border-slate-200 dark:border-zinc-700 dark:bg-zinc-950 text-xs px-3 py-2">
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Diskon (Rp)</label>
+                        <input type="text" id="input-diskon-nominal" inputmode="numeric" name="diskon_nominal" value="{{ old('diskon_nominal', $pembayaran->diskon_nominal) }}" class="w-full rounded-lg border border-slate-200 dark:border-zinc-700 dark:bg-zinc-950 text-xs px-3 py-2 nominal-format">
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Daftar (Rp)</label>
                         <input type="text" inputmode="numeric" name="biaya_pendaftaran" value="{{ old('biaya_pendaftaran', $pembayaran->biaya_pendaftaran) }}" class="w-full rounded-lg border border-slate-200 dark:border-zinc-700 dark:bg-zinc-950 text-xs px-3 py-2 nominal-format">
                     </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Keterangan Diskon</label>
+                    <input type="text" name="keterangan_diskon" value="{{ old('keterangan_diskon', $pembayaran->keterangan_diskon) }}" placeholder="Ketik keterangan diskon..." class="w-full rounded-lg border border-slate-200 dark:border-zinc-700 dark:bg-zinc-950 text-xs px-3 py-2">
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Batas Waktu (Jatuh Tempo)</label>
@@ -280,7 +308,13 @@
         <div class="lg:col-span-2">
             <div class="bg-white dark:bg-zinc-900 rounded-[2rem] border border-slate-100 dark:border-zinc-800 shadow-sm overflow-hidden h-full">
                 <div class="px-6 py-4 border-b border-slate-100 dark:border-zinc-800 flex justify-between items-center">
-                    <h2 class="font-black text-slate-900 dark:text-white text-sm">Riwayat Transaksi</h2>
+                    <div class="flex items-center gap-4">
+                        <h2 class="font-black text-slate-900 dark:text-white text-sm">Riwayat Transaksi</h2>
+                        <a href="{{ route('keuangan.pembayaran.rekap', $pembayaran->id) }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-[10px] font-bold uppercase tracking-wider hover:bg-indigo-700 transition shadow-sm">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                            Cetak Rekap
+                        </a>
+                    </div>
                     <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{{ $pembayaran->transaksi->count() }} Transaksi</span>
                 </div>
                 
@@ -352,9 +386,19 @@
                                             @endif
                                             
                                             @if($t->status === 'SUKSES')
-                                                <a href="{{ route('keuangan.transaksi.struk', $t->id) }}" target="_blank" class="text-[10px] font-bold text-[#388782] hover:text-[#206D6C] underline whitespace-nowrap">
+                                                <a href="{{ route('keuangan.transaksi.struk', $t->id) }}" target="_blank" class="text-[10px] font-bold text-[#388782] hover:text-[#206D6C] underline whitespace-nowrap mb-1">
                                                     Cetak Struk
                                                 </a>
+                                            @endif
+
+                                            @if(in_array(strtolower(auth()->user()->level), ['super admin', 'admin', 'administrator']) || auth()->user()->hasPermission('delete_pembayaran_siswa'))
+                                                <form action="{{ route('keuangan.transaksi.destroy', $t->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus transaksi pembayaran ini secara permanen?');" class="inline-block">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="text-[10px] font-bold text-rose-500 hover:text-rose-700 underline whitespace-nowrap">
+                                                        Hapus
+                                                    </button>
+                                                </form>
                                             @endif
                                         </div>
                                     </td>

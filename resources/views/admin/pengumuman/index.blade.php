@@ -76,7 +76,7 @@
                                         @endif
                                     </div>
                                     <div>
-                                        <p class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors line-clamp-1">{{ $item->judul }}</p>
+                                        <p class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors line-clamp-1">@highlight($item->judul)</p>
                                         <p class="text-[11px] font-medium text-slate-500 dark:text-slate-400 mt-1 line-clamp-1">{{ Str::limit($item->isi, 60) }}</p>
                                     </div>
                                 </div>

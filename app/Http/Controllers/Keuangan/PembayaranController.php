@@ -43,8 +43,8 @@ class PembayaranController extends Controller
                        ->orWhere('nomor_induk', 'like', "%{$search}%");
                 });
             })
-            ->when($request->paket_id, fn($q) => $q->where('paket_id', $request->paket_id))
-            ->when($request->kelompok_id, fn($q) => $q->where('kelompok_id', $request->kelompok_id));
+            ->when($request->paket_id, fn($q) => $q->where('paket_bimbingan_id', $request->paket_id))
+            ->when($request->kelompok_id, fn($q) => $q->where('kelompok_belajar_id', $request->kelompok_id));
 
         if ($sort === 'batas_waktu') {
             $siswaQuery->leftJoin('pembayaran_siswa', 'peserta_didiks.id', '=', 'pembayaran_siswa.peserta_didik_id')
@@ -85,8 +85,18 @@ class PembayaranController extends Controller
     // ── Update Diskon & Biaya Pendaftaran ────────────────────────
     public function update(Request $request, PembayaranSiswa $pembayaranSiswa)
     {
+        if ($request->has('diskon_nominal') && is_string($request->diskon_nominal)) {
+            $request->merge([
+                'diskon_nominal' => preg_replace('/[^0-9]/', '', $request->diskon_nominal)
+            ]);
+        }
+        if ($request->has('biaya_pendaftaran') && is_string($request->biaya_pendaftaran)) {
+            $request->merge([
+                'biaya_pendaftaran' => preg_replace('/[^0-9]/', '', $request->biaya_pendaftaran)
+            ]);
+        }
+
         $validated = $request->validate([
-            'diskon_persen'     => 'nullable|numeric|min:0|max:100',
             'diskon_nominal'    => 'nullable|integer|min:0',
             'keterangan_diskon' => 'nullable|string|max:255',
             'biaya_pendaftaran' => 'nullable|integer|min:0',
@@ -102,14 +112,15 @@ class PembayaranController extends Controller
         
         $total   = $biaya - $diskon + $biayaDaftar;
 
+        if ($diskon > ($biaya + $biayaDaftar)) {
+            return back()->with('error', 'Nominal diskon tidak boleh melebihi total tagihan (' . number_format($biaya + $biayaDaftar, 0, ',', '.') . ').');
+        }
+
         $updateData = $validated;
         $updateData['diskon_nominal'] = $diskon;
         $updateData['biaya_pendaftaran'] = $biayaDaftar;
         $updateData['dispensasi'] = $request->has('dispensasi') ? (bool) $request->dispensasi : false;
-
-        if (array_key_exists('diskon_persen', $updateData)) {
-            $updateData['diskon_persen'] = (float)($updateData['diskon_persen'] ?? 0);
-        }
+        $updateData['diskon_persen'] = 0; // force default if db requires it or clear it
 
         $pembayaranSiswa->update(array_merge($updateData, ['total_harus_dibayar' => max(0, $total)]));
 
@@ -120,6 +131,10 @@ class PembayaranController extends Controller
     public function storeTransaksi(PembayaranRequest $request, PembayaranSiswa $pembayaranSiswa)
     {
         $validated = $request->validated();
+        
+        if ($pembayaranSiswa->lunas) {
+            return back()->with('error', 'Tagihan sudah lunas, tidak dapat menambahkan pembayaran baru.');
+        }
 
         $user = Auth::user();
         $noKwitansi = TransaksiPembayaran::generateNoKwitansi($user->username ?? substr($user->name, 0, 3));
@@ -146,6 +161,24 @@ class PembayaranController extends Controller
     }
 
     // ── Halaman Struk ────────────────────────────────────────────
+    public function cetakRekap(\App\Models\Keuangan\PembayaranSiswa $pembayaranSiswa)
+    {
+        $pembayaranSiswa->load([
+            'pesertaDidik.paketBimbingan',
+            'transaksi' => function($q) {
+                $q->orderBy('tanggal', 'asc');
+            }
+        ]);
+        
+        $master = \App\Models\MasterData\Master::first();
+        $logoUrl = $master && $master->logo ? asset('storage/' . $master->logo) : null;
+        $namaLembaga = $master->nama_lembaga ?? 'Nama Lembaga (Bimbel)';
+        $alamatLembaga = $master->alamat_lembaga ?? '';
+        $waNumber = $master->wa_number ?? null;
+
+        return view('keuangan.pembayaran.rekap', compact('pembayaranSiswa', 'logoUrl', 'namaLembaga', 'alamatLembaga', 'waNumber'));
+    }
+
     public function strukTransaksi(TransaksiPembayaran $transaksiPembayaran)
     {
         $transaksiPembayaran->load('pembayaranSiswa.pesertaDidik');

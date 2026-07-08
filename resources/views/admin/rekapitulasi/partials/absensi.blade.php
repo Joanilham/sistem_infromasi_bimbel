@@ -21,7 +21,9 @@
                 </div>
             </div>
 
-<div class="bg-white dark:bg-zinc-900 rounded-3xl p-6 border border-slate-100 dark:border-zinc-800 shadow-sm">
+            @include('admin.rekapitulasi.partials.export-card')
+
+<div class="bg-white dark:bg-zinc-900 rounded-3xl p-6 border border-slate-100 dark:border-zinc-800 shadow-sm mt-6">
             <form @submit.prevent="fetchData" method="GET" action="{{ route('admin.rekapitulasi.index') }}" class="flex flex-col gap-4">
                 <input type="hidden" name="tab" value="{{ $tab }}">
                 

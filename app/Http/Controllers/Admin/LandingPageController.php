@@ -48,9 +48,9 @@ class LandingPageController extends Controller
 
             \App\Models\System\Gallery::create($validated);
             $this->clearLandingCache();
-            return back()->with('success', 'Foto berhasil ditambahkan ke gallery.');
+            return back()->with('success', 'Foto berhasil ditambahkan ke gallery.')->with('active_tab', 'gallery');
         } catch (\Exception $e) {
-            return back()->with('error', 'Gagal mengunggah foto.');
+            return back()->with('error', 'Gagal mengunggah foto.')->with('active_tab', 'gallery');
         }
     }
 
@@ -60,9 +60,9 @@ class LandingPageController extends Controller
             if ($gallery->foto) Storage::disk('public')->delete($gallery->foto);
             $gallery->delete();
             $this->clearLandingCache();
-            return back()->with('success', 'Foto berhasil dihapus.');
+            return back()->with('success', 'Foto berhasil dihapus.')->with('active_tab', 'gallery');
         } catch (\Exception $e) {
-            return back()->with('error', 'Gagal menghapus foto.');
+            return back()->with('error', 'Gagal menghapus foto.')->with('active_tab', 'gallery');
         }
     }
 
@@ -121,10 +121,10 @@ class LandingPageController extends Controller
 
             $this->clearLandingCache();
 
-            return back()->with('success', 'Konfigurasi Landing Page berhasil diperbarui.');
+            return back()->with('success', 'Konfigurasi Landing Page berhasil diperbarui.')->with('active_tab', 'general');
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Update Landing Page Error: ' . $e->getMessage());
-            return back()->with('error', 'Gagal memperbarui konfigurasi.');
+            return back()->with('error', 'Gagal memperbarui konfigurasi.')->with('active_tab', 'general');
         }
     }
 
@@ -148,10 +148,10 @@ class LandingPageController extends Controller
 
             Testimonial::create($validated);
             $this->clearLandingCache();
-            return back()->with('success', 'Testimonial berhasil ditambahkan.');
+            return back()->with('success', 'Testimonial berhasil ditambahkan.')->with('active_tab', 'testimonials');
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Store Testimonial Error: ' . $e->getMessage());
-            return back()->with('error', 'Gagal menambahkan testimonial.');
+            return back()->with('error', 'Gagal menambahkan testimonial.')->with('active_tab', 'testimonials');
         }
     }
 
@@ -160,7 +160,7 @@ class LandingPageController extends Controller
         if ($testimonial->foto) Storage::disk('public')->delete($testimonial->foto);
         $testimonial->delete();
         $this->clearLandingCache();
-        return back()->with('success', 'Testimonial berhasil dihapus.');
+        return back()->with('success', 'Testimonial berhasil dihapus.')->with('active_tab', 'testimonials');
     }
 
     /**
@@ -176,14 +176,14 @@ class LandingPageController extends Controller
 
         Faq::create($validated);
         $this->clearLandingCache();
-        return back()->with('success', 'FAQ berhasil ditambahkan.');
+        return back()->with('success', 'FAQ berhasil ditambahkan.')->with('active_tab', 'faq');
     }
 
     public function destroyFaq(Faq $faq)
     {
         $faq->delete();
         $this->clearLandingCache();
-        return back()->with('success', 'FAQ berhasil dihapus.');
+        return back()->with('success', 'FAQ berhasil dihapus.')->with('active_tab', 'faq');
     }
 
     /**
@@ -203,7 +203,7 @@ class LandingPageController extends Controller
 
         Feature::create($validated);
         $this->clearLandingCache();
-        return back()->with('success', 'Keunggulan berhasil ditambahkan.');
+        return back()->with('success', 'Keunggulan berhasil ditambahkan.')->with('active_tab', 'features');
     }
 
     public function destroyFeature(Feature $feature)
@@ -211,7 +211,7 @@ class LandingPageController extends Controller
         if ($feature->icon) Storage::disk('public')->delete($feature->icon);
         $feature->delete();
         $this->clearLandingCache();
-        return back()->with('success', 'Keunggulan berhasil dihapus.');
+        return back()->with('success', 'Keunggulan berhasil dihapus.')->with('active_tab', 'features');
     }
 
     /**
@@ -231,7 +231,7 @@ class LandingPageController extends Controller
 
         MitraLogo::create($validated);
         $this->clearLandingCache();
-        return back()->with('success', 'Logo Mitra berhasil ditambahkan.');
+        return back()->with('success', 'Logo Mitra berhasil ditambahkan.')->with('active_tab', 'mitra');
     }
 
     public function destroyMitra(MitraLogo $mitra)
@@ -239,7 +239,7 @@ class LandingPageController extends Controller
         if ($mitra->logo) Storage::disk('public')->delete($mitra->logo);
         $mitra->delete();
         $this->clearLandingCache();
-        return back()->with('success', 'Logo Mitra berhasil dihapus.');
+        return back()->with('success', 'Logo Mitra berhasil dihapus.')->with('active_tab', 'mitra');
     }
     private function clearLandingCache()
     {

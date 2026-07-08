@@ -8,21 +8,20 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            <style>
+                .program-card { min-width: 85vw; }
+                @media (min-width: 768px) { .program-card { min-width: 45vw; } }
+                @media (min-width: 1024px) { .program-card { min-width: 31%; } }
+                .program-slider.active { cursor: grabbing; cursor: -webkit-grabbing; }
+                .program-slider:not(.active) { cursor: grab; cursor: -webkit-grab; }
+            </style>
+            <div id="programSlider" class="program-slider flex overflow-x-auto gap-6 sm:gap-8 snap-x snap-mandatory pb-8 custom-scrollbar">
                 @forelse($pakets as $paket)
-                    <div class="group bg-white rounded-3xl sm:rounded-[2.5rem] overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-slate-100 flex flex-col h-full relative" data-aos="fade-up" data-aos-delay="{{ $loop->iteration * 100 }}">
-                        <!-- Badge Diskon -->
-                        @if($paket->harga_coret && $paket->harga_coret > $paket->nominal)
-                            @php $diskon = round((($paket->harga_coret - $paket->nominal) / $paket->harga_coret) * 100); @endphp
-                            <div class="absolute top-4 left-4 z-20">
-                                <div class="bg-red-500 text-white text-[10px] font-black px-2 py-1 rounded-xl shadow-lg">
-                                    {{ $diskon }}% OFF
-                                </div>
-                            </div>
-                        @endif
+                    <div class="program-card flex-shrink-0 snap-center group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-slate-100 flex flex-col h-full relative" data-aos="fade-up" data-aos-delay="{{ $loop->iteration * 100 }}">
+                        <!-- Badge Diskon Removed -->
 
                         <!-- Header Image -->
-                        <div class="relative h-40 sm:h-56 overflow-hidden">
+                        <div class="relative h-40 sm:h-48 overflow-hidden">
                             @if($paket->gambar_paket)
                                 <img src="{{ asset('storage/' . $paket->gambar_paket) }}" alt="{{ $paket->nama_paket }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
                             @else
@@ -38,9 +37,9 @@
                             @endif
                         </div>
 
-                        <div class="p-6 sm:p-8 flex-grow flex flex-col">
-                            <h3 class="text-xl sm:text-2xl font-black text-slate-900 mb-1 group-hover:text-indigo-600 transition-colors tracking-tight line-clamp-2 break-words">{{ $paket->nama_paket }}</h3>
-                            <p class="text-indigo-600 text-[9px] sm:text-[10px] uppercase tracking-[0.2em] mb-4 sm:mb-6 font-black break-words">{{ $paket->target_peserta ?? 'Semua Jenjang' }}</p>
+                        <div class="p-6 flex-grow flex flex-col">
+                            <h3 class="text-xl font-black text-slate-900 mb-1 group-hover:text-indigo-600 transition-colors tracking-tight line-clamp-2 break-words">{{ $paket->nama_paket }}</h3>
+                            <p class="text-indigo-600 text-[9px] sm:text-[10px] uppercase tracking-[0.2em] mb-4 font-black break-words">{{ $paket->target_peserta ?? 'Semua Jenjang' }}</p>
                             
                             <div class="space-y-2.5 mb-6">
                                 @php 
@@ -60,20 +59,14 @@
                             </div>
 
                             <div class="mt-auto bg-slate-50 rounded-2xl p-4 border border-slate-100">
-                                @if($paket->harga_coret)
-                                    <div class="text-[9px] sm:text-[10px] text-slate-400 line-through mb-0.5 font-bold">Rp {{ number_format($paket->harga_coret, 0, ',', '.') }}</div>
-                                @endif
                                 <div class="flex items-baseline gap-1">
-                                    <span class="text-xl sm:text-2xl font-black text-indigo-600">Rp {{ number_format($paket->nominal, 0, ',', '.') }}</span>
-                                    @if($paket->durasi_jumlah)
-                                        <span class="text-[9px] sm:text-[10px] text-slate-500 font-black uppercase">/ {{ $paket->durasi_jumlah }} {{ $paket->durasi_satuan }}</span>
-                                    @endif
+                                    <span class="text-xl font-black text-indigo-600">Rp {{ number_format($paket->nominal, 0, ',', '.') }}</span>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="px-6 pb-6 sm:px-8 sm:pb-8">
-                            <a href="{{ route('paket.detail', $paket->id) }}" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-3 sm:py-4.5 rounded-xl sm:rounded-2xl transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2 active:scale-95 group/btn text-sm sm:text-base">
+                        <div class="px-6 pb-6 flex-shrink-0 mt-2">
+                            <a href="{{ route('paket.detail', $paket->id) }}" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-3 rounded-xl transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2 active:scale-95 group/btn text-sm">
                                 Info Lebih Lanjut
                             </a>
                         </div>
@@ -84,5 +77,68 @@
                     </div>
                 @endforelse
             </div>
+            
+            <div class="mt-8 sm:mt-12 text-center" data-aos="fade-up">
+                <a href="{{ route('paket.index') }}" class="inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-white border border-slate-200 hover:border-indigo-600 text-slate-700 hover:text-indigo-600 font-bold rounded-xl sm:rounded-2xl transition-all shadow-sm hover:shadow-md">
+                    Lihat Semua Program
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                </a>
+            </div>
         </div>
     </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const slider = document.getElementById('programSlider');
+            let isDown = false;
+            let startX;
+            let scrollLeft;
+
+            slider.addEventListener('mousedown', (e) => {
+                isDown = true;
+                slider.classList.add('active');
+                slider.style.scrollSnapType = 'none'; // Disable snapping while dragging
+                startX = e.pageX - slider.offsetLeft;
+                scrollLeft = slider.scrollLeft;
+            });
+            
+            slider.addEventListener('mouseleave', () => {
+                isDown = false;
+                slider.classList.remove('active');
+                slider.style.scrollSnapType = ''; // Re-enable snapping
+            });
+            
+            slider.addEventListener('mouseup', () => {
+                isDown = false;
+                slider.classList.remove('active');
+                slider.style.scrollSnapType = ''; // Re-enable snapping
+            });
+            
+            slider.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - slider.offsetLeft;
+                const walk = (x - startX) * 2; // Kecepatan scroll
+                slider.scrollLeft = scrollLeft - walk;
+            });
+            
+            // Scroll menggunakan scroll/wheel mouse
+            let isWheeling;
+            slider.addEventListener('wheel', (e) => {
+                // Mencegah scroll vertikal (landing page) jika mouse berada di atas card
+                e.preventDefault();
+                
+                // Matikan snapping sementara agar scroll wheel tidak bertabrakan dengan CSS snap
+                slider.style.scrollSnapType = 'none';
+                
+                // Mengubah arah scroll vertikal (deltaY) menjadi pergerakan horizontal (scrollLeft)
+                slider.scrollLeft += e.deltaY * 1.5; // multiplier untuk sedikit mempercepat scroll
+                
+                // Hidupkan snapping kembali setelah user selesai scroll
+                clearTimeout(isWheeling);
+                isWheeling = setTimeout(() => {
+                    slider.style.scrollSnapType = '';
+                }, 150);
+            }, { passive: false });
+        });
+    </script>

@@ -127,8 +127,18 @@ class PemasukanController extends Controller
         if ($kategoriPemasukan->pemasukan()->exists()) {
             return back()->with('error', 'Kategori tidak bisa dihapus karena masih memiliki data pemasukan.');
         }
-        $kategoriPemasukan->delete();
-        return back()->with('success', 'Kategori dihapus.');
+        
+        try {
+            $kategoriPemasukan->delete();
+            return back()->with('success', 'Kategori dihapus.');
+        } catch (\Illuminate\Database\QueryException $e) {
+            if ($e->getCode() == 23000) {
+                return back()->with('error', 'Kategori gagal dihapus karena masih terikat dengan data pemasukan (termasuk yang sudah di-soft-delete).');
+            }
+            return back()->with('error', 'Terjadi kesalahan pada database saat menghapus kategori.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Kategori gagal dihapus: ' . $e->getMessage());
+        }
     }
 
     // ─── PRIVATE HELPERS ──────────────────────────────────────────────

@@ -11,13 +11,13 @@ class CameraPermissionHeaders
     {
         $response = $next($request);
 
-        // Izinkan akses kamera/mikrofon dari origin manapun
-        $response->withHeaders([
-            'Permissions-Policy' => 'camera=*, microphone=*',
-            'Cross-Origin-Opener-Policy' => 'same-origin-allow-popups',
-            'Cross-Origin-Embedder-Policy' => 'unsafe-none',
-            'Feature-Policy' => "camera 'self'; microphone 'self'"
-        ]);
+        // Izinkan akses kamera/mikrofon dari origin manapun, kompatibel dengan semua tipe response
+        if (property_exists($response, 'headers') && is_object($response->headers)) {
+            $response->headers->set('Permissions-Policy', 'camera=*, microphone=*');
+            $response->headers->set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+            $response->headers->set('Cross-Origin-Embedder-Policy', 'unsafe-none');
+            $response->headers->set('Feature-Policy', "camera 'self'; microphone 'self'");
+        }
 
         return $response;
     }

@@ -155,7 +155,7 @@ class AutoBackupCommand extends Command
             $tables[] = array_values((array)$row)[0];
         }
 
-        $sql = "-- GeniusEdu Database Backup (" . strtoupper($type) . ")\n";
+        $sql = "-- Sistem Akademik Database Backup (" . strtoupper($type) . ")\n";
         $sql .= "-- Generated: " . now()->format('Y-m-d H:i:s') . "\n";
         $sql .= "-- Database: {$dbName}\n\n";
         $sql .= "SET FOREIGN_KEY_CHECKS=0;\n\n";
@@ -174,10 +174,8 @@ class AutoBackupCommand extends Command
             DB::table($table)->orderBy(
                 DB::getSchemaBuilder()->hasColumn($table, 'id') ? 'id' : DB::raw('1')
             )->chunk(500, function ($rows) use (&$sql, $table, &$hasRows) {
-                if (!$hasRows) {
-                    $sql .= "INSERT INTO `{$table}` VALUES \n";
-                    $hasRows = true;
-                }
+                $hasRows = true;
+                $sql .= "INSERT INTO `{$table}` VALUES \n";
                 $inserts = [];
                 foreach ($rows as $row) {
                     $values = [];

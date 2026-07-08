@@ -81,33 +81,49 @@ class PesertaDidikController extends Controller
     {
         $validated = $request->validated();
 
+        $periodeId = session('periode_id');
+        if (!$periodeId || !\App\Models\MasterData\Periode::where('id', $periodeId)->exists()) {
+            return back()->withInput()->with('error', 'Konteks Periode (ID: ' . ($periodeId ?? 'kosong') . ') tidak ditemukan di database. Silakan pilih ulang Periode di menu atas.');
+        }
+
+        $kantorId = session('kantor_id');
+        if (!$kantorId || $kantorId === 'all' || !\App\Models\MasterData\Kantor::where('id', $kantorId)->exists()) {
+            return back()->withInput()->with('error', 'Konteks Kantor/Cabang (ID: ' . ($kantorId ?? 'kosong') . ') tidak ditemukan atau tidak valid. Silakan pilih ulang Cabang di menu atas.');
+        }
+
         try {
-            \Illuminate\Support\Facades\DB::transaction(function () use ($validated, $request, &$peserta) {
+            \Illuminate\Support\Facades\DB::transaction(function () use ($validated, $request, &$peserta, $kantorId, $periodeId) {
                 $peserta = PesertaDidik::create($validated + [
                     'status' => 'Aktif',
-                    'kantor_id' => session('kantor_id'),
-                    'periode_id' => session('periode_id')
+                    'kantor_id' => $kantorId,
+                    'periode_id' => $periodeId
                 ]);
 
-                // Buat akun User
-                \App\Models\User::create([
-                    'name'             => $peserta->nama_lengkap,
-                    'email'            => $validated['email'],
-                    'username'         => $validated['email'],
-                    'password'         => \Illuminate\Support\Facades\Hash::make($validated['password']),
-                    'level'            => 'siswa',
-                    'is_active'        => true,
-                    'status'           => 'aktif',
-                    'kantor_id'        => $peserta->kantor_id,
-                    'periode_id'       => $peserta->periode_id,
-                    'peserta_didik_id' => $peserta->id,
-                ]);
+                // Buat akun User jika email dan password diisi
+                if (!empty($validated['email']) && !empty($validated['password'])) {
+                    \App\Models\User::create([
+                        'name'             => $peserta->nama_lengkap,
+                        'email'            => $validated['email'],
+                        'username'         => $validated['email'],
+                        'password'         => \Illuminate\Support\Facades\Hash::make($validated['password']),
+                        'level'            => 'siswa',
+                        'is_active'        => true,
+                        'status'           => 'aktif',
+                        'kantor_id'        => $peserta->kantor_id,
+                        'periode_id'       => $peserta->periode_id,
+                        'peserta_didik_id' => $peserta->id,
+                    ]);
+                }
             });
 
             // Kirim Notifikasi WA (Manual Add)
             $nomor = $peserta->no_telepon ?? $peserta->no_telepon_ayah ?? $peserta->no_telepon_ibu;
             if ($nomor) {
-                $pesan = "📚 *Data Siswa Aktif*\n\nHalo *{$peserta->nama_lengkap}*,\n\nAdmin telah menambahkan data Anda ke dalam sistem Bimbingan Belajar. Anda sekarang telah terdaftar sebagai siswa aktif.\n\nAkun Login Anda:\nEmail: {$request->email}\nPassword: {$request->password}\n\nSelamat belajar dan sukses selalu! 🙏";
+                $pesan = "📚 *Data Siswa Aktif*\n\nHalo *{$peserta->nama_lengkap}*,\n\nAdmin telah menambahkan data Anda ke dalam sistem Bimbingan Belajar. Anda sekarang telah terdaftar sebagai siswa aktif.";
+                if (!empty($request->email) && !empty($request->password)) {
+                    $pesan .= "\n\nAkun Login Anda:\nEmail: {$request->email}\nPassword: {$request->password}";
+                }
+                $pesan .= "\n\nSelamat belajar dan sukses selalu! 🙏";
                 \App\Services\WhatsAppService::sendAsync($nomor, $pesan);
             }
 
@@ -200,14 +216,94 @@ class PesertaDidikController extends Controller
         \Illuminate\Support\Facades\DB::transaction(function () use ($pesertaDidik) {
             $user = \App\Models\User::where('peserta_didik_id', $pesertaDidik->id)->first();
             if ($user) {
-                $user->delete();
+                // Jangan hard-delete user karena foreign key (seperti di cbt_pesertas)
+                // Cukup nonaktifkan saja
+                $user->update(['is_active' => 0]);
             }
             $pesertaDidik->delete();
         });
 
         \App\Services\CacheService::clearPesertaCache();
 
-        return redirect()->back()->with('success', 'Data Peserta Didik beserta Akun berhasil dihapus!');
+        return redirect()->back()->with('success', 'Data Peserta Didik berhasil dihapus (Akun Pengguna telah dinonaktifkan)!');
+    }
+
+    /**
+     * Remove the specified resource permanently from storage.
+     */
+    public function forceDestroy(string $id)
+    {
+        if (!in_array(strtolower(auth()->user()->level), ['admin', 'super admin'])) {
+            abort(403, 'Akses Ditolak.');
+        }
+
+        $pesertaDidik = PesertaDidik::withTrashed()->findOrFail($id);
+
+        try {
+            \Illuminate\Support\Facades\Schema::disableForeignKeyConstraints();
+
+            \Illuminate\Support\Facades\DB::transaction(function () use ($pesertaDidik) {
+                $user = \App\Models\User::where('peserta_didik_id', $pesertaDidik->id)->first();
+
+                if ($user) {
+                    // 1. Hapus data CBT (cbt_peserta_jawabans → cbt_pesertas)
+                    $cbtPesertaIds = \Illuminate\Support\Facades\DB::table('cbt_pesertas')
+                        ->where('user_id', $user->id)->pluck('id');
+                    if ($cbtPesertaIds->isNotEmpty()) {
+                        \Illuminate\Support\Facades\DB::table('cbt_peserta_jawabans')
+                            ->whereIn('cbt_peserta_id', $cbtPesertaIds)->delete();
+                        \Illuminate\Support\Facades\DB::table('cbt_pesertas')
+                            ->where('user_id', $user->id)->delete();
+                    }
+
+                    // 2. Hapus data chat (messages → participants → conversations)
+                    $conversationIds = \Illuminate\Support\Facades\DB::table('conversation_user')
+                        ->where('user_id', $user->id)->pluck('conversation_id');
+                    if ($conversationIds->isNotEmpty()) {
+                        \Illuminate\Support\Facades\DB::table('messages')
+                            ->whereIn('conversation_id', $conversationIds)->delete();
+                        \Illuminate\Support\Facades\DB::table('conversation_user')
+                            ->whereIn('conversation_id', $conversationIds)->delete();
+                        \Illuminate\Support\Facades\DB::table('conversations')
+                            ->whereIn('id', $conversationIds)->delete();
+                    }
+
+                    // 3. Hapus user
+                    $user->delete();
+                }
+
+                // 4. Hapus pembayaran_siswa beserta transaksi_pembayaran-nya
+                $pembayaranList = \App\Models\Keuangan\PembayaranSiswa::withTrashed()
+                    ->where('peserta_didik_id', $pesertaDidik->id)->get();
+                foreach ($pembayaranList as $pembayaran) {
+                    \App\Models\Keuangan\TransaksiPembayaran::withTrashed()
+                        ->where('pembayaran_siswa_id', $pembayaran->id)
+                        ->forceDelete();
+                    $pembayaran->forceDelete();
+                }
+
+                // 5. Hapus absensi
+                \Illuminate\Support\Facades\DB::table('absensis')
+                    ->where('peserta_didik_id', $pesertaDidik->id)->delete();
+
+                // 6. Hapus peserta didik secara permanen
+                $pesertaDidik->forceDelete();
+            });
+
+            \Illuminate\Support\Facades\Schema::enableForeignKeyConstraints();
+            \App\Services\CacheService::clearPesertaCache();
+
+            return redirect()->back()->with('success', 'Data Peserta Didik berhasil dihapus secara permanen!');
+        } catch (\Illuminate\Database\QueryException $e) {
+            \Illuminate\Support\Facades\Schema::enableForeignKeyConstraints();
+            if ($e->getCode() == 23000) {
+                return redirect()->back()->with('error', 'Gagal hapus permanen! Peserta Didik ini masih memiliki data terkait (seperti pembayaran atau tagihan) di sistem.');
+            }
+            return redirect()->back()->with('error', 'Terjadi kesalahan database: ' . $e->getMessage());
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Schema::enableForeignKeyConstraints();
+            return redirect()->back()->with('error', 'Gagal menghapus secara permanen: ' . $e->getMessage());
+        }
     }
 
     /**

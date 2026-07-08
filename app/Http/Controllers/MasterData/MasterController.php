@@ -41,6 +41,12 @@ class MasterController extends Controller
             $master->mail_encryption   = $validated['mail_encryption'] ?? $master->mail_encryption;
             $master->mail_from_address = $validated['mail_from_address'] ?? $master->mail_from_address;
             $master->mail_from_name    = $validated['mail_from_name'] ?? $master->mail_from_name;
+            
+            $master->cloud_backup_provider = $validated['cloud_backup_provider'] ?? $master->cloud_backup_provider;
+            $master->gdrive_client_id      = $validated['gdrive_client_id'] ?? $master->gdrive_client_id;
+            $master->gdrive_client_secret  = $validated['gdrive_client_secret'] ?? $master->gdrive_client_secret;
+            $master->gdrive_refresh_token  = $validated['gdrive_refresh_token'] ?? $master->gdrive_refresh_token;
+            $master->gdrive_folder_id      = $validated['gdrive_folder_id'] ?? $master->gdrive_folder_id;
 
             if ($request->hasFile('logo')) {
                 // Hapus logo lama jika ada
@@ -86,9 +92,9 @@ class MasterController extends Controller
         ]);
 
         try {
-            \Illuminate\Support\Facades\Mail::raw('Halo! Ini adalah pesan uji coba dari konfigurasi Layanan Email (SMTP) Sistem Informasi Bimbel GeniusEdu. Jika Anda menerima email ini, berarti pengaturan email Anda sudah benar dan berfungsi dengan baik.', function ($message) use ($request) {
+            \Illuminate\Support\Facades\Mail::raw('Halo! Ini adalah pesan uji coba dari konfigurasi Layanan Email (SMTP) Sistem Informasi Bimbel Sistem Akademik. Jika Anda menerima email ini, berarti pengaturan email Anda sudah benar dan berfungsi dengan baik.', function ($message) use ($request) {
                 $message->to($request->email)
-                        ->subject('Uji Coba Pengaturan Email - GeniusEdu');
+                        ->subject('Uji Coba Pengaturan Email - Sistem Akademik');
             });
 
             return redirect()->back()->with('success', 'Email uji coba berhasil dikirim ke ' . $request->email);

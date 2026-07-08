@@ -178,6 +178,10 @@ class BackupController extends Controller
      */
     public function restore(string $filename)
     {
+        // Bypass WAF: Tambahkan .sql jika tidak ada di URL
+        if (!str_ends_with(strtolower($filename), '.sql')) {
+            $filename .= '.sql';
+        }
 
         // Proteksi Directory Traversal & Batasan Ekstensi
         if (str_contains($filename, '/') || str_contains($filename, '\\') || !str_ends_with(strtolower($filename), '.sql')) {
@@ -208,12 +212,10 @@ class BackupController extends Controller
                 }
             }
 
-            // Jalankan impor SQL secara aman menggunakan unprepared query di dalam transaksi
-            \Illuminate\Support\Facades\DB::transaction(function () use ($sqlContent) {
-                \Illuminate\Support\Facades\DB::unprepared("SET FOREIGN_KEY_CHECKS=0;");
-                \Illuminate\Support\Facades\DB::unprepared($sqlContent);
-                \Illuminate\Support\Facades\DB::unprepared("SET FOREIGN_KEY_CHECKS=1;");
-            });
+            // Jalankan impor SQL secara aman (tanpa DB::transaction karena DDL MySQL menyebabkan implicit commit)
+            \Illuminate\Support\Facades\DB::unprepared("SET FOREIGN_KEY_CHECKS=0;");
+            \Illuminate\Support\Facades\DB::unprepared($sqlContent);
+            \Illuminate\Support\Facades\DB::unprepared("SET FOREIGN_KEY_CHECKS=1;");
 
             // Hapus cache agar data yang di-restore langsung terbaca
             \Illuminate\Support\Facades\Artisan::call('optimize:clear');
@@ -233,6 +235,10 @@ class BackupController extends Controller
      */
     public function download(string $filename)
     {
+        // Bypass WAF: Tambahkan .sql jika tidak ada di URL
+        if (!str_ends_with(strtolower($filename), '.sql')) {
+            $filename .= '.sql';
+        }
 
         // Proteksi Directory Traversal & Batasan Ekstensi
         if (str_contains($filename, '/') || str_contains($filename, '\\') || !str_ends_with(strtolower($filename), '.sql')) {
@@ -273,6 +279,13 @@ class BackupController extends Controller
      */
     public function destroy(string $filename)
     {
+        Log::info("DEBUG: Entering destroy with filename: {$filename}");
+        // Bypass WAF: Tambahkan .sql jika tidak ada di URL
+        if (!str_ends_with(strtolower($filename), '.sql')) {
+            $filename .= '.sql';
+        }
+        Log::info("DEBUG: After adding .sql: {$filename}");
+
         // Proteksi Directory Traversal & Batasan Ekstensi
         if (str_contains($filename, '/') || str_contains($filename, '\\') || !str_ends_with(strtolower($filename), '.sql')) {
             Log::warning("Percobaan serangan Directory Traversal pada Hapus DB: {$filename} oleh User ID " . auth()->id());
@@ -281,12 +294,15 @@ class BackupController extends Controller
         }
 
         $path = "{$this->backupDir}/{$filename}";
+        Log::info("DEBUG: Path to check: {$path}");
 
         if (!Storage::exists($path)) {
+            Log::error("DEBUG: Storage::exists returned false for {$path}");
             if (request()->wantsJson() || request()->ajax()) return response()->json(['success' => false, 'message' => 'File backup tidak ditemukan.'], 404);
             return back()->with('error', 'File backup tidak ditemukan.');
         }
 
+        Log::info("DEBUG: Storage::exists returned true. Deleting {$path}");
         Storage::delete($path);
         Log::info("Backup dihapus secara sah oleh Super Admin ID " . auth()->id() . ": {$filename}");
         \App\Models\System\AuditLog::logSystemEvent('Hapus Backup Database', 'SystemBackup', ['filename' => $filename], null);
@@ -303,19 +319,34 @@ class BackupController extends Controller
     public function bulkDestroy(Request $request)
     {
         $filenames = $request->input('filenames', []);
+        Log::info("DEBUG: Entering bulkDestroy with filenames:", $filenames);
         
         if (empty($filenames) || !is_array($filenames)) {
-            return response()->json(['success' => false, 'message' => 'Tidak ada file yang dipilih.']);
+            Log::warning("DEBUG: bulkDestroy received empty or invalid filenames");
+            if (request()->wantsJson() || request()->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Tidak ada file yang dipilih.']);
+            }
+            return back()->with('error', 'Tidak ada file yang dipilih.');
         }
 
         $deletedCount = 0;
         foreach ($filenames as $filename) {
+            Log::info("DEBUG: bulkDestroy checking filename: {$filename}");
+            
+            // Bypass WAF: Tambahkan .sql jika tidak ada
+            if (!str_ends_with(strtolower($filename), '.sql')) {
+                $filename .= '.sql';
+            }
+
             if (str_contains($filename, '/') || str_contains($filename, '\\') || !str_ends_with(strtolower($filename), '.sql')) {
+                Log::warning("DEBUG: bulkDestroy skipped {$filename} due to validation");
                 continue;
             }
 
             $path = "{$this->backupDir}/{$filename}";
+            Log::info("DEBUG: bulkDestroy Path to check: {$path}");
             if (Storage::exists($path)) {
+                Log::info("DEBUG: bulkDestroy Storage::exists true, deleting {$path}");
                 Storage::delete($path);
                 $deletedCount++;
                 Log::info("Backup dihapus secara sah (Bulk) oleh Super Admin ID " . auth()->id() . ": {$filename}");
@@ -326,10 +357,14 @@ class BackupController extends Controller
             \App\Models\System\AuditLog::logSystemEvent('Hapus Massal Backup Database', 'SystemBackup', ['count' => $deletedCount], null);
         }
 
-        return response()->json([
-            'success' => true, 
-            'message' => "Berhasil menghapus {$deletedCount} file backup."
-        ]);
+        if (request()->wantsJson() || request()->ajax()) {
+            return response()->json([
+                'success' => true, 
+                'message' => "Berhasil menghapus {$deletedCount} file backup."
+            ]);
+        }
+        
+        return back()->with('success', "Berhasil menghapus {$deletedCount} file backup.");
     }
 
     /**

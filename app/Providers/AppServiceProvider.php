@@ -23,6 +23,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+
         // Daftarkan Gate untuk Log Viewer (Hanya Super Admin yang bisa akses)
         \Illuminate\Support\Facades\Gate::define('viewLogViewer', function ($user) {
             return strtolower($user->level) === 'super admin';
@@ -100,6 +101,20 @@ class AppServiceProvider extends ServiceProvider
                 if (!array_key_exists('periodes', $viewData)) $view->with('periodes', collect());
                 if (!array_key_exists('masterData', $viewData)) $view->with('masterData', null);
             }
+        });
+
+        \Illuminate\Support\Facades\Blade::directive('highlight', function ($expression) {
+            return "<?php 
+                \$__args = [$expression];
+                \$__text = \$__args[0] ?? '';
+                \$__search = \$__args[1] ?? request()->query('search');
+                if (\$__search) {
+                    \$__escapedSearch = preg_quote(\$__search, '/');
+                    echo preg_replace('/(' . \$__escapedSearch . ')/i', '<mark class=\"bg-yellow-300 dark:bg-yellow-700/50 text-inherit rounded-sm px-0.5\">$1</mark>', e(\$__text));
+                } else {
+                    echo e(\$__text);
+                }
+            ?>";
         });
     }
 }

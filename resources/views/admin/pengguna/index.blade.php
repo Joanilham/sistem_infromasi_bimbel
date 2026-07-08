@@ -99,7 +99,7 @@
                     @forelse($penggunas as $i => $p)
                         <tr class="hover:bg-indigo-50/50 dark:hover:bg-indigo-900/10 transition-all even:bg-slate-50/50 dark:even:bg-zinc-800/30">
                             <td class="px-4 py-3 text-slate-400 font-bold text-xs border border-slate-200 dark:border-zinc-800 text-center">
-                                #{{ str_pad($penggunas->firstItem() + $i, 3, '0', STR_PAD_LEFT) }}
+                                {{ (method_exists($penggunas, 'firstItem') && $penggunas->firstItem() ? $penggunas->firstItem() - 1 : 0) + $loop->iteration }}
                             </td>
                             <td class="px-4 py-3 border border-slate-200 dark:border-zinc-800">
                                 <div class="flex items-center gap-3">
@@ -107,13 +107,13 @@
                                         <span class="text-indigo-600 dark:text-indigo-400 font-black text-[10px]">{{ substr($p->name, 0, 1) }}</span>
                                     </div>
                                     <div>
-                                        <p class="font-bold text-slate-900 dark:text-white leading-tight transition-colors">{{ $p->name }}</p>
-                                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">{{ $p->email }}</p>
+                                        <p class="font-bold text-slate-900 dark:text-white leading-tight transition-colors">@highlight($p->name)</p>
+                                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">@highlight($p->email)</p>
                                     </div>
                                 </div>
                             </td>
                             <td class="px-4 py-3 text-slate-600 dark:text-slate-300 font-bold font-mono text-[10px] border border-slate-200 dark:border-zinc-800">
-                                {{ $p->username ?? '-' }}
+                                @highlight($p->username ?? '-')
                             </td>
                             <td class="px-4 py-3 border border-slate-200 dark:border-zinc-800">
                                 @if(in_array(strtolower($p->level), ['super admin', 'administrator']))

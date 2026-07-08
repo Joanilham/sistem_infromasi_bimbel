@@ -9,7 +9,7 @@
     <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-zinc-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div>
             <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Manajemen Kantor</h1>
-            <p class="text-slate-500 dark:text-slate-400 mt-2 text-sm font-medium">Daftar lokasi kantor cabang dan pusat Genius Education.</p>
+            <p class="text-slate-500 dark:text-slate-400 mt-2 text-sm font-medium">Daftar lokasi kantor cabang dan pusat Sistem Akademik.</p>
         </div>
         <button onclick="document.getElementById('modal-create').classList.remove('hidden')"
            class="inline-flex items-center gap-3 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs px-8 py-4 rounded-2xl shadow-xl shadow-indigo-500/20 transition-all active:scale-95 group shrink-0">
@@ -101,10 +101,10 @@
                                 #{{ str_pad($kantors->firstItem() + $i, 3, '0', STR_PAD_LEFT) }}
                             </td>
                             <td class="px-4 py-3 font-bold text-slate-900 dark:text-white border border-slate-200 dark:border-zinc-800">
-                                {{ $kantor->nama_kantor }}
+                                @highlight($kantor->nama_kantor)
                             </td>
                             <td class="px-4 py-3 text-slate-500 dark:text-slate-400 font-medium italic border border-slate-200 dark:border-zinc-800 leading-tight">
-                                {{ $kantor->alamat ?? 'Alamat belum diset' }}
+                                @highlight($kantor->alamat ?? 'Alamat belum diset')
                             </td>
                             <td class="px-4 py-3 border border-slate-200 dark:border-zinc-800">
                                 <div class="flex items-center justify-center gap-2">

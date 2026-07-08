@@ -84,11 +84,25 @@ class AbsensiController extends Controller
 
         // Buat daftar tanggal dalam bulan ini
         $daysInMonth = \Carbon\Carbon::createFromDate($tahun, $bulan, 1)->daysInMonth;
-        $tanggalList = [];
+        $tanggalListRaw = [];
         for ($i = 1; $i <= $daysInMonth; $i++) {
             $dateStr = \Carbon\Carbon::createFromDate($tahun, $bulan, $i)->format('Y-m-d');
-            $tanggalList[$dateStr] = $absensis->get($dateStr);
+            $tanggalListRaw[$dateStr] = $absensis->get($dateStr);
         }
+
+        $perPage = (int) $request->input('per_page', 10);
+        $currentPage = \Illuminate\Pagination\Paginator::resolveCurrentPage() ?: 1;
+        $currentPageItems = array_slice($tanggalListRaw, ($currentPage - 1) * $perPage, $perPage, true);
+        
+        $tanggalList = new \Illuminate\Pagination\LengthAwarePaginator(
+            $currentPageItems,
+            count($tanggalListRaw),
+            $perPage,
+            $currentPage,
+            ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath(), 'query' => $request->query()]
+        );
+
+
 
         return view('admin.absensi.detail', compact('peserta', 'bulan', 'tahun', 'tanggalList'));
     }

@@ -84,11 +84,11 @@ class PesertaDidikRequest extends FormRequest
             $rules['status']         = 'required|in:Aktif,Keluar,Lulus';
             $rules['tanggal_keluar'] = 'required_if:status,Keluar,Lulus|nullable|date';
             $rules['alasan_keluar']  = 'required_if:status,Keluar,Lulus|nullable|string';
-            $rules['email']          = 'required|email|max:255|unique:users,email,' . $userId;
+            $rules['email']          = 'nullable|email|max:255|unique:users,email,' . $userId;
             $rules['password']       = 'nullable|string|min:8';
         } else {
-            $rules['email']          = 'required|email|max:255|unique:users,email';
-            $rules['password']       = 'required|string|min:8';
+            $rules['email']          = 'nullable|email|max:255|unique:users,email';
+            $rules['password']       = 'nullable|string|min:8';
         }
 
         return $rules;

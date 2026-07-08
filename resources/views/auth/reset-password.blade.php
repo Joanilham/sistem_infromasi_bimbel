@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Atur Ulang Kata Sandi - {{ $masterData->nama_lembaga ?? 'Genius Education' }}</title>
+    <title>Atur Ulang Kata Sandi - {{ $masterData->nama_lembaga ?? 'Sistem Akademik' }}</title>
     
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{{ isset($masterData) && $masterData->logo ? Storage::url($masterData->logo) : asset('favicon.png') }}">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -147,7 +145,7 @@
         </div>
 
         <p class="mt-8 text-center text-sm font-medium text-slate-500">
-            &copy; {{ date('Y') }} Genius Education. All rights reserved.
+            &copy; {{ date('Y') }} Sistem Akademik. All rights reserved.
         </p>
 
     </div>

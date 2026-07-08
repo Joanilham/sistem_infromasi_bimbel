@@ -38,14 +38,14 @@ class SecurityHeaders
             }
         }
 
-        // Tambahkan security headers standar
-        $response->withHeaders([
-            'X-Content-Type-Options' => 'nosniff',
-            'X-Frame-Options' => 'SAMEORIGIN',
-            'X-XSS-Protection' => '1; mode=block',
-            'Referrer-Policy' => 'strict-origin-when-cross-origin',
-            'Permissions-Policy' => 'camera=*, microphone=*, geolocation=()',
-        ]);
+        // Tambahkan security headers standar yang kompatibel dengan semua tipe response (termasuk StreamedResponse)
+        if (property_exists($response, 'headers') && is_object($response->headers)) {
+            $response->headers->set('X-Content-Type-Options', 'nosniff');
+            $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
+            $response->headers->set('X-XSS-Protection', '1; mode=block');
+            $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
+            $response->headers->set('Permissions-Policy', 'camera=*, microphone=*, geolocation=()');
+        }
 
 
 

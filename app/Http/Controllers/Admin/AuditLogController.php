@@ -49,8 +49,8 @@ class AuditLogController extends Controller
      */
     public function destroy($id)
     {
-        // Fitur hapus log adalah hak eksklusif Super Admin demi kepatuhan audit (audit compliance)
-        if (strtolower(auth()->user()->level) !== 'super admin') {
+        // Fitur hapus log adalah hak untuk Super Admin dan Admin
+        if (!in_array(strtolower(auth()->user()->level), ['super admin', 'admin', 'administrator'])) {
             abort(403, 'Akses ditolak. Anda tidak memiliki izin untuk menghapus bukti jejak sistem.');
         }
 
@@ -65,8 +65,8 @@ class AuditLogController extends Controller
      */
     public function prune(Request $request)
     {
-        // Fitur hapus log adalah hak eksklusif Super Admin
-        if (strtolower(auth()->user()->level) !== 'super admin') {
+        // Fitur hapus log adalah hak untuk Super Admin dan Admin
+        if (!in_array(strtolower(auth()->user()->level), ['super admin', 'admin', 'administrator'])) {
             abort(403, 'Akses ditolak. Anda tidak memiliki izin untuk membersihkan log sistem.');
         }
 

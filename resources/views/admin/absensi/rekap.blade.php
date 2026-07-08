@@ -186,8 +186,8 @@
                                         <span class="font-black text-xs transition-colors">{{ substr($p->nama_lengkap, 0, 1) }}</span>
                                     </div>
                                     <div>
-                                        <p class="font-bold text-slate-900 dark:text-white leading-tight transition-colors group-hover/link:text-indigo-600 dark:group-hover/link:text-indigo-400">{{ $p->nama_lengkap }}</p>
-                                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">{{ $p->nisn }}</p>
+                                        <p class="font-bold text-slate-900 dark:text-white leading-tight transition-colors group-hover/link:text-indigo-600 dark:group-hover/link:text-indigo-400">@highlight($p->nama_lengkap)</p>
+                                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">@highlight($p->nisn)</p>
                                     </div>
                                 </a>
                             </td>

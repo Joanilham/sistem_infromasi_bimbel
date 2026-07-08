@@ -31,6 +31,12 @@ Route::get('/', function () {
     return view('welcome', $data);
 })->name('welcome');
 
+Route::get('/program-bimbingan', function () {
+    $masterData = \App\Models\MasterData\Master::first();
+    $pakets = \App\Models\Akademik\PaketBimbingan::orderBy('urutan')->get();
+    return view('paket.index', compact('masterData', 'pakets'));
+})->name('paket.index');
+
 Route::get('/paket/{id}', function ($id) {
     $paket = \App\Models\Akademik\PaketBimbingan::findOrFail($id);
     $masterData = \App\Models\MasterData\Master::first();
@@ -111,6 +117,7 @@ Route::middleware('auth')->group(function () {
 
         // Recycle Bin (Recycle Bin)
         Route::get('/admin/recycle-bin', [\App\Http\Controllers\Admin\RecycleBinController::class, 'index'])->name('admin.recycle-bin.index');
+        Route::post('/admin/recycle-bin/bulk', [\App\Http\Controllers\Admin\RecycleBinController::class, 'bulkAction'])->name('admin.recycle-bin.bulk');
         Route::post('/admin/recycle-bin/{type}/{id}/restore', [\App\Http\Controllers\Admin\RecycleBinController::class, 'restore'])->name('admin.recycle-bin.restore');
         Route::delete('/admin/recycle-bin/{type}/{id}', [\App\Http\Controllers\Admin\RecycleBinController::class, 'forceDelete'])->name('admin.recycle-bin.force-delete');
 
@@ -199,6 +206,7 @@ Route::middleware('auth')->group(function () {
                 Route::get('/peserta-didik/lulus', [\App\Http\Controllers\Akademik\PesertaDidikController::class, 'lulus'])->name('peserta-didik.lulus');
                 Route::get('/peserta-didik/lulus/export', [\App\Http\Controllers\Akademik\PesertaDidikController::class, 'exportLulus'])->name('peserta-didik.lulus.export');
                 Route::get('/peserta-didik/{id}/edit', [\App\Http\Controllers\Akademik\PesertaDidikController::class, 'edit'])->name('peserta-didik.edit');
+                Route::delete('/peserta-didik/{id}/force', [\App\Http\Controllers\Akademik\PesertaDidikController::class, 'forceDestroy'])->name('peserta-didik.force-destroy');
                 Route::resource('peserta-didik', \App\Http\Controllers\Akademik\PesertaDidikController::class)->except(['edit', 'show']);
                 Route::resource('kelompok-belajar', \App\Http\Controllers\Akademik\KelompokBelajarController::class)->except(['show']);
             });
@@ -245,45 +253,56 @@ Route::middleware('auth')->group(function () {
 
             // ── Rekapitulasi (Admin) ──
             Route::get('/admin/rekapitulasi', [\App\Http\Controllers\Admin\RekapitulasiController::class, 'index'])->name('admin.rekapitulasi.index');
-            Route::get('/admin/rekapitulasi/export', [\App\Http\Controllers\Admin\RekapitulasiController::class, 'export'])->name('admin.rekapitulasi.export');
+                        Route::post('/admin/rekapitulasi/export-kustom', [\App\Http\Controllers\Admin\RekapitulasiController::class, 'exportKustom'])->name('admin.rekapitulasi.export-kustom');
+Route::get('/admin/rekapitulasi/export', [\App\Http\Controllers\Admin\RekapitulasiController::class, 'export'])->name('admin.rekapitulasi.export');
 
             // ── Keuangan ──────────────────────────────────────────────────
-            Route::middleware('check_permission:manage_keuangan')->prefix('keuangan')->name('keuangan.')->group(function () {
+            Route::prefix('keuangan')->name('keuangan.')->group(function () {
 
                 // Pembayaran Siswa
-                Route::get('/pembayaran', [\App\Http\Controllers\Keuangan\PembayaranController::class, 'index'])->name('pembayaran.index');
-                Route::get('/pembayaran/{pesertaDidik}', [\App\Http\Controllers\Keuangan\PembayaranController::class, 'show'])->name('pembayaran.show');
-                Route::put('/pembayaran/{pembayaranSiswa}', [\App\Http\Controllers\Keuangan\PembayaranController::class, 'update'])->name('pembayaran.update');
-                Route::post('/pembayaran/{pembayaranSiswa}/transaksi', [\App\Http\Controllers\Keuangan\PembayaranController::class, 'storeTransaksi'])->name('pembayaran.transaksi.store');
-                Route::get('/transaksi/{transaksiPembayaran}/edit', [\App\Http\Controllers\Keuangan\PembayaranController::class, 'editTransaksi'])->name('transaksi.edit');
-                Route::put('/transaksi/{transaksiPembayaran}', [\App\Http\Controllers\Keuangan\PembayaranController::class, 'updateTransaksi'])->name('transaksi.update');
-                Route::delete('/transaksi/{transaksiPembayaran}', [\App\Http\Controllers\Keuangan\PembayaranController::class, 'destroyTransaksi'])->name('transaksi.destroy');
-                Route::post('/transaksi/{transaksiPembayaran}/verifikasi', [\App\Http\Controllers\Keuangan\PembayaranController::class, 'verifikasiTransaksi'])->name('transaksi.verifikasi');
-                Route::post('/transaksi/{transaksiPembayaran}/tolak', [\App\Http\Controllers\Keuangan\PembayaranController::class, 'tolakTransaksi'])->name('transaksi.tolak');
-                Route::get('/transaksi/{transaksiPembayaran}/struk', [\App\Http\Controllers\Keuangan\PembayaranController::class, 'strukTransaksi'])->name('transaksi.struk');
+                Route::middleware('check_permission:manage_pembayaran_siswa')->group(function () {
+                    Route::get('/pembayaran', [\App\Http\Controllers\Keuangan\PembayaranController::class, 'index'])->name('pembayaran.index');
+                    Route::get('/pembayaran/{pesertaDidik}', [\App\Http\Controllers\Keuangan\PembayaranController::class, 'show'])->name('pembayaran.show');
+                    Route::put('/pembayaran/{pembayaranSiswa}', [\App\Http\Controllers\Keuangan\PembayaranController::class, 'update'])->name('pembayaran.update');
+                    Route::get('/pembayaran/{pembayaranSiswa}/rekap', [\App\Http\Controllers\Keuangan\PembayaranController::class, 'cetakRekap'])->name('pembayaran.rekap');
+                    Route::post('/pembayaran/{pembayaranSiswa}/transaksi', [\App\Http\Controllers\Keuangan\PembayaranController::class, 'storeTransaksi'])->name('pembayaran.transaksi.store');
+                    Route::get('/transaksi/{transaksiPembayaran}/edit', [\App\Http\Controllers\Keuangan\PembayaranController::class, 'editTransaksi'])->name('transaksi.edit');
+                    Route::put('/transaksi/{transaksiPembayaran}', [\App\Http\Controllers\Keuangan\PembayaranController::class, 'updateTransaksi'])->name('transaksi.update');
+                    Route::delete('/transaksi/{transaksiPembayaran}', [\App\Http\Controllers\Keuangan\PembayaranController::class, 'destroyTransaksi'])->name('transaksi.destroy');
+                    Route::post('/transaksi/{transaksiPembayaran}/verifikasi', [\App\Http\Controllers\Keuangan\PembayaranController::class, 'verifikasiTransaksi'])->name('transaksi.verifikasi');
+                    Route::post('/transaksi/{transaksiPembayaran}/tolak', [\App\Http\Controllers\Keuangan\PembayaranController::class, 'tolakTransaksi'])->name('transaksi.tolak');
+                    Route::get('/transaksi/{transaksiPembayaran}/struk', [\App\Http\Controllers\Keuangan\PembayaranController::class, 'strukTransaksi'])->name('transaksi.struk');
+                });
 
                 // Pemasukan — static routes FIRST, parameter routes AFTER
-                Route::get('/pemasukan', [\App\Http\Controllers\Keuangan\PemasukanController::class, 'index'])->name('pemasukan.index');
-                Route::post('/pemasukan', [\App\Http\Controllers\Keuangan\PemasukanController::class, 'store'])->name('pemasukan.store');
-                Route::get('/pemasukan/kategori', [\App\Http\Controllers\Keuangan\PemasukanController::class, 'indexKategori'])->name('pemasukan.kategori.index');
-                Route::post('/pemasukan/kategori', [\App\Http\Controllers\Keuangan\PemasukanController::class, 'storeKategori'])->name('pemasukan.kategori.store');
-                Route::delete('/pemasukan/kategori/{kategoriPemasukan}', [\App\Http\Controllers\Keuangan\PemasukanController::class, 'destroyKategori'])->name('pemasukan.kategori.destroy');
-                Route::get('/pemasukan/{pemasukan}/edit', [\App\Http\Controllers\Keuangan\PemasukanController::class, 'edit'])->name('pemasukan.edit');
-                Route::put('/pemasukan/{pemasukan}', [\App\Http\Controllers\Keuangan\PemasukanController::class, 'update'])->name('pemasukan.update');
-                Route::delete('/pemasukan/{pemasukan}', [\App\Http\Controllers\Keuangan\PemasukanController::class, 'destroy'])->name('pemasukan.destroy');
+                Route::middleware('check_permission:manage_pemasukan')->group(function () {
+                    Route::get('/pemasukan', [\App\Http\Controllers\Keuangan\PemasukanController::class, 'index'])->name('pemasukan.index');
+                    Route::post('/pemasukan', [\App\Http\Controllers\Keuangan\PemasukanController::class, 'store'])->name('pemasukan.store');
+                    Route::get('/pemasukan/kategori', [\App\Http\Controllers\Keuangan\PemasukanController::class, 'indexKategori'])->name('pemasukan.kategori.index');
+                    Route::post('/pemasukan/kategori', [\App\Http\Controllers\Keuangan\PemasukanController::class, 'storeKategori'])->name('pemasukan.kategori.store');
+                    Route::delete('/pemasukan/kategori/{kategoriPemasukan}', [\App\Http\Controllers\Keuangan\PemasukanController::class, 'destroyKategori'])->name('pemasukan.kategori.destroy');
+                    Route::get('/pemasukan/{pemasukan}/edit', [\App\Http\Controllers\Keuangan\PemasukanController::class, 'edit'])->name('pemasukan.edit');
+                    Route::put('/pemasukan/{pemasukan}', [\App\Http\Controllers\Keuangan\PemasukanController::class, 'update'])->name('pemasukan.update');
+                    Route::delete('/pemasukan/{pemasukan}', [\App\Http\Controllers\Keuangan\PemasukanController::class, 'destroy'])->name('pemasukan.destroy');
+                });
+                
 
                 // Pengeluaran — static routes FIRST, parameter routes AFTER
-                Route::get('/pengeluaran', [\App\Http\Controllers\Keuangan\PengeluaranController::class, 'index'])->name('pengeluaran.index');
-                Route::post('/pengeluaran', [\App\Http\Controllers\Keuangan\PengeluaranController::class, 'store'])->name('pengeluaran.store');
-                Route::get('/pengeluaran/kategori', [\App\Http\Controllers\Keuangan\PengeluaranController::class, 'indexKategori'])->name('pengeluaran.kategori.index');
-                Route::post('/pengeluaran/kategori', [\App\Http\Controllers\Keuangan\PengeluaranController::class, 'storeKategori'])->name('pengeluaran.kategori.store');
-                Route::delete('/pengeluaran/kategori/{kategoriPengeluaran}', [\App\Http\Controllers\Keuangan\PengeluaranController::class, 'destroyKategori'])->name('pengeluaran.kategori.destroy');
-                Route::get('/pengeluaran/{pengeluaran}/edit', [\App\Http\Controllers\Keuangan\PengeluaranController::class, 'edit'])->name('pengeluaran.edit');
-                Route::put('/pengeluaran/{pengeluaran}', [\App\Http\Controllers\Keuangan\PengeluaranController::class, 'update'])->name('pengeluaran.update');
-                Route::delete('/pengeluaran/{pengeluaran}', [\App\Http\Controllers\Keuangan\PengeluaranController::class, 'destroy'])->name('pengeluaran.destroy');
+                Route::middleware('check_permission:manage_pengeluaran')->group(function () {
+                    Route::get('/pengeluaran', [\App\Http\Controllers\Keuangan\PengeluaranController::class, 'index'])->name('pengeluaran.index');
+                    Route::post('/pengeluaran', [\App\Http\Controllers\Keuangan\PengeluaranController::class, 'store'])->name('pengeluaran.store');
+                    Route::get('/pengeluaran/kategori', [\App\Http\Controllers\Keuangan\PengeluaranController::class, 'indexKategori'])->name('pengeluaran.kategori.index');
+                    Route::post('/pengeluaran/kategori', [\App\Http\Controllers\Keuangan\PengeluaranController::class, 'storeKategori'])->name('pengeluaran.kategori.store');
+                    Route::delete('/pengeluaran/kategori/{kategoriPengeluaran}', [\App\Http\Controllers\Keuangan\PengeluaranController::class, 'destroyKategori'])->name('pengeluaran.kategori.destroy');
+                    Route::get('/pengeluaran/{pengeluaran}/edit', [\App\Http\Controllers\Keuangan\PengeluaranController::class, 'edit'])->name('pengeluaran.edit');
+                    Route::put('/pengeluaran/{pengeluaran}', [\App\Http\Controllers\Keuangan\PengeluaranController::class, 'update'])->name('pengeluaran.update');
+                    Route::delete('/pengeluaran/{pengeluaran}', [\App\Http\Controllers\Keuangan\PengeluaranController::class, 'destroy'])->name('pengeluaran.destroy');
+                });
 
                 // Tagihan
-                Route::get('/tagihan', [\App\Http\Controllers\Keuangan\TagihanController::class, 'index'])->name('tagihan.index');
+                Route::middleware('check_permission:manage_tagihan')->group(function () {
+                    Route::get('/tagihan', [\App\Http\Controllers\Keuangan\TagihanController::class, 'index'])->name('tagihan.index');
+                });
             });
 
         });

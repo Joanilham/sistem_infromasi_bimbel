@@ -12,7 +12,7 @@
                         @else
                             <div class="h-10 w-10 sm:h-14 sm:w-14 bg-white rounded-xl sm:rounded-2xl flex items-center justify-center text-indigo-600 font-black text-2xl sm:text-3xl">G</div>
                         @endif
-                        <span class="font-black text-2xl sm:text-3xl text-white tracking-tight">{{ $masterData->nama_lembaga ?? 'Genius Education' }}</span>
+                        <span class="font-black text-2xl sm:text-3xl text-white tracking-tight">{{ $masterData->nama_lembaga ?? 'Sistem Akademik' }}</span>
                     </a>
                     <p class="text-slate-400 text-sm sm:text-lg leading-relaxed max-w-sm font-medium">
                         {{ $masterData->hero_subtitle ?? 'Bimbingan belajar masa kini dengan sistem terpadu.' }}
@@ -90,7 +90,7 @@
                     <h4 class="font-black text-white mb-6 uppercase tracking-[0.2em] text-xs">Pendaftaran & Akun</h4>
                     <ul class="space-y-4 text-sm font-bold flex flex-col items-start">
                         <li><a href="{{ route('welcome') }}" class="text-slate-400 hover:text-white transition-colors">Beranda Utama</a></li>
-                        <li><a href="{{ route('daftar.step1') }}" class="text-indigo-400 hover:text-indigo-300 transition-colors">Daftar Sekarang</a></li>
+                        <li><a href="{{ route('daftar.step1') }}" class="text-slate-400 hover:text-white transition-colors">Daftar Sekarang</a></li>
                         <li><a href="{{ route('login') }}" class="text-slate-400 hover:text-white transition-colors">Masuk Ke Portal</a></li>
                     </ul>
                 </div>
@@ -98,7 +98,7 @@
 
             <div class="pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <p class="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em]">
-                    &copy; {{ date('Y') }} {{ $masterData->nama_lembaga ?? 'Genius Education' }}. Sistem Manajemen Pendidikan Terpadu.
+                    &copy; {{ date('Y') }} {{ $masterData->nama_lembaga ?? 'Sistem Akademik' }}. Sistem Manajemen Pendidikan Terpadu.
                 </p>
                 <div class="flex items-center gap-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">
                     <span onclick="openModal('modal-tc')" class="hover:text-white transition-colors cursor-pointer">T&C</span>

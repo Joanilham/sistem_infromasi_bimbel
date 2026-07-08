@@ -88,6 +88,7 @@
                 <span class="text-sm font-semibold {{ request()->routeIs('admin.recycle-bin.*') ? 'text-white' : 'text-slate-700 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-white' }}">Recycle Bin</span>
             </a>
             @endif
+
         </nav>
     </div>
     @endif

@@ -66,7 +66,7 @@ class CheckTenggatPembayaranCommand extends Command
 
             // --- 1. SCRIPT H-3 JATUH TEMPO (Friendly Reminder) ---
             if ($hariTerlambat == -3 && $nomorHp) {
-                $pesan = "Halo Ayah/Bunda *{$namaOrtu}*,\n\nSemoga sehat selalu. Kami dari *GeniusEdu* ingin menginfokan bahwa tagihan cicilan untuk Paket Bimbel *{$namaPaket}* (Ananda: {$namaAnak}) akan jatuh tempo pada:\n\n📅 *Tanggal:* {$tglJatuhTempo}\n💰 *Nominal:* Rp {$nominal}\n\n*Catatan Sistem:*\nJika Anda menggunakan metode Autodebit, mohon pastikan saldo Anda mencukupi. Jika menggunakan transfer manual, pembayaran bisa dilakukan via link resmi di bawah ini:\n\n🔗 {$linkPembayaran}\n\nTerima kasih atas kerja samanya untuk kelancaran belajar Ananda. 🙏";
+                $pesan = "Halo Ayah/Bunda *{$namaOrtu}*,\n\nSemoga sehat selalu. Kami dari *Sistem Akademik* ingin menginfokan bahwa tagihan cicilan untuk Paket Bimbel *{$namaPaket}* (Ananda: {$namaAnak}) akan jatuh tempo pada:\n\n📅 *Tanggal:* {$tglJatuhTempo}\n💰 *Nominal:* Rp {$nominal}\n\n*Catatan Sistem:*\nJika Anda menggunakan metode Autodebit, mohon pastikan saldo Anda mencukupi. Jika menggunakan transfer manual, pembayaran bisa dilakukan via link resmi di bawah ini:\n\n🔗 {$linkPembayaran}\n\nTerima kasih atas kerja samanya untuk kelancaran belajar Ananda. 🙏";
                 
                 WhatsAppService::sendAsync($nomorHp, $pesan);
                 $countHMinus3++;

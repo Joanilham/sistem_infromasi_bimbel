@@ -203,8 +203,8 @@
                     </h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-slate-50/50 dark:bg-zinc-900/50 p-6 rounded-3xl border border-slate-100 dark:border-zinc-800">
                         <div class="space-y-2">
-                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Email Aktif <span class="text-rose-500">*</span></label>
-                            <input type="email" name="email" required value="{{ old('email', $userAkun ? $userAkun->email : '') }}" placeholder="Email untuk login aplikasi" class="w-full border bg-white dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-sm font-bold py-2.5 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
+                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Email Aktif</label>
+                            <input type="email" name="email" value="{{ old('email', $userAkun ? $userAkun->email : '') }}" placeholder="Email untuk login aplikasi" class="w-full border bg-white dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-sm font-bold py-2.5 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
                             @error('email')<p class="text-xs text-rose-500 mt-1 font-bold">{{ $message }}</p>@enderror
                         </div>
                         <div class="space-y-2">

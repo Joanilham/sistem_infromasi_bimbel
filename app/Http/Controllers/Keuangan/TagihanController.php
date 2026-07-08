@@ -29,7 +29,7 @@ class TagihanController extends Controller
                     });
                 }
                 if ($request->paket_id) {
-                    $q->where('paket_id', $request->paket_id);
+                    $q->where('paket_bimbingan_id', $request->paket_id);
                 }
             })
             ->join('peserta_didiks', 'pembayaran_siswa.peserta_didik_id', '=', 'peserta_didiks.id')

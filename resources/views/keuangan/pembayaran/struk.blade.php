@@ -7,7 +7,7 @@
     @php
         $master = \App\Models\MasterData\Master::first();
         $logoUrl = $master && $master->logo ? asset('storage/' . $master->logo) : null;
-        $namaLembaga = $master->nama_lembaga ?? 'Bimbingan Belajar Genius Education';
+        $namaLembaga = $master->nama_lembaga ?? 'Bimbingan Belajar Sistem Akademik';
         $alamatLembaga = $master->alamat_lembaga ?? 'Jl. Pendidikan No. 1, Kota Belajar';
         $waNumber = $master->wa_number ?? '';
     @endphp
@@ -303,6 +303,12 @@
             <span class="label">Paket Bimbingan</span>
             <span class="value">{{ $transaksiPembayaran->pembayaranSiswa->pesertaDidik->paketBimbingan->nama_paket ?? '-' }}</span>
         </div>
+        @if($transaksiPembayaran->pembayaranSiswa && $transaksiPembayaran->pembayaranSiswa->diskon_nominal > 0)
+        <div class="row">
+            <span class="label">Diskon {{ $transaksiPembayaran->pembayaranSiswa->keterangan_diskon ? '('.$transaksiPembayaran->pembayaranSiswa->keterangan_diskon.')' : '' }}</span>
+            <span class="value">- Rp {{ number_format($transaksiPembayaran->pembayaranSiswa->diskon_nominal, 0, ',', '.') }}</span>
+        </div>
+        @endif
         
         <div class="total-box">
             <div class="total-row">
@@ -328,8 +334,8 @@
 
         <div class="action-buttons">
             @php
-                $backUrl = $transaksiPembayaran->pembayaran_siswa_id 
-                    ? route('keuangan.pembayaran.show', $transaksiPembayaran->pembayaran_siswa_id) 
+                $backUrl = $transaksiPembayaran->pembayaranSiswa 
+                    ? route('keuangan.pembayaran.show', $transaksiPembayaran->pembayaranSiswa->peserta_didik_id) 
                     : route('keuangan.pembayaran.index');
             @endphp
             <button onclick="if(window.history.length > 1 && !window.opener) { window.location.href = '{{ $backUrl }}'; } else { window.close(); window.location.href = '{{ $backUrl }}'; }" class="btn-back">Kembali / Tutup</button>
