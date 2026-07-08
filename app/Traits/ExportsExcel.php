@@ -38,13 +38,26 @@ trait ExportsExcel
         return '<Row ss:Height="18"><Cell ss:StyleID="s_info" ss:MergeAcross="' . ($cols - 1) . '"><Data ss:Type="String">' . $this->x($info) . '</Data></Cell></Row>' . "\n";
     }
 
-    protected function xmlHeaderRow(array $headers): string
+    protected function xmlHeaderRow(array $headers, array $spans = []): string
     {
         $xml = '<Row ss:Height="24">';
-        foreach ($headers as $h) {
-            $xml .= '<Cell ss:StyleID="s_head"><Data ss:Type="String">' . $this->x($h) . '</Data></Cell>';
+        foreach ($headers as $index => $h) {
+            $spanAttr = isset($spans[$index]) && $spans[$index] > 1 ? ' ss:MergeAcross="' . ($spans[$index] - 1) . '"' : '';
+            $xml .= '<Cell ss:StyleID="s_head"' . $spanAttr . '><Data ss:Type="String">' . $this->x($h) . '</Data></Cell>';
         }
         return $xml . '</Row>' . "\n";
+    }
+
+    protected function xmlStrSpanned(mixed $v, string $style, int $span): string
+    {
+        $spanAttr = $span > 1 ? ' ss:MergeAcross="' . ($span - 1) . '"' : '';
+        return '<Cell ss:StyleID="' . $style . '"' . $spanAttr . '><Data ss:Type="String">' . $this->x($v) . '</Data></Cell>';
+    }
+
+    protected function xmlNumSpanned(mixed $v, string $style, int $span): string
+    {
+        $spanAttr = $span > 1 ? ' ss:MergeAcross="' . ($span - 1) . '"' : '';
+        return '<Cell ss:StyleID="' . $style . '"' . $spanAttr . '><Data ss:Type="Number">' . $this->x($v) . '</Data></Cell>';
     }
 
     protected function xmlStr(mixed $v, string $style): string

@@ -12,13 +12,7 @@
             <p class="text-slate-500 dark:text-slate-400 mt-2 text-sm font-medium">Monitoring dan rekap data peserta didik yang sudah tidak aktif belajar di lembaga.</p>
         </div>
         <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto shrink-0">
-            <a href="{{ route('peserta-didik.keluar.export') }}"
-               class="inline-flex items-center justify-center w-full sm:w-auto gap-3 bg-white dark:bg-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-700 text-slate-700 dark:text-slate-200 font-black text-xs px-6 py-4 rounded-2xl shadow-sm border border-slate-200 dark:border-zinc-700 transition-all active:scale-95">
-                <svg class="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
-                Export Excel
-            </a>
+
         </div>
     </div>
 
@@ -184,13 +178,13 @@
                                         <span class="text-slate-600 dark:text-slate-400 font-black text-xs">{{ substr($peserta->nama_lengkap, 0, 1) }}</span>
                                     </div>
                                     <div>
-                                        <p class="font-bold text-slate-900 dark:text-white leading-tight transition-colors">{{ $peserta->nama_lengkap }}</p>
-                                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">{{ $peserta->asal_sekolah }}</p>
+                                        <p class="font-bold text-slate-900 dark:text-white leading-tight transition-colors">@highlight($peserta->nama_lengkap)</p>
+                                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">@highlight($peserta->asal_sekolah)</p>
                                     </div>
                                 </div>
                             </td>
                             <td class="px-4 py-3 text-slate-600 dark:text-slate-300 font-bold font-mono text-xs border border-slate-200 dark:border-zinc-800">
-                                {{ $peserta->nisn }}
+                                @highlight($peserta->nisn)
                             </td>
                             <td class="px-4 py-3 text-center border border-slate-200 dark:border-zinc-800">
                                 @if($peserta->jenis_kelamin == 'L')
@@ -218,7 +212,7 @@
                             <td class="px-4 py-3 border border-slate-200 dark:border-zinc-800">
                                 <div class="flex flex-wrap items-center justify-center gap-2">
                                     <a href="{{ route('peserta-didik.edit', $peserta->id) }}"
-                                       class="inline-flex items-center justify-center w-8 h-8 rounded bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 hover:bg-amber-200 transition-all border border-amber-200/50 shadow-sm"
+                                       class="inline-flex items-center justify-center w-8 h-8 rounded bg-amber-50 dark:bg-amber-900/10 text-amber-600 dark:text-amber-400 hover:bg-amber-100 transition-all border border-amber-200/50 shadow-sm"
                                        title="Edit">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>

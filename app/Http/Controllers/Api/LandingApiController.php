@@ -21,7 +21,7 @@ class LandingApiController extends Controller
         return response()->json([
             'success' => true,
             'data' => [
-                'nama_lembaga'    => $master->nama_lembaga ?? 'Genius Education',
+                'nama_lembaga'    => $master->nama_lembaga ?? 'Sistem Akademik',
                 'alamat_lembaga'  => $master->alamat_lembaga ?? '',
                 'wa_number'       => $master->wa_number ?? '',
                 'instagram_url'   => $master->instagram_url ?? null,

@@ -26,10 +26,33 @@
     </div>
 
     {{-- Detail Table --}}
-    <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] border border-slate-100 dark:border-zinc-800 shadow-sm overflow-hidden">
-        <div class="p-6 border-b border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-900/50">
-            <h2 class="text-lg font-black text-slate-800 dark:text-white">Riwayat Harian</h2>
-            <p class="text-xs text-slate-500 mt-1">Klik tombol edit untuk mengubah absensi pada tanggal tertentu secara manual.</p>
+    <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] border border-slate-100 dark:border-zinc-800 shadow-sm overflow-hidden" x-data="{ filterStatus: 'semua' }">
+        <div class="p-6 border-b border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-900/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+                <h2 class="text-lg font-black text-slate-800 dark:text-white">Riwayat Harian</h2>
+                <p class="text-xs text-slate-500 mt-1">Klik tombol edit untuk mengubah absensi pada tanggal tertentu secara manual.</p>
+            </div>
+            
+            <div class="flex flex-wrap items-center gap-3 shrink-0">
+                {{-- Limit Per Page --}}
+                <form action="{{ route('absensi.detail', $peserta->id) }}" method="GET" class="shrink-0">
+                    <input type="hidden" name="bulan" value="{{ request('bulan', now()->month) }}">
+                    <input type="hidden" name="tahun" value="{{ request('tahun', now()->year) }}">
+                    <x-table.filter-limit />
+                </form>
+                
+                {{-- Filter Status --}}
+                <div class="shrink-0">
+                    <select x-model="filterStatus" class="no-tomselect bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-xl text-sm font-bold py-2.5 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none text-slate-600 dark:text-slate-300 shadow-sm h-[42px]">
+                        <option value="semua">Semua Status</option>
+                        <option value="hadir">Hadir</option>
+                        <option value="izin">Izin</option>
+                        <option value="sakit">Sakit</option>
+                        <option value="alpha">Alpha</option>
+                        <option value="kosong">Belum Absen (-)</option>
+                    </select>
+                </div>
+            </div>
         </div>
         
         <div class="overflow-x-auto">
@@ -49,8 +72,9 @@
                         @php 
                             $isWeekend = \Carbon\Carbon::parse($dateStr)->isWeekend();
                             $dateObj = \Carbon\Carbon::parse($dateStr);
+                            $statusRecord = $a ? strtolower($a->status_masuk) : 'kosong';
                         @endphp
-                        <tr class="{{ $isWeekend ? 'bg-slate-50 dark:bg-zinc-800/30' : 'hover:bg-slate-50 dark:hover:bg-zinc-800/50' }} transition-colors">
+                        <tr x-show="filterStatus === 'semua' || filterStatus === '{{ $statusRecord }}'" class="{{ $isWeekend ? 'bg-slate-50 dark:bg-zinc-800/30' : 'hover:bg-slate-50 dark:hover:bg-zinc-800/50' }} transition-colors">
                             <td class="px-6 py-4">
                                 <div class="font-bold text-slate-800 dark:text-slate-200">{{ $dateObj->translatedFormat('d M Y') }}</div>
                                 <div class="text-[10px] font-black uppercase tracking-widest {{ $isWeekend ? 'text-rose-400' : 'text-slate-400' }}">
@@ -97,6 +121,13 @@
                 </tbody>
             </table>
         </div>
+
+        {{-- Pagination --}}
+        @if($tanggalList instanceof \Illuminate\Pagination\LengthAwarePaginator && $tanggalList->hasPages())
+        <div class="px-6 py-4 border-t border-slate-100 dark:border-zinc-800">
+            {{ $tanggalList->links() }}
+        </div>
+        @endif
     </div>
 </div>
 

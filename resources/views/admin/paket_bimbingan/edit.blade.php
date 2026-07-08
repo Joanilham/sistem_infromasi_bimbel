@@ -3,7 +3,7 @@
 @section('title', 'Edit Paket Bimbingan')
 
 @section('content')
-<div class="max-w-4xl mx-auto space-y-6">
+<div class="w-full space-y-6">
 
     {{-- Header --}}
     <div class="flex items-center gap-4 mb-6">
@@ -49,13 +49,8 @@
                     </div>
                     
                     <div class="space-y-2">
-                        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Harga Promo (Rp) <span class="text-rose-500">*</span></label>
+                        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Harga (Rp) <span class="text-rose-500">*</span></label>
                         <input type="text" name="nominal" value="{{ old('nominal', $paketBimbingan->nominal) }}" required placeholder="500.000" class="nominal-input w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
-                    </div>
-                    
-                    <div class="space-y-2">
-                        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Harga Coret (Rp)</label>
-                        <input type="text" name="harga_coret" value="{{ old('harga_coret', $paketBimbingan->harga_coret) }}" placeholder="750.000" class="nominal-input w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
                     </div>
                     
                     <div class="space-y-2">
@@ -73,19 +68,59 @@
                     </div>
                     
                     <div class="space-y-2">
-                        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Maksimal Cicilan (Tenor) <span class="text-rose-500">*</span></label>
-                        <input type="number" name="max_cicilan" value="{{ old('max_cicilan', $paketBimbingan->max_cicilan ?? 1) }}" min="1" required placeholder="Misal: 6" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
-                    </div>
-                    
-                    <div class="space-y-2">
-                        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Durasi Paket</label>
-                        <div class="flex gap-4">
-                            <input type="number" name="durasi_jumlah" value="{{ old('durasi_jumlah', $paketBimbingan->durasi_jumlah) }}" placeholder="Misal: 6" class="w-2/3 bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
-                            <select name="durasi_satuan" class="w-1/3 bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
-                                <option value="Bulan" {{ old('durasi_satuan', $paketBimbingan->durasi_satuan) == 'Bulan' ? 'selected' : '' }}>Bulan</option>
-                                <option value="Tahun" {{ old('durasi_satuan', $paketBimbingan->durasi_satuan) == 'Tahun' ? 'selected' : '' }}>Tahun</option>
+                        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Durasi Paket <span class="text-rose-500">*</span></label>
+                        @php 
+                            $d_jumlah = old('durasi_jumlah', isset($paketBimbingan) ? $paketBimbingan->durasi_jumlah : 6);
+                            $d_satuan = old('durasi_satuan', isset($paketBimbingan) ? $paketBimbingan->durasi_satuan : 'Bulan');
+                        @endphp
+                        <select id="durasi_paket_select" onchange="toggleCustomDurasi(this.value)" class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white mb-3">
+                            <option value="6-Bulan">6 Bulan</option>
+                            <option value="1-Tahun">1 Tahun</option>
+                            <option value="Custom">Custom (Isi Sendiri)</option>
+                        </select>
+                        
+                        <div id="custom_durasi_container" style="display: none;" class="flex gap-4">
+                            <input type="number" name="durasi_jumlah" id="durasi_jumlah" value="{{ $d_jumlah }}" placeholder="Misal: 6" class="w-2/3 bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
+                            <select name="durasi_satuan" id="durasi_satuan" class="w-1/3 bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-4 px-5 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
+                                <option value="Bulan" {{ $d_satuan == 'Bulan' ? 'selected' : '' }}>Bulan</option>
+                                <option value="Tahun" {{ $d_satuan == 'Tahun' ? 'selected' : '' }}>Tahun</option>
                             </select>
                         </div>
+                        <input type="hidden" name="max_cicilan" value="1">
+                        
+                        <script>
+                            function toggleCustomDurasi(val) {
+                                const container = document.getElementById('custom_durasi_container');
+                                const durasiJumlah = document.getElementById('durasi_jumlah');
+                                const durasiSatuan = document.getElementById('durasi_satuan');
+                                
+                                if (val === 'Custom') {
+                                    container.style.display = 'flex';
+                                } else {
+                                    container.style.display = 'none';
+                                    const parts = val.split('-');
+                                    durasiJumlah.value = parts[0];
+                                    durasiSatuan.value = parts[1];
+                                }
+                            }
+                            
+                            document.addEventListener('DOMContentLoaded', function() {
+                                const oldJumlah = "{{ $d_jumlah }}";
+                                const oldSatuan = "{{ $d_satuan }}";
+                                const select = document.getElementById('durasi_paket_select');
+                                
+                                const presetVal = oldJumlah + '-' + oldSatuan;
+                                if (presetVal === '6-Bulan' || presetVal === '1-Tahun') {
+                                    select.value = presetVal;
+                                    toggleCustomDurasi(presetVal);
+                                } else {
+                                    select.value = 'Custom';
+                                    toggleCustomDurasi('Custom');
+                                    document.getElementById('durasi_jumlah').value = oldJumlah;
+                                    document.getElementById('durasi_satuan').value = oldSatuan;
+                                }
+                            });
+                        </script>
                     </div>
                     
                     <div class="space-y-2 md:col-span-2">

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detail Paket - {{ $paket->nama_paket }} | {{ $masterData->nama_lembaga ?? 'Genius Education' }}</title>
+    <title>Detail Paket - {{ $paket->nama_paket }} | {{ $masterData->nama_lembaga ?? 'Sistem Akademik' }}</title>
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
@@ -34,7 +34,7 @@
                                 G
                             </div>
                         @endif
-                        <span class="font-bold text-lg text-slate-900 hidden sm:block">{{ $masterData->nama_lembaga ?? 'Genius Education' }}</span>
+                        <span class="font-bold text-lg text-slate-900 hidden sm:block">{{ $masterData->nama_lembaga ?? 'Sistem Akademik' }}</span>
                     </a>
                 </div>
                 <!-- Actions -->
@@ -217,7 +217,7 @@
     <!-- Footer Simple -->
     <footer class="bg-white border-t border-slate-200 mt-auto">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-sm text-slate-500">
-            &copy; {{ date('Y') }} {{ $masterData->nama_lembaga ?? 'Genius Education' }}. Sistem Informasi Manajemen Pendidikan.
+            &copy; {{ date('Y') }} {{ $masterData->nama_lembaga ?? 'Sistem Akademik' }}. Sistem Informasi Manajemen Pendidikan.
         </div>
     </footer>
 

@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pilih Ruang Kerja - Genius Education</title>
+    <title>Pilih Ruang Kerja - Sistem Akademik</title>
     
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{{ isset($masterData) && $masterData->logo ? Storage::url($masterData->logo) : asset('favicon.png') }}">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
@@ -86,7 +84,7 @@
                         </svg>
                     </div>
                 @endif
-                <span class="text-2xl font-extrabold tracking-tight text-slate-900">{{ $masterData->nama_lembaga ?? 'Genius Education' }}</span>
+                <span class="text-2xl font-extrabold tracking-tight text-slate-900">{{ $masterData->nama_lembaga ?? 'Sistem Akademik' }}</span>
             </div>
         </div>
 
@@ -299,7 +297,7 @@
         </div>
 
         <p class="mt-8 text-center text-sm font-medium text-slate-500">
-            &copy; {{ date('Y') }} Genius Education.
+            &copy; {{ date('Y') }} Sistem Akademik.
         </p>
 
     </div>

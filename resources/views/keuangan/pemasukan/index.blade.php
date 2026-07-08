@@ -259,7 +259,7 @@
                     @forelse($pemasukan as $p)
                         <tr class="hover:bg-indigo-50/50 dark:hover:bg-indigo-900/10 transition-all even:bg-slate-50/50 dark:even:bg-zinc-800/30">
                             <td class="px-4 py-3 text-slate-500 font-bold text-xs border border-slate-200 dark:border-zinc-800 text-center">
-                                #{{ $p->id }}
+                                {{ $loop->iteration + ($pemasukan->currentPage() - 1) * $pemasukan->perPage() }}
                             </td>
                             <td class="px-4 py-3 border border-slate-200 dark:border-zinc-800">
                                 <p class="font-bold text-slate-900 dark:text-white">{{ $p->tanggal->format('d/m/Y') }}</p>

@@ -133,7 +133,7 @@
                         @endphp
                         <tr class="hover:bg-indigo-50/50 dark:hover:bg-indigo-900/10 transition-all even:bg-slate-50/50 dark:even:bg-zinc-800/30 {{ $overdue ? 'bg-rose-50/30 dark:bg-rose-900/10' : '' }}">
                             <td class="px-4 py-3 text-slate-500 font-bold text-xs border border-slate-200 dark:border-zinc-800 text-center">
-                                #{{ $t->id }}
+                                {{ $loop->iteration + ($tagihan->currentPage() - 1) * $tagihan->perPage() }}
                             </td>
                             <td class="px-4 py-3 border border-slate-200 dark:border-zinc-800">
                                 <form action="{{ route('keuangan.pembayaran.update', $t->id) }}" method="POST" class="flex flex-wrap items-center gap-2">

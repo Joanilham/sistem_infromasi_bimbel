@@ -4,9 +4,9 @@
 
 @section('content')
 <div class="space-y-6" x-data="{ 
-    tab: 'general', 
+    tab: '{{ session('active_tab') }}' || localStorage.getItem('activeLandingTab') || 'general', 
     overlayOpacity: {{ ($master->hero_overlay_opacity ?? 0.5) * 100 }} 
-}">
+}" x-init="$watch('tab', value => localStorage.setItem('activeLandingTab', value))">
     <!-- Header -->
     <div class="bg-white dark:bg-zinc-900 rounded-xl p-6 border border-slate-200 dark:border-zinc-800 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
@@ -36,9 +36,7 @@
         <button @click="tab = 'faq'" :class="tab === 'faq' ? 'bg-white dark:bg-zinc-700 shadow-sm text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-white'" class="px-5 py-2 rounded-md text-sm font-medium transition-all">
             FAQ
         </button>
-        <button @click="tab = 'gallery'" :class="tab === 'gallery' ? 'bg-white dark:bg-zinc-700 shadow-sm text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-white'" class="px-5 py-2 rounded-md text-sm font-medium transition-all">
-            Galeri
-        </button>
+
         <button @click="tab = 'features'" :class="tab === 'features' ? 'bg-white dark:bg-zinc-700 shadow-sm text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-white'" class="px-5 py-2 rounded-md text-sm font-medium transition-all">
             Keunggulan
         </button>
@@ -52,7 +50,7 @@
     @include('admin.landing_page.partials.packages')
     @include('admin.landing_page.partials.testimonials')
     @include('admin.landing_page.partials.faq')
-    @include('admin.landing_page.partials.gallery')
+
     @include('admin.landing_page.partials.features')
     @include('admin.landing_page.partials.mitra')
 </div>

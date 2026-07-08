@@ -38,6 +38,11 @@ class MasterRequest extends FormRequest
             'mail_encryption'   => 'nullable|string|max:50',
             'mail_from_address' => 'nullable|email|max:255',
             'mail_from_name'    => 'nullable|string|max:255',
+            'cloud_backup_provider' => 'nullable|string|in:local,gdrive',
+            'gdrive_client_id'      => 'nullable|string',
+            'gdrive_client_secret'  => 'nullable|string',
+            'gdrive_refresh_token'  => 'nullable|string',
+            'gdrive_folder_id'      => 'nullable|string',
         ];
     }
 }

@@ -43,11 +43,11 @@
             </div>
             
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="bg-white dark:bg-zinc-900 rounded-[2rem] p-8 border border-slate-100 dark:border-zinc-800 shadow-sm">
-                    <h2 class="text-lg font-black text-slate-900 dark:text-white mb-6">Siswa Aktif Berdasarkan Paket Bimbingan</h2>
-                    <div class="space-y-4">
+                <div class="bg-white dark:bg-zinc-900 rounded-2xl p-5 border border-slate-100 dark:border-zinc-800 shadow-sm">
+                    <h2 class="text-base font-black text-slate-900 dark:text-white mb-4">Siswa Aktif Berdasarkan Paket Bimbingan</h2>
+                    <div class="space-y-3 max-h-[300px] overflow-y-auto pr-2" style="scrollbar-width: thin;">
                         @forelse($rekap_paket as $rp)
-                            <div class="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-zinc-950 border border-slate-100 dark:border-zinc-800 hover:border-indigo-300 dark:hover:border-indigo-500/50 transition-colors">
+                            <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-100 dark:border-zinc-800 hover:border-indigo-300 dark:hover:border-indigo-500/50 transition-colors">
                                 <div class="flex items-center gap-3">
                                     <div class="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-black">
                                         {{ substr($rp->paketBimbingan->nama_paket ?? '?', 0, 1) }}
@@ -62,11 +62,11 @@
                     </div>
                 </div>
                 
-                <div class="bg-white dark:bg-zinc-900 rounded-[2rem] p-8 border border-slate-100 dark:border-zinc-800 shadow-sm">
-                    <h2 class="text-lg font-black text-slate-900 dark:text-white mb-6">Siswa Aktif Berdasarkan Kelas</h2>
-                    <div class="space-y-4">
+                <div class="bg-white dark:bg-zinc-900 rounded-2xl p-5 border border-slate-100 dark:border-zinc-800 shadow-sm">
+                    <h2 class="text-base font-black text-slate-900 dark:text-white mb-4">Siswa Aktif Berdasarkan Kelas</h2>
+                    <div class="space-y-3 max-h-[300px] overflow-y-auto pr-2" style="scrollbar-width: thin;">
                         @forelse($rekap_kelas as $rk)
-                            <div class="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-zinc-950 border border-slate-100 dark:border-zinc-800 hover:border-teal-300 dark:hover:border-teal-500/50 transition-colors">
+                            <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-100 dark:border-zinc-800 hover:border-teal-300 dark:hover:border-teal-500/50 transition-colors">
                                 <div class="flex items-center gap-3">
                                     <div class="w-10 h-10 rounded-xl bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 flex items-center justify-center font-black">
                                         {{ substr($rk->kelompokBelajar->nama_kelompok ?? '?', 0, 1) }}
@@ -82,7 +82,9 @@
                 </div>
             </div>
 
-<div class="bg-white dark:bg-zinc-900 rounded-3xl p-6 border border-slate-100 dark:border-zinc-800 shadow-sm">
+            @include('admin.rekapitulasi.partials.export-card')
+
+<div class="bg-white dark:bg-zinc-900 rounded-3xl p-6 border border-slate-100 dark:border-zinc-800 shadow-sm mt-6">
             <form @submit.prevent="fetchData" method="GET" action="{{ route('admin.rekapitulasi.index') }}" class="flex flex-col sm:flex-row gap-4">
                 <input type="hidden" name="tab" value="{{ $tab }}">
                 
@@ -98,10 +100,26 @@
                 
                 <div class="flex-1 flex flex-col">
                     <label class="block text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2">Filter Kelas</label>
-                    <select name="kelompok_belajar_id" @change="fetchData" class="no-tomselect w-full flex-1 bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-sm font-bold px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
-                        <option value="">Semua Kelas</option>
-                        @foreach($filter_kelas as $k)
-                            <option value="{{ $k->id }}" {{ $selected_kelas == $k->id ? 'selected' : '' }}>{{ $k->nama_kelompok }}</option>
+                    <select name="kelompok_belajar_id" autocomplete="off" @change="fetchData" class="no-tomselect w-full flex-1 bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-sm font-bold px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
+                        <option value="" {{ request('kelompok_belajar_id') == '' ? 'selected' : '' }}>Semua Kelas</option>
+                        @php
+                            // Mengambil semua kelas yang memiliki siswa aktif di context ini
+                            // Kita gunakan query independen agar opsi tidak hilang saat tabel difilter
+                            $cacheKey = 'filter_kelas_available_' . session('kantor_id', 'all') . '_' . session('periode_id', 'all');
+                            $availableClasses = \Illuminate\Support\Facades\Cache::remember($cacheKey, 60, function() {
+                                return \App\Models\Akademik\PesertaDidik::inContext()
+                                    ->aktif()
+                                    ->whereNotNull('kelompok_belajar_id')
+                                    ->select('kelompok_belajar_id')
+                                    ->distinct()
+                                    ->with('kelompokBelajar')
+                                    ->get();
+                            });
+                        @endphp
+                        @foreach($availableClasses as $ac)
+                            <option value="{{ $ac->kelompok_belajar_id }}" {{ (string)request('kelompok_belajar_id') === (string)$ac->kelompok_belajar_id ? 'selected' : '' }}>
+                                {{ $ac->kelompokBelajar->nama_kelompok ?? 'Tanpa Kelas' }}
+                            </option>
                         @endforeach
                     </select>
                 </div>
@@ -134,7 +152,8 @@
             </form>
         </div>
 
-            <div id="table-rincian" class="bg-white dark:bg-zinc-900 rounded-[2rem] p-8 border border-slate-100 dark:border-zinc-800 shadow-sm mt-6">
+            
+    <div id="table-rincian" class="bg-white dark:bg-zinc-900 rounded-[2rem] p-8 border border-slate-100 dark:border-zinc-800 shadow-sm mt-6">
                 <h2 class="text-lg font-black text-slate-900 dark:text-white mb-6">Daftar Rincian Siswa</h2>
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm border-collapse border border-slate-200 dark:border-zinc-800">
@@ -142,7 +161,8 @@
                             <tr>
                                 <th class="px-4 py-3 text-left border border-white/20">Nama Lengkap</th>
                                 <th class="px-4 py-3 text-center border border-white/20">L/P</th>
-                                <th class="px-4 py-3 text-left border border-white/20">Kelas & Paket</th>
+                                <th class="px-4 py-3 text-left border border-white/20">Kelas</th>
+                                <th class="px-4 py-3 text-left border border-white/20">Paket</th>
                                 <th class="px-4 py-3 text-center border border-white/20">Status</th>
                             </tr>
                         </thead>
@@ -151,9 +171,11 @@
                                 <tr class="hover:bg-indigo-50/50 dark:hover:bg-indigo-900/10 transition-all even:bg-slate-50/50 dark:even:bg-zinc-800/30">
                                     <td class="px-4 py-3 font-bold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-zinc-800">{{ $siswa->nama_lengkap }}</td>
                                     <td class="px-4 py-3 text-center text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-zinc-800">{{ $siswa->jenis_kelamin }}</td>
-                                    <td class="px-4 py-3 text-xs border border-slate-200 dark:border-zinc-800">
-                                        <div class="font-bold text-slate-600 dark:text-slate-400">{{ $siswa->kelompokBelajar->nama_kelompok ?? '-' }}</div>
-                                        <div class="text-[10px] text-slate-400 uppercase tracking-widest mt-0.5">{{ $siswa->paketBimbingan->nama_paket ?? '-' }}</div>
+                                    <td class="px-4 py-3 text-xs border border-slate-200 dark:border-zinc-800 font-bold text-slate-600 dark:text-slate-400">
+                                        {{ $siswa->kelompokBelajar->nama_kelompok ?? '-' }}
+                                    </td>
+                                    <td class="px-4 py-3 text-xs border border-slate-200 dark:border-zinc-800 font-bold text-slate-600 dark:text-slate-400">
+                                        {{ $siswa->paketBimbingan->nama_paket ?? '-' }}
                                     </td>
                                     <td class="px-4 py-3 text-center border border-slate-200 dark:border-zinc-800">
                                         @if(strtolower($siswa->status) === 'aktif')
@@ -165,7 +187,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="px-4 py-8 text-center text-slate-500 dark:text-slate-400 italic border border-slate-200 dark:border-zinc-800">Belum ada data siswa.</td>
+                                    <td colspan="5" class="px-4 py-8 text-center text-slate-500 dark:text-slate-400 italic border border-slate-200 dark:border-zinc-800">Belum ada data siswa.</td>
                                 </tr>
                             @endforelse
                         </tbody>

@@ -12,13 +12,7 @@
             <p class="text-slate-500 dark:text-slate-400 mt-2 text-sm font-medium">Monitoring dan kelola database tenaga pengajar aktif di bimbingan belajar.</p>
         </div>
         <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto shrink-0">
-            <a href="{{ route('manajemen-guru.export') }}"
-               class="inline-flex items-center justify-center w-full sm:w-auto gap-3 bg-white dark:bg-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-700 text-slate-700 dark:text-slate-200 font-black text-xs px-6 py-4 rounded-2xl shadow-sm border border-slate-200 dark:border-zinc-700 transition-all active:scale-95">
-                <svg class="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
-                Export Data
-            </a>
+
             <a href="{{ route('manajemen-guru.create') }}"
                class="inline-flex items-center justify-center w-full sm:w-auto gap-3 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs px-8 py-4 rounded-2xl shadow-xl shadow-indigo-500/20 transition-all active:scale-95 group">
                 <svg class="w-5 h-5 transition-transform group-hover:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -174,13 +168,13 @@
                                         <span class="text-indigo-600 dark:text-indigo-400 font-black text-xs">{{ substr($guru->name, 0, 1) }}</span>
                                     </div>
                                     <div>
-                                        <p class="font-bold text-slate-900 dark:text-white leading-tight transition-colors">{{ $guru->name }}</p>
-                                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">{{ $guru->email }}</p>
+                                        <p class="font-bold text-slate-900 dark:text-white leading-tight transition-colors">@highlight($guru->name)</p>
+                                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">@highlight($guru->email)</p>
                                     </div>
                                 </div>
                             </td>
                             <td class="px-4 py-3 text-slate-600 dark:text-slate-300 font-bold font-mono text-xs border border-slate-200 dark:border-zinc-800">
-                                {{ $guru->nip ?? 'NON-NIP' }}
+                                @highlight($guru->nip ?? 'NON-NIP')
                             </td>
                             <td class="px-4 py-3 text-center text-slate-600 dark:text-slate-300 font-bold text-xs border border-slate-200 dark:border-zinc-800">
                                 {{ $guru->jenis_kelamin == 'Laki-Laki' ? 'L' : ($guru->jenis_kelamin == 'Perempuan' ? 'P' : '-') }}

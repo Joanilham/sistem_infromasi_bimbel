@@ -1,10 +1,10 @@
 <!-- Sidebar Header -->
 <div class="flex items-center justify-center h-20 border-b border-slate-100 dark:border-zinc-800 px-4 bg-white dark:bg-zinc-950">
-    <div class="flex items-center gap-3">
+    <a href="{{ route('dashboard') }}" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
         {{-- Logo: tampilkan gambar dari DB jika ada, fallback ke icon SVG --}}
         @if($masterData && $masterData->logo)
         <div class="w-9 h-9 rounded-xl overflow-hidden shadow-md border border-slate-100 dark:border-zinc-700 shrink-0">
-            <img src="{{ asset('storage/' . $masterData->logo) }}" alt="Logo" class="w-full h-full object-contain">
+            <img src="{{ asset('storage/' . $masterData->logo) }}" alt="Logo" class="w-full h-full object-contain bg-white rounded-xl">
         </div>
         @else
         <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-md shadow-emerald-500/30 shrink-0">
@@ -20,7 +20,7 @@
         @else
         <span class="text-xl font-extrabold text-slate-800 dark:text-white tracking-tight">Genius<span class="text-emerald-600">Edu</span></span>
         @endif
-    </div>
+    </a>
 </div>
 
 <!-- Sidebar Content -->

@@ -98,7 +98,7 @@
                     @forelse($kategoris as $k)
                         <tr class="hover:bg-indigo-50/50 dark:hover:bg-indigo-900/10 transition-all even:bg-slate-50/30 dark:even:bg-zinc-800/30 group">
                             <td class="px-6 py-5 text-slate-400 font-bold text-xs border-r border-slate-100 dark:border-zinc-800 text-center">
-                                #{{ $k->id }}
+                                {{ $loop->iteration }}
                             </td>
                             <td class="px-6 py-5 border-r border-slate-100 dark:border-zinc-800">
                                 <div class="flex items-center gap-4">

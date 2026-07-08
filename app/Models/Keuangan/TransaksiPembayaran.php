@@ -59,10 +59,17 @@ class TransaksiPembayaran extends Model
      */
     public static function generateNoKwitansi(string $kodeUser): string
     {
-        $prefix = Carbon::now()->format('ymd');
-        $count  = static::whereDate('created_at', today())
+        $prefix = \Carbon\Carbon::now()->format('ymd');
+        $count  = static::withTrashed()
+                        ->where('no_kwitansi', 'like', $prefix . '%')
                         ->count() + 1;
-        return $prefix . str_pad($count, 3, '0', STR_PAD_LEFT) . '/' . strtolower($kodeUser);
+        
+        $noKwitansi = $prefix . str_pad($count, 3, '0', STR_PAD_LEFT) . '/' . strtolower($kodeUser);
+        while(static::withTrashed()->where('no_kwitansi', $noKwitansi)->exists()) {
+            $count++;
+            $noKwitansi = $prefix . str_pad($count, 3, '0', STR_PAD_LEFT) . '/' . strtolower($kodeUser);
+        }
+        return $noKwitansi;
     }
 }
 

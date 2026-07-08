@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $kantor = \App\Models\MasterData\Kantor::firstOrCreate(
-            ['nama_kantor' => 'Genius Education Pusat'],
+            ['nama_kantor' => 'Sistem Akademik Pusat'],
             ['alamat' => 'Cluring']
         );
         $periode = \App\Models\MasterData\Periode::first();

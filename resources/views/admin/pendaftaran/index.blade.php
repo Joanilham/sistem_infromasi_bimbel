@@ -152,7 +152,7 @@
                     @forelse($pendaftarans as $p)
                         <tr class="hover:bg-indigo-50/50 dark:hover:bg-indigo-900/10 transition-all even:bg-slate-50/50 dark:even:bg-zinc-800/30">
                             <td class="px-4 py-3 text-slate-500 font-bold text-xs border border-slate-200 dark:border-zinc-800 text-center">
-                                #{{ $p->id }}
+                                {{ $loop->iteration + ($pendaftarans->currentPage() - 1) * $pendaftarans->perPage() }}
                             </td>
                             <td class="px-4 py-3 border border-slate-200 dark:border-zinc-800">
                                 <div class="flex items-center gap-3">
@@ -160,8 +160,8 @@
                                         <span class="text-indigo-600 dark:text-indigo-400 font-black text-xs">{{ substr($p->nama_lengkap, 0, 1) }}</span>
                                     </div>
                                     <div>
-                                        <p class="font-bold text-slate-900 dark:text-white leading-tight transition-colors">{{ $p->nama_lengkap }}</p>
-                                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">{{ $p->email }}</p>
+                                        <p class="font-bold text-slate-900 dark:text-white leading-tight transition-colors">@highlight($p->nama_lengkap)</p>
+                                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">@highlight($p->email)</p>
                                     </div>
                                 </div>
                             </td>

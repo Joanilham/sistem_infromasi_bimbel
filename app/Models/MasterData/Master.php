@@ -61,6 +61,11 @@ class Master extends Model
         'mail_encryption',
         'mail_from_address',
         'mail_from_name',
+        'cloud_backup_provider',
+        'gdrive_client_id',
+        'gdrive_client_secret',
+        'gdrive_refresh_token',
+        'gdrive_folder_id',
     ];
 
     protected $casts = [
@@ -68,6 +73,8 @@ class Master extends Model
         'wa_token'                    => 'encrypted',
         'api_key'                     => 'encrypted',
         'mail_password'               => 'encrypted',
+        'gdrive_client_secret'        => 'encrypted',
+        'gdrive_refresh_token'        => 'encrypted',
     ];
 }
 

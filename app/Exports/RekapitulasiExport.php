@@ -69,6 +69,13 @@ class RekapitulasiExport
         $siswaQuery = PesertaDidik::inContext();
         if ($selectedKelas) $siswaQuery->where('kelompok_belajar_id', $selectedKelas);
         if ($selectedGender) $siswaQuery->where('jenis_kelamin', $selectedGender);
+        if ($request->query('status')) $siswaQuery->where('status', $request->query('status'));
+        if ($request->query('search')) {
+            $siswaQuery->where(function($q) use ($request) {
+                $q->where('nama_lengkap', 'like', '%' . $request->query('search') . '%')
+                  ->orWhere('nisn', 'like', '%' . $request->query('search') . '%');
+            });
+        }
 
         $total_aktif = (clone $siswaQuery)->aktif()->count();
         $total_keluar = (clone $siswaQuery)->keluar()->count();
@@ -154,63 +161,102 @@ class RekapitulasiExport
 
     private function generateKeuanganXml(Request $request, string $info, $kantorId, $periodeId): string
     {
-        $startDate = $request->query('start_date', Carbon::now()->startOfMonth()->format('Y-m-d'));
-        $endDate = $request->query('end_date', Carbon::now()->endOfMonth()->format('Y-m-d'));
-        $info .= ' | Tanggal: ' . Carbon::parse($startDate)->translatedFormat('d M Y') . ' - ' . Carbon::parse($endDate)->translatedFormat('d M Y');
+        $startDate = $request->input('start_date', Carbon::now()->startOfMonth()->format('Y-m-d'));
+        $endDate = $request->input('end_date', Carbon::now()->endOfMonth()->format('Y-m-d'));
+        $dateInfo = $startDate === '1970-01-01' ? 'Semua Waktu' : Carbon::parse($startDate)->translatedFormat('d M Y') . ' - ' . Carbon::parse($endDate)->translatedFormat('d M Y');
+        $info .= ' | Tanggal: ' . $dateInfo;
 
         $xml = '<Worksheet ss:Name="Rekap Keuangan"><Table>';
-        $xml .= '<Column ss:Width="250"/><Column ss:Width="150"/>';
-        $xml .= $this->xmlTitleRow('REKAPITULASI KEUANGAN', 2);
-        $xml .= $this->xmlInfoRow($info, 2);
+        $xml .= '<Column ss:Width="100"/><Column ss:Width="100"/><Column ss:Width="150"/><Column ss:Width="150"/><Column ss:Width="250"/><Column ss:Width="120"/>';
+        $xml .= $this->xmlTitleRow('REKAPITULASI KEUANGAN', 6);
+        $xml .= $this->xmlInfoRow($info, 6);
 
-        $pemasukanLain = Pemasukan::whereBetween('tanggal', [$startDate, $endDate])->sum('nominal');
-        $pemasukanSpp = TransaksiPembayaran::whereBetween('tanggal', [$startDate, $endDate])
-            ->whereHas('pembayaranSiswa.pesertaDidik', function($q) use ($kantorId, $periodeId) {
-                if ($kantorId) $q->where('kantor_id', $kantorId);
-                if ($periodeId) $q->where('periode_id', $periodeId);
-            })->sum('nominal');
-        $total_pemasukan = $pemasukanLain + $pemasukanSpp;
-        $total_pengeluaran = Pengeluaran::whereBetween('tanggal', [$startDate, $endDate])->sum('nominal');
+        $jenisKeuangan = $request->input('jenis_keuangan', 'keuangan_semua');
 
-        $xml .= $this->xmlHeaderRow(['Keterangan', 'Total (Rp)']);
-        $xml .= '<Row ss:Height="20">';
-        $xml .= $this->xmlStr('Total Pemasukan', 's_data2');
-        $xml .= $this->xmlNum($total_pemasukan, 's_data2');
-        $xml .= '</Row>';
-        $xml .= '<Row ss:Height="20">';
-        $xml .= $this->xmlStr('Total Pengeluaran', 's_data');
-        $xml .= $this->xmlNum($total_pengeluaran, 's_data');
-        $xml .= '</Row>';
+        $pemasukanLain = 0;
+        $total_pengeluaran = 0;
+        $pemasukanSpp = 0;
 
-        $xml .= '<Row ss:Height="15"></Row>';
-
-        $xml .= $this->xmlHeaderRow(['Detail Pemasukan', 'Total (Rp)']);
-        $xml .= '<Row ss:Height="20">';
-        $xml .= $this->xmlStr('Pembayaran SPP/Bimbingan', 's_data2');
-        $xml .= $this->xmlNum($pemasukanSpp, 's_data2');
-        $xml .= '</Row>';
-        
-        $rekap_pemasukan_lain = Pemasukan::whereBetween('tanggal', [$startDate, $endDate])->select('kategori_id', DB::raw('SUM(nominal) as total'))->with('kategori')->groupBy('kategori_id')->get();
-        $i = 1;
-        foreach ($rekap_pemasukan_lain as $rpl) {
-            $style = $i % 2 === 0 ? 's_data2' : 's_data';
-            $xml .= '<Row ss:Height="20">';
-            $xml .= $this->xmlStr($rpl->kategori->nama ?? 'Lainnya', $style);
-            $xml .= $this->xmlNum($rpl->total, $style);
-            $xml .= '</Row>';
-            $i++;
+        if (in_array($jenisKeuangan, ['keuangan_semua', 'keuangan_operasional'])) {
+            $pemasukanLain = Pemasukan::whereBetween('tanggal', [$startDate, $endDate])->sum('nominal');
+            $total_pengeluaran = Pengeluaran::whereBetween('tanggal', [$startDate, $endDate])->sum('nominal');
         }
 
-        $xml .= '<Row ss:Height="15"></Row>';
+        if ($jenisKeuangan === 'keuangan_semua') {
+            $pemasukanSpp = TransaksiPembayaran::whereBetween('tanggal', [$startDate, $endDate])
+                ->whereHas('pembayaranSiswa.pesertaDidik', function($q) use ($kantorId, $periodeId) {
+                    if ($kantorId) $q->where('kantor_id', $kantorId);
+                    if ($periodeId) $q->where('periode_id', $periodeId);
+                })->sum('nominal');
+        }
+        // Bagian ringkasan telah dihapus sesuai permintaan
+        
+        $xml .= $this->xmlHeaderRow(['Tanggal', 'Tipe', 'Kategori', 'Jenis', 'Keterangan', 'Nominal (Rp)']);
+        
+        // Ambil semua transaksi
+        $pemasukanLainList = collect();
+        $pengeluaranList = collect();
+        $pemasukanSppList = collect();
 
-        $xml .= $this->xmlHeaderRow(['Detail Pengeluaran', 'Total (Rp)']);
-        $rekap_pengeluaran = Pengeluaran::whereBetween('tanggal', [$startDate, $endDate])->select('kategori_id', DB::raw('SUM(nominal) as total'))->with('kategori')->groupBy('kategori_id')->get();
+        if (in_array($jenisKeuangan, ['keuangan_semua', 'keuangan_operasional'])) {
+            $pemasukanLainList = Pemasukan::whereBetween('tanggal', [$startDate, $endDate])->with('kategori')->get()->map(function($item) {
+                return [
+                    'tanggal' => $item->tanggal,
+                    'jenis' => 'Pemasukan Lainnya',
+                    'kategori' => $item->kategori ? $item->kategori->nama : '-',
+                    'keterangan' => $item->keterangan ?? '-',
+                    'nominal' => $item->nominal,
+                    'tipe' => 'pemasukan'
+                ];
+            });
+
+            $pengeluaranList = Pengeluaran::whereBetween('tanggal', [$startDate, $endDate])->with('kategori')->get()->map(function($item) {
+                return [
+                    'tanggal' => $item->tanggal,
+                    'jenis' => 'Pengeluaran',
+                    'kategori' => $item->kategori ? $item->kategori->nama : '-',
+                    'keterangan' => $item->keterangan ?? '-',
+                    'nominal' => $item->nominal,
+                    'tipe' => 'pengeluaran'
+                ];
+            });
+        }
+
+        if ($jenisKeuangan === 'keuangan_semua') {
+            $pemasukanSppList = TransaksiPembayaran::whereBetween('tanggal', [$startDate, $endDate])
+                ->with(['pembayaranSiswa.pesertaDidik'])
+                ->whereHas('pembayaranSiswa.pesertaDidik', function($q) use ($kantorId, $periodeId) {
+                    if ($kantorId) $q->where('kantor_id', $kantorId);
+                    if ($periodeId) $q->where('periode_id', $periodeId);
+                })->get()->map(function($item) {
+                return [
+                    'tanggal' => $item->tanggal,
+                    'jenis' => 'Pembayaran SPP',
+                    'kategori' => 'SPP/Bimbingan',
+                    'keterangan' => 'Pembayaran SPP an. ' . ($item->pembayaranSiswa->pesertaDidik->nama_lengkap ?? ''),
+                    'nominal' => $item->nominal,
+                    'tipe' => 'pemasukan'
+                ];
+            });
+        }
+
+        $allTransaksi = collect([])
+            ->concat($pemasukanLainList)
+            ->concat($pemasukanSppList)
+            ->concat($pengeluaranList)
+            ->sortByDesc('tanggal')
+            ->values();
+
         $i = 0;
-        foreach ($rekap_pengeluaran as $rp) {
+        foreach ($allTransaksi as $trx) {
             $style = $i % 2 === 0 ? 's_data2' : 's_data';
             $xml .= '<Row ss:Height="20">';
-            $xml .= $this->xmlStr($rp->kategori->nama ?? 'Lainnya', $style);
-            $xml .= $this->xmlNum($rp->total, $style);
+            $xml .= $this->xmlStr(Carbon::parse($trx['tanggal'])->format('d/m/Y'), $style);
+            $xml .= $this->xmlStr(ucfirst($trx['tipe']), $style);
+            $xml .= $this->xmlStr($trx['kategori'], $style);
+            $xml .= $this->xmlStr($trx['jenis'], $style);
+            $xml .= $this->xmlStr($trx['keterangan'], $style);
+            $xml .= $this->xmlNum($trx['nominal'], $style);
             $xml .= '</Row>';
             $i++;
         }
@@ -221,9 +267,10 @@ class RekapitulasiExport
 
     private function generateAbsensiXml(Request $request, string $info, $kantorId, $periodeId): string
     {
-        $startDate = $request->query('start_date', Carbon::now()->startOfMonth()->format('Y-m-d'));
-        $endDate = $request->query('end_date', Carbon::now()->endOfMonth()->format('Y-m-d'));
-        $info .= ' | Tanggal: ' . Carbon::parse($startDate)->translatedFormat('d M Y') . ' - ' . Carbon::parse($endDate)->translatedFormat('d M Y');
+        $startDate = $request->input('start_date', Carbon::now()->startOfMonth()->format('Y-m-d'));
+        $endDate = $request->input('end_date', Carbon::now()->endOfMonth()->format('Y-m-d'));
+        $dateInfo = $startDate === '1970-01-01' ? 'Semua Waktu' : Carbon::parse($startDate)->translatedFormat('d M Y') . ' - ' . Carbon::parse($endDate)->translatedFormat('d M Y');
+        $info .= ' | Tanggal: ' . $dateInfo;
 
         $xml = '<Worksheet ss:Name="Rekap Absensi"><Table>';
         $xml .= '<Column ss:Width="180"/><Column ss:Width="120"/><Column ss:Width="150"/><Column ss:Width="80"/><Column ss:Width="80"/><Column ss:Width="80"/><Column ss:Width="80"/>';

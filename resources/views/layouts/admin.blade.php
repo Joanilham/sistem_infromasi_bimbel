@@ -6,14 +6,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Dashboard Sistem Informasi Manajemen Pendidikan Genius Education">
+    <meta name="description" content="Dashboard Sistem Informasi Manajemen Pendidikan Sistem Akademik">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="app-version" content="v1.0.1">
-    <meta name="author" content="Genius Education">
+    <meta name="author" content="Sistem Akademik">
     <meta name="robots" content="index, follow">
-    <title>@yield('title', 'Dashboard') - Genius Education</title>
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{{ isset($masterData) && $masterData->logo ? Storage::url($masterData->logo) : asset('favicon.png') }}">
+    <title>@yield('title', 'Dashboard') - Sistem Akademik</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -215,10 +213,22 @@
         });
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Scroll to top of main content area on navigation
             const mainScrollArea = document.getElementById('main-scroll-area');
             if (mainScrollArea) {
-                mainScrollArea.scrollTop = 0;
+                const scrollKey = 'scrollPosition_' + window.location.pathname + window.location.search;
+                const savedScroll = sessionStorage.getItem(scrollKey);
+                
+                if (savedScroll !== null) {
+                    mainScrollArea.scrollTop = parseInt(savedScroll, 10);
+                    sessionStorage.removeItem(scrollKey);
+                } else {
+                    mainScrollArea.scrollTop = 0;
+                }
+
+                // Simpan posisi scroll sebelum pindah halaman/reload
+                window.addEventListener('beforeunload', function() {
+                    sessionStorage.setItem(scrollKey, mainScrollArea.scrollTop);
+                });
             }
 
             // Format nilai awal saat halaman dimuat

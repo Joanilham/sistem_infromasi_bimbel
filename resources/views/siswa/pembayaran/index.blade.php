@@ -352,7 +352,7 @@
 
         @php
             $waNum = $master?->wa_number ?? '6281234567890';
-            $pesan = "Halo Admin, saya " . $pesertaDidik->nama_lengkap . " (NISN: " . $pesertaDidik->nisn . "), ingin mengajukan keluhan / pertanyaan mengenai pembayaran tagihan LBB GeniusEdu.";
+            $pesan = "Halo Admin, saya " . $pesertaDidik->nama_lengkap . " (NISN: " . $pesertaDidik->nisn . "), ingin mengajukan keluhan / pertanyaan mengenai pembayaran tagihan LBB Sistem Akademik.";
             $waLink = "https://wa.me/" . preg_replace('/[^0-9]/', '', $waNum) . "?text=" . urlencode($pesan);
         @endphp
 

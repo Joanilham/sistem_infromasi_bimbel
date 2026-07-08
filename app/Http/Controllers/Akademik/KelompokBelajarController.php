@@ -117,10 +117,30 @@ class KelompokBelajarController extends Controller
             abort(403, 'Akses Ditolak.');
         }
 
-        $kelompokBelajar->delete();
+        try {
+            // Unlink pending registrations (PendaftaranSiswa) so they don't block deletion.
+            \App\Models\Pendaftaran\PendaftaranSiswa::where('kelompok_belajar_id', $kelompokBelajar->id)
+                ->update(['kelompok_belajar_id' => null]);
+                
+            // Unlink soft-deleted PesertaDidik so they don't block deletion (since UI says 0 students)
+            \App\Models\Akademik\PesertaDidik::onlyTrashed()
+                ->where('kelompok_belajar_id', $kelompokBelajar->id)
+                ->update(['kelompok_belajar_id' => null]);
 
-        return redirect()->route('kelompok-belajar.index')
-            ->with('success', 'Data Kelompok Belajar berhasil dihapus.');
+            $kelompokBelajar->delete();
+            return redirect()->route('kelompok-belajar.index')
+                ->with('success', 'Data Kelompok Belajar berhasil dihapus.');
+        } catch (\Illuminate\Database\QueryException $e) {
+            if ($e->getCode() == 23000) {
+                return redirect()->route('kelompok-belajar.index')
+                    ->with('error', 'Gagal menghapus! Kelompok Belajar ini masih terikat dengan data Siswa aktif/terhapus yang ada di sistem.');
+            }
+            return redirect()->route('kelompok-belajar.index')
+                ->with('error', 'Terjadi kesalahan pada database saat menghapus data.');
+        } catch (\Exception $e) {
+            return redirect()->route('kelompok-belajar.index')
+                ->with('error', 'Gagal menghapus Kelompok Belajar: ' . $e->getMessage());
+        }
     }
 }
 
