@@ -92,7 +92,10 @@ class RekapitulasiExport
         $xml .= '<Row ss:Height="15"></Row>';
 
         $xml .= $this->xmlHeaderRow(['Nama Siswa', 'Jenis Kelamin', 'Kelas', 'Paket', 'Status']);
-        $siswaList = (clone $siswaQuery)->with(['kelompokBelajar', 'paketBimbingan'])->get();
+        $siswaList = (clone $siswaQuery)->with(['kelompokBelajar', 'paketBimbingan'])
+            ->orderBy('paket_bimbingan_id')
+            ->orderBy('nama_lengkap')
+            ->get();
         
         $i = 0;
         foreach ($siswaList as $siswa) {

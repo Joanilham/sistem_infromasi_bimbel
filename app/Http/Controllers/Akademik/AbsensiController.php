@@ -292,12 +292,12 @@ class AbsensiController extends Controller
         }
 
         $statusPembayaran = $peserta->getStatusPembayaran();
-        if ($statusPembayaran['is_locked']) {
-            return [null, response()->json([
-                'success' => false,
-                'message' => '⚠️ Gagal Absen! Siswa ini memiliki tagihan jatuh tempo / durasi bimbingan hampir habis dan belum dilunasi. Hubungi bagian keuangan.',
-            ])];
-        }
+        // if ($statusPembayaran['is_locked']) {
+        //     return [null, response()->json([
+        //         'success' => false,
+        //         'message' => '⚠️ Gagal Absen! Siswa ini memiliki tagihan jatuh tempo / durasi bimbingan hampir habis dan belum dilunasi. Hubungi bagian keuangan.',
+        //     ])];
+        // }
 
         return [$peserta, null];
     }

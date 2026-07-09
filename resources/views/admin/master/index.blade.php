@@ -17,8 +17,6 @@
         </div>
     </div>
 
-
-
     <form action="{{ route('master.update') }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')

@@ -13,6 +13,7 @@ class LaporanPesertaDidikKustomExport
         $rows = PesertaDidik::inContext()
             ->with(['paketBimbingan', 'pembayaran'])
             ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+            ->orderBy('paket_bimbingan_id')
             ->orderBy('created_at')
             ->get();
 

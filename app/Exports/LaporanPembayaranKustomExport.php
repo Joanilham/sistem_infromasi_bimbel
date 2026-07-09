@@ -13,18 +13,18 @@ class LaporanPembayaranKustomExport
         $rows = TransaksiPembayaran::whereHas('pembayaranSiswa.pesertaDidik', function($q) {
                 $q->inContext();
             })
-            ->with(['pembayaranSiswa.pesertaDidik'])
+            ->with(['pembayaranSiswa.pesertaDidik', 'user'])
             ->whereBetween('tanggal', [$startDate, $endDate])
             ->orderBy('tanggal')
             ->get();
 
         $filename = 'Laporan_Pembayaran_' . date('d-m-Y') . '.xls';
-        $headers = ['Tanggal', 'No. Induk', 'Nama Peserta', 'Nominal Pembayaran', 'Tipe Pembayaran'];
+        $headers = ['Tanggal', 'No. Induk', 'Nama Peserta', 'Nominal Pembayaran', 'Tipe Pembayaran', 'Penerima'];
         $cols = count($headers);
 
         $xml = $this->xmlOpen('Laporan Pembayaran', $cols, '#065F46', '#10B981', '#ECFDF5');
         
-        $widths = [100, 100, 150, 120, 120];
+        $widths = [100, 100, 150, 120, 120, 150];
         $xml .= '<Worksheet ss:Name="Laporan Pembayaran"><Table ss:DefaultRowHeight="18">';
         foreach ($widths as $w) {
             $xml .= '<Column ss:Width="' . $w . '"/>' . "
@@ -49,6 +49,7 @@ class LaporanPembayaranKustomExport
             $xml .= $this->xmlStr($peserta ? $peserta->nama_lengkap : '', $sd);
             $xml .= $this->xmlNum($p->nominal, $sd);
             $xml .= $this->xmlStr($p->tipe_pembayaran ?? '', $sd);
+            $xml .= $this->xmlStr($p->penerima ?? ($p->user ? $p->user->name : ''), $sd);
             $xml .= '</Row>' . "
 ";
         }

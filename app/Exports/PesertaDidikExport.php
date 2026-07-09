@@ -16,6 +16,7 @@ class PesertaDidikExport
         $rows = PesertaDidik::aktif()
             ->inContext()
             ->with('paketBimbingan', 'kelompokBelajar')
+            ->orderBy('paket_bimbingan_id')
             ->orderBy('nama_lengkap')
             ->get();
 
@@ -46,6 +47,7 @@ class PesertaDidikExport
         $rows = PesertaDidik::keluar()
             ->inContext()
             ->with('paketBimbingan', 'kelompokBelajar')
+            ->orderBy('paket_bimbingan_id')
             ->orderBy('tanggal_keluar', 'desc')
             ->get();
 
@@ -76,6 +78,7 @@ class PesertaDidikExport
         $rows = PesertaDidik::lulus()
             ->inContext()
             ->with('paketBimbingan', 'kelompokBelajar')
+            ->orderBy('paket_bimbingan_id')
             ->orderBy('tanggal_keluar', 'desc')
             ->get();
 

@@ -60,10 +60,39 @@ class AppServiceProvider extends ServiceProvider
         Kantor::observe(\App\Observers\KantorObserver::class);
         Periode::observe(\App\Observers\PeriodeObserver::class);
 
+        // Ambil pengaturan Master Data untuk global config (terutama Email & API)
+        try {
+            $globalMasterData = \Illuminate\Support\Facades\Cache::remember('global_master', 86400, fn() => \App\Models\MasterData\Master::first());
+            
+            // Set config mail secara global, bukan hanya saat view dirender
+            if ($globalMasterData && $globalMasterData->mail_host) {
+                config([
+                    'mail.default' => 'smtp',
+                    'mail.mailer' => 'smtp',
+                    'mail.mailers.smtp.host' => $globalMasterData->mail_host,
+                    'mail.mailers.smtp.port' => $globalMasterData->mail_port,
+                    'mail.mailers.smtp.encryption' => $globalMasterData->mail_encryption,
+                    'mail.mailers.smtp.username' => $globalMasterData->mail_username,
+                    'mail.mailers.smtp.password' => $globalMasterData->mail_password,
+                    'mail.from.address' => $globalMasterData->mail_from_address,
+                    'mail.from.name' => $globalMasterData->mail_from_name,
+                ]);
+
+                // Hapus cache mailer yang mungkin sudah terlanjur di-load dengan driver 'log'
+                \Illuminate\Support\Facades\Mail::purge();
+                if (app()->bound('mail.manager')) {
+                    app('mail.manager')->forgetMailers();
+                }
+            }
+        } catch (\Exception $e) {
+            // Abaikan jika database/table master belum ada (misal saat migrate awal)
+            $globalMasterData = null;
+        }
+
         // Share daftar kantor dan periode ke seluruh view dengan Caching Forever
         // Cache akan terhapus otomatis via Observer jika data ditable berubah
         // Gunakan View::composer alih-alih View::share langsung agar data di-resolve per request (kompatibel dengan Octane)
-        \Illuminate\Support\Facades\View::composer('*', function ($view) {
+        \Illuminate\Support\Facades\View::composer('*', function ($view) use ($globalMasterData) {
             try {
                 $viewData = $view->getData();
                 
@@ -77,24 +106,11 @@ class AppServiceProvider extends ServiceProvider
                     $view->with('periodes', $periodes);
                 }
                 
-                // masterData selalu kita butuhkan untuk config, jadi kita fetch, tapi hanya share ke view jika belum ada
-                $masterData = \Illuminate\Support\Facades\Cache::remember('global_master', 86400, fn() => \App\Models\MasterData\Master::first());
+                // Share master data ke view
                 if (!array_key_exists('masterData', $viewData)) {
-                    $view->with('masterData', $masterData);
+                    $view->with('masterData', $globalMasterData);
                 }
 
-                // Set config mail per request karena Octane bisa mempertahankan state lama
-                if ($masterData && $masterData->mail_host) {
-                    config([
-                        'mail.mailers.smtp.host' => $masterData->mail_host,
-                        'mail.mailers.smtp.port' => $masterData->mail_port,
-                        'mail.mailers.smtp.encryption' => $masterData->mail_encryption,
-                        'mail.mailers.smtp.username' => $masterData->mail_username,
-                        'mail.mailers.smtp.password' => $masterData->mail_password,
-                        'mail.from.address' => $masterData->mail_from_address,
-                        'mail.from.name' => $masterData->mail_from_name,
-                    ]);
-                }
             } catch (\Exception $e) {
                 $viewData = $view->getData();
                 if (!array_key_exists('kantors', $viewData)) $view->with('kantors', collect());

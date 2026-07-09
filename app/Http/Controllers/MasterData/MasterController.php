@@ -27,26 +27,17 @@ class MasterController extends Controller
         try {
             $master = Master::first() ?? new Master();
 
-            $master->nama_lembaga   = $validated['nama_lembaga'] ?? $master->nama_lembaga;
-            $master->alamat_lembaga = $validated['alamat_lembaga'] ?? $master->alamat_lembaga;
-            $master->wa_url         = $validated['wa_url'] ?? $master->wa_url;
-            $master->instance_id    = $validated['instance_id'] ?? $master->instance_id;
-            $master->wa_token       = $validated['wa_token'] ?? $master->wa_token;
-            $master->api_key        = $validated['api_key'] ?? $master->api_key;
-            
-            $master->mail_host         = $validated['mail_host'] ?? $master->mail_host;
-            $master->mail_port         = $validated['mail_port'] ?? $master->mail_port;
-            $master->mail_username     = $validated['mail_username'] ?? $master->mail_username;
-            $master->mail_password     = $validated['mail_password'] ?? $master->mail_password;
-            $master->mail_encryption   = $validated['mail_encryption'] ?? $master->mail_encryption;
-            $master->mail_from_address = $validated['mail_from_address'] ?? $master->mail_from_address;
-            $master->mail_from_name    = $validated['mail_from_name'] ?? $master->mail_from_name;
-            
-            $master->cloud_backup_provider = $validated['cloud_backup_provider'] ?? $master->cloud_backup_provider;
-            $master->gdrive_client_id      = $validated['gdrive_client_id'] ?? $master->gdrive_client_id;
-            $master->gdrive_client_secret  = $validated['gdrive_client_secret'] ?? $master->gdrive_client_secret;
-            $master->gdrive_refresh_token  = $validated['gdrive_refresh_token'] ?? $master->gdrive_refresh_token;
-            $master->gdrive_folder_id      = $validated['gdrive_folder_id'] ?? $master->gdrive_folder_id;
+            $fieldsToUpdate = [
+                'nama_lembaga', 'alamat_lembaga', 'wa_url', 'instance_id', 'wa_token', 'api_key',
+                'mail_host', 'mail_port', 'mail_username', 'mail_password', 'mail_encryption', 'mail_from_address', 'mail_from_name',
+                'cloud_backup_provider', 'gdrive_client_id', 'gdrive_client_secret', 'gdrive_refresh_token', 'gdrive_folder_id'
+            ];
+
+            foreach ($fieldsToUpdate as $field) {
+                if (array_key_exists($field, $validated)) {
+                    $master->$field = $validated[$field];
+                }
+            }
 
             if ($request->hasFile('logo')) {
                 // Hapus logo lama jika ada
@@ -92,9 +83,34 @@ class MasterController extends Controller
         ]);
 
         try {
-            \Illuminate\Support\Facades\Mail::raw('Halo! Ini adalah pesan uji coba dari konfigurasi Layanan Email (SMTP) Sistem Informasi Bimbel Sistem Akademik. Jika Anda menerima email ini, berarti pengaturan email Anda sudah benar dan berfungsi dengan baik.', function ($message) use ($request) {
+            // PAKSA BACA DARI DATABASE SECARA REAL-TIME UNTUK MENGHINDARI CACHE OCTANE
+            $master = Master::first();
+            if ($master && $master->mail_host) {
+                config([
+                    'mail.default' => 'smtp',
+                    'mail.mailer' => 'smtp',
+                    'mail.mailers.smtp.host' => $master->mail_host,
+                    'mail.mailers.smtp.port' => $master->mail_port,
+                    'mail.mailers.smtp.encryption' => $master->mail_encryption,
+                    'mail.mailers.smtp.username' => $master->mail_username,
+                    'mail.mailers.smtp.password' => $master->mail_password,
+                    'mail.from.address' => $master->mail_from_address,
+                    'mail.from.name' => $master->mail_from_name,
+                ]);
+                \Illuminate\Support\Facades\Mail::purge();
+                if (app()->bound('mail.manager')) {
+                    app('mail.manager')->forgetMailers();
+                }
+            }
+
+            \Illuminate\Support\Facades\Mail::raw('Halo! Ini adalah pesan uji coba dari konfigurasi Layanan Email (SMTP) Sistem Informasi Bimbel Sistem Akademik. Jika Anda menerima email ini, berarti pengaturan email Anda sudah benar dan berfungsi dengan baik.', function ($message) use ($request, $master) {
                 $message->to($request->email)
                         ->subject('Uji Coba Pengaturan Email - Sistem Akademik');
+                        
+                // Pastikan From address explicitly di-set jika belum ada di config global
+                if ($master && $master->mail_from_address) {
+                    $message->from($master->mail_from_address, $master->mail_from_name ?? 'Sistem Akademik');
+                }
             });
 
             return redirect()->back()->with('success', 'Email uji coba berhasil dikirim ke ' . $request->email);
