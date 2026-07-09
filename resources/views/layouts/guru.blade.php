@@ -8,6 +8,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="app-version" content="v1.0.1">
     <title>@yield('title', 'Guru Dashboard') - Sistem Akademik</title>
+    @if(isset($masterData) && $masterData->logo)
+        <link rel="icon" type="image/png" href="{{ asset('storage/' . $masterData->logo) }}">
+    @endif
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,7 +18,6 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
 
-    
     <!-- TomSelect CSS -->
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
     <style>

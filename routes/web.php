@@ -115,11 +115,11 @@ Route::middleware('auth')->group(function () {
         Route::delete('/admin/audit-logs/prune', [\App\Http\Controllers\Admin\AuditLogController::class, 'prune'])->name('admin.audit-logs.prune');
         Route::delete('/admin/audit-logs/{id}', [\App\Http\Controllers\Admin\AuditLogController::class, 'destroy'])->name('admin.audit-logs.destroy');
 
-        // Recycle Bin (Recycle Bin)
-        Route::get('/admin/recycle-bin', [\App\Http\Controllers\Admin\RecycleBinController::class, 'index'])->name('admin.recycle-bin.index');
-        Route::post('/admin/recycle-bin/bulk', [\App\Http\Controllers\Admin\RecycleBinController::class, 'bulkAction'])->name('admin.recycle-bin.bulk');
-        Route::post('/admin/recycle-bin/{type}/{id}/restore', [\App\Http\Controllers\Admin\RecycleBinController::class, 'restore'])->name('admin.recycle-bin.restore');
-        Route::delete('/admin/recycle-bin/{type}/{id}', [\App\Http\Controllers\Admin\RecycleBinController::class, 'forceDelete'])->name('admin.recycle-bin.force-delete');
+        // Log Viewer (Custom)
+        Route::middleware('ensure_role:Super Admin')->group(function () {
+            Route::get('/admin/log-viewer', [\App\Http\Controllers\Admin\LogViewerController::class, 'index'])->name('admin.log-viewer');
+            Route::delete('/admin/log-viewer/clear', [\App\Http\Controllers\Admin\LogViewerController::class, 'clear'])->name('admin.log-viewer.clear');
+        });
 
         // ----------------------------------------------------------
         // KHUSUS ADMINISTRATOR (Dan Admin dengan akses spesifik)
@@ -206,7 +206,6 @@ Route::middleware('auth')->group(function () {
                 Route::get('/peserta-didik/lulus', [\App\Http\Controllers\Akademik\PesertaDidikController::class, 'lulus'])->name('peserta-didik.lulus');
                 Route::get('/peserta-didik/lulus/export', [\App\Http\Controllers\Akademik\PesertaDidikController::class, 'exportLulus'])->name('peserta-didik.lulus.export');
                 Route::get('/peserta-didik/{id}/edit', [\App\Http\Controllers\Akademik\PesertaDidikController::class, 'edit'])->name('peserta-didik.edit');
-                Route::delete('/peserta-didik/{id}/force', [\App\Http\Controllers\Akademik\PesertaDidikController::class, 'forceDestroy'])->name('peserta-didik.force-destroy');
                 Route::resource('peserta-didik', \App\Http\Controllers\Akademik\PesertaDidikController::class)->except(['edit', 'show']);
                 Route::resource('kelompok-belajar', \App\Http\Controllers\Akademik\KelompokBelajarController::class)->except(['show']);
             });

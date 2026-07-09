@@ -274,7 +274,7 @@
                                 Rp {{ number_format($p->nominal, 0, ',', '.') }}
                             </td>
                             <td class="px-4 py-3 text-slate-500 dark:text-slate-400 font-medium border border-slate-200 dark:border-zinc-800 leading-tight">
-                                {{ $p->keterangan ?? '-' }}
+                                @highlight($p->keterangan ?? '-')
                             </td>
                             <td class="px-4 py-3 border border-slate-200 dark:border-zinc-800">
                                 <div class="flex items-center justify-center gap-2">

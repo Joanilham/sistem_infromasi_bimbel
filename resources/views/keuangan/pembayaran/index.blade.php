@@ -152,8 +152,8 @@
                                         </span>
                                     </div>
                                     <div>
-                                        <p class="font-bold text-slate-900 dark:text-white leading-tight transition-colors">{{ $s->nama_lengkap }}</p>
-                                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">{{ $s->nomor_induk ?? $s->nisn }}</p>
+                                        <p class="font-bold text-slate-900 dark:text-white leading-tight transition-colors">@highlight($s->nama_lengkap)</p>
+                                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">@highlight($s->nomor_induk ?? $s->nisn)</p>
                                     </div>
                                 </div>
                             </td>

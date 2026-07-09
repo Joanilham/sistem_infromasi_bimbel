@@ -12,7 +12,6 @@ use App\Models\MasterData\Kantor;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Traits\HasContextScope;
 use App\Traits\Auditable;
 
@@ -49,7 +48,7 @@ use App\Traits\Auditable;
  */
 class PesertaDidik extends Model
 {
-    use SoftDeletes, HasContextScope, Auditable;
+    use HasContextScope, Auditable;
 
     protected $fillable = [
         'kantor_id',

@@ -206,38 +206,13 @@ class PesertaDidikController extends Controller
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
-    {
-        $pesertaDidik = PesertaDidik::inContext()->findOrFail($id);
-        
-        \Illuminate\Support\Facades\DB::transaction(function () use ($pesertaDidik) {
-            $user = \App\Models\User::where('peserta_didik_id', $pesertaDidik->id)->first();
-            if ($user) {
-                // Jangan hard-delete user karena foreign key (seperti di cbt_pesertas)
-                // Cukup nonaktifkan saja
-                $user->update(['is_active' => 0]);
-            }
-            $pesertaDidik->delete();
-        });
-
-        \App\Services\CacheService::clearPesertaCache();
-
-        return redirect()->back()->with('success', 'Data Peserta Didik berhasil dihapus (Akun Pengguna telah dinonaktifkan)!');
-    }
-
-    /**
-     * Remove the specified resource permanently from storage.
-     */
-    public function forceDestroy(string $id)
     {
         if (!in_array(strtolower(auth()->user()->level), ['admin', 'super admin'])) {
             abort(403, 'Akses Ditolak.');
         }
 
-        $pesertaDidik = PesertaDidik::withTrashed()->findOrFail($id);
+        $pesertaDidik = PesertaDidik::inContext()->findOrFail($id);
 
         try {
             \Illuminate\Support\Facades\Schema::disableForeignKeyConstraints();
@@ -273,13 +248,10 @@ class PesertaDidikController extends Controller
                 }
 
                 // 4. Hapus pembayaran_siswa beserta transaksi_pembayaran-nya
-                $pembayaranList = \App\Models\Keuangan\PembayaranSiswa::withTrashed()
-                    ->where('peserta_didik_id', $pesertaDidik->id)->get();
+                $pembayaranList = \App\Models\Keuangan\PembayaranSiswa::where('peserta_didik_id', $pesertaDidik->id)->get();
                 foreach ($pembayaranList as $pembayaran) {
-                    \App\Models\Keuangan\TransaksiPembayaran::withTrashed()
-                        ->where('pembayaran_siswa_id', $pembayaran->id)
-                        ->forceDelete();
-                    $pembayaran->forceDelete();
+                    \App\Models\Keuangan\TransaksiPembayaran::where('pembayaran_siswa_id', $pembayaran->id)->delete();
+                    $pembayaran->delete();
                 }
 
                 // 5. Hapus absensi
@@ -287,7 +259,7 @@ class PesertaDidikController extends Controller
                     ->where('peserta_didik_id', $pesertaDidik->id)->delete();
 
                 // 6. Hapus peserta didik secara permanen
-                $pesertaDidik->forceDelete();
+                $pesertaDidik->delete();
             });
 
             \Illuminate\Support\Facades\Schema::enableForeignKeyConstraints();
@@ -297,7 +269,7 @@ class PesertaDidikController extends Controller
         } catch (\Illuminate\Database\QueryException $e) {
             \Illuminate\Support\Facades\Schema::enableForeignKeyConstraints();
             if ($e->getCode() == 23000) {
-                return redirect()->back()->with('error', 'Gagal hapus permanen! Peserta Didik ini masih memiliki data terkait (seperti pembayaran atau tagihan) di sistem.');
+                return redirect()->back()->with('error', 'Gagal hapus permanen! Peserta Didik ini masih memiliki data terkait di sistem yang tidak dapat dihapus otomatis.');
             }
             return redirect()->back()->with('error', 'Terjadi kesalahan database: ' . $e->getMessage());
         } catch (\Exception $e) {

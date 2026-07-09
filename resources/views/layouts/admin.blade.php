@@ -12,6 +12,9 @@
     <meta name="author" content="Sistem Akademik">
     <meta name="robots" content="index, follow">
     <title>@yield('title', 'Dashboard') - Sistem Akademik</title>
+    @if(isset($masterData) && $masterData->logo)
+        <link rel="icon" type="image/png" href="{{ asset('storage/' . $masterData->logo) }}">
+    @endif
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

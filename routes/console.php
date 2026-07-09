@@ -58,3 +58,9 @@ Schedule::command('absensi:auto-alpha')->dailyAt('23:00');
 // ✅ Auto-submit ujian CBT yang melewati batas waktu (jalan setiap menit)
 // Memberikan toleransi 5 menit setelah durasi habis sebelum submit otomatis
 Schedule::command('cbt:auto-submit-timeout')->everyMinute()->withoutOverlapping();
+
+// 📊 Monitoring Server
+// Laporan status harian jam 07:00 pagi
+Schedule::command('server:monitor')->dailyAt('07:00');
+// Cek krisis setiap jam, hanya berbunyi jika ada masalah
+Schedule::command('server:monitor --alert-only')->hourly();

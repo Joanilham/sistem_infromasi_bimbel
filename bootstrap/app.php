@@ -83,4 +83,38 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
 
+        // ── Telegram Alert ─────────────────────────────────────
+        $exceptions->reportable(function (\Throwable $e) {
+            $token = env('TELEGRAM_BOT_TOKEN');
+            $chatId = env('TELEGRAM_CHAT_ID');
+
+            // Hanya kirim jika token dan chat id tersedia, dan bukan HttpException biasa (seperti 404)
+            if ($token && $chatId && !$e instanceof HttpException) {
+                try {
+                    $appName = env('APP_NAME', 'Laravel');
+                    $env = env('APP_ENV', 'production');
+                    $date = now()->format('Y-m-d H:i:s');
+                    $message = $e->getMessage();
+                    $file = $e->getFile();
+                    $line = $e->getLine();
+
+                    $text = "🚨 *ERROR ALERT* 🚨\n\n"
+                          . "🎯 *App:* {$appName} ({$env})\n"
+                          . "⏰ *Time:* {$date}\n\n"
+                          . "❌ *Error:* {$message}\n"
+                          . "📂 *File:* {$file}\n"
+                          . "📍 *Line:* {$line}\n\n"
+                          . "Cek *Log Viewer* untuk detail lengkap!";
+
+                    \Illuminate\Support\Facades\Http::timeout(5)->post("https://api.telegram.org/bot{$token}/sendMessage", [
+                        'chat_id' => $chatId,
+                        'text' => $text,
+                        'parse_mode' => 'Markdown',
+                    ]);
+                } catch (\Exception $ex) {
+                    // Ignore telegram send errors to prevent loop
+                }
+            }
+        });
+
     })->create();

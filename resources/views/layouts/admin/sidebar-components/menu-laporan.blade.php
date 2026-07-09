@@ -32,15 +32,15 @@
 
             {{-- Log Sistem --}}
             @if(strtolower(auth()->user()->level) === 'super admin')
-            <a href="{{ url('log-viewer') }}"
+            <a href="{{ route('admin.log-viewer') }}"
                 target="_blank"
-                class="flex items-center px-3 py-2.5 rounded-2xl transition-all duration-200 hover:bg-slate-100 dark:hover:bg-zinc-800 group">
-                <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mr-3 bg-indigo-600 shadow-sm shadow-indigo-600/40">
+                class="flex items-center px-3 py-2.5 rounded-2xl transition-all duration-200 hover:bg-slate-100 dark:hover:bg-zinc-800 {{ request()->routeIs('admin.log-viewer') ? 'bg-indigo-500 shadow-md shadow-indigo-500/30 text-white' : 'text-slate-700 dark:text-slate-200' }} group">
+                <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mr-3 {{ request()->routeIs('admin.log-viewer') ? 'bg-white/25' : 'bg-indigo-600 shadow-sm shadow-indigo-600/40' }}">
                     <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                 </div>
-                <span class="text-sm font-semibold text-slate-700 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-white">Log Sistem (Error) <svg class="w-3 h-3 inline-block ml-1 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg></span>
+                <span class="text-sm font-semibold {{ request()->routeIs('admin.log-viewer') ? 'text-white' : 'group-hover:text-slate-900 dark:group-hover:text-white' }}">Log Sistem (Error)</span>
             </a>
             @endif
         </nav>

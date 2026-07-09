@@ -166,34 +166,8 @@ class RekapitulasiExport
         $dateInfo = $startDate === '1970-01-01' ? 'Semua Waktu' : Carbon::parse($startDate)->translatedFormat('d M Y') . ' - ' . Carbon::parse($endDate)->translatedFormat('d M Y');
         $info .= ' | Tanggal: ' . $dateInfo;
 
-        $xml = '<Worksheet ss:Name="Rekap Keuangan"><Table>';
-        $xml .= '<Column ss:Width="100"/><Column ss:Width="100"/><Column ss:Width="150"/><Column ss:Width="150"/><Column ss:Width="250"/><Column ss:Width="120"/>';
-        $xml .= $this->xmlTitleRow('REKAPITULASI KEUANGAN', 6);
-        $xml .= $this->xmlInfoRow($info, 6);
-
         $jenisKeuangan = $request->input('jenis_keuangan', 'keuangan_semua');
 
-        $pemasukanLain = 0;
-        $total_pengeluaran = 0;
-        $pemasukanSpp = 0;
-
-        if (in_array($jenisKeuangan, ['keuangan_semua', 'keuangan_operasional'])) {
-            $pemasukanLain = Pemasukan::whereBetween('tanggal', [$startDate, $endDate])->sum('nominal');
-            $total_pengeluaran = Pengeluaran::whereBetween('tanggal', [$startDate, $endDate])->sum('nominal');
-        }
-
-        if ($jenisKeuangan === 'keuangan_semua') {
-            $pemasukanSpp = TransaksiPembayaran::whereBetween('tanggal', [$startDate, $endDate])
-                ->whereHas('pembayaranSiswa.pesertaDidik', function($q) use ($kantorId, $periodeId) {
-                    if ($kantorId) $q->where('kantor_id', $kantorId);
-                    if ($periodeId) $q->where('periode_id', $periodeId);
-                })->sum('nominal');
-        }
-        // Bagian ringkasan telah dihapus sesuai permintaan
-        
-        $xml .= $this->xmlHeaderRow(['Tanggal', 'Tipe', 'Kategori', 'Jenis', 'Keterangan', 'Nominal (Rp)']);
-        
-        // Ambil semua transaksi
         $pemasukanLainList = collect();
         $pengeluaranList = collect();
         $pemasukanSppList = collect();
@@ -240,19 +214,23 @@ class RekapitulasiExport
             });
         }
 
-        $allTransaksi = collect([])
-            ->concat($pemasukanLainList)
-            ->concat($pemasukanSppList)
-            ->concat($pengeluaranList)
-            ->sortByDesc('tanggal')
-            ->values();
+        $allPemasukan = collect([])->concat($pemasukanLainList)->concat($pemasukanSppList)->sortByDesc('tanggal')->values();
+        $allPengeluaran = collect([])->concat($pengeluaranList)->sortByDesc('tanggal')->values();
+
+        $xml = '';
+
+        // Sheet Pemasukan
+        $xml .= '<Worksheet ss:Name="Rekap Pemasukan"><Table>';
+        $xml .= '<Column ss:Width="100"/><Column ss:Width="150"/><Column ss:Width="150"/><Column ss:Width="250"/><Column ss:Width="120"/>';
+        $xml .= $this->xmlTitleRow('REKAPITULASI PEMASUKAN', 5);
+        $xml .= $this->xmlInfoRow($info, 5);
+        $xml .= $this->xmlHeaderRow(['Tanggal', 'Kategori', 'Jenis', 'Keterangan', 'Nominal (Rp)']);
 
         $i = 0;
-        foreach ($allTransaksi as $trx) {
+        foreach ($allPemasukan as $trx) {
             $style = $i % 2 === 0 ? 's_data2' : 's_data';
             $xml .= '<Row ss:Height="20">';
             $xml .= $this->xmlStr(Carbon::parse($trx['tanggal'])->format('d/m/Y'), $style);
-            $xml .= $this->xmlStr(ucfirst($trx['tipe']), $style);
             $xml .= $this->xmlStr($trx['kategori'], $style);
             $xml .= $this->xmlStr($trx['jenis'], $style);
             $xml .= $this->xmlStr($trx['keterangan'], $style);
@@ -260,8 +238,29 @@ class RekapitulasiExport
             $xml .= '</Row>';
             $i++;
         }
-
         $xml .= '</Table></Worksheet>';
+
+        // Sheet Pengeluaran
+        $xml .= '<Worksheet ss:Name="Rekap Pengeluaran"><Table>';
+        $xml .= '<Column ss:Width="100"/><Column ss:Width="150"/><Column ss:Width="150"/><Column ss:Width="250"/><Column ss:Width="120"/>';
+        $xml .= $this->xmlTitleRow('REKAPITULASI PENGELUARAN', 5);
+        $xml .= $this->xmlInfoRow($info, 5);
+        $xml .= $this->xmlHeaderRow(['Tanggal', 'Kategori', 'Jenis', 'Keterangan', 'Nominal (Rp)']);
+
+        $i = 0;
+        foreach ($allPengeluaran as $trx) {
+            $style = $i % 2 === 0 ? 's_data2' : 's_data';
+            $xml .= '<Row ss:Height="20">';
+            $xml .= $this->xmlStr(Carbon::parse($trx['tanggal'])->format('d/m/Y'), $style);
+            $xml .= $this->xmlStr($trx['kategori'], $style);
+            $xml .= $this->xmlStr($trx['jenis'], $style);
+            $xml .= $this->xmlStr($trx['keterangan'], $style);
+            $xml .= $this->xmlNum($trx['nominal'], $style);
+            $xml .= '</Row>';
+            $i++;
+        }
+        $xml .= '</Table></Worksheet>';
+
         return $xml;
     }
 

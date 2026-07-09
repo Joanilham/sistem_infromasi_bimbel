@@ -30,23 +30,6 @@
 @yield('scripts')
 
 <script>
-    // Global listener for date inputs to trigger the native date picker on click
-    document.addEventListener('click', function(e) {
-        if (e.target && e.target.tagName === 'INPUT' && e.target.type === 'date') {
-            try {
-                // Ensure the input has focus first
-                e.target.focus();
-                // If the user clicks inside the input, but hasn't opened the picker yet
-                e.target.showPicker();
-            } catch (error) {
-                // Fallback for browsers that don't support showPicker()
-                console.warn('Native showPicker() not supported by this browser.');
-            }
-        }
-    });
-</script>
-
-<script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('ajaxTable', () => ({
             isLoading: false,

@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Pendaftaran Siswa') - Sistem Akademik</title>
+    @if(isset($masterData) && $masterData->logo)
+        <link rel="icon" type="image/png" href="{{ asset('storage/' . $masterData->logo) }}">
+    @endif
     <!-- Alpine.js -->
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
@@ -208,6 +211,7 @@
 
 <!-- TomSelect JS -->
 <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('select').forEach((el) => {

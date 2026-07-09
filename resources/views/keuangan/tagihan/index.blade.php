@@ -156,9 +156,9 @@
                                     </div>
                                     <div>
                                         <a href="{{ route('keuangan.pembayaran.show', $siswa->id) }}" class="font-bold text-slate-900 dark:text-white hover:text-indigo-600 transition-all block leading-tight">
-                                            {{ $siswa->nama_lengkap }}
+                                            @highlight($siswa->nama_lengkap)
                                         </a>
-                                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">{{ $siswa->paketBimbingan?->nama_paket ?? 'Program Umum' }}</p>
+                                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">@highlight($siswa->paketBimbingan?->nama_paket ?? 'Program Umum')</p>
                                     </div>
                                 </div>
                             </td>
