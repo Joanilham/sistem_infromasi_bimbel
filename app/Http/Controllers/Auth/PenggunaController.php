@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use App\Http\Requests\Auth\StorePenggunaRequest;
 use App\Http\Requests\Auth\UpdatePenggunaRequest;
-
+use App\Models\MasterData\Kantor;
 class PenggunaController extends Controller
 {
     protected array $allowedLevels = ['Super Admin', 'Admin', 'Staff'];
@@ -50,7 +50,8 @@ class PenggunaController extends Controller
      */
     public function create()
     {
-        return view('admin.pengguna.create');
+        $kantors = Kantor::orderBy('nama_kantor')->get();
+        return view('admin.pengguna.create', compact('kantors'));
     }
 
     /**
@@ -103,7 +104,8 @@ class PenggunaController extends Controller
             return back()->withErrors(['error' => 'Pengguna ini tidak dapat dikelola dari halaman ini.']);
         }
 
-        return view('admin.pengguna.edit', compact('pengguna'));
+        $kantors = Kantor::orderBy('nama_kantor')->get();
+        return view('admin.pengguna.edit', compact('pengguna', 'kantors'));
     }
 
     /**

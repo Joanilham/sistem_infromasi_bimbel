@@ -1,5 +1,5 @@
 @import "tailwindcss";
-
+@source "/var/www/html/resources/views";
 /* ── Nonaktifkan dark mode sepenuhnya ──────────────────────────────────────
    Tailwind v4: override @variant dark agar tidak pernah aktif.
    Semua class dark:* di template tidak akan berpengaruh apapun.
@@ -31,11 +31,6 @@
         margin-left: 260px;
     }
 }
-
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
 
 @theme {
     --font-sans:

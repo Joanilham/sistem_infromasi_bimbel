@@ -23,6 +23,10 @@ class NotifikasiController extends Controller
         $isSuperAdmin = auth()->check() && strtolower(auth()->user()->level) === 'super admin';
         $filterKantorId = $isSuperAdmin ? null : $kantorId;
         $search = $request->input('search', '');
+        $paketId = $request->input('paket_id');
+        $kelompokId = $request->input('kelompok_id');
+        $jenisKelamin = $request->input('jenis_kelamin');
+        $perPage = in_array($request->input('per_page'), [10, 25, 50, 100]) ? (int) $request->input('per_page') : 10;
 
         // Auto-create missing PembayaranSiswa records for active students in context
         if ($kantorId && $periodeId) {
@@ -52,8 +56,10 @@ class NotifikasiController extends Controller
                        ->orWhere('no_telepon', 'like', "%{$search}%");
                 });
             })
+            ->when($paketId, fn($q) => $q->where('paket_id', $paketId))
+            ->when($jenisKelamin, fn($q) => $q->where('jenis_kelamin', $jenisKelamin))
             ->latest()
-            ->get();
+            ->paginate($perPage, ['*'], 'pendaftaran_page');
 
 
 
@@ -64,8 +70,11 @@ class NotifikasiController extends Controller
             ])
             ->where('tipe_pembayaran', 'TRANSFER')
             ->where('status', 'PENDING')
-            ->whereHas('pembayaranSiswa.pesertaDidik', function ($q) {
+            ->whereHas('pembayaranSiswa.pesertaDidik', function ($q) use ($paketId, $kelompokId, $jenisKelamin) {
                 $q->inContext();
+                if ($paketId) $q->where('paket_bimbingan_id', $paketId);
+                if ($kelompokId) $q->where('kelompok_belajar_id', $kelompokId);
+                if ($jenisKelamin) $q->where('jenis_kelamin', $jenisKelamin);
             })
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($q2) use ($search) {
@@ -78,13 +87,13 @@ class NotifikasiController extends Controller
             })
             ->where('created_at', '>=', Carbon::now()->subDays(30))
             ->latest()
-            ->get();
+            ->paginate($perPage, ['*'], 'transfer_page');
 
         // ── 4. Tagihan Jatuh Tempo / Overdue ──────────────────────
         // Siswa belum lunas, deadline <= 31 hari ke depan atau sudah lewat, atau belum diatur
         $tagihanJatuhTempo = PembayaranSiswa::with(['pesertaDidik.paketBimbingan'])
             ->withSum(['transaksi' => fn($q) => $q->where('status', 'sukses')], 'nominal')
-            ->whereHas('pesertaDidik', function ($q) use ($search) {
+            ->whereHas('pesertaDidik', function ($q) use ($search, $paketId, $kelompokId, $jenisKelamin) {
                 $q->inContext()->aktif();
                 if ($search) {
                     $q->where(function ($q2) use ($search) {
@@ -92,6 +101,9 @@ class NotifikasiController extends Controller
                            ->orWhere('nomor_induk', 'like', "%{$search}%");
                     });
                 }
+                if ($paketId) $q->where('paket_bimbingan_id', $paketId);
+                if ($kelompokId) $q->where('kelompok_belajar_id', $kelompokId);
+                if ($jenisKelamin) $q->where('jenis_kelamin', $jenisKelamin);
             })
             ->where(function ($q) {
                 $q->where('batas_waktu', '<=', Carbon::now()->addDays(31))
@@ -101,12 +113,28 @@ class NotifikasiController extends Controller
             ->orderBy('batas_waktu', 'asc')
             ->get()
             ->filter(fn($p) => $p->total_harus_dibayar - ($p->transaksi_sum_nominal ?? 0) > 0);
+            
+        // Because tagihanJatuhTempo uses a collection filter after get(), we need to manually paginate it
+        $page = request()->input('tagihan_page', 1);
+        $tagihanJatuhTempo = new \Illuminate\Pagination\LengthAwarePaginator(
+            $tagihanJatuhTempo->forPage($page, $perPage)->values(),
+            $tagihanJatuhTempo->count(),
+            $perPage,
+            $page,
+            ['path' => request()->url(), 'query' => request()->query(), 'pageName' => 'tagihan_page']
+        );
+
+        $paketBimbingans = PaketBimbingan::get();
+        $kelompokBelajars = \App\Models\Akademik\KelompokBelajar::orderBy('nama_kelompok')->get();
 
         return view('admin.notifikasi.index', compact(
             'pendaftaranMenunggu',
             'transferSpp',
             'tagihanJatuhTempo',
             'search',
+            'perPage',
+            'paketBimbingans',
+            'kelompokBelajars'
         ));
     }
 }

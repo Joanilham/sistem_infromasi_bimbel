@@ -134,7 +134,7 @@ class AuthController extends Controller
     {
         $level = strtolower($user->level);
 
-        if (in_array($level, ['super admin', 'admin'])) {
+        if (in_array($level, ['super admin', 'admin', 'staff'])) {
             $kantorId  = $user->kantor_id ?: (\App\Models\MasterData\Kantor::first()->id ?? null);
             $periodeId = $user->periode_id
                 ?: (\App\Models\MasterData\Periode::where('is_active', true)->first()->id

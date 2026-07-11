@@ -81,7 +81,7 @@
                             </a></li>
                         @endforeach
                     </ul>
-                    <a href="#program" class="inline-flex items-center gap-3 text-[10px] font-black text-white bg-slate-800 hover:bg-indigo-600 px-5 py-3 rounded-2xl transition-all uppercase tracking-widest active:scale-95">
+                    <a href="{{ route('paket.index') }}" class="inline-flex items-center gap-3 text-[10px] font-black text-white bg-slate-800 hover:bg-indigo-600 px-5 py-3 rounded-2xl transition-all uppercase tracking-widest active:scale-95">
                         Semua Program &rarr;
                     </a>
                 </div>

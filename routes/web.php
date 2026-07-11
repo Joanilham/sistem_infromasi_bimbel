@@ -84,7 +84,7 @@ Route::middleware('auth')->group(function () {
     // AREA ADMINISTRATOR & STAFF
     // ensure_role memastikan siswa/guru tidak bisa masuk ke sini
     // ----------------------------------------------------------
-    Route::middleware('ensure_role:Super Admin,Admin')->group(function () {
+    Route::middleware('ensure_role:Super Admin,Admin,Staff')->group(function () {
 
         // Rute pemilihan konteks (wajib sebelum pakai fitur)
         Route::get('/select-context', [KonteksController::class, 'selectContext'])->name('konteks.select');
@@ -115,16 +115,11 @@ Route::middleware('auth')->group(function () {
         Route::delete('/admin/audit-logs/prune', [\App\Http\Controllers\Admin\AuditLogController::class, 'prune'])->name('admin.audit-logs.prune');
         Route::delete('/admin/audit-logs/{id}', [\App\Http\Controllers\Admin\AuditLogController::class, 'destroy'])->name('admin.audit-logs.destroy');
 
-        // Log Viewer (Custom)
-        Route::middleware('ensure_role:Super Admin')->group(function () {
-            Route::get('/admin/log-viewer', [\App\Http\Controllers\Admin\LogViewerController::class, 'index'])->name('admin.log-viewer');
-            Route::delete('/admin/log-viewer/clear', [\App\Http\Controllers\Admin\LogViewerController::class, 'clear'])->name('admin.log-viewer.clear');
-        });
 
         // ----------------------------------------------------------
         // KHUSUS ADMINISTRATOR (Dan Admin dengan akses spesifik)
         // ----------------------------------------------------------
-        Route::middleware(['ensure_role:Super Admin,Admin'])->group(function () {
+        Route::middleware(['ensure_role:Super Admin,Admin,Staff'])->group(function () {
             Route::middleware('check_permission:manage_bank')->group(function () {
                 Route::resource('bank', \App\Http\Controllers\MasterData\BankController::class);
             });
@@ -234,6 +229,10 @@ Route::middleware('auth')->group(function () {
                 // Absensi — Manual Edit Admin
                 Route::get('/absensi/detail/{id}', [\App\Http\Controllers\Akademik\AbsensiController::class, 'detail'])->name('absensi.detail');
                 Route::post('/absensi/store-manual', [\App\Http\Controllers\Akademik\AbsensiController::class, 'storeManual'])->name('absensi.store.manual');
+                
+                // Absensi — Pengaturan
+                Route::post('/absensi/toggle-auto-alpha', [\App\Http\Controllers\Akademik\AbsensiController::class, 'toggleAutoAlpha'])->name('absensi.toggle.auto.alpha');
+
                 // Absensi — Export
                 Route::get('/absensi/export/rekap', [\App\Http\Controllers\Akademik\AbsensiController::class, 'exportRekap'])->name('absensi.export.rekap');
             });

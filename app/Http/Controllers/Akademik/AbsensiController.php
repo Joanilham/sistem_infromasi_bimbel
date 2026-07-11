@@ -45,6 +45,12 @@ class AbsensiController extends Controller
         $sort    = in_array($request->input('sort'), ['id', 'nama_lengkap']) ? $request->input('sort') : 'nama_lengkap';
         $order   = in_array($request->input('order'), ['asc', 'desc']) ? $request->input('order') : 'asc';
 
+        $isAutoAlphaEnabled = true;
+        if (\Illuminate\Support\Facades\Storage::exists('absensi_settings.json')) {
+            $settings = json_decode(\Illuminate\Support\Facades\Storage::get('absensi_settings.json'), true);
+            $isAutoAlphaEnabled = $settings['auto_alpha_enabled'] ?? true;
+        }
+
         $pesertaDidiks = PesertaDidik::aktif()
             ->inContext()
             ->when($paketId, fn($q) => $q->where('paket_bimbingan_id', $paketId))
@@ -65,7 +71,22 @@ class AbsensiController extends Controller
         $pakets = PaketBimbingan::get();
         $kelompoks = KelompokBelajar::query()->get();
 
-        return view('admin.absensi.rekap', compact('pesertaDidiks', 'bulan', 'tahun', 'pakets', 'kelompoks'));
+        return view('admin.absensi.rekap', compact('pesertaDidiks', 'bulan', 'tahun', 'pakets', 'kelompoks', 'isAutoAlphaEnabled'));
+    }
+
+    public function toggleAutoAlpha(Request $request)
+    {
+        $isEnabled = $request->input('auto_alpha_enabled') == '1';
+        
+        $settings = [];
+        if (\Illuminate\Support\Facades\Storage::exists('absensi_settings.json')) {
+            $settings = json_decode(\Illuminate\Support\Facades\Storage::get('absensi_settings.json'), true);
+        }
+        
+        $settings['auto_alpha_enabled'] = $isEnabled;
+        \Illuminate\Support\Facades\Storage::put('absensi_settings.json', json_encode($settings));
+        
+        return back()->with('success', 'Pengaturan Auto-Alpha berhasil diperbarui.');
     }
 
     public function detail(Request $request, $id)

@@ -66,13 +66,15 @@ class User extends Authenticatable
      */
     public function hasPermission(string $permission): bool
     {
+        $levelLower = strtolower($this->level);
+
         // Super Admin selalu memiliki semua akses
-        if ($this->level === 'Super Admin') {
+        if ($levelLower === 'super admin' || $levelLower === 'administrator') {
             return true;
         }
 
         // Admin biasa dan Staff dicek melalui kolom permissions
-        if (in_array($this->level, ['Admin', 'Staff'])) {
+        if (in_array($levelLower, ['admin', 'staff'])) {
             return is_array($this->permissions) && in_array($permission, $this->permissions);
         }
 

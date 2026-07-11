@@ -19,6 +19,18 @@
                 </svg>
                 Export Rekap
             </a>
+            <form action="{{ route('absensi.toggle.auto.alpha') }}" method="POST" class="inline-block">
+                @csrf
+                <input type="hidden" name="auto_alpha_enabled" value="{{ $isAutoAlphaEnabled ? '0' : '1' }}">
+                <button type="submit" 
+                        class="inline-flex items-center gap-3 font-black text-xs px-6 py-4 rounded-2xl shadow-sm border transition-all active:scale-95
+                               {{ $isAutoAlphaEnabled ? 'bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800' : 'bg-rose-50 text-rose-600 border-rose-200 hover:bg-rose-100 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-800' }}">
+                    <div class="relative w-8 h-4 rounded-full transition-colors {{ $isAutoAlphaEnabled ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-zinc-600' }}">
+                        <div class="absolute top-0.5 left-0.5 bg-white w-3 h-3 rounded-full transition-transform {{ $isAutoAlphaEnabled ? 'translate-x-4' : '' }}"></div>
+                    </div>
+                    Auto-Alpha (21:00) {{ $isAutoAlphaEnabled ? 'ON' : 'OFF' }}
+                </button>
+            </form>
             <a href="{{ route('absensi.scan.masuk.page') }}"
                class="inline-flex items-center gap-3 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs px-8 py-4 rounded-2xl shadow-xl shadow-indigo-500/20 transition-all active:scale-95">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>

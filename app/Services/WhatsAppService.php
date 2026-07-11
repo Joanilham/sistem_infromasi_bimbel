@@ -79,13 +79,10 @@ class WhatsAppService
     {
         if (empty($phone)) return;
         
-        dispatch(function () use ($phone, $message) {
-            try {
-                (new self())->sendMessage($phone, $message);
-            } catch (\Exception $e) {
-                Log::error("Gagal kirim WA async: " . $e->getMessage());
-            }
-        })->afterResponse();
+        // Random delay antara 5 sampai 30 detik untuk menghindari deteksi SPAM
+        $delaySeconds = rand(5, 30);
+        
+        \App\Jobs\SendWhatsAppMessage::dispatch($phone, $message)->delay(now()->addSeconds($delaySeconds));
     }
 }
 

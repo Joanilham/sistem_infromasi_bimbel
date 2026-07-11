@@ -63,6 +63,19 @@
                     </select>
                 </div>
 
+                {{-- Kantor Cabang (Hanya untuk Admin & Staff) --}}
+                <div class="space-y-2" id="kantor-container" class="{{ in_array(old('level', $pengguna->level), ['Admin', 'Staff']) ? '' : 'hidden' }}">
+                    <label for="kantor_id" class="text-sm font-bold text-slate-700 dark:text-slate-300">Kantor Cabang</label>
+                    <select name="kantor_id" id="kantor_id" class="no-tomselect w-full bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all dark:text-white">
+                        <option value="" selected>Semua Cabang (Jika dikosongkan)</option>
+                        @foreach($kantors as $kantor)
+                            <option value="{{ $kantor->id }}" {{ old('kantor_id', $pengguna->kantor_id) == $kantor->id ? 'selected' : '' }}>
+                                {{ $kantor->nama_kantor }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
                 {{-- Password --}}
                 <div class="space-y-2">
                     <label for="password" class="text-sm font-bold text-slate-700 dark:text-slate-300">Password Baru</label>
@@ -114,6 +127,12 @@
                         ['key' => 'recycle_bin', 'label' => 'Recycle Bin', 'actions' => ['manage', 'update', 'delete']],
                     ]
                 ];
+
+                $groupDescriptions = [
+                    'Akademik & Operasional' => 'Kelola pendaftaran, siswa, guru, jadwal, dan absensi harian.',
+                    'Keuangan' => 'Akses penuh untuk mengelola tagihan, pembayaran, pemasukan, serta pengeluaran.',
+                    'Pengaturan Sistem & Lainnya' => 'Hak akses khusus konfigurasi master, log aktivitas, dan pengaturan akun.',
+                ];
             @endphp
 
             {{-- Permissions (Show for Admin and Staff) --}}
@@ -140,21 +159,52 @@
                         <thead class="bg-slate-50 dark:bg-zinc-800/80 text-slate-600 dark:text-slate-400 font-bold">
                             <tr>
                                 <th class="p-4 border-b border-slate-200 dark:border-zinc-700">Nama Modul</th>
-                                <th class="p-4 border-b border-slate-200 dark:border-zinc-700 text-center w-24">Lihat</th>
-                                <th class="p-4 border-b border-slate-200 dark:border-zinc-700 text-center w-24">Tambah</th>
-                                <th class="p-4 border-b border-slate-200 dark:border-zinc-700 text-center w-24">Edit</th>
-                                <th class="p-4 border-b border-slate-200 dark:border-zinc-700 text-center w-24">Hapus</th>
+                                <th class="p-4 border-b border-slate-200 dark:border-zinc-700 text-center w-24">
+                                    <div class="flex flex-col items-center">
+                                        <span>Lihat</span>
+                                        <span class="text-[9px] font-normal text-slate-400 mt-1 normal-case leading-tight">Melihat /<br>Membaca data</span>
+                                    </div>
+                                </th>
+                                <th class="p-4 border-b border-slate-200 dark:border-zinc-700 text-center w-24">
+                                    <div class="flex flex-col items-center">
+                                        <span>Tambah</span>
+                                        <span class="text-[9px] font-normal text-slate-400 mt-1 normal-case leading-tight">Membuat<br>data baru</span>
+                                    </div>
+                                </th>
+                                <th class="p-4 border-b border-slate-200 dark:border-zinc-700 text-center w-24">
+                                    <div class="flex flex-col items-center">
+                                        <span>Edit</span>
+                                        <span class="text-[9px] font-normal text-slate-400 mt-1 normal-case leading-tight">Mengubah<br>data yang ada</span>
+                                    </div>
+                                </th>
+                                <th class="p-4 border-b border-slate-200 dark:border-zinc-700 text-center w-24">
+                                    <div class="flex flex-col items-center">
+                                        <span>Hapus</span>
+                                        <span class="text-[9px] font-normal text-slate-400 mt-1 normal-case leading-tight">Menghapus<br>data sistem</span>
+                                    </div>
+                                </th>
+                                <th class="p-4 border-b border-slate-200 dark:border-zinc-700 text-center w-24 border-l border-slate-200 dark:border-zinc-700 bg-slate-100 dark:bg-zinc-800 text-xs">
+                                    <div class="flex flex-col items-center">
+                                        <span>Pilih Semua</span>
+                                        <span class="text-[9px] font-normal text-slate-400 mt-1 normal-case leading-tight">Centang<br>satu baris</span>
+                                    </div>
+                                </th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 dark:divide-zinc-800 text-slate-700 dark:text-slate-300">
                             @foreach($modules as $group => $items)
                                 @php $groupSlug = \Illuminate\Support\Str::slug($group); @endphp
                                 <tr class="bg-slate-50/80 dark:bg-zinc-800/60 border-y border-slate-200 dark:border-zinc-700">
-                                    <td colspan="5" class="px-4 py-3">
+                                    <td colspan="6" class="px-4 py-3">
                                         <div class="flex items-center justify-between">
-                                            <span class="font-black text-[12px] uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                                                {{ $group }}
-                                            </span>
+                                            <div class="flex flex-col">
+                                                <span class="font-black text-[12px] uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                                                    {{ $group }}
+                                                </span>
+                                                @if(isset($groupDescriptions[$group]))
+                                                    <span class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 font-medium normal-case tracking-normal">{{ $groupDescriptions[$group] }}</span>
+                                                @endif
+                                            </div>
                                             <div class="flex gap-2">
                                                 <button type="button" onclick="document.querySelectorAll('.chk-{{ $groupSlug }}').forEach(cb => cb.checked = true)" class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 px-3 py-1.5 rounded-lg transition-colors border border-emerald-100 dark:border-emerald-500/20 flex items-center gap-1">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
@@ -200,6 +250,9 @@
                                                 <span class="text-slate-300 dark:text-zinc-600">-</span>
                                             @endif
                                         </td>
+                                        <td class="p-4 text-center border-l border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-900/50">
+                                            <input type="checkbox" onchange="const row = this.closest('tr'); row.querySelectorAll('.chk-{{ $groupSlug }}').forEach(cb => cb.checked = this.checked)" class="w-5 h-5 text-slate-800 rounded border-slate-300 dark:border-zinc-600 dark:bg-zinc-900 focus:ring-slate-800 shadow-sm" title="Pilih/Kosongkan Baris Ini">
+                                        </td>
                                     </tr>
                                 @endforeach
                             @endforeach
@@ -227,12 +280,15 @@
     document.addEventListener('DOMContentLoaded', function() {
         const levelSelect = document.getElementById('level');
         const permContainer = document.getElementById('permissions-container-edit');
+        const kantorContainer = document.getElementById('kantor-container');
 
         levelSelect.addEventListener('change', function() {
             if (this.value === 'Admin' || this.value === 'Staff') {
                 permContainer.classList.remove('hidden');
+                kantorContainer.classList.remove('hidden');
             } else {
                 permContainer.classList.add('hidden');
+                kantorContainer.classList.add('hidden');
             }
         });
     });

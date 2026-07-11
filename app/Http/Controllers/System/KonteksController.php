@@ -16,7 +16,7 @@ class KonteksController extends Controller
     public function selectContext(Request $request)
     {
         $user = $request->user();
-        $isSuperAdmin = in_array(strtolower($user->level), ['super admin', 'admin']);
+        $isSuperAdmin = strtolower($user->level) === 'super admin';
 
         if ($isSuperAdmin) {
             $kantors = \App\Models\MasterData\Kantor::all();
@@ -52,7 +52,7 @@ class KonteksController extends Controller
         ]);
 
         $kantorId = $request->kantor_id;
-        $isSuperAdmin = in_array(strtolower($user->level), ['super admin', 'admin']);
+        $isSuperAdmin = strtolower($user->level) === 'super admin';
 
         if (!$isSuperAdmin) {
             // Jika bukan Super Admin, paksa kantor_id ke yang terdaftar di user record (atau kantor pertama jika kosong)

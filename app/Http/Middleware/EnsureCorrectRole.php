@@ -24,6 +24,7 @@ class EnsureCorrectRole
     protected array $roleRedirectMap = [
         'super admin'   => 'dashboard',
         'admin'         => 'dashboard',
+        'staff'         => 'dashboard',
         'administrator' => 'dashboard',
         'guru'          => 'guru.dashboard',
         'siswa'         => 'siswa.dashboard',

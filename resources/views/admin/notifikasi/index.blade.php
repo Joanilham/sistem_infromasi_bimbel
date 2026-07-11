@@ -3,10 +3,13 @@
 
 @section('content')
 @php
-    $totalBadge = $pendaftaranMenunggu->count()
-                + $transferSpp->count()
-                + $tagihanJatuhTempo->count();
+    $totalBadge = $pendaftaranMenunggu->total()
+                + $transferSpp->total()
+                + $tagihanJatuhTempo->total();
 @endphp
+
+@push('head')
+@endpush
 
 <div x-data="Object.assign({ tab: new URLSearchParams(window.location.search).get('tab') || 'pendaftaran' }, ajaxTable())" class="space-y-6">
 
@@ -24,38 +27,85 @@
     </div>
 
     {{-- Search & Filter Bar --}}
-    <div class="bg-white dark:bg-zinc-900 rounded-[2rem] p-6 border border-slate-100 dark:border-zinc-800 shadow-sm relative">
+    <div class="bg-white dark:bg-zinc-900 rounded-[2rem] border border-slate-100 dark:border-zinc-800 shadow-sm relative">
 
         {{-- Loading Overlay --}}
         <x-table.loading-overlay />
 
-        <form @submit.prevent="fetchData" method="GET" action="{{ route('notifikasi.index') }}" class="flex flex-col sm:flex-row items-center gap-4">
-            <input type="hidden" name="tab" :value="tab">
-            <div class="relative w-full group">
-                <input type="text" name="search" value="{{ $search }}" placeholder="Cari berdasarkan nama siswa, email, nomor kwitansi, atau penerima..."
-                    class="w-full bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-xl text-sm font-bold py-3.5 pl-12 pr-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-slate-200">
-                <svg class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                </svg>
-            </div>
-            <div class="flex items-center gap-2 w-full sm:w-auto shrink-0">
-                <button type="submit"
-                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-3.5 rounded-xl text-sm font-bold transition-colors shadow-sm shadow-indigo-500/30 shrink-0 w-full sm:w-auto">
-                    Filter
-                </button>
-                @if(request()->anyFilled(['search']))
-                    <a href="{{ route('notifikasi.index') }}?tab={{ request('tab', 'pendaftaran') }}" 
-                       class="flex items-center gap-2 bg-slate-100 dark:bg-zinc-800 hover:bg-rose-100 dark:hover:bg-rose-900/40 text-slate-600 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 px-4 py-3.5 rounded-xl text-sm font-bold transition-all shrink-0 w-full sm:w-auto"
-                       title="Reset Filter">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                        <span class="sm:hidden">Clear</span>
-                    </a>
-                @endif
-            </div>
-        </form>
-    </div>
+        <div class="p-5 sm:p-6 border-b border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-900/50 relative">
+            <form @submit.prevent="fetchData" method="GET" action="{{ route('notifikasi.index') }}" class="flex flex-col gap-4 sm:gap-5">
+                <input type="hidden" name="tab" :value="tab">
+                
+                {{-- Top Row: Universal Controls --}}
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full">
+                    {{-- Per Page --}}
+                    <x-table.filter-limit :alpine="true" />
+
+                    {{-- Search & Reset --}}
+                    <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto shrink-0">
+                        <x-table.search :alpine="true" placeholder="Cari berdasarkan nama, dll..." />
+                        <button type="submit"
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-sm shadow-indigo-500/30 shrink-0">
+                            Filter
+                        </button>
+                        @if(request()->anyFilled(['search', 'paket_id', 'kelompok_id', 'jenis_kelamin']))
+                            <a href="{{ route('notifikasi.index') }}?tab={{ request('tab', 'pendaftaran') }}" 
+                               class="flex items-center gap-2 bg-slate-100 dark:bg-zinc-800 hover:bg-rose-100 dark:hover:bg-rose-900/40 text-slate-600 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 px-4 py-2.5 rounded-xl text-sm font-bold transition-all shrink-0"
+                               title="Reset Filter">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                                Clear
+                            </a>
+                        @endif
+                    </div>
+                </div>
+
+                {{-- Bottom Row: Data Filters --}}
+                <div class="flex flex-wrap items-center gap-3 pt-4 border-t border-slate-100 dark:border-zinc-800/50">
+                    {{-- Paket Filter --}}
+                    <div class="flex items-stretch bg-white dark:bg-zinc-950 rounded-xl border border-slate-200 dark:border-zinc-800 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all overflow-hidden">
+                        <div class="px-3 py-2 bg-slate-50 dark:bg-zinc-900 border-r border-slate-200 dark:border-zinc-800 flex items-center justify-center">
+                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Program</span>
+                        </div>
+                        <select name="paket_id" autocomplete="off" @change="fetchData"
+                            class="no-tomselect bg-transparent border-none text-xs font-bold focus:ring-0 py-2 pl-3 pr-8 text-slate-800 dark:text-white cursor-pointer h-full hover:bg-slate-50 dark:hover:bg-zinc-900/50 transition-colors max-w-[120px] md:max-w-[160px] truncate">
+                            <option value="">Semua Program</option>
+                            @foreach($paketBimbingans as $p)
+                                <option value="{{ $p->id }}" {{ request('paket_id') == $p->id ? 'selected' : '' }}>{{ $p->nama_paket }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    {{-- Kelompok Filter --}}
+                    <div class="flex items-stretch bg-white dark:bg-zinc-950 rounded-xl border border-slate-200 dark:border-zinc-800 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all overflow-hidden">
+                        <div class="px-3 py-2 bg-slate-50 dark:bg-zinc-900 border-r border-slate-200 dark:border-zinc-800 flex items-center justify-center">
+                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Kelas</span>
+                        </div>
+                        <select name="kelompok_id" autocomplete="off" @change="fetchData"
+                            class="no-tomselect bg-transparent border-none text-xs font-bold focus:ring-0 py-2 pl-3 pr-8 text-slate-800 dark:text-white cursor-pointer h-full hover:bg-slate-50 dark:hover:bg-zinc-900/50 transition-colors max-w-[100px] md:max-w-[140px] truncate">
+                            <option value="">Semua Kelas</option>
+                            @foreach($kelompokBelajars as $k)
+                                <option value="{{ $k->id }}" {{ request('kelompok_id') == $k->id ? 'selected' : '' }}>{{ $k->nama_kelompok }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    {{-- JK Filter --}}
+                    <div class="flex items-stretch bg-white dark:bg-zinc-950 rounded-xl border border-slate-200 dark:border-zinc-800 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all overflow-hidden">
+                        <div class="px-3 py-2 bg-slate-50 dark:bg-zinc-900 border-r border-slate-200 dark:border-zinc-800 flex items-center justify-center">
+                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Jenis Kelamin</span>
+                        </div>
+                        <select name="jenis_kelamin" autocomplete="off" @change="fetchData"
+                            class="no-tomselect bg-transparent border-none text-xs font-bold focus:ring-0 py-2 pl-3 pr-8 text-slate-800 dark:text-white cursor-pointer h-full hover:bg-slate-50 dark:hover:bg-zinc-900/50 transition-colors">
+                            <option value="">Semua</option>
+                            <option value="L" {{ request('jenis_kelamin') == 'L' ? 'selected' : '' }}>Laki-laki</option>
+                            <option value="P" {{ request('jenis_kelamin') == 'P' ? 'selected' : '' }}>Perempuan</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
 
     {{-- Tab Navigation --}}
     <div id="ajax-table-body" class="bg-white dark:bg-zinc-900 rounded-[2rem] border border-slate-100 dark:border-zinc-800 shadow-sm overflow-hidden">
@@ -71,8 +121,8 @@
                         <svg class="w-3.5 h-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                     </span>
                     Akun Pendaftar
-                    @if($pendaftaranMenunggu->count() > 0)
-                        <span class="bg-amber-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">{{ $pendaftaranMenunggu->count() }}</span>
+                    @if($pendaftaranMenunggu->total() > 0)
+                        <span class="bg-amber-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">{{ $pendaftaranMenunggu->total() }}</span>
                     @endif
                 </div>
                 <span class="text-[10px] font-normal text-slate-400" :class="tab === 'pendaftaran' ? 'text-indigo-400' : ''">Butuh Verifikasi Akun</span>
@@ -89,8 +139,8 @@
                         <svg class="w-3.5 h-3.5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
                     </span>
                     Transfer Tagihan Rutin
-                    @if($transferSpp->count() > 0)
-                        <span class="bg-blue-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">{{ $transferSpp->count() }}</span>
+                    @if($transferSpp->total() > 0)
+                        <span class="bg-blue-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">{{ $transferSpp->total() }}</span>
                     @endif
                 </div>
                 <span class="text-[10px] font-normal text-slate-400" :class="tab === 'transfer' ? 'text-blue-400' : ''">Menunggu Konfirmasi Transfer SPP Siswa Aktif</span>
@@ -107,8 +157,8 @@
                         <svg class="w-3.5 h-3.5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                     </span>
                     Tagihan Jatuh Tempo
-                    @if($tagihanJatuhTempo->count() > 0)
-                        <span class="bg-yellow-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">{{ $tagihanJatuhTempo->count() }}</span>
+                    @if($tagihanJatuhTempo->total() > 0)
+                        <span class="bg-yellow-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">{{ $tagihanJatuhTempo->total() }}</span>
                     @endif
                 </div>
                 <span class="text-[10px] font-normal text-slate-400" :class="tab === 'tagihan' ? 'text-yellow-500' : ''">Siswa dengan Tunggakan / Lewat Batas Bayar</span>
@@ -133,7 +183,7 @@
                                 </div>
                                 <div>
                                     <div class="flex flex-wrap items-center gap-2">
-                                        <p class="text-sm font-bold text-slate-800 dark:text-white">{{ $item->nama_lengkap }}</p>
+                                        <p class="text-sm font-bold text-slate-800 dark:text-white">@highlight($item->nama_lengkap)</p>
                                         <span class="px-2 py-0.5 rounded-md bg-amber-50 text-amber-600 border border-amber-200 text-[9px] font-black uppercase whitespace-nowrap">Menunggu Persetujuan Admin</span>
                                     </div>
                                     <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
@@ -151,6 +201,12 @@
                         </li>
                     @endforeach
                 </ul>
+                
+                @if($pendaftaranMenunggu->hasPages())
+                <div class="px-6 py-4 border-t border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-900/50">
+                    {{ $pendaftaranMenunggu->withQueryString()->links() }}
+                </div>
+                @endif
             @endif
         </div>
 
@@ -174,11 +230,11 @@
                                 </div>
                                 <div>
                                     <p class="text-sm font-bold text-slate-800 dark:text-white flex flex-wrap items-center gap-2">
-                                        {{ $siswa?->nama_lengkap ?? 'Siswa' }}
+                                        @highlight($siswa?->nama_lengkap ?? 'Siswa')
                                         <span class="px-2 py-0.5 rounded-md bg-blue-50 text-blue-600 border border-blue-200 text-[9px] font-black uppercase whitespace-nowrap">Transaksi Masuk via Siswa</span>
                                     </p>
                                     <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                                        Transfer <strong>Tagihan SPP Rutin</strong> (No: <span class="font-mono font-bold">{{ $item->no_kwitansi }}</span>) sebesar <span class="text-emerald-600 font-bold">Rp {{ number_format($item->nominal, 0, ',', '.') }}</span> ke <strong>{{ $item->penerima }}</strong>
+                                        Transfer <strong>Tagihan SPP Rutin</strong> (No: <span class="font-mono font-bold">@highlight($item->no_kwitansi)</span>) sebesar <span class="text-emerald-600 font-bold">Rp {{ number_format($item->nominal, 0, ',', '.') }}</span> ke <strong>@highlight($item->penerima)</strong>
                                     </p>
                                 </div>
                             </div>
@@ -194,6 +250,12 @@
                         </li>
                     @endforeach
                 </ul>
+                
+                @if($transferSpp->hasPages())
+                <div class="px-6 py-4 border-t border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-900/50">
+                    {{ $transferSpp->withQueryString()->links() }}
+                </div>
+                @endif
             @endif
         </div>
 
@@ -223,7 +285,7 @@
                                 </div>
                                 <div>
                                     <p class="text-sm font-bold text-slate-800 dark:text-white flex flex-wrap items-center gap-2">
-                                        {{ $siswa?->nama_lengkap }}
+                                        @highlight($siswa?->nama_lengkap ?? '')
                                         @if($overdue)
                                             <span class="px-2 py-0.5 rounded-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 text-[10px] font-black uppercase whitespace-nowrap">Jatuh Tempo!</span>
                                         @elseif($hasDate)
@@ -251,6 +313,12 @@
                         </li>
                     @endforeach
                 </ul>
+                
+                @if($tagihanJatuhTempo->hasPages())
+                <div class="px-6 py-4 border-t border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-900/50">
+                    {{ $tagihanJatuhTempo->withQueryString()->links() }}
+                </div>
+                @endif
             @endif
         </div>
     </div>

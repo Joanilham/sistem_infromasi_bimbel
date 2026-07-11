@@ -16,7 +16,7 @@ class ForceHttps
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (config('app.env') === 'production' || strpos(config('app.url'), 'https://') === 0) {
+        if (strpos(config('app.url'), 'https://') === 0) {
             URL::forceScheme('https');
             $request->server->set('HTTPS', 'on');
             $request->headers->set('X-Forwarded-Proto', 'https', true);

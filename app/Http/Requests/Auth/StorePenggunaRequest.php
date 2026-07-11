@@ -7,7 +7,7 @@ use Illuminate\Validation\Rule;
 
 class StorePenggunaRequest extends FormRequest
 {
-    protected $allowedLevels = ['Super Admin', 'Admin', 'Siswa', 'Guru'];
+    protected $allowedLevels = ['Super Admin', 'Admin', 'Staff', 'Siswa', 'Guru'];
 
     /**
      * Determine if the user is authorized to make this request.
@@ -33,6 +33,7 @@ class StorePenggunaRequest extends FormRequest
             'level'                 => ['required', 'string', Rule::in($this->allowedLevels)],
             'password'              => 'required|string|min:8|confirmed',
             'password_confirmation' => 'required',
+            'kantor_id'             => 'nullable|exists:kantors,id',
             'permissions'           => 'nullable|array',
             'permissions.*'         => 'string',
         ];

@@ -7,7 +7,7 @@ use Illuminate\Validation\Rule;
 
 class UpdatePenggunaRequest extends FormRequest
 {
-    protected $allowedLevels = ['Super Admin', 'Admin', 'Siswa', 'Guru'];
+    protected $allowedLevels = ['Super Admin', 'Admin', 'Staff', 'Siswa', 'Guru'];
 
     /**
      * Determine if the user is authorized to make this request.
@@ -34,6 +34,7 @@ class UpdatePenggunaRequest extends FormRequest
             'email'    => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($penggunaId)],
             'level'    => ['required', 'string', Rule::in($this->allowedLevels)],
             'password' => 'nullable|string|min:8|confirmed',
+            'kantor_id'=> 'nullable|exists:kantors,id',
             'permissions'   => 'nullable|array',
             'permissions.*' => 'string',
         ];

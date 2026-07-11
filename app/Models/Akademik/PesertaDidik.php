@@ -192,7 +192,7 @@ class PesertaDidik extends Model
         // 1. Overdue check
         if ($pembayaran->batas_waktu && $pembayaran->batas_waktu->isPast()) {
             $status['is_overdue'] = true;
-            $status['is_locked'] = true;
+            // $status['is_locked'] = true; // Dinonaktifkan sesuai permintaan user
         }
 
         // 2. Expiring package check (<= 30 days active duration remaining)
@@ -216,7 +216,7 @@ class PesertaDidik extends Model
                 $status['sisa_hari'] = $sisaHari;
                 if ($sisaHari <= 30) {
                     $status['is_expiring'] = true;
-                    $status['is_locked'] = true;
+                    // $status['is_locked'] = true; // Dinonaktifkan sesuai permintaan user
                 }
             }
         }
