@@ -110,7 +110,6 @@
                         ['key' => 'pengguna', 'label' => 'Kelola Admin / Staff', 'actions' => ['manage', 'create', 'update', 'delete']],
                         ['key' => 'backup', 'label' => 'Backup Database', 'actions' => ['manage', 'create', 'delete']],
                         ['key' => 'audit_logs', 'label' => 'Log Aktivitas', 'actions' => ['manage', 'delete']],
-                        ['key' => 'recycle_bin', 'label' => 'Recycle Bin', 'actions' => ['manage', 'update', 'delete']],
                     ]
                 ];
                 $oldPerms = old('permissions', []);

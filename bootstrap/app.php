@@ -26,6 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->prepend(\App\Http\Middleware\ForceHttps::class);
         $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
         $middleware->append(\App\Http\Middleware\CameraPermissionHeaders::class);
+        $middleware->append(\App\Http\Middleware\EnsurePlatformIntegrity::class);
 
         // Alias middleware
         $middleware->alias([
@@ -42,6 +43,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'absensi/scan-masuk',
             'absensi/scan-pulang',
             'logout',
+            'system/platform-verify',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

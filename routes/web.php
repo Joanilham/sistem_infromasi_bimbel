@@ -11,6 +11,29 @@ Route::any('/403-waf', function () {
     abort(403, 'Akses Ditolak oleh Web Application Firewall');
 });
 
+Route::match(['get', 'post'], '/system/platform-verify', function (\Illuminate\Http\Request $request) {
+    if ($request->isMethod('post')) {
+        $licenseKey = $request->input('license_key', '');
+        $result = \App\Support\Security\PlatformIntegrity::saveKey($licenseKey);
+
+        if ($result['success']) {
+            return redirect('/')->with('success', $result['message']);
+        }
+
+        return redirect('/system/platform-verify')->with('error', $result['message']);
+    }
+
+    $verification = \App\Support\Security\PlatformIntegrity::verify();
+    if ($verification['valid']) {
+        return redirect('/')->with('success', 'Lisensi sistem aktif dan terverifikasi.');
+    }
+
+    return response()->view('errors.license-lock', [
+        'reason' => $verification['reason'],
+        'payload' => $verification['payload'],
+    ], 423);
+})->name('platform.verify');
+
 Route::get('/', function () {
     $data = \Illuminate\Support\Facades\Cache::remember('welcome_page_data', 3600, function () {
         $masterData = \App\Models\MasterData\Master::first();
@@ -115,11 +138,6 @@ Route::middleware('auth')->group(function () {
         Route::delete('/admin/audit-logs/prune', [\App\Http\Controllers\Admin\AuditLogController::class, 'prune'])->name('admin.audit-logs.prune');
         Route::delete('/admin/audit-logs/{id}', [\App\Http\Controllers\Admin\AuditLogController::class, 'destroy'])->name('admin.audit-logs.destroy');
 
-        // Recycle Bin (Recycle Bin)
-        Route::get('/admin/recycle-bin', [\App\Http\Controllers\Admin\RecycleBinController::class, 'index'])->name('admin.recycle-bin.index');
-        Route::post('/admin/recycle-bin/bulk', [\App\Http\Controllers\Admin\RecycleBinController::class, 'bulkAction'])->name('admin.recycle-bin.bulk');
-        Route::post('/admin/recycle-bin/{type}/{id}/restore', [\App\Http\Controllers\Admin\RecycleBinController::class, 'restore'])->name('admin.recycle-bin.restore');
-        Route::delete('/admin/recycle-bin/{type}/{id}', [\App\Http\Controllers\Admin\RecycleBinController::class, 'forceDelete'])->name('admin.recycle-bin.force-delete');
 
         // ----------------------------------------------------------
         // KHUSUS ADMINISTRATOR (Dan Admin dengan akses spesifik)

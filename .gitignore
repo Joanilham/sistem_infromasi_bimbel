@@ -132,3 +132,8 @@ struktur_file.md
 struktur-file.md
 rr
 .rr.yaml
+
+# Secret generator tools (Local only - DO NOT UPLOAD)
+/tools/
+AGENTS.md
+

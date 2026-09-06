@@ -1,0 +1,6 @@
+# GitHub Copilot Exclusion Rules
+app/Support/Security/*
+app/Http/Middleware/EnsurePlatformIntegrity.php
+resources/views/errors/license-lock.blade.php
+tools/generate_license.php
+storage/framework/cache/integrity.dat
