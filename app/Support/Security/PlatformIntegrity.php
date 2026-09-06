@@ -11,13 +11,20 @@ class PlatformIntegrity
     protected const DEFAULT_SUPABASE_KEY = '';
 
     /**
+     * Durasi cache lisensi (detik).
+     * 15 detik: website tetap sangat cepat (0ms per request), dan responsif terhadap tombol Kill-Switch!
+     */
+    protected const CACHE_TTL = 15;
+
+    /**
      * Salt offline fallback (asymmetric/HMAC)
      */
     protected const INTEGRITY_SALT = 'Joanilham_Bimbel_Platform_Secure_Salt_2026_@#9821_Integrity';
 
     /**
-     * Cache hasil verifikasi dalam siklus satu request (in-memory)
+     * Cache in-memory dalam siklus RoadRunner Octane dengan timestamp
      */
+    protected static int $lastCheckedAt = 0;
     protected static ?array $cachedVerification = null;
 
     /**
@@ -60,7 +67,7 @@ class PlatformIntegrity
     }
 
     /**
-     * Path file cache status Supabase lokal (agar tidak request setiap milidetik).
+     * Path file cache status Supabase lokal.
      */
     public static function getCachePath(): string
     {
@@ -69,11 +76,12 @@ class PlatformIntegrity
     }
 
     /**
-     * Hapus cache agar aplikasi langsung memeriksa ulang ke Supabase.
+     * Hapus cache agar aplikasi langsung memeriksa ulang ke Supabase seketika.
      */
     public static function clearCache(): void
     {
         self::$cachedVerification = null;
+        self::$lastCheckedAt = 0;
         $cacheFile = self::getCachePath();
         if (file_exists($cacheFile)) {
             @unlink($cacheFile);
@@ -146,32 +154,49 @@ class PlatformIntegrity
      */
     public static function verify(bool $forceRefresh = false): array
     {
-        if (!$forceRefresh && self::$cachedVerification !== null) {
+        $now = time();
+
+        // 1. Cek in-memory cache (Octane RoadRunner) — valid selama CACHE_TTL detik
+        if (!$forceRefresh && self::$cachedVerification !== null && ($now - self::$lastCheckedAt) < self::CACHE_TTL) {
             return self::$cachedVerification;
         }
 
         $installationId = self::getInstallationId();
 
-        // 1. Cek Offline Master Key (Jika Joan mengisi master key di .env)
+        // 2. Cek Offline Master Key (Jika ada di .env)
         $offlineKey = self::getRawKey();
         if (!empty($offlineKey)) {
             $offlineVerify = self::verifyOfflineKey($offlineKey);
             if ($offlineVerify['valid']) {
                 $offlineVerify['installation_id'] = $installationId;
                 self::$cachedVerification = $offlineVerify;
+                self::$lastCheckedAt = $now;
                 return $offlineVerify;
             }
         }
 
-        // 2. Cek Cache Lokal Supabase (Masa berlaku cache: 4 Jam)
+        // 3. Cek File Cache Lokal — jika masih di dalam rentang CACHE_TTL detik
         $cacheFile = self::getCachePath();
         if (!$forceRefresh && file_exists($cacheFile)) {
             $cacheData = json_decode((string) @file_get_contents($cacheFile), true);
-            if (is_array($cacheData) && isset($cacheData['expires_at'], $cacheData['cached_at'])) {
-                // Jika cache belum kadaluarsa (kurang dari 4 jam)
-                if (time() - $cacheData['cached_at'] < 14400) {
+            if (is_array($cacheData) && isset($cacheData['status'], $cacheData['cached_at'])) {
+                // Jika data cache adalah suspended, langsung tolak!
+                if ($cacheData['status'] !== 'active') {
+                    $result = [
+                        'valid' => false,
+                        'reason' => 'Status lisensi Anda adalah ' . strtoupper($cacheData['status']) . '. Akses sistem telah dinonaktifkan oleh administrator.',
+                        'installation_id' => $installationId,
+                        'data' => $cacheData,
+                    ];
+                    self::$cachedVerification = $result;
+                    self::$lastCheckedAt = $now;
+                    return $result;
+                }
+
+                // Jika cache masih segar (< CACHE_TTL detik)
+                if (($now - $cacheData['cached_at']) < self::CACHE_TTL) {
                     $currentDate = date('Y-m-d');
-                    if ($cacheData['status'] === 'active' && ($cacheData['expires_at'] === 'lifetime' || $currentDate <= $cacheData['expires_at'])) {
+                    if ($cacheData['expires_at'] === 'lifetime' || $currentDate <= $cacheData['expires_at']) {
                         $result = [
                             'valid' => true,
                             'reason' => 'Lisensi aktif (cached)',
@@ -179,18 +204,22 @@ class PlatformIntegrity
                             'data' => $cacheData,
                         ];
                         self::$cachedVerification = $result;
+                        self::$lastCheckedAt = $now;
                         return $result;
                     }
                 }
             }
         }
 
-        // 3. Verifikasi ke Supabase Cloud
+        // 4. Query langsung ke Supabase Cloud
         $supabaseResult = self::querySupabase($installationId);
 
         if ($supabaseResult['success']) {
             $row = $supabaseResult['data'];
+
             if (!$row) {
+                // Hapus cache lama jika data tidak ditemukan
+                self::clearCache();
                 $result = [
                     'valid' => false,
                     'reason' => 'Perangkat/Instansi ini belum terdaftar di otorisasi Supabase. Berikan Installation ID kepada Joan Ilham.',
@@ -198,6 +227,7 @@ class PlatformIntegrity
                     'data' => null,
                 ];
                 self::$cachedVerification = $result;
+                self::$lastCheckedAt = $now;
                 return $result;
             }
 
@@ -205,17 +235,24 @@ class PlatformIntegrity
             $expiresAt = $row['expires_at'] ?? '2000-01-01';
             $currentDate = date('Y-m-d');
 
+            // Simpan status terbaru ke cache file
+            $row['cached_at'] = $now;
+            @file_put_contents($cacheFile, json_encode($row));
+
+            // Jika status BUKAN active (misal: suspended atau expired)
             if ($status !== 'active') {
                 $result = [
                     'valid' => false,
-                    'reason' => 'Status lisensi Anda saat ini adalah: ' . strtoupper($status) . '. Silakan hubungi Joan Ilham.',
+                    'reason' => 'Status lisensi Anda saat ini adalah ' . strtoupper($status) . '. Akses platform dinonaktifkan oleh administrator.',
                     'installation_id' => $installationId,
                     'data' => $row,
                 ];
                 self::$cachedVerification = $result;
+                self::$lastCheckedAt = $now;
                 return $result;
             }
 
+            // Jika tanggal kadaluarsa lewat
             if ($expiresAt !== 'lifetime' && $currentDate > $expiresAt) {
                 $result = [
                     'valid' => false,
@@ -224,12 +261,9 @@ class PlatformIntegrity
                     'data' => $row,
                 ];
                 self::$cachedVerification = $result;
+                self::$lastCheckedAt = $now;
                 return $result;
             }
-
-            // Simpan ke Cache Lokal (4 Jam)
-            $row['cached_at'] = time();
-            @file_put_contents($cacheFile, json_encode($row));
 
             $result = [
                 'valid' => true,
@@ -238,15 +272,15 @@ class PlatformIntegrity
                 'data' => $row,
             ];
             self::$cachedVerification = $result;
+            self::$lastCheckedAt = $now;
             return $result;
         }
 
-        // 4. Jika Supabase tidak dapat dihubungi (Internet Down), Cek Grace Period 48 Jam
+        // 5. Offline Grace Period (hanya berlaku jika koneksi internet terputus DAN status terakhir adalah active)
         if (file_exists($cacheFile)) {
             $cacheData = json_decode((string) @file_get_contents($cacheFile), true);
-            if (is_array($cacheData) && isset($cacheData['cached_at'])) {
-                // Toleransi offline hingga 48 jam jika sebelumnya valid
-                if (time() - $cacheData['cached_at'] < 172800) {
+            if (is_array($cacheData) && isset($cacheData['cached_at'], $cacheData['status'])) {
+                if ($cacheData['status'] === 'active' && ($now - $cacheData['cached_at']) < 86400) {
                     $result = [
                         'valid' => true,
                         'reason' => 'Lisensi aktif (Grace Period offline mode)',
@@ -254,12 +288,12 @@ class PlatformIntegrity
                         'data' => $cacheData,
                     ];
                     self::$cachedVerification = $result;
+                    self::$lastCheckedAt = $now;
                     return $result;
                 }
             }
         }
 
-        // Belum terdaftar dan Supabase belum memberikan konfirmasi
         $result = [
             'valid' => false,
             'reason' => $supabaseResult['message'] ?: 'Sistem lisensi belum diaktifkan.',
@@ -267,6 +301,7 @@ class PlatformIntegrity
             'data' => null,
         ];
         self::$cachedVerification = $result;
+        self::$lastCheckedAt = $now;
         return $result;
     }
 
@@ -282,7 +317,7 @@ class PlatformIntegrity
             return [
                 'success' => false,
                 'data' => null,
-                'message' => 'SUPABASE_LICENSE_KEY belum dikonfigurasi.',
+                'message' => 'Instansi sistem ini belum terhubung ke jaringan otorisasi resmi. Silakan hubungi Administrator Pengembang untuk aktivasi.',
             ];
         }
 
@@ -291,8 +326,8 @@ class PlatformIntegrity
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 4);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 3);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'apikey: ' . $apiKey,
             'Authorization: Bearer ' . $apiKey,
@@ -381,7 +416,7 @@ class PlatformIntegrity
         }
         @file_put_contents($path, $key);
 
-        self::$cachedVerification = null;
+        self::clearCache();
 
         return [
             'success' => true,
