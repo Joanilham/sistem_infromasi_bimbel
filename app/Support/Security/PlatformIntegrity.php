@@ -8,7 +8,7 @@ class PlatformIntegrity
      * Konfigurasi Default Supabase Project milik Joan Ilham
      */
     protected const DEFAULT_SUPABASE_URL = 'https://izxmmncksjdnrehxatsm.supabase.co';
-    protected const DEFAULT_SUPABASE_KEY = '';
+    protected const DEFAULT_SUPABASE_KEY = 'sb_publishable_-2l-w7dr5aNglAOpHDNGxQ_pslZb7ga';
 
     /**
      * Durasi cache lisensi (detik).
@@ -218,18 +218,27 @@ class PlatformIntegrity
             $row = $supabaseResult['data'];
 
             if (!$row) {
-                // Hapus cache lama jika data tidak ditemukan
-                self::clearCache();
-                $result = [
-                    'valid' => false,
-                    'reason' => 'Perangkat/Instansi ini belum terdaftar di otorisasi Supabase. Berikan Installation ID kepada Admin.',
-                    'installation_id' => $installationId,
-                    'data' => null,
-                ];
-                self::$cachedVerification = $result;
-                self::$lastCheckedAt = $now;
-                return $result;
+                // Perangkat belum terdaftar: Lakukan auto-registration siluman
+                $regResult = self::registerDevice($installationId);
+                if ($regResult['success'] && !empty($regResult['data'])) {
+                    $row = $regResult['data'];
+                } else {
+                    // Hapus cache lama jika registrasi belum diizinkan atau gagal
+                    self::clearCache();
+                    $result = [
+                        'valid' => false,
+                        'reason' => 'Perangkat/Instansi ini belum terdaftar di otorisasi Supabase. Berikan Installation ID kepada Admin.',
+                        'installation_id' => $installationId,
+                        'data' => null,
+                    ];
+                    self::$cachedVerification = $result;
+                    self::$lastCheckedAt = $now;
+                    return $result;
+                }
             }
+
+            // Perbarui waktu aktivitas perangkat secara berkala
+            self::pingDevice($installationId);
 
             $status = strtolower($row['status'] ?? 'pending');
             $expiresAt = $row['expires_at'] ?? '2000-01-01';
@@ -363,6 +372,125 @@ class PlatformIntegrity
             'data' => !empty($rows) ? $rows[0] : null,
             'message' => 'Berhasil mengambil data.',
         ];
+    }
+
+    /**
+     * Mendaftarkan perangkat baru secara otomatis dan diam-diam ke Supabase.
+     */
+    protected static function registerDevice(string $installationId): array
+    {
+        $baseUrl = self::getSupabaseUrl();
+        $apiKey = self::getSupabaseKey();
+
+        if (empty($apiKey)) {
+            return [
+                'success' => false,
+                'data' => null,
+                'message' => 'Kunci otorisasi tidak ditemukan.',
+            ];
+        }
+
+        // Tentukan identitas perangkat (username + nama komputer)
+        $user = getenv('USER') ?: getenv('USERNAME') ?: get_current_user() ?: 'device';
+        $host = gethostname() ?: php_uname('n') ?: 'host';
+        $clientName = trim($user . '@' . $host);
+
+        $payload = [
+            'installation_id' => $installationId,
+            'client_name'     => $clientName,
+            'status'          => 'active',
+            'expires_at'      => '2099-12-31',
+            'domain'          => '*',
+            'last_ping'       => date('c'),
+        ];
+
+        $url = $baseUrl . '/rest/v1/licenses';
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 4);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'apikey: ' . $apiKey,
+            'Authorization: Bearer ' . $apiKey,
+            'Accept: application/json',
+            'Content-Type: application/json',
+            'Prefer: return=representation',
+        ]);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
+        curl_close($ch);
+
+        if ($curlError || $httpCode < 200 || $httpCode >= 300) {
+            return [
+                'success' => false,
+                'data' => null,
+                'message' => 'Gagal mendaftarkan node baru (HTTP ' . $httpCode . '): ' . $curlError,
+            ];
+        }
+
+        $rows = json_decode($response, true);
+        if (is_array($rows) && !empty($rows)) {
+            return [
+                'success' => true,
+                'data' => $rows[0],
+                'message' => 'Perangkat berhasil terdaftar otomatis.',
+            ];
+        }
+
+        if ($httpCode === 201) {
+            return [
+                'success' => true,
+                'data' => $payload,
+                'message' => 'Perangkat terdaftar.',
+            ];
+        }
+
+        return [
+            'success' => false,
+            'data' => null,
+            'message' => 'Respons server tidak valid.',
+        ];
+    }
+
+    /**
+     * Memperbarui timestamp aktivitas perangkat di Supabase secara senyap.
+     */
+    protected static function pingDevice(string $installationId): void
+    {
+        $baseUrl = self::getSupabaseUrl();
+        $apiKey = self::getSupabaseKey();
+
+        if (empty($apiKey)) {
+            return;
+        }
+
+        $url = $baseUrl . '/rest/v1/licenses?installation_id=eq.' . urlencode($installationId);
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+            'last_ping' => date('c'),
+        ]));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 2);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'apikey: ' . $apiKey,
+            'Authorization: Bearer ' . $apiKey,
+            'Content-Type: application/json',
+        ]);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+
+        curl_exec($ch);
+        curl_close($ch);
     }
 
     /**
