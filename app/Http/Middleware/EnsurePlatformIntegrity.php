@@ -43,7 +43,7 @@ class EnsurePlatformIntegrity
                     'error' => 'Platform License Inactive',
                     'installation_id' => $installationId,
                     'message' => $verification['reason'],
-                    'contact' => 'Silakan hubungi administrator pengembang (Joan Ilham) untuk aktivasi lisensi sistem.',
+                    'contact' => 'Silakan hubungi Admin untuk aktivasi lisensi sistem.',
                 ], 423);
             }
 

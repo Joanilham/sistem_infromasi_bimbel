@@ -222,7 +222,7 @@ class PlatformIntegrity
                 self::clearCache();
                 $result = [
                     'valid' => false,
-                    'reason' => 'Perangkat/Instansi ini belum terdaftar di otorisasi Supabase. Berikan Installation ID kepada Joan Ilham.',
+                    'reason' => 'Perangkat/Instansi ini belum terdaftar di otorisasi Supabase. Berikan Installation ID kepada Admin.',
                     'installation_id' => $installationId,
                     'data' => null,
                 ];
@@ -256,7 +256,7 @@ class PlatformIntegrity
             if ($expiresAt !== 'lifetime' && $currentDate > $expiresAt) {
                 $result = [
                     'valid' => false,
-                    'reason' => 'Masa berlaku lisensi telah berakhir pada ' . date('d F Y', strtotime($expiresAt)) . '. Silakan hubungi Joan Ilham untuk perpanjangan.',
+                    'reason' => 'Masa berlaku lisensi telah berakhir pada ' . date('d F Y', strtotime($expiresAt)) . '. Silakan hubungi Admin untuk perpanjangan.',
                     'installation_id' => $installationId,
                     'data' => $row,
                 ];

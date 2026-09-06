@@ -366,7 +366,7 @@
                 </button>
             </div>
             <div class="id-hint">
-                Kirimkan ID di atas kepada <strong>Joan Ilham</strong> untuk aktivasi atau perpanjangan lisensi.
+                Kirimkan ID di atas kepada <strong>Admin</strong> untuk aktivasi atau perpanjangan lisensi.
             </div>
         </div>
 
@@ -383,7 +383,7 @@
         <!-- Developer Attribution -->
         <div class="author-box">
             <div class="author-info">
-                Pengembang Resmi: <span class="author-name">Joan Ilham</span>
+                Pusat Dukungan: <span class="author-name">Admin</span>
             </div>
             <span class="badge-verified">Hak Cipta Terdaftar</span>
         </div>

@@ -19,7 +19,7 @@ Route::get('/system/platform-verify/refresh', function () {
         return redirect('/')->with('success', 'Selamat! Lisensi sistem telah berhasil diverifikasi dan aktif.');
     }
 
-    return redirect('/system/platform-verify')->with('error', 'Pembaruan lisensi belum aktif di Supabase: ' . $verification['reason']);
+    return redirect('/system/platform-verify')->with('error', 'Pembaruan lisensi belum aktif: ' . $verification['reason']);
 })->name('platform.verify.refresh');
 
 Route::match(['get', 'post'], '/system/platform-verify', function (\Illuminate\Http\Request $request) {
