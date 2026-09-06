@@ -13,7 +13,7 @@ class EnsurePlatformIntegrity
      * URL yang diizinkan untuk diakses saat sistem terkunci.
      */
     protected array $exemptRoutes = [
-        'system/platform-verify',
+        'system/platform-verify*',
         'up',
     ];
 
@@ -35,18 +35,22 @@ class EnsurePlatformIntegrity
         $verification = PlatformIntegrity::verify();
 
         if (!$verification['valid']) {
+            $installationId = $verification['installation_id'] ?? PlatformIntegrity::getInstallationId();
+
             if ($request->expectsJson() || $request->is('api/*')) {
                 return response()->json([
                     'status' => 'locked',
                     'error' => 'Platform License Inactive',
+                    'installation_id' => $installationId,
                     'message' => $verification['reason'],
-                    'contact' => 'Silakan hubungi administrator pengembang untuk aktivasi lisensi sistem.',
+                    'contact' => 'Silakan hubungi administrator pengembang (Joan Ilham) untuk aktivasi lisensi sistem.',
                 ], 423);
             }
 
             return response()->view('errors.license-lock', [
                 'reason' => $verification['reason'],
-                'payload' => $verification['payload'],
+                'installation_id' => $installationId,
+                'data' => $verification['data'] ?? null,
             ], 423);
         }
 

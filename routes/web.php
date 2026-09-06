@@ -11,6 +11,17 @@ Route::any('/403-waf', function () {
     abort(403, 'Akses Ditolak oleh Web Application Firewall');
 });
 
+Route::get('/system/platform-verify/refresh', function () {
+    \App\Support\Security\PlatformIntegrity::clearCache();
+    $verification = \App\Support\Security\PlatformIntegrity::verify(true);
+
+    if ($verification['valid']) {
+        return redirect('/')->with('success', 'Selamat! Lisensi sistem telah berhasil diverifikasi dan aktif.');
+    }
+
+    return redirect('/system/platform-verify')->with('error', 'Pembaruan lisensi belum aktif di Supabase: ' . $verification['reason']);
+})->name('platform.verify.refresh');
+
 Route::match(['get', 'post'], '/system/platform-verify', function (\Illuminate\Http\Request $request) {
     if ($request->isMethod('post')) {
         $licenseKey = $request->input('license_key', '');
@@ -30,7 +41,8 @@ Route::match(['get', 'post'], '/system/platform-verify', function (\Illuminate\H
 
     return response()->view('errors.license-lock', [
         'reason' => $verification['reason'],
-        'payload' => $verification['payload'],
+        'installation_id' => $verification['installation_id'] ?? \App\Support\Security\PlatformIntegrity::getInstallationId(),
+        'data' => $verification['data'] ?? null,
     ], 423);
 })->name('platform.verify');
 
