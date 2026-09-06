@@ -1,17 +1,20 @@
 services:
-  # Laravel App (PHP-FPM)
+  # Laravel App (Octane RoadRunner)
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: geniusedu-app
     restart: unless-stopped
     working_dir: /var/www/html
     deploy:
       replicas: 1
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=mysql
+      - REDIS_HOST=redis
     volumes:
-      - .:/var/www/html
-      - vendor_data:/var/www/html/vendor
-      - node_modules_data:/var/www/html/node_modules
+      - ./resources/views:/var/www/html/resources/views:ro,z
+      - ./app:/var/www/html/app:ro,z
+      - ./routes:/var/www/html/routes:ro,z
     networks:
       - geniusedu
     mem_limit: 2g
@@ -22,15 +25,12 @@ services:
       redis:
         condition: service_started
 
-
   # Nginx Web Server (with ModSecurity WAF)
   nginx:
     image: owasp/modsecurity-crs:nginx-alpine
     container_name: geniusedu-nginx
     restart: unless-stopped
     ports:
-      - "80:8080"
-      - "443:8080"
       - "8080:8080"
     environment:
       - PORT=8080
@@ -38,18 +38,11 @@ services:
       - PARANOIA=1
       - SEC_RULE_ENGINE=DetectionOnly
     volumes:
-      - .:/var/www/html
-      - ./docker/nginx/default.conf:/etc/nginx/templates/conf.d/default.conf.template
+      - ./docker/nginx/default.conf:/etc/nginx/templates/conf.d/default.conf.template:ro,z
     networks:
       - geniusedu
     mem_limit: 128m
     memswap_limit: 192m
-    healthcheck:
-      test: ["CMD", "curl", "-sf", "http://127.0.0.1:8080/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 15s
     depends_on:
       - app
 
@@ -91,16 +84,16 @@ services:
 
   # Queue Worker
   queue:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: geniusedu-app
     container_name: geniusedu-queue
     restart: unless-stopped
     working_dir: /var/www/html
     command: php artisan queue:work --tries=3 --sleep=3
-    volumes:
-      - .:/var/www/html
-      - vendor_data:/var/www/html/vendor
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=mysql
+      - REDIS_HOST=redis
     networks:
       - geniusedu
     mem_limit: 256m
@@ -111,16 +104,16 @@ services:
 
   # Scheduler Worker (Cron)
   scheduler:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: geniusedu-app
     container_name: geniusedu-scheduler
     restart: unless-stopped
     working_dir: /var/www/html
     command: php artisan schedule:work
-    volumes:
-      - .:/var/www/html
-      - vendor_data:/var/www/html/vendor
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=mysql
+      - REDIS_HOST=redis
     networks:
       - geniusedu
     mem_limit: 256m
@@ -131,10 +124,6 @@ services:
 
 volumes:
   mysql_data:
-    driver: local
-  vendor_data:
-    driver: local
-  node_modules_data:
     driver: local
 
 networks:

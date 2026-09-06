@@ -27,7 +27,7 @@ WORKDIR /var/www/html
 
 # Copy composer files first (for caching)
 COPY composer.json composer.lock ./
-RUN composer update --optimize-autoloader --no-scripts
+RUN composer install --optimize-autoloader --no-scripts
 
 # Copy package files and build frontend
 COPY package.json package-lock.json ./
