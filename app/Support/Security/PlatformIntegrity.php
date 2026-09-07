@@ -17,9 +17,27 @@ class PlatformIntegrity
     protected const CACHE_TTL = 15;
 
     /**
-     * Salt offline fallback (asymmetric/HMAC)
+     * Kunci Publik RSA 2048-bit untuk verifikasi lisensi offline.
+     * Kunci privat HANYA dipegang oleh Joan Ilham (tools/keys/license_private_key.pem).
+     * Secara matematis MUSTAHIL dipalsukan tanpa kunci privat.
      */
-    protected const INTEGRITY_SALT = 'Joanilham_Bimbel_Platform_Secure_Salt_2026_@#9821_Integrity';
+    protected const RSA_PUBLIC_KEY = "-----BEGIN PUBLIC KEY-----\n"
+        . "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzjp2A4ARqB4i9+M9B7ov\n"
+        . "OI6PB8ykYeD9fBzdiJhp0rrhBGgX3GKB1Oxbxkbn2u/POQug7i4cm+tp/HzBXI8F\n"
+        . "Q1xMrhRXcWcZnBcWVfa91+yTqTkGlBk2Erz0U7HGbNL3XwZso3OD7iHP7+bdX6kI\n"
+        . "uvmxS/sYORZIjKXuwGHbhjsi0CmmsEObTJVKls5YDA/HhYSSaLAKMx+jPBWeHx0Q\n"
+        . "Q0qRweBU6z7vLuGKjjTgS2M6Cb7F+9qlT6J359qvUEXQep+oFvyhTCJJQ7oIxrvX\n"
+        . "n5TpGZB+mPBZlmZEkrdbZ3IPnXSRgX2VsT/ObggktgOQYN02NGOcy/jfG16QSkvH\n"
+        . "JwIDAQAB\n"
+        . "-----END PUBLIC KEY-----";
+
+    /**
+     * Rahasia lokal penandatangan cache untuk mencegah manipulasi timestamp / status secara offline.
+     */
+    protected static function getCacheSecret(): string
+    {
+        return hash('sha256', self::getInstallationId() . '|' . php_uname('s') . '|' . php_uname('m') . '|' . __DIR__ . 'Seal#2026@Integrity');
+    }
 
     /**
      * Cache in-memory dalam siklus RoadRunner Octane dengan timestamp
@@ -175,37 +193,65 @@ class PlatformIntegrity
             }
         }
 
-        // 3. Cek File Cache Lokal — jika masih di dalam rentang CACHE_TTL detik
+        // 3. Cek File Cache Lokal — diverifikasi tanda tangan anti-tamper
         $cacheFile = self::getCachePath();
         if (!$forceRefresh && file_exists($cacheFile)) {
-            $cacheData = json_decode((string) @file_get_contents($cacheFile), true);
-            if (is_array($cacheData) && isset($cacheData['status'], $cacheData['cached_at'])) {
-                // Jika data cache adalah suspended, langsung tolak!
-                if ($cacheData['status'] !== 'active') {
+            $rawCache = @file_get_contents($cacheFile);
+            $cacheEnvelope = json_decode((string) $rawCache, true);
+
+            if (is_array($cacheEnvelope) && isset($cacheEnvelope['data'], $cacheEnvelope['sig'])) {
+                $expectedSig = hash_hmac('sha256', json_encode($cacheEnvelope['data']), self::getCacheSecret());
+
+                // Jika tanda tangan rusak/diedit manual: tolak dan hancurkan cache
+                if (!hash_equals($expectedSig, $cacheEnvelope['sig'])) {
+                    self::clearCache();
                     $result = [
                         'valid' => false,
-                        'reason' => 'Status lisensi Anda adalah ' . strtoupper($cacheData['status']) . '. Akses sistem telah dinonaktifkan oleh administrator.',
+                        'reason' => 'Integritas cache status sistem rusak atau telah dimanipulasi secara ilegal.',
                         'installation_id' => $installationId,
-                        'data' => $cacheData,
+                        'data' => null,
                     ];
                     self::$cachedVerification = $result;
                     self::$lastCheckedAt = $now;
                     return $result;
                 }
 
-                // Jika cache masih segar (< CACHE_TTL detik)
-                if (($now - $cacheData['cached_at']) < self::CACHE_TTL) {
-                    $currentDate = date('Y-m-d');
-                    if ($cacheData['expires_at'] === 'lifetime' || $currentDate <= $cacheData['expires_at']) {
-                        $result = [
-                            'valid' => true,
-                            'reason' => 'Lisensi aktif (cached)',
-                            'installation_id' => $installationId,
-                            'data' => $cacheData,
-                        ];
-                        self::$cachedVerification = $result;
-                        self::$lastCheckedAt = $now;
-                        return $result;
+                $cacheData = $cacheEnvelope['data'];
+                if (isset($cacheData['status'], $cacheData['cached_at'])) {
+                    // Periksa apakah cache masih dalam rentang validitas CACHE_TTL
+                    if (($now - $cacheData['cached_at']) < self::CACHE_TTL) {
+                        // Jika data cache adalah status selain active (pending / suspended), tolak cepat (0ms)
+                        if ($cacheData['status'] !== 'active') {
+                            $reason = match ($cacheData['status']) {
+                                'pending' => 'Perangkat ini sedang menunggu persetujuan otorisasi dari Administrator. Silakan hubungi Admin untuk aktivasi lisensi.',
+                                'suspended' => 'Status lisensi Anda telah DITANGGUHKAN (SUSPENDED). Akses platform dinonaktifkan oleh administrator.',
+                                default => 'Status lisensi Anda adalah ' . strtoupper($cacheData['status']) . '. Akses platform dinonaktifkan oleh administrator.',
+                            };
+
+                            $result = [
+                                'valid' => false,
+                                'reason' => $reason,
+                                'installation_id' => $installationId,
+                                'data' => $cacheData,
+                            ];
+                            self::$cachedVerification = $result;
+                            self::$lastCheckedAt = $now;
+                            return $result;
+                        }
+
+                        // Jika status active, periksa tanggal kadaluarsa
+                        $currentDate = date('Y-m-d');
+                        if ($cacheData['expires_at'] === 'lifetime' || $currentDate <= $cacheData['expires_at']) {
+                            $result = [
+                                'valid' => true,
+                                'reason' => 'Lisensi resmi aktif.',
+                                'installation_id' => $installationId,
+                                'data' => $cacheData,
+                            ];
+                            self::$cachedVerification = $result;
+                            self::$lastCheckedAt = $now;
+                            return $result;
+                        }
                     }
                 }
             }
@@ -244,15 +290,25 @@ class PlatformIntegrity
             $expiresAt = $row['expires_at'] ?? '2000-01-01';
             $currentDate = date('Y-m-d');
 
-            // Simpan status terbaru ke cache file
+            // Simpan status terbaru ke cache file lengkap dengan tanda tangan digital anti-tamper
             $row['cached_at'] = $now;
-            @file_put_contents($cacheFile, json_encode($row));
+            $envelope = [
+                'data' => $row,
+                'sig'  => hash_hmac('sha256', json_encode($row), self::getCacheSecret()),
+            ];
+            @file_put_contents($cacheFile, json_encode($envelope));
 
-            // Jika status BUKAN active (misal: suspended atau expired)
+            // Jika status BUKAN active (misal: pending atau suspended)
             if ($status !== 'active') {
+                $reason = match ($status) {
+                    'pending' => 'Perangkat ini sedang menunggu persetujuan otorisasi dari Administrator. Silakan berikan Installation ID di bawah kepada Admin.',
+                    'suspended' => 'Status lisensi Anda telah DITANGGUHKAN (SUSPENDED). Akses platform dinonaktifkan oleh administrator.',
+                    default => 'Status lisensi Anda saat ini adalah ' . strtoupper($status) . '. Akses platform dinonaktifkan oleh administrator.',
+                };
+
                 $result = [
                     'valid' => false,
-                    'reason' => 'Status lisensi Anda saat ini adalah ' . strtoupper($status) . '. Akses platform dinonaktifkan oleh administrator.',
+                    'reason' => $reason,
                     'installation_id' => $installationId,
                     'data' => $row,
                 ];
@@ -287,18 +343,25 @@ class PlatformIntegrity
 
         // 5. Offline Grace Period (hanya berlaku jika koneksi internet terputus DAN status terakhir adalah active)
         if (file_exists($cacheFile)) {
-            $cacheData = json_decode((string) @file_get_contents($cacheFile), true);
-            if (is_array($cacheData) && isset($cacheData['cached_at'], $cacheData['status'])) {
-                if ($cacheData['status'] === 'active' && ($now - $cacheData['cached_at']) < 86400) {
-                    $result = [
-                        'valid' => true,
-                        'reason' => 'Lisensi aktif (Grace Period offline mode)',
-                        'installation_id' => $installationId,
-                        'data' => $cacheData,
-                    ];
-                    self::$cachedVerification = $result;
-                    self::$lastCheckedAt = $now;
-                    return $result;
+            $rawCache = @file_get_contents($cacheFile);
+            $cacheEnvelope = json_decode((string) $rawCache, true);
+            if (is_array($cacheEnvelope) && isset($cacheEnvelope['data'], $cacheEnvelope['sig'])) {
+                $expectedSig = hash_hmac('sha256', json_encode($cacheEnvelope['data']), self::getCacheSecret());
+                if (hash_equals($expectedSig, $cacheEnvelope['sig'])) {
+                    $cacheData = $cacheEnvelope['data'];
+                    if (isset($cacheData['cached_at'], $cacheData['status']) && $cacheData['status'] === 'active') {
+                        if (($now - $cacheData['cached_at']) < 86400) {
+                            $result = [
+                                'valid' => true,
+                                'reason' => 'Lisensi aktif (Grace Period offline mode)',
+                                'installation_id' => $installationId,
+                                'data' => $cacheData,
+                            ];
+                            self::$cachedVerification = $result;
+                            self::$lastCheckedAt = $now;
+                            return $result;
+                        }
+                    }
                 }
             }
         }
@@ -340,10 +403,12 @@ class PlatformIntegrity
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'apikey: ' . $apiKey,
             'Authorization: Bearer ' . $apiKey,
+            'x-installation-id: ' . $installationId,
             'Accept: application/json',
             'Content-Type: application/json',
         ]);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -390,17 +455,16 @@ class PlatformIntegrity
             ];
         }
 
-        // Tentukan identitas perangkat (username + nama komputer)
-        $user = getenv('USER') ?: getenv('USERNAME') ?: get_current_user() ?: 'device';
-        $host = gethostname() ?: php_uname('n') ?: 'host';
-        $clientName = trim($user . '@' . $host);
+        $identity = self::resolveDeviceIdentity();
 
         $payload = [
             'installation_id' => $installationId,
-            'client_name'     => $clientName,
-            'status'          => 'active',
-            'expires_at'      => '2099-12-31',
-            'domain'          => '*',
+            'client_name'     => $identity['client_name'],
+            'location'        => $identity['location'],
+            'ip_address'      => $identity['ip_address'],
+            'domain'          => $identity['domain'],
+            'status'          => 'pending',
+            'expires_at'      => '2000-01-01',
             'last_ping'       => date('c'),
         ];
 
@@ -416,16 +480,54 @@ class PlatformIntegrity
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'apikey: ' . $apiKey,
             'Authorization: Bearer ' . $apiKey,
+            'x-installation-id: ' . $installationId,
             'Accept: application/json',
             'Content-Type: application/json',
             'Prefer: return=representation',
         ]);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $curlError = curl_error($ch);
         curl_close($ch);
+
+        if ($curlError || $httpCode < 200 || $httpCode >= 300) {
+            // Jika kolom location / ip_address belum dibuat di Supabase, fallback otomatis ke format gabungan
+            if (str_contains((string) $response, 'location') || str_contains((string) $response, 'ip_address')) {
+                $fallbackPayload = [
+                    'installation_id' => $installationId,
+                    'client_name'     => $identity['client_name'] . ' — ' . $identity['location'] . ' — IP: ' . $identity['ip_address'],
+                    'status'          => 'pending',
+                    'expires_at'      => '2000-01-01',
+                    'domain'          => $identity['domain'],
+                    'last_ping'       => date('c'),
+                ];
+                $chRetry = curl_init();
+                curl_setopt($chRetry, CURLOPT_URL, $url);
+                curl_setopt($chRetry, CURLOPT_POST, true);
+                curl_setopt($chRetry, CURLOPT_POSTFIELDS, json_encode($fallbackPayload));
+                curl_setopt($chRetry, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($chRetry, CURLOPT_TIMEOUT, 4);
+                curl_setopt($chRetry, CURLOPT_CONNECTTIMEOUT, 2);
+                curl_setopt($chRetry, CURLOPT_HTTPHEADER, [
+                    'apikey: ' . $apiKey,
+                    'Authorization: Bearer ' . $apiKey,
+                    'x-installation-id: ' . $installationId,
+                    'Accept: application/json',
+                    'Content-Type: application/json',
+                    'Prefer: return=representation',
+                ]);
+                curl_setopt($chRetry, CURLOPT_SSL_VERIFYPEER, true);
+                curl_setopt($chRetry, CURLOPT_FOLLOWLOCATION, true);
+                $response = curl_exec($chRetry);
+                $httpCode = curl_getinfo($chRetry, CURLINFO_HTTP_CODE);
+                $curlError = curl_error($chRetry);
+                curl_close($chRetry);
+                $payload = $fallbackPayload;
+            }
+        }
 
         if ($curlError || $httpCode < 200 || $httpCode >= 300) {
             return [
@@ -460,6 +562,80 @@ class PlatformIntegrity
     }
 
     /**
+     * Dapatkan identitas perangkat cerdas: Nama Aplikasi/Host, Geolocation (Kota/Negara), IP, dan Domain.
+     */
+    protected static function resolveDeviceIdentity(): array
+    {
+        // 1. Nama Aplikasi / Klien
+        $appName = null;
+        if (function_exists('env')) {
+            $appName = env('CLIENT_NAME') ?: env('APP_NAME');
+        }
+        if (empty($appName)) {
+            $appName = getenv('CLIENT_NAME') ?: (getenv('APP_NAME') ?: 'GeniusEdu');
+        }
+
+        // 2. Domain / Host yang sedang diakses
+        $domain = '*';
+        if (!empty($_SERVER['HTTP_HOST'])) {
+            $domain = $_SERVER['HTTP_HOST'];
+        } elseif (function_exists('env') && env('APP_URL')) {
+            $parsed = parse_url(env('APP_URL'), PHP_URL_HOST);
+            if ($parsed) {
+                $domain = $parsed;
+            }
+        } elseif (getenv('APP_URL')) {
+            $parsed = parse_url(getenv('APP_URL'), PHP_URL_HOST);
+            if ($parsed) {
+                $domain = $parsed;
+            }
+        }
+
+        // 3. Nama Komputer Host
+        $user = getenv('USER') ?: getenv('USERNAME') ?: get_current_user() ?: 'user';
+        $host = gethostname() ?: php_uname('n') ?: 'host';
+        $deviceHost = "{$user}@{$host}";
+
+        // 4. Deteksi Lokasi Publik & IP via GeoIP (Timeout cepat 2 detik)
+        $location = '';
+        $ip = '';
+        try {
+            $ch = curl_init('http://ip-api.com/json/?fields=status,country,city,query');
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 2);
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
+            $geoResponse = curl_exec($ch);
+            curl_close($ch);
+
+            if ($geoResponse) {
+                $geo = json_decode((string) $geoResponse, true);
+                if (is_array($geo) && ($geo['status'] ?? '') === 'success') {
+                    $city = $geo['city'] ?? '';
+                    $country = $geo['country'] ?? '';
+                    $ip = $geo['query'] ?? '';
+                    if ($city && $country) {
+                        $location = "{$city}, {$country}";
+                    } elseif ($country) {
+                        $location = $country;
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            // Abaikan jika offline / gagal koneksi
+        }
+
+        // 5. Pisahkan Client Name, Lokasi/Alamat, dan IP Address
+        $clientName = "{$appName} [{$deviceHost}]";
+
+        return [
+            'client_name' => $clientName,
+            'location'    => $location ?: '-',
+            'ip_address'  => $ip ?: '-',
+            'domain'      => $domain,
+        ];
+    }
+
+    /**
      * Memperbarui timestamp aktivitas perangkat di Supabase secara senyap.
      */
     protected static function pingDevice(string $installationId): void
@@ -485,16 +661,18 @@ class PlatformIntegrity
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'apikey: ' . $apiKey,
             'Authorization: Bearer ' . $apiKey,
+            'x-installation-id: ' . $installationId,
             'Content-Type: application/json',
         ]);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 
         curl_exec($ch);
         curl_close($ch);
     }
 
     /**
-     * Validasi key offline (HMAC) jika digunakan.
+     * Validasi key offline menggunakan verifikasi tanda tangan digital RSA Asimetris (2048-bit).
      */
     public static function verifyOfflineKey(string $rawKey): array
     {
@@ -503,23 +681,48 @@ class PlatformIntegrity
             return ['valid' => false, 'reason' => 'Format kunci tidak valid.'];
         }
 
-        [$payloadBase64, $signature] = $parts;
-        $expectedSignature = hash_hmac('sha256', $payloadBase64, self::INTEGRITY_SALT);
+        [$payloadBase64, $sigBase64] = $parts;
+        $payloadJson = base64_decode($payloadBase64, true);
+        $signature = base64_decode($sigBase64, true);
 
-        if (!hash_equals($expectedSignature, $signature)) {
-            return ['valid' => false, 'reason' => 'Tanda tangan digital tidak valid.'];
+        if (!$payloadJson || !$signature) {
+            return ['valid' => false, 'reason' => 'Data kunci lisensi korup.'];
         }
 
-        $payload = json_decode(base64_decode($payloadBase64, true), true);
+        $verify = openssl_verify($payloadJson, $signature, self::RSA_PUBLIC_KEY, OPENSSL_ALGO_SHA256);
+
+        if ($verify !== 1) {
+            return ['valid' => false, 'reason' => 'Tanda tangan digital RSA tidak valid (Kunci tidak resmi / dipalsukan).'];
+        }
+
+        $payload = json_decode($payloadJson, true);
         if (!is_array($payload) || !isset($payload['app'], $payload['expires_at'])) {
-            return ['valid' => false, 'reason' => 'Data lisensi rusak.'];
+            return ['valid' => false, 'reason' => 'Data lisensi rusak atau tidak lengkap.'];
         }
 
         if ($payload['expires_at'] !== 'lifetime' && date('Y-m-d') > $payload['expires_at']) {
             return ['valid' => false, 'reason' => 'Lisensi offline telah kadaluarsa.'];
         }
 
-        return ['valid' => true, 'reason' => 'Lisensi offline valid.', 'data' => $payload];
+        return ['valid' => true, 'reason' => 'Lisensi offline resmi aktif (Terverifikasi RSA).', 'data' => $payload];
+    }
+
+    /**
+     * Pemeriksaan sekunder (Stealth Guard) untuk mencegah bypass dengan mencabut middleware.
+     */
+    public static function assertIntegrity(): void
+    {
+        if (function_exists('request')) {
+            $req = request();
+            if ($req && ($req->is('system/platform-verify*') || $req->is('up') || $req->is('livewire*'))) {
+                return;
+            }
+        }
+
+        $verification = self::verify();
+        if (!$verification['valid']) {
+            abort(423, 'Platform integrity validation locked: ' . ($verification['reason'] ?? ''));
+        }
     }
 
     /**

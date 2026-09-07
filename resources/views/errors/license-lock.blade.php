@@ -388,12 +388,13 @@
             <span class="badge-verified">Hak Cipta Terdaftar</span>
         </div>
 
-        <!-- Manual Offline Key Collapsible -->
+        @if(request()->has('recovery') || request()->has('auth_override') || request()->has('offline'))
+        <!-- Manual Offline Key Collapsible (Khusus Pemilik/Admin) -->
         <div class="manual-section">
             <button type="button" class="toggle-btn" onclick="toggleManualForm()">
                 Input Kunci Lisensi Manual / Offline
             </button>
-            <div class="manual-content" id="manualFormBlock">
+            <div class="manual-content active" id="manualFormBlock">
                 <form method="POST" action="{{ url('/system/platform-verify') }}">
                     @csrf
                     <textarea 
@@ -408,6 +409,7 @@
                 </form>
             </div>
         </div>
+        @endif
     </div>
 
     <div class="footer">

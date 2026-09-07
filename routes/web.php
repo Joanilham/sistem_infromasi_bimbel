@@ -20,7 +20,7 @@ Route::get('/system/platform-verify/refresh', function () {
     }
 
     return redirect('/system/platform-verify')->with('error', 'Pembaruan lisensi belum aktif: ' . $verification['reason']);
-})->name('platform.verify.refresh');
+})->middleware('throttle:10,1')->name('platform.verify.refresh');
 
 Route::match(['get', 'post'], '/system/platform-verify', function (\Illuminate\Http\Request $request) {
     if ($request->isMethod('post')) {
@@ -44,7 +44,7 @@ Route::match(['get', 'post'], '/system/platform-verify', function (\Illuminate\H
         'installation_id' => $verification['installation_id'] ?? \App\Support\Security\PlatformIntegrity::getInstallationId(),
         'data' => $verification['data'] ?? null,
     ], 423);
-})->name('platform.verify');
+})->middleware('throttle:20,1')->name('platform.verify');
 
 Route::get('/', function () {
     $data = \Illuminate\Support\Facades\Cache::remember('welcome_page_data', 3600, function () {
