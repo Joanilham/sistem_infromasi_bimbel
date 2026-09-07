@@ -72,20 +72,27 @@
     </div>
     <div class="w-full max-w-md relative z-10">
         
-        <!-- Logo -->
-        <div class="flex justify-center mb-8">
-            <div class="flex items-center gap-3">
-                @if(isset($masterData) && $masterData->logo)
-                    <img src="{{ Storage::url($masterData->logo) }}" alt="Logo" class="h-12 w-auto object-contain drop-shadow-sm">
-                @else
-                    <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-600/20">
-                        <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                        </svg>
-                    </div>
-                @endif
-                <span class="text-2xl font-extrabold tracking-tight text-slate-900">{{ $masterData->nama_lembaga ?? config('app.name') }}</span>
-            </div>
+        <!-- Brand Header -->
+        <div class="flex flex-col items-center mb-8 text-center">
+            <a href="{{ url('/') }}" class="group flex flex-col items-center focus:outline-none">
+                <div class="h-16 w-16 mb-3 rounded-2xl bg-white shadow-xl shadow-slate-200/70 ring-1 ring-slate-900/5 flex items-center justify-center p-2.5 transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl group-hover:shadow-orange-500/10">
+                    @if(isset($masterData) && $masterData->logo)
+                        <img src="{{ Storage::url($masterData->logo) }}" alt="{{ $masterData->nama_lembaga ?? config('app.name') }}" class="h-full w-full object-contain">
+                    @else
+                        <div class="h-full w-full rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-white shadow-sm">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                            </svg>
+                        </div>
+                    @endif
+                </div>
+                <h1 class="text-2xl font-extrabold tracking-tight text-slate-900">
+                    {{ $masterData->nama_lembaga ?? config('app.name') }}
+                </h1>
+                <p class="text-xs font-semibold text-slate-400 mt-1 uppercase tracking-wider">
+                    Pilihan Ruang Kerja
+                </p>
+            </a>
         </div>
 
         <!-- Card -->

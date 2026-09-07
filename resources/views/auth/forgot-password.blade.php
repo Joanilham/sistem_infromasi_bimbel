@@ -23,10 +23,33 @@
     </style>
     <link rel="stylesheet" href="{{ asset('css/loading.css') }}">
 </head>
-<body class="min-h-screen bg-pattern flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 text-slate-900 antialiased selection:bg-blue-200 selection:text-blue-900">
+<body class="min-h-screen bg-slate-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 text-slate-900 antialiased selection:bg-orange-100 selection:text-orange-900">
     
     <div class="w-full max-w-md relative z-10">
         
+        <!-- Brand Header -->
+        <div class="flex flex-col items-center mb-8 text-center">
+            <a href="{{ url('/') }}" class="group flex flex-col items-center focus:outline-none">
+                <div class="h-16 w-16 mb-3 rounded-2xl bg-white shadow-xl shadow-slate-200/70 ring-1 ring-slate-900/5 flex items-center justify-center p-2.5 transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl group-hover:shadow-orange-500/10">
+                    @if(isset($masterData) && $masterData->logo)
+                        <img src="{{ Storage::url($masterData->logo) }}" alt="{{ $masterData->nama_lembaga ?? config('app.name') }}" class="h-full w-full object-contain">
+                    @else
+                        <div class="h-full w-full rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-white shadow-sm">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                            </svg>
+                        </div>
+                    @endif
+                </div>
+                <h1 class="text-2xl font-extrabold tracking-tight text-slate-900">
+                    {{ $masterData->nama_lembaga ?? config('app.name') }}
+                </h1>
+                <p class="text-xs font-semibold text-slate-400 mt-1 uppercase tracking-wider">
+                    Pemulihan Kata Sandi
+                </p>
+            </a>
+        </div>
+
         <!-- Card -->
         <div class="bg-white rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-100 p-8 sm:p-10">
             <div class="mb-8 text-center">
@@ -81,13 +104,13 @@
                             </svg>
                         </div>
                         <input id="email" name="email" type="email" value="{{ old('email') }}" required autofocus
-                            class="block w-full rounded-xl border-slate-200 bg-slate-50 pl-11 pr-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-600 focus:bg-white focus:ring-1 focus:ring-blue-600 transition-all duration-200"
+                            class="block w-full rounded-xl border-slate-200 bg-slate-50 pl-11 pr-4 py-3 text-sm text-slate-900 shadow-sm focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-500/20 transition-all duration-200"
                             placeholder="masukkan email anda">
                     </div>
                 </div>
 
                 <button type="submit"
-                    class="flex w-full justify-center rounded-xl bg-blue-600 px-4 py-3.5 text-sm font-bold text-white shadow-lg shadow-blue-600/20 hover:bg-blue-700 hover:shadow-xl hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 transition-all duration-200 mt-2">
+                    class="flex w-full justify-center rounded-xl bg-gradient-to-r from-orange-500 to-amber-600 px-4 py-3.5 text-sm font-bold text-white shadow-lg shadow-orange-500/25 hover:from-orange-600 hover:to-amber-700 hover:shadow-xl hover:shadow-orange-500/35 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-all duration-200 mt-2">
                     Kirim Tautan Reset
                 </button>
             </form>

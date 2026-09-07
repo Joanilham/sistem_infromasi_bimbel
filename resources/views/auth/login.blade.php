@@ -41,13 +41,13 @@
                 height: 18rem;
             }
         }
-        .blob-1 { background-color: #d8b4fe; top: -5%; left: 15%; }
-        .blob-2 { background-color: #93c5fd; top: 15%; right: 15%; animation-delay: 2s; }
-        .blob-3 { background-color: #a5b4fc; bottom: -5%; left: 25%; animation-delay: 4s; }
+        .blob-1 { background-color: #fed7aa; top: -5%; left: 15%; }
+        .blob-2 { background-color: #e2e8f0; top: 15%; right: 15%; animation-delay: 2s; }
+        .blob-3 { background-color: #fecdd3; bottom: -5%; left: 25%; animation-delay: 4s; }
     </style>
     <link rel="stylesheet" href="{{ asset('css/loading.css') }}">
 </head>
-<body class="min-h-screen bg-slate-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 text-slate-900 antialiased selection:bg-blue-200 selection:text-blue-900 overflow-hidden relative">
+<body class="min-h-screen bg-slate-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 text-slate-900 antialiased selection:bg-orange-100 selection:text-orange-900 overflow-hidden relative">
 
     <!-- Background Animated Blobs (Pure CSS to ensure they always show) -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none flex items-center justify-center z-0">
@@ -58,20 +58,27 @@
     
     <div class="w-full max-w-md relative z-10">
         
-        <!-- Logo -->
-        <div class="flex justify-center mb-8 text-center">
-            <div class="flex flex-col items-center gap-4">
-                @if(isset($masterData) && $masterData->logo)
-                    <img src="{{ Storage::url($masterData->logo) }}" alt="Logo" class="h-20 w-auto object-contain drop-shadow-sm">
-                @else
-                    <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-600/20">
-                        <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                        </svg>
-                    </div>
-                @endif
-                <span class="text-2xl font-extrabold tracking-tight text-slate-900">{{ $masterData->nama_lembaga ?? config('app.name') }}</span>
-            </div>
+        <!-- Brand Header -->
+        <div class="flex flex-col items-center mb-8 text-center">
+            <a href="{{ url('/') }}" class="group flex flex-col items-center focus:outline-none">
+                <div class="h-16 w-16 mb-3 rounded-2xl bg-white shadow-xl shadow-slate-200/70 ring-1 ring-slate-900/5 flex items-center justify-center p-2.5 transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl group-hover:shadow-orange-500/10">
+                    @if(isset($masterData) && $masterData->logo)
+                        <img src="{{ Storage::url($masterData->logo) }}" alt="{{ $masterData->nama_lembaga ?? config('app.name') }}" class="h-full w-full object-contain">
+                    @else
+                        <div class="h-full w-full rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-white shadow-sm">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                            </svg>
+                        </div>
+                    @endif
+                </div>
+                <h1 class="text-2xl font-extrabold tracking-tight text-slate-900">
+                    {{ $masterData->nama_lembaga ?? config('app.name') }}
+                </h1>
+                <p class="text-xs font-semibold text-slate-400 mt-1 uppercase tracking-wider">
+                    Portal Informasi & Manajemen Akademik
+                </p>
+            </a>
         </div>
 
         <!-- Card -->
@@ -115,7 +122,7 @@
                             </svg>
                         </div>
                         <input type="text" id="login" name="login" required autofocus
-                            class="input-animated block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 text-sm font-medium placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600"
+                            class="input-animated block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 text-sm font-medium placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
                             placeholder="Ketik email, username, atau NISN..."
                             value="{{ old('login') }}">
                     </div>
@@ -127,7 +134,7 @@
                         <label for="password" class="block text-xs font-bold uppercase tracking-wider text-slate-500">
                             Kata Sandi
                         </label>
-                        <a href="{{ route('password.request') }}" class="text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors">
+                        <a href="{{ route('password.request') }}" class="text-xs font-bold text-orange-600 hover:text-orange-700 transition-colors">
                             Lupa sandi?
                         </a>
                     </div>
@@ -138,7 +145,7 @@
                             </svg>
                         </div>
                         <input :type="showPassword ? 'text' : 'password'" id="password" name="password" required
-                            class="input-animated block w-full pl-11 pr-11 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 text-sm font-medium placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600"
+                            class="input-animated block w-full pl-11 pr-11 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 text-sm font-medium placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
                             placeholder="••••••••">
                         <button type="button" @click="showPassword = !showPassword"
                             class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600 transition-colors focus:outline-none">
@@ -155,21 +162,21 @@
 
                 <!-- Remember Me & Submit -->
                 <div class="flex items-center justify-between pt-1">
-                    <label class="flex items-center">
-                        <input type="checkbox" name="remember" class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-600/20">
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" name="remember" class="w-4 h-4 rounded border-slate-300 text-orange-600 focus:ring-orange-500/20">
                         <span class="ml-2 text-xs font-medium text-slate-600">Ingat saya</span>
                     </label>
                 </div>
 
                 <button type="submit"
-                    class="w-full py-3.5 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-sm font-bold rounded-2xl shadow-lg shadow-blue-600/30 hover:shadow-blue-600/40 active:scale-[0.99] transition-all duration-200">
+                    class="w-full py-3.5 px-4 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white text-sm font-bold rounded-2xl shadow-lg shadow-orange-500/25 hover:shadow-orange-500/35 active:scale-[0.99] transition-all duration-200">
                     Masuk ke Sistem
                 </button>
 
                 <div class="mt-6 text-center">
                     <p class="text-sm text-slate-500 font-medium">
                         Belum punya akun? 
-                        <a href="{{ route('daftar.step1') }}" class="font-bold text-blue-600 hover:text-blue-700 hover:underline transition-all">
+                        <a href="{{ route('daftar.step1') }}" class="font-bold text-orange-600 hover:text-orange-700 hover:underline transition-all">
                             Daftar Siswa Baru
                         </a>
                     </p>
