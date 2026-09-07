@@ -313,6 +313,11 @@
 <body>
 
     <div class="container">
+        <!-- Logo Brand -->
+        <div style="display: flex; justify-content: center; margin-bottom: 1.25rem;">
+            <img src="{{ asset('images/nivora-logo.png') }}" alt="{{ config('app.name', 'Nivora') }}" style="height: 72px; width: 72px; object-fit: contain; border-radius: 1.25rem; box-shadow: 0 4px 14px rgba(0,0,0,0.08); background: #ffffff; padding: 4px;">
+        </div>
+
         <!-- Clean Lock Icon -->
         <div class="icon-wrapper">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
