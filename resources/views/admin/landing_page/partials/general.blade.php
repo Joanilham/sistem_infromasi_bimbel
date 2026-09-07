@@ -98,20 +98,20 @@
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
                         <div class="p-3.5 bg-slate-50/60 dark:bg-zinc-950/60 border border-slate-200/80 dark:border-zinc-800 rounded-xl space-y-1.5">
                             <span class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">Siswa Terdaftar</span>
-                            <input type="text" name="stats_siswa" value="{{ old('stats_siswa', $master->stats_siswa ?? '1,500+') }}" class="w-full bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-lg text-sm py-1.5 px-2.5 font-mono font-bold text-slate-800 dark:text-slate-100 focus:ring-1 focus:ring-amber-500 focus:border-amber-500" placeholder="1,500+">
-                            <span class="text-[10px] text-slate-400 block leading-tight">Metrik Angka 1</span>
+                            <input type="text" name="stats_siswa" value="{{ old('stats_siswa', $master->stats_siswa ?? '1,000+') }}" class="w-full bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-lg text-sm py-1.5 px-2.5 font-mono font-bold text-slate-800 dark:text-slate-100 focus:ring-1 focus:ring-amber-500 focus:border-amber-500" placeholder="1,000+">
+                            <span class="text-[10px] text-slate-400 block leading-tight">Mendukung simbol (cth: 1,000+ atau 500+)</span>
                         </div>
 
                         <div class="p-3.5 bg-slate-50/60 dark:bg-zinc-950/60 border border-slate-200/80 dark:border-zinc-800 rounded-xl space-y-1.5">
                             <span class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">Kelulusan</span>
-                            <input type="text" name="stats_tutor" value="{{ old('stats_tutor', $master->stats_tutor ?? '98.4%') }}" class="w-full bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-lg text-sm py-1.5 px-2.5 font-mono font-bold text-slate-800 dark:text-slate-100 focus:ring-1 focus:ring-amber-500 focus:border-amber-500" placeholder="98.4%">
-                            <span class="text-[10px] text-slate-400 block leading-tight">Metrik Angka 2</span>
+                            <input type="text" name="stats_tutor" value="{{ old('stats_tutor', $master->stats_tutor ?? '98%') }}" class="w-full bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-lg text-sm py-1.5 px-2.5 font-mono font-bold text-slate-800 dark:text-slate-100 focus:ring-1 focus:ring-amber-500 focus:border-amber-500" placeholder="98%">
+                            <span class="text-[10px] text-slate-400 block leading-tight">Mendukung persentase (cth: 98% atau 99.4%)</span>
                         </div>
 
                         <div class="p-3.5 bg-slate-50/60 dark:bg-zinc-950/60 border border-slate-200/80 dark:border-zinc-800 rounded-xl space-y-1.5">
                             <span class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">Rating</span>
-                            <input type="text" name="stats_kepuasan" value="{{ old('stats_kepuasan', $master->stats_kepuasan ?? '4.9/5') }}" class="w-full bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-lg text-sm py-1.5 px-2.5 font-mono font-bold text-slate-800 dark:text-slate-100 focus:ring-1 focus:ring-amber-500 focus:border-amber-500" placeholder="4.9/5">
-                            <span class="text-[10px] text-slate-400 block leading-tight">Metrik Angka 3</span>
+                            <input type="text" name="stats_kepuasan" value="{{ old('stats_kepuasan', $master->stats_kepuasan ?? '100%') }}" class="w-full bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-lg text-sm py-1.5 px-2.5 font-mono font-bold text-slate-800 dark:text-slate-100 focus:ring-1 focus:ring-amber-500 focus:border-amber-500" placeholder="100% atau 4.9/5">
+                            <span class="text-[10px] text-slate-400 block leading-tight">Mendukung skala (cth: 100% atau 4.9/5)</span>
                         </div>
                     </div>
                 </div>
