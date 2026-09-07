@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\MasterData\Kantor;
 use App\Models\MasterData\Master;
 use App\Models\MasterData\Periode;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -23,6 +24,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Daftarkan Custom Default Pagination View
+        Paginator::defaultView('vendor.pagination.tailwind');
+        Paginator::defaultSimpleView('vendor.pagination.simple-tailwind');
 
         // Daftarkan Gate untuk Log Viewer (Hanya Super Admin yang bisa akses)
         \Illuminate\Support\Facades\Gate::define('viewLogViewer', function ($user) {
