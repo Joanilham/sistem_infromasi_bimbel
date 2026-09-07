@@ -16,6 +16,49 @@ use Carbon\Carbon;
 
 class NotifikasiController extends Controller
 {
+    /**
+     * Hitung ringkasan notifikasi secara global untuk header, sidebar, dan pesan-panel
+     */
+    public static function getNotificationCounts($kantorId = null, $periodeId = null): array
+    {
+        $kantorId = $kantorId ?? session('kantor_id');
+        $periodeId = $periodeId ?? session('periode_id');
+        $isSuperAdmin = auth()->check() && strtolower(auth()->user()->level) === 'super admin';
+        $filterKantorId = $isSuperAdmin ? null : $kantorId;
+
+        $pendaftaranMenunggu = PendaftaranSiswa::where('status', 'menunggu')
+            ->when($filterKantorId, fn($q) => $q->where('kantor_id', $filterKantorId))
+            ->count();
+
+        $transferSppCount = ($kantorId && $periodeId) ? TransaksiPembayaran::where('tipe_pembayaran', 'TRANSFER')
+            ->where('status', 'PENDING')
+            ->whereHas('pembayaranSiswa.pesertaDidik', fn($q) => $q->inContext())
+            ->where('created_at', '>=', Carbon::now()->subDays(30))
+            ->count() : 0;
+
+        $tagihanJatuhTempoCount = 0;
+        if ($kantorId && $periodeId) {
+            $tagihanJatuhTempoCount = PembayaranSiswa::withSum(['transaksi' => fn($q) => $q->where('status', 'sukses')], 'nominal')
+                ->whereHas('pesertaDidik', fn($q) => $q->inContext()->aktif())
+                ->where(function($q) {
+                    $q->where('batas_waktu', '<=', Carbon::now()->addDays(31))
+                      ->orWhere('batas_waktu', '<', Carbon::today())
+                      ->orWhereNull('batas_waktu');
+                })
+                ->havingRaw('total_harus_dibayar > COALESCE(transaksi_sum_nominal, 0)')
+                ->count();
+        }
+
+        $totalBadge = $pendaftaranMenunggu + $transferSppCount + $tagihanJatuhTempoCount;
+
+        return [
+            'pendaftaranMenunggu'   => $pendaftaranMenunggu,
+            'transferSppCount'       => $transferSppCount,
+            'tagihanJatuhTempoCount' => $tagihanJatuhTempoCount,
+            'totalBadge'             => $totalBadge,
+        ];
+    }
+
     public function index(Request $request)
     {
         $kantorId  = session('kantor_id');

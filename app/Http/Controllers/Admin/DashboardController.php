@@ -92,7 +92,8 @@ class DashboardController extends Controller
             return PembayaranSiswa::withSum(['transaksi' => fn($q) => $q->where('status', 'sukses')], 'nominal')
                 ->whereHas('pesertaDidik', fn($q) => $q->inContext()->aktif())
                 ->where(function($q) {
-                    $q->where('batas_waktu', '<=', Carbon::now()->addDays(7))
+                    $q->where('batas_waktu', '<=', Carbon::now()->addDays(31))
+                      ->orWhere('batas_waktu', '<', Carbon::today())
                       ->orWhereNull('batas_waktu');
                 })
                 ->havingRaw('total_harus_dibayar > COALESCE(transaksi_sum_nominal, 0)')

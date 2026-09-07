@@ -18,33 +18,7 @@
                 <!-- Notification / Email Link -->
                 @php
                     if (!isset($totalPesan)) {
-                        $kId       = session('kantor_id');
-                        $pId       = session('periode_id');
-                        $isSuperAdmin = auth()->check() && strtolower(auth()->user()->level) === 'super admin';
-                        $filterKantorId = $isSuperAdmin ? null : $kId;
-
-                        $pendaftaranMenunggu = \App\Models\Pendaftaran\PendaftaranSiswa::where('status', 'menunggu')
-                            ->when($filterKantorId, fn($q) => $q->where('kantor_id', $filterKantorId))->count();
-
-                        $pembayaranBelumDikonfirmasi = \App\Models\Keuangan\PembayaranPendaftaran::where('status', 'menunggu')
-                            ->whereHas('pendaftaranSiswa', fn($q) => $q->when($filterKantorId, fn($q2) => $q2->where('kantor_id', $filterKantorId)))->count();
-
-                        $transferSppCount = ($kId && $pId) ? \App\Models\Keuangan\TransaksiPembayaran::where('tipe_pembayaran', 'TRANSFER')
-                            ->where('status', 'PENDING')
-                            ->whereHas('pembayaranSiswa.pesertaDidik', fn($q) => $q->inContext())
-                            ->where('created_at', '>=', \Carbon\Carbon::now()->subDays(30))
-                            ->count() : 0;
-
-                        $tagihanJatuhTempoCount = 0;
-                        if ($kId && $pId) {
-                            $tagihanRaw = \App\Models\Keuangan\PembayaranSiswa::with('transaksi')
-                                ->whereHas('pesertaDidik', fn($q) => $q->inContext()->aktif())
-                                ->where('batas_waktu', '<=', \Carbon\Carbon::now()->addDays(31))
-                                ->get();
-                            $tagihanJatuhTempoCount = $tagihanRaw->filter(fn($p) => $p->kekurangan > 0)->count();
-                        }
-
-                        $totalPesan = $pendaftaranMenunggu + $pembayaranBelumDikonfirmasi + $transferSppCount + $tagihanJatuhTempoCount;
+                        $totalPesan = \App\Http\Controllers\System\NotifikasiController::getNotificationCounts()['totalBadge'];
                     }
                 @endphp
                 <div class="relative shrink-0">
