@@ -287,11 +287,6 @@
             </form>
             
             <div class="mt-6 pt-5 border-t border-slate-100 flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-xs font-semibold text-slate-500">
-                <a href="{{ route('daftar.step1') }}" class="hover:text-orange-600 flex items-center gap-1.5 transition-colors">
-                    <svg class="w-3.5 h-3.5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>
-                    Pendaftaran Siswa
-                </a>
-                <span class="text-slate-300">•</span>
                 <a href="{{ url('/') }}" class="hover:text-slate-800 flex items-center gap-1.5 transition-colors">
                     <svg class="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
                     Halaman Utama
