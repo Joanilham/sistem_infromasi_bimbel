@@ -48,6 +48,20 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
 
+        // ── Laporkan Unhandled Exception ke Telegram Bot ────────
+        $exceptions->report(function (\Throwable $e) {
+            try {
+                if (config('services.telegram.error_reporting', true)) {
+                    app(\App\Services\TelegramService::class)->sendExceptionNotification(
+                        $e,
+                        app()->bound('request') ? request() : null
+                    );
+                }
+            } catch (\Throwable $reportEx) {
+                // Diamkan jika reporting gagal agar tidak menyebabkan recursive error
+            }
+        });
+
         // ── 404 Not Found ──────────────────────────────────────
         $exceptions->render(function (NotFoundHttpException $e, Request $request) {
             if (!$request->expectsJson()) {
