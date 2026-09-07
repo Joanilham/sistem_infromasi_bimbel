@@ -97,21 +97,19 @@ class TelegramService
             $traceSnippet = "\n\n <b>Stack Trace (Top 3):</b>\n<pre>" . htmlspecialchars(implode("\n", $cleanedTrace), ENT_QUOTES, 'UTF-8') . "</pre>";
         }
 
-        $telegramMessage = "<b>LAPORAN INSIDEN SISTEM</b>\n"
-            . "━━━━━━━━━━━━━━━━━━━━\n"
-            . " <b>Lembaga:</b> {$appName} [{$env}]\n"
-            . " <b>Waktu:</b> {$time}\n\n"
-            . " <b>Detail Kesalahan:</b>\n"
-            . "• <b>Tipe:</b> <code>{$exceptionClass}</code>\n"
-            . "• <b>Pesan:</b>\n<blockquote>{$message}</blockquote>\n"
-            . "• <b>Lokasi:</b> <code>{$file}:{$line}</code>\n\n"
-            . "  <b>Konteks Request:</b>\n"
-            . "• <b>Endpoint:</b> {$requestInfo}\n"
-            . "• <b>Pengguna:</b> {$userInfo}\n"
-            . "• <b>Klien:</b> {$clientInfo}"
+        $telegramMessage = "🚨 <b>LAPORAN ERROR SISTEM</b>\n"
+            . "🏢 {$appName} [{$env}]\n"
+            . "⏰ {$time}\n\n"
+            . "❌ <b>Detail Kesalahan:</b>\n"
+            . "• Tipe: <code>{$exceptionClass}</code>\n"
+            . "• Pesan: <blockquote>{$message}</blockquote>\n"
+            . "• File: <code>{$file}:{$line}</code>\n\n"
+            . "🌐 <b>Konteks:</b>\n"
+            . "• Endpoint: {$requestInfo}\n"
+            . "• Pengguna: {$userInfo}\n"
+            . "• Klien: {$clientInfo}"
             . $traceSnippet
-            . "\n━━━━━━━━━━━━━━━━━━━━\n"
-            . "<i>🤖 Notifikasi otomatis dari Sistem Informasi {$appName}</i>";
+            . "\n\n<i>🤖 Notifikasi otomatis {$appName}</i>";
 
         return $this->sendMessage($telegramMessage);
     }

@@ -112,22 +112,18 @@ class MonitorServerCommand extends Command
             return;
         }
 
-        $date = now()->translatedFormat('d M Y, H:i:s') . ' WIB';
-        $header = $hasWarning ? "🚨 <b>PERINGATAN KESEHATAN SERVER {$appName}</b> 🚨" : "📊 <b>Laporan Status Server {$appName}</b>";
+        $date = now()->translatedFormat('d M Y, H:i') . ' WIB';
+        $header = $hasWarning ? "🚨 <b>PERINGATAN SERVER</b>\n🏢 {$appName}" : "📊 <b>STATUS SERVER</b>\n🏢 {$appName}";
         
-        $message = "{$header}\n"
-                 . "━━━━━━━━━━━━━━━━━━━━\n"
-                 . "⏰ <b>Waktu:</b> {$date}\n"
-                 . "⏱ <b>Uptime:</b> 🟢 Aktif {$uptimeInfo}\n\n"
-                 . "💾 <b>Penyimpanan Disk:</b>\n{$diskStatus}\n\n"
-                 . "🗄 <b>Database MySQL:</b>\n{$dbStatus}\n\n"
-                 . "⚙️ <b>Rata-rata Beban CPU:</b>\n{$loadStatus}\n"
-                 . "━━━━━━━━━━━━━━━━━━━━\n";
+        $message = "{$header}\n\n"
+                 . "⏱ <b>Uptime:</b> 🟢 {$uptimeInfo}\n\n"
+                 . "🗄 <b>Database MySQL:</b>\n• {$dbStatus}\n\n"
+                 . "💾 <b>Penyimpanan Disk:</b>\n• {$diskStatus}\n\n"
+                 . "⚙️ <b>Beban CPU:</b>\n• {$loadStatus}\n\n"
+                 . "⏰ {$date}";
 
-        if (!$hasWarning) {
-            $message .= "🚀 <i>Semua sistem beroperasi secara normal.</i>";
-        } else {
-            $message .= "⚠️ <b>Mohon segera periksa server Anda!</b>";
+        if ($hasWarning) {
+            $message .= "\n\n⚠️ <b>Perhatian:</b> Mohon periksa beban server.";
         }
 
         $res = Http::timeout(5)->post("https://api.telegram.org/bot{$token}/sendMessage", [
