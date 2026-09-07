@@ -70,7 +70,7 @@
         @include('layouts.siswa.header')
 
         <main id="main-scroll-area" class="flex-1 overflow-y-scroll bg-slate-50 dark:bg-slate-950 p-4 sm:p-6 lg:p-8 pb-24 lg:pb-8 custom-scrollbar page-enter transition-colors duration-200">
-            <div class="max-w-7xl mx-auto">
+            <div class="w-full">
                 @if(session('success'))
                 <div x-data="{ show: true }"
                      x-init="setTimeout(() => show = false, 4000)"

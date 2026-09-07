@@ -52,7 +52,7 @@
 
         <!-- Main Body Area -->
         <main id="main-scroll-area" class="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950 p-4 pb-24 sm:p-6 sm:pb-8 lg:p-8 custom-scrollbar">
-            <div class="max-w-7xl mx-auto">
+            <div class="w-full">
                 @if(session('success'))
                 <div x-data="{ show: true }" 
                      x-init="setTimeout(() => show = false, 4000)" 
