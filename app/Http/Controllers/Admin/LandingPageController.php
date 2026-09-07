@@ -80,7 +80,9 @@ class LandingPageController extends Controller
             'instagram_url'  => 'nullable|string|max:255',
             'hero_title'     => 'nullable|string|max:255',
             'hero_subtitle'  => 'nullable|string',
-            'hero_image'     => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'hero_image'     => 'nullable|image|mimes:jpg,jpeg,png,webp|max:3072',
+            'hero_image_2'   => 'nullable|image|mimes:jpg,jpeg,png,webp|max:3072',
+            'hero_image_3'   => 'nullable|image|mimes:jpg,jpeg,png,webp|max:3072',
             'hero_overlay_opacity' => 'nullable|integer|min:0|max:100',
             'tentang_kami'   => 'nullable|string',
             'stats_siswa'    => 'nullable|string|max:50',
@@ -115,11 +117,37 @@ class LandingPageController extends Controller
                 unset($validated['logo']);
             }
 
+            // Handle Slide 1
             if ($request->hasFile('hero_image')) {
                 if ($master->hero_image) Storage::disk('public')->delete($master->hero_image);
-                $validated['hero_image'] = $this->compressAndStore($request->file('hero_image'), 'landing', 70);
+                $validated['hero_image'] = $this->compressAndStore($request->file('hero_image'), 'landing', 75);
+            } elseif ($request->boolean('delete_hero_image_1')) {
+                if ($master->hero_image) Storage::disk('public')->delete($master->hero_image);
+                $validated['hero_image'] = null;
             } else {
                 unset($validated['hero_image']);
+            }
+
+            // Handle Slide 2
+            if ($request->hasFile('hero_image_2')) {
+                if ($master->hero_image_2) Storage::disk('public')->delete($master->hero_image_2);
+                $validated['hero_image_2'] = $this->compressAndStore($request->file('hero_image_2'), 'landing', 75);
+            } elseif ($request->boolean('delete_hero_image_2')) {
+                if ($master->hero_image_2) Storage::disk('public')->delete($master->hero_image_2);
+                $validated['hero_image_2'] = null;
+            } else {
+                unset($validated['hero_image_2']);
+            }
+
+            // Handle Slide 3
+            if ($request->hasFile('hero_image_3')) {
+                if ($master->hero_image_3) Storage::disk('public')->delete($master->hero_image_3);
+                $validated['hero_image_3'] = $this->compressAndStore($request->file('hero_image_3'), 'landing', 75);
+            } elseif ($request->boolean('delete_hero_image_3')) {
+                if ($master->hero_image_3) Storage::disk('public')->delete($master->hero_image_3);
+                $validated['hero_image_3'] = null;
+            } else {
+                unset($validated['hero_image_3']);
             }
 
             if (isset($validated['hero_overlay_opacity'])) {

@@ -148,27 +148,33 @@
                                          class="w-full h-full object-cover object-center pointer-events-none"
                                          draggable="false"
                                          loading="eager">
-                                    @if(isset($masterData) && $masterData->hero_image && $masterData->hero_overlay_opacity)
+                                    @if(isset($masterData) && $masterData->hero_overlay_opacity)
                                         <div class="absolute inset-0 bg-black pointer-events-none" style="opacity: {{ $masterData->hero_overlay_opacity }};"></div>
                                     @endif
                                 </div>
 
                                 <!-- Slide 2 -->
                                 <div class="w-full h-full flex-shrink-0 relative">
-                                    <img src="{{ asset('images/hero-slide-2.png') }}" 
+                                    <img src="{{ (isset($masterData) && $masterData->hero_image_2) ? asset('storage/' . $masterData->hero_image_2) : asset('images/hero-slide-2.png') }}" 
                                          alt="Pembelajaran Berbasis Komputer dan Fasilitas Digital" 
                                          class="w-full h-full object-cover object-center pointer-events-none"
                                          draggable="false"
                                          loading="lazy">
+                                    @if(isset($masterData) && $masterData->hero_overlay_opacity)
+                                        <div class="absolute inset-0 bg-black pointer-events-none" style="opacity: {{ $masterData->hero_overlay_opacity }};"></div>
+                                    @endif
                                 </div>
 
                                 <!-- Slide 3 -->
                                 <div class="w-full h-full flex-shrink-0 relative">
-                                    <img src="{{ asset('images/hero-slide-3.png') }}" 
+                                    <img src="{{ (isset($masterData) && $masterData->hero_image_3) ? asset('storage/' . $masterData->hero_image_3) : asset('images/hero-slide-3.png') }}" 
                                          alt="Pendampingan Akademik Terpadu Siswa di Kelas" 
                                          class="w-full h-full object-cover object-center pointer-events-none"
                                          draggable="false"
                                          loading="lazy">
+                                    @if(isset($masterData) && $masterData->hero_overlay_opacity)
+                                        <div class="absolute inset-0 bg-black pointer-events-none" style="opacity: {{ $masterData->hero_overlay_opacity }};"></div>
+                                    @endif
                                 </div>
                             </div>
 

@@ -1,171 +1,370 @@
 <!-- Hero & Identitas Settings Tab -->
-<div x-show="tab === 'general'" x-cloak x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0">
-    <form action="{{ route('admin.landing-page.update-general') }}" method="POST" enctype="multipart/form-data" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<div x-show="tab === 'general'" x-cloak x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0"
+     x-data="{
+         activeSlideTab: 1,
+         overlayOpacity: {{ ($master->hero_overlay_opacity ?? 0.5) * 100 }},
+         slide1Src: '{{ $master->hero_image ? asset('storage/' . $master->hero_image) : asset('images/hero-slide-1.png') }}',
+         slide2Src: '{{ $master->hero_image_2 ? asset('storage/' . $master->hero_image_2) : asset('images/hero-slide-2.png') }}',
+         slide3Src: '{{ $master->hero_image_3 ? asset('storage/' . $master->hero_image_3) : asset('images/hero-slide-3.png') }}',
+         previewSlide(e, slideNum) {
+             const file = e.target.files && e.target.files[0];
+             if(!file) return;
+             const reader = new FileReader();
+             reader.onload = (event) => {
+                 if(slideNum === 1) this.slide1Src = event.target.result;
+                 if(slideNum === 2) this.slide2Src = event.target.result;
+                 if(slideNum === 3) this.slide3Src = event.target.result;
+             };
+             reader.readAsDataURL(file);
+         }
+     }">
+
+    <form action="{{ route('admin.landing-page.update-general') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
         @csrf
         <input type="hidden" name="active_tab" value="general">
 
-        <!-- Left Column: Identitas & Trust Stats (5 Cols) -->
-        <div class="lg:col-span-5 space-y-6">
-            <!-- Identitas Instansi -->
-            <div class="bg-white dark:bg-zinc-900 rounded-xl p-6 border border-slate-200 dark:border-zinc-800 shadow-sm relative">
-                <div class="absolute top-0 left-0 w-full h-1 bg-indigo-500 rounded-t-xl"></div>
-                <div class="flex items-center justify-between mb-5 mt-1">
-                    <h2 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
-                        Identitas Instansi
-                    </h2>
-                    <span class="text-[11px] font-mono text-slate-400 uppercase">Header &amp; Brand</span>
-                </div>
-
-                <div class="space-y-4">
-                    <div class="space-y-1.5">
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">Nama Instansi / Lembaga</label>
-                        <input type="text" name="nama_lembaga" value="{{ old('nama_lembaga', $master->nama_lembaga) }}" class="w-full bg-white dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 rounded-lg text-sm py-2 px-3 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all font-medium" placeholder="Contoh: GENIUS EDUCATION">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            
+            <!-- Left Column: Identitas & Trust Stats (5 Cols) -->
+            <div class="lg:col-span-5 space-y-6">
+                <!-- Identitas Instansi -->
+                <div class="bg-white dark:bg-zinc-900 rounded-2xl p-6 border border-slate-200/90 dark:border-zinc-800 shadow-sm relative overflow-hidden">
+                    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
+                    <div class="flex items-center justify-between mb-5 mt-1">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-sm font-bold border border-indigo-100 dark:border-indigo-800">
+                                🏛️
+                            </div>
+                            <div>
+                                <h2 class="text-sm font-bold text-slate-900 dark:text-white leading-none">Identitas Instansi</h2>
+                                <p class="text-[11px] text-slate-400 mt-0.5">Nama brand dan logo utama lembaga</p>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="space-y-1.5">
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">Logo Instansi</label>
-                        <div class="relative rounded-lg overflow-hidden aspect-video bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 flex items-center justify-center p-4">
-                            @if($master->logo)
-                                <img id="logo-preview" src="{{ asset('storage/' . $master->logo) }}" class="max-h-20 w-auto object-contain">
-                                <div id="logo-placeholder" class="hidden flex-col items-center justify-center text-slate-400 gap-2">
-                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                    <span class="text-xs font-medium">Belum Ada Logo</span>
+                    <div class="space-y-4">
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">Nama Instansi / Lembaga</label>
+                            <input type="text" name="nama_lembaga" value="{{ old('nama_lembaga', $master->nama_lembaga) }}" class="w-full bg-slate-50/50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-700 rounded-xl text-sm py-2.5 px-3.5 focus:bg-white dark:focus:bg-zinc-900 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-semibold text-slate-800 dark:text-slate-100" placeholder="Contoh: GENIUS EDUCATION">
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">Logo Instansi</label>
+                            <div class="p-3 bg-slate-50/60 dark:bg-zinc-950/60 border border-slate-200/80 dark:border-zinc-800 rounded-xl">
+                                <div class="flex items-center gap-4">
+                                    <div class="relative w-20 h-20 rounded-xl overflow-hidden bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 flex items-center justify-center p-2 shrink-0 shadow-xs group">
+                                        @if($master->logo)
+                                            <img id="logo-preview" src="{{ asset('storage/' . $master->logo) }}" class="max-h-full max-w-full object-contain">
+                                            <div id="logo-placeholder" class="hidden flex-col items-center justify-center text-slate-400 gap-1 text-[10px]">
+                                                <span>No Logo</span>
+                                            </div>
+                                        @else
+                                            <img id="logo-preview" class="max-h-full max-w-full object-contain hidden">
+                                            <div id="logo-placeholder" class="flex flex-col items-center justify-center text-slate-400 gap-1 text-[10px] text-center">
+                                                <svg class="w-6 h-6 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                                <span>Pilih File</span>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <label class="inline-flex items-center gap-2 px-3.5 py-2 bg-white dark:bg-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-700 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-lg shadow-xs cursor-pointer transition-all">
+                                            <svg class="w-3.5 h-3.5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                                            Unggah Logo Baru
+                                            <input type="file" name="logo" class="hidden" onchange="previewImage(event, 'logo-preview', 'logo-placeholder')">
+                                        </label>
+                                        <p class="text-[11px] text-slate-400 mt-1.5 leading-snug">Format PNG / SVG transparan direkomendasikan.</p>
+                                    </div>
                                 </div>
-                            @else
-                                <img id="logo-preview" class="max-h-20 w-auto object-contain hidden">
-                                <div id="logo-placeholder" class="flex flex-col items-center justify-center text-slate-400 gap-2">
-                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                    <span class="text-xs font-medium">Belum Ada Logo</span>
-                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Indikator Pencapaian & Statistik (Trust Numbers) -->
+                <div class="bg-white dark:bg-zinc-900 rounded-2xl p-6 border border-slate-200/90 dark:border-zinc-800 shadow-sm relative overflow-hidden">
+                    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 to-orange-500"></div>
+                    <div class="flex items-center justify-between mb-5 mt-1">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center text-sm font-bold border border-amber-100 dark:border-amber-800">
+                                🏆
+                            </div>
+                            <div>
+                                <h2 class="text-sm font-bold text-slate-900 dark:text-white leading-none">Indikator Prestasi (Hero Stats)</h2>
+                                <p class="text-[11px] text-slate-400 mt-0.5">3 metrik kredibilitas di bawah tombol utama</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                        <div class="p-3.5 bg-slate-50/60 dark:bg-zinc-950/60 border border-slate-200/80 dark:border-zinc-800 rounded-xl space-y-1.5">
+                            <span class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">Siswa Terdaftar</span>
+                            <input type="text" name="stats_siswa" value="{{ old('stats_siswa', $master->stats_siswa ?? '1,500+') }}" class="w-full bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-lg text-sm py-1.5 px-2.5 font-mono font-bold text-slate-800 dark:text-slate-100 focus:ring-1 focus:ring-amber-500 focus:border-amber-500" placeholder="1,500+">
+                            <span class="text-[10px] text-slate-400 block leading-tight">Metrik Angka 1</span>
+                        </div>
+
+                        <div class="p-3.5 bg-slate-50/60 dark:bg-zinc-950/60 border border-slate-200/80 dark:border-zinc-800 rounded-xl space-y-1.5">
+                            <span class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">Kelulusan</span>
+                            <input type="text" name="stats_tutor" value="{{ old('stats_tutor', $master->stats_tutor ?? '98.4%') }}" class="w-full bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-lg text-sm py-1.5 px-2.5 font-mono font-bold text-slate-800 dark:text-slate-100 focus:ring-1 focus:ring-amber-500 focus:border-amber-500" placeholder="98.4%">
+                            <span class="text-[10px] text-slate-400 block leading-tight">Metrik Angka 2</span>
+                        </div>
+
+                        <div class="p-3.5 bg-slate-50/60 dark:bg-zinc-950/60 border border-slate-200/80 dark:border-zinc-800 rounded-xl space-y-1.5">
+                            <span class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">Rating</span>
+                            <input type="text" name="stats_kepuasan" value="{{ old('stats_kepuasan', $master->stats_kepuasan ?? '4.9/5') }}" class="w-full bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-lg text-sm py-1.5 px-2.5 font-mono font-bold text-slate-800 dark:text-slate-100 focus:ring-1 focus:ring-amber-500 focus:border-amber-500" placeholder="4.9/5">
+                            <span class="text-[10px] text-slate-400 block leading-tight">Metrik Angka 3</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info Box -->
+                <div class="p-4 bg-indigo-50/70 dark:bg-indigo-950/30 rounded-2xl border border-indigo-100 dark:border-indigo-900/40 flex items-start gap-3">
+                    <span class="text-lg">💡</span>
+                    <p class="text-xs text-indigo-950 dark:text-indigo-200 leading-relaxed font-medium">
+                        <strong>Kustomisasi Multi-Foto Hero:</strong> Anda dapat mengunggah hingga <strong>3 foto berbeda</strong> untuk slider interaktif di sebelah kanan headline. Jika foto belum diunggah, sistem otomatis memakai fotografi autentik bimbingan standar.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Right Column: Visual & Narasi Hero + Multi-Slide Manager (7 Cols) -->
+            <div class="lg:col-span-7 space-y-6">
+                
+                <!-- Card 1: Narasi & Tombol CTA -->
+                <div class="bg-white dark:bg-zinc-900 rounded-2xl p-6 border border-slate-200/90 dark:border-zinc-800 shadow-sm relative overflow-hidden">
+                    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-stone-800 via-stone-700 to-stone-600 dark:from-stone-300 dark:to-stone-500"></div>
+                    <div class="flex items-center justify-between mb-5 mt-1">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-xl bg-stone-100 dark:bg-zinc-800 text-stone-700 dark:text-stone-300 flex items-center justify-center text-sm font-bold border border-stone-200 dark:border-zinc-700">
+                                ✍️
+                            </div>
+                            <div>
+                                <h2 class="text-sm font-bold text-slate-900 dark:text-white leading-none">Narasi Utama &amp; Tombol Aksi</h2>
+                                <p class="text-[11px] text-slate-400 mt-0.5">Teks display dan tombol ajakan pendaftaran</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">Headline Utama (Judul Besar)</label>
+                            <input type="text" name="hero_title" value="{{ old('hero_title', $master->hero_title) }}" class="w-full bg-slate-50/50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-700 rounded-xl text-sm py-2.5 px-3.5 focus:bg-white dark:focus:bg-zinc-900 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold text-slate-800 dark:text-slate-100" placeholder="Belajar Lebih Terarah. Bertumbuh Lebih Percaya Diri.">
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">Deskripsi Sub-headline</label>
+                            <textarea name="hero_subtitle" rows="3" class="w-full bg-slate-50/50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-700 rounded-xl text-sm py-2.5 px-3.5 focus:bg-white dark:focus:bg-zinc-900 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all resize-none text-slate-700 dark:text-slate-200 leading-relaxed" placeholder="Deskripsikan pendekatan pembelajaran dan nilai tambah bimbingan...">{{ old('hero_subtitle', $master->hero_subtitle) }}</textarea>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
+                            <div class="space-y-1.5">
+                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">Teks Tombol Utama</label>
+                                <input type="text" name="hero_cta_text" value="{{ old('hero_cta_text', $master->hero_cta_text) }}" class="w-full bg-slate-50/50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-700 rounded-xl text-sm py-2 px-3 focus:bg-white dark:focus:bg-zinc-900 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-semibold" placeholder="Jelajahi Program">
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">Target Tautan / Link</label>
+                                <input type="text" name="hero_cta_link" value="{{ old('hero_cta_link', $master->hero_cta_link) }}" class="w-full bg-slate-50/50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-700 rounded-xl text-sm py-2 px-3 focus:bg-white dark:focus:bg-zinc-900 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-mono text-xs" placeholder="#program">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2: Interactive Multi-Slide Hero Photo Manager -->
+                <div class="bg-white dark:bg-zinc-900 rounded-2xl p-6 border border-slate-200/90 dark:border-zinc-800 shadow-sm relative overflow-hidden">
+                    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-500 via-emerald-500 to-cyan-500"></div>
+                    <div class="flex items-center justify-between mb-5 mt-1">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-xl bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 flex items-center justify-center text-sm font-bold border border-teal-100 dark:border-teal-800">
+                                📸
+                            </div>
+                            <div>
+                                <h2 class="text-sm font-bold text-slate-900 dark:text-white leading-none">Galeri Slider Hero (Multi-Foto)</h2>
+                                <p class="text-[11px] text-slate-400 mt-0.5">Kelola 3 slide foto yang berganti otomatis di landing page</p>
+                            </div>
+                        </div>
+                        <span class="px-2.5 py-1 rounded-full text-[11px] font-mono font-bold bg-teal-50 dark:bg-teal-950/50 text-teal-700 dark:text-teal-300 border border-teal-200/80 dark:border-teal-800">
+                            3 Slide Aktif
+                        </span>
+                    </div>
+
+                    <!-- Slide Selector Tabs -->
+                    <div class="grid grid-cols-3 gap-2 p-1.5 bg-slate-100 dark:bg-zinc-800/90 rounded-xl mb-4">
+                        <button type="button" @click="activeSlideTab = 1" 
+                                :class="activeSlideTab === 1 ? 'bg-white dark:bg-zinc-700 shadow-sm text-teal-700 dark:text-teal-300 font-bold border border-slate-200/60 dark:border-zinc-600' : 'text-slate-600 dark:text-slate-400 font-medium hover:text-slate-900'"
+                                class="py-2 px-3 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer">
+                            <span>01.</span>
+                            <span>Slide Utama</span>
+                            @if($master->hero_image)
+                                <span class="w-1.5 h-1.5 rounded-full bg-teal-500"></span>
                             @endif
-                            <input type="file" name="logo" class="absolute inset-0 opacity-0 cursor-pointer" onchange="previewImage(event, 'logo-preview', 'logo-placeholder')">
-                        </div>
-                        <p class="text-[11px] text-slate-500 mt-1">Klik pada area preview gambar untuk memilih file logo baru (PNG/JPG/SVG/WEBP).</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Indikator Pencapaian & Statistik (Trust Numbers) -->
-            <div class="bg-white dark:bg-zinc-900 rounded-xl p-6 border border-slate-200 dark:border-zinc-800 shadow-sm relative">
-                <div class="absolute top-0 left-0 w-full h-1 bg-amber-500 rounded-t-xl"></div>
-                <div class="flex items-center justify-between mb-5 mt-1">
-                    <h2 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-                        Indikator Prestasi (Hero Stats)
-                    </h2>
-                    <span class="text-[11px] font-mono text-slate-400 uppercase">Trust Strip</span>
-                </div>
-
-                <div class="space-y-4">
-                    <div class="space-y-1.5">
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">Total Siswa Terdaftar</label>
-                        <input type="text" name="stats_siswa" value="{{ old('stats_siswa', $master->stats_siswa) }}" class="w-full bg-white dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 rounded-lg text-sm py-2 px-3 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 transition-all font-mono" placeholder="1,500+">
-                        <p class="text-[11px] text-slate-500">Ditampilkan di baris angka kepercayaan pertama pada hero section.</p>
+                        </button>
+                        <button type="button" @click="activeSlideTab = 2" 
+                                :class="activeSlideTab === 2 ? 'bg-white dark:bg-zinc-700 shadow-sm text-teal-700 dark:text-teal-300 font-bold border border-slate-200/60 dark:border-zinc-600' : 'text-slate-600 dark:text-slate-400 font-medium hover:text-slate-900'"
+                                class="py-2 px-3 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer">
+                            <span>02.</span>
+                            <span>Slide CBT/Kelas</span>
+                            @if($master->hero_image_2)
+                                <span class="w-1.5 h-1.5 rounded-full bg-teal-500"></span>
+                            @endif
+                        </button>
+                        <button type="button" @click="activeSlideTab = 3" 
+                                :class="activeSlideTab === 3 ? 'bg-white dark:bg-zinc-700 shadow-sm text-teal-700 dark:text-teal-300 font-bold border border-slate-200/60 dark:border-zinc-600' : 'text-slate-600 dark:text-slate-400 font-medium hover:text-slate-900'"
+                                class="py-2 px-3 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer">
+                            <span>03.</span>
+                            <span>Slide Mentor</span>
+                            @if($master->hero_image_3)
+                                <span class="w-1.5 h-1.5 rounded-full bg-teal-500"></span>
+                            @endif
+                        </button>
                     </div>
 
-                    <div class="space-y-1.5">
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">Tingkat Kelulusan</label>
-                        <input type="text" name="stats_tutor" value="{{ old('stats_tutor', $master->stats_tutor) }}" class="w-full bg-white dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 rounded-lg text-sm py-2 px-3 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 transition-all font-mono" placeholder="98.4%">
-                        <p class="text-[11px] text-slate-500">Persentase kelulusan siswa ke sekolah / PTN tujuan.</p>
-                    </div>
-
-                    <div class="space-y-1.5">
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">Rating Kepuasan</label>
-                        <input type="text" name="stats_kepuasan" value="{{ old('stats_kepuasan', $master->stats_kepuasan) }}" class="w-full bg-white dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 rounded-lg text-sm py-2 px-3 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 transition-all font-mono" placeholder="4.9/5">
-                        <p class="text-[11px] text-slate-500">Indeks kepuasan peserta bimbingan dan wali murid.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="p-4 bg-indigo-50 dark:bg-indigo-900/10 rounded-xl border border-indigo-100 dark:border-indigo-900/30">
-                <p class="text-xs text-indigo-800 dark:text-indigo-300 leading-relaxed font-medium">
-                    <strong class="block mb-0.5">ℹ️ Sinkronisasi Otomatis</strong>
-                    Nama dan logo lembaga akan otomatis terpasang pada navbar, hero title, footer, dan tab browser secara terintegrasi.
-                </p>
-            </div>
-        </div>
-
-        <!-- Right Column: Visual & Narasi Hero (7 Cols) -->
-        <div class="lg:col-span-7 space-y-6">
-            <div class="bg-white dark:bg-zinc-900 rounded-xl p-6 border border-slate-200 dark:border-zinc-800 shadow-sm relative">
-                <div class="absolute top-0 left-0 w-full h-1 bg-slate-800 dark:bg-slate-200 rounded-t-xl"></div>
-                <div class="flex items-center justify-between mb-5 mt-1">
-                    <h2 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-slate-800 dark:bg-slate-200"></span>
-                        Visual &amp; Narasi Hero
-                    </h2>
-                    <span class="text-[11px] font-mono text-slate-400 uppercase">Main Showcase</span>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Slide Preview & Upload Box -->
                     <div class="space-y-4">
-                        <div class="space-y-1.5">
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">Headline Utama</label>
-                            <input type="text" name="hero_title" value="{{ old('hero_title', $master->hero_title) }}" class="w-full bg-white dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 rounded-lg text-sm py-2 px-3 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all" placeholder="Contoh: Belajar Lebih Terarah. Bertumbuh Lebih Percaya Diri.">
-                            <p class="text-[11px] text-slate-500">Judul besar pertama yang dilihat pengunjung saat membuka halaman depan.</p>
+                        <!-- Live Interactive Visual Stage -->
+                        <div class="relative rounded-2xl overflow-hidden aspect-[16/10] bg-stone-900 border border-slate-200 dark:border-zinc-800 shadow-inner group">
+                            <!-- Image Frame -->
+                            <img :src="activeSlideTab === 1 ? slide1Src : (activeSlideTab === 2 ? slide2Src : slide3Src)" 
+                                 class="w-full h-full object-cover object-center transition-all duration-300 group-hover:scale-101">
+                            
+                            <!-- Live Overlay Layer -->
+                            <div class="absolute inset-0 bg-black pointer-events-none transition-opacity duration-200" 
+                                 :style="{ opacity: overlayOpacity / 100 }"></div>
+
+                            <!-- Floating Badges on Preview -->
+                            <div class="absolute top-3.5 left-3.5 flex items-center gap-2">
+                                <span class="px-2.5 py-1 rounded-lg bg-black/75 backdrop-blur-md text-white text-[11px] font-mono font-bold tracking-wider uppercase border border-white/10"
+                                      x-text="'Slide 0' + activeSlideTab">
+                                </span>
+                                <span class="px-2 py-1 rounded-lg bg-black/60 backdrop-blur-md text-stone-300 text-[10px] font-mono">
+                                    Rasio 16:10 / 4:3
+                                </span>
+                            </div>
+
+                            <!-- Status Badge Top Right -->
+                            <div class="absolute top-3.5 right-3.5">
+                                <template x-if="activeSlideTab === 1">
+                                    <span class="px-2.5 py-1 rounded-lg text-[10px] font-semibold tracking-wide backdrop-blur-md {{ $master->hero_image ? 'bg-emerald-600/90 text-white' : 'bg-stone-700/80 text-stone-200' }}">
+                                        {{ $master->hero_image ? 'Kustom Terpasang' : 'Foto Default Sistem' }}
+                                    </span>
+                                </template>
+                                <template x-if="activeSlideTab === 2">
+                                    <span class="px-2.5 py-1 rounded-lg text-[10px] font-semibold tracking-wide backdrop-blur-md {{ $master->hero_image_2 ? 'bg-emerald-600/90 text-white' : 'bg-stone-700/80 text-stone-200' }}">
+                                        {{ $master->hero_image_2 ? 'Kustom Terpasang' : 'Foto Default Sistem' }}
+                                    </span>
+                                </template>
+                                <template x-if="activeSlideTab === 3">
+                                    <span class="px-2.5 py-1 rounded-lg text-[10px] font-semibold tracking-wide backdrop-blur-md {{ $master->hero_image_3 ? 'bg-emerald-600/90 text-white' : 'bg-stone-700/80 text-stone-200' }}">
+                                        {{ $master->hero_image_3 ? 'Kustom Terpasang' : 'Foto Default Sistem' }}
+                                    </span>
+                                </template>
+                            </div>
+
+                            <!-- Bottom Floating Action Bar on Hover -->
+                            <div class="absolute inset-x-3.5 bottom-3.5 flex items-center justify-between p-2.5 rounded-xl bg-black/70 backdrop-blur-md border border-white/15 text-white text-xs">
+                                <span class="text-[11px] text-stone-300 font-medium">Klik tombol untuk ganti file:</span>
+                                <div class="flex items-center gap-2">
+                                    <!-- Upload Trigger for Slide 1 -->
+                                    <label x-show="activeSlideTab === 1" class="px-3 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-500 text-white font-semibold text-xs cursor-pointer shadow-xs transition-colors flex items-center gap-1.5">
+                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                                        Pilih Foto Slide 1
+                                        <input type="file" name="hero_image" class="hidden" @change="previewSlide($event, 1)">
+                                    </label>
+
+                                    <!-- Upload Trigger for Slide 2 -->
+                                    <label x-show="activeSlideTab === 2" class="px-3 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-500 text-white font-semibold text-xs cursor-pointer shadow-xs transition-colors flex items-center gap-1.5">
+                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                                        Pilih Foto Slide 2
+                                        <input type="file" name="hero_image_2" class="hidden" @change="previewSlide($event, 2)">
+                                    </label>
+
+                                    <!-- Upload Trigger for Slide 3 -->
+                                    <label x-show="activeSlideTab === 3" class="px-3 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-500 text-white font-semibold text-xs cursor-pointer shadow-xs transition-colors flex items-center gap-1.5">
+                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                                        Pilih Foto Slide 3
+                                        <input type="file" name="hero_image_3" class="hidden" @change="previewSlide($event, 3)">
+                                    </label>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="space-y-1.5">
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">Deskripsi Sub-headline</label>
-                            <textarea name="hero_subtitle" rows="3" class="w-full bg-white dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 rounded-lg text-sm py-2 px-3 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all resize-none" placeholder="Deskripsikan pendekatan pembelajaran dan nilai tambah bimbingan...">{{ old('hero_subtitle', $master->hero_subtitle) }}</textarea>
+                        <!-- 3 Mini Slide Thumbnails Strip -->
+                        <div class="grid grid-cols-3 gap-3 pt-1">
+                            <!-- Thumbnail 1 -->
+                            <div @click="activeSlideTab = 1" 
+                                 :class="activeSlideTab === 1 ? 'ring-2 ring-teal-500 border-transparent shadow-sm' : 'border-slate-200 dark:border-zinc-800 opacity-75 hover:opacity-100'"
+                                 class="p-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border transition-all cursor-pointer">
+                                <div class="aspect-[16/10] rounded-lg overflow-hidden bg-stone-800 mb-1.5">
+                                    <img :src="slide1Src" class="w-full h-full object-cover">
+                                </div>
+                                <div class="flex items-center justify-between text-[11px]">
+                                    <span class="font-bold text-slate-800 dark:text-slate-200">01. Utama</span>
+                                    @if($master->hero_image)
+                                        <label class="text-[10px] text-rose-500 hover:underline cursor-pointer flex items-center gap-1">
+                                            <input type="checkbox" name="delete_hero_image_1" value="1" class="w-3 h-3 text-rose-600 rounded">
+                                            Reset
+                                        </label>
+                                    @endif
+                                </div>
+                            </div>
+
+                            <!-- Thumbnail 2 -->
+                            <div @click="activeSlideTab = 2" 
+                                 :class="activeSlideTab === 2 ? 'ring-2 ring-teal-500 border-transparent shadow-sm' : 'border-slate-200 dark:border-zinc-800 opacity-75 hover:opacity-100'"
+                                 class="p-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border transition-all cursor-pointer">
+                                <div class="aspect-[16/10] rounded-lg overflow-hidden bg-stone-800 mb-1.5">
+                                    <img :src="slide2Src" class="w-full h-full object-cover">
+                                </div>
+                                <div class="flex items-center justify-between text-[11px]">
+                                    <span class="font-bold text-slate-800 dark:text-slate-200">02. Fasilitas</span>
+                                    @if($master->hero_image_2)
+                                        <label class="text-[10px] text-rose-500 hover:underline cursor-pointer flex items-center gap-1">
+                                            <input type="checkbox" name="delete_hero_image_2" value="1" class="w-3 h-3 text-rose-600 rounded">
+                                            Reset
+                                        </label>
+                                    @endif
+                                </div>
+                            </div>
+
+                            <!-- Thumbnail 3 -->
+                            <div @click="activeSlideTab = 3" 
+                                 :class="activeSlideTab === 3 ? 'ring-2 ring-teal-500 border-transparent shadow-sm' : 'border-slate-200 dark:border-zinc-800 opacity-75 hover:opacity-100'"
+                                 class="p-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border transition-all cursor-pointer">
+                                <div class="aspect-[16/10] rounded-lg overflow-hidden bg-stone-800 mb-1.5">
+                                    <img :src="slide3Src" class="w-full h-full object-cover">
+                                </div>
+                                <div class="flex items-center justify-between text-[11px]">
+                                    <span class="font-bold text-slate-800 dark:text-slate-200">03. Mentor</span>
+                                    @if($master->hero_image_3)
+                                        <label class="text-[10px] text-rose-500 hover:underline cursor-pointer flex items-center gap-1">
+                                            <input type="checkbox" name="delete_hero_image_3" value="1" class="w-3 h-3 text-rose-600 rounded">
+                                            Reset
+                                        </label>
+                                    @endif
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-3 pt-1">
-                            <div class="space-y-1.5">
-                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">Teks Tombol CTA</label>
-                                <input type="text" name="hero_cta_text" value="{{ old('hero_cta_text', $master->hero_cta_text) }}" class="w-full bg-white dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 rounded-lg text-sm py-2 px-3 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all" placeholder="Jelajahi Program">
+                        <!-- Overlay Opacity Slider -->
+                        <div class="pt-3 border-t border-slate-100 dark:border-zinc-800">
+                            <div class="flex items-center justify-between mb-2">
+                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                                    <span>🌓</span> Kecerahan Overlay Kontras Foto
+                                </label>
+                                <span class="text-xs font-bold text-teal-700 bg-teal-50 dark:bg-teal-950/60 px-2.5 py-0.5 rounded-md border border-teal-200/80 dark:border-teal-800 font-mono" x-text="overlayOpacity + '%'"></span>
                             </div>
-                            <div class="space-y-1.5">
-                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">Link Tombol CTA</label>
-                                <input type="text" name="hero_cta_link" value="{{ old('hero_cta_link', $master->hero_cta_link) }}" class="w-full bg-white dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 rounded-lg text-sm py-2 px-3 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all font-mono" placeholder="#program">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="space-y-4">
-                        <div class="space-y-1.5">
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">Gambar Slide Utama / Hero</label>
-                            <div class="relative rounded-lg overflow-hidden aspect-[4/3] bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 flex items-center justify-center p-2">
-                                @if($master->hero_image)
-                                    <img id="hero-preview" src="{{ asset('storage/' . $master->hero_image) }}" class="w-full h-full object-cover rounded-md">
-                                    <div id="hero-placeholder" class="hidden flex-col items-center justify-center h-full text-slate-400 gap-2">
-                                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                        <span class="text-xs font-medium">Unggah Foto Hero</span>
-                                    </div>
-                                @else
-                                    <img id="hero-preview" class="w-full h-full object-cover rounded-md hidden">
-                                    <div id="hero-placeholder" class="flex flex-col items-center justify-center h-full text-slate-400 gap-2">
-                                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                        <span class="text-xs font-medium">Unggah Foto Hero</span>
-                                    </div>
-                                @endif
-                                <!-- Live Preview Overlay -->
-                                <div class="absolute inset-2 bg-black rounded-md pointer-events-none transition-opacity" :style="{ opacity: overlayOpacity / 100 }"></div>
-                                <input type="file" name="hero_image" class="absolute inset-0 opacity-0 cursor-pointer" onchange="previewImage(event, 'hero-preview', 'hero-placeholder')">
-                            </div>
-                            <p class="text-[11px] text-slate-500">Format landscape rekomendasi rasio 4:3 atau 16:11.</p>
-                        </div>
-
-                        <div class="space-y-1.5">
-                            <div class="flex items-center justify-between">
-                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">Kecerahan Overlay Gelap</label>
-                                <span class="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 rounded" x-text="overlayOpacity + '%'"></span>
-                            </div>
-                            <input type="range" name="hero_overlay_opacity" min="0" max="90" step="5" x-model="overlayOpacity" class="w-full h-2 bg-slate-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-indigo-600">
-                            <p class="text-[11px] text-slate-500 italic">*Mengatur tingkat kontras gelap di atas foto slide.</p>
+                            <input type="range" name="hero_overlay_opacity" min="0" max="90" step="5" x-model="overlayOpacity" class="w-full h-2 bg-slate-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-teal-600">
+                            <p class="text-[11px] text-slate-400 mt-1.5">Tingkat transparansi lapisan gelap di atas foto slide agar teks terbaca jelas.</p>
                         </div>
                     </div>
                 </div>
+
+                <!-- Submit Button -->
+                <div class="flex justify-end pt-2">
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm py-3 px-8 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center gap-2 cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        Simpan Semua Perubahan Hero &amp; Identitas
+                    </button>
+                </div>
             </div>
 
-            <!-- Sticky Save Button -->
-            <div class="flex justify-end pt-2">
-                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm py-2.5 px-6 rounded-lg shadow-sm transition-all flex items-center gap-2 cursor-pointer">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                    Simpan Perubahan Hero &amp; Identitas
-                </button>
-            </div>
         </div>
     </form>
 </div>

@@ -38,6 +38,9 @@ class Master extends Model
         'hero_title',
         'hero_subtitle',
         'hero_image',
+        'hero_image_2',
+        'hero_image_3',
+        'hero_images',
         'hero_overlay_opacity',
         'tentang_kami',
         'wa_number',
@@ -73,6 +76,7 @@ class Master extends Model
 
     protected $casts = [
         'landing_sections_visibility' => 'array',
+        'hero_images'                 => 'array',
         'wa_token'                    => 'encrypted',
         'api_key'                     => 'encrypted',
         'mail_password'               => 'encrypted',
