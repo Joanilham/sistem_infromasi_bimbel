@@ -176,31 +176,31 @@
                         dari <span class="font-bold text-slate-800 dark:text-white">{{ $pendaftaranMenunggu->count() }}</span> data
                         <span class="text-slate-400 dark:text-zinc-500 ml-1 font-semibold">(Slide <span x-text="page"></span>/<span x-text="maxPage"></span>)</span>
                     </p>
-                    <div class="flex items-center gap-1.5 flex-wrap justify-center">
+                    <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-center">
                         <button type="button" @click="changePage(page - 1)" :disabled="page === 1"
-                            :class="page === 1 ? 'opacity-40 cursor-not-allowed text-slate-400' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-zinc-800 active:scale-95'"
-                            class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-zinc-700 text-xs font-bold flex items-center gap-1 transition">
+                            :class="page === 1 ? 'opacity-40 cursor-not-allowed text-slate-400 border-slate-200 dark:border-zinc-800' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-zinc-800 border-slate-200 dark:border-zinc-700 active:scale-95'"
+                            class="h-8 sm:h-9 px-3.5 sm:px-4 rounded-full border text-xs font-bold flex items-center gap-1.5 transition-all shrink-0">
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
                             <span>Prev</span>
                         </button>
                         <template x-for="(p, idx) in getPages()" :key="idx">
-                            <span>
+                            <div class="shrink-0 flex items-center justify-center">
                                 <template x-if="p === '...'">
-                                    <span class="px-2 py-1 text-slate-400 font-bold">...</span>
+                                    <span class="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-slate-400 font-bold text-xs">...</span>
                                 </template>
                                 <template x-if="p !== '...'">
                                     <button type="button" @click="changePage(p)"
                                         :class="page === p 
-                                            ? 'bg-indigo-600 text-white font-black shadow-sm shadow-indigo-500/30' 
-                                            : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-700 font-semibold'"
-                                        class="min-w-[32px] h-8 rounded-xl text-xs transition flex items-center justify-center px-1.5 active:scale-95"
+                                            ? 'bg-indigo-600 text-white font-black shadow-md shadow-indigo-500/30 ring-2 ring-indigo-600/20' 
+                                            : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-700 font-bold hover:border-slate-300'"
+                                        class="w-8 h-8 sm:w-9 sm:h-9 rounded-full text-xs transition-all flex items-center justify-center shrink-0 active:scale-95"
                                         x-text="p"></button>
                                 </template>
-                            </span>
+                            </div>
                         </template>
                         <button type="button" @click="changePage(page + 1)" :disabled="page === maxPage"
-                            :class="page === maxPage ? 'opacity-40 cursor-not-allowed text-slate-400' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-zinc-800 active:scale-95'"
-                            class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-zinc-700 text-xs font-bold flex items-center gap-1 transition">
+                            :class="page === maxPage ? 'opacity-40 cursor-not-allowed text-slate-400 border-slate-200 dark:border-zinc-800' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-zinc-800 border-slate-200 dark:border-zinc-700 active:scale-95'"
+                            class="h-8 sm:h-9 px-3.5 sm:px-4 rounded-full border text-xs font-bold flex items-center gap-1.5 transition-all shrink-0">
                             <span>Next</span>
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
                         </button>
@@ -284,31 +284,31 @@
                         dari <span class="font-bold text-slate-900 dark:text-white">{{ $transferSpp->count() }}</span> data
                         <span class="text-slate-400 dark:text-zinc-500 ml-1 font-semibold">(Slide <span x-text="page"></span>/<span x-text="maxPage"></span>)</span>
                     </p>
-                    <div class="flex items-center gap-1.5 flex-wrap justify-center">
+                    <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-center">
                         <button type="button" @click="changePage(page - 1)" :disabled="page === 1"
-                            :class="page === 1 ? 'opacity-40 cursor-not-allowed text-slate-400' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-zinc-800 active:scale-95'"
-                            class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-zinc-700 text-xs font-bold flex items-center gap-1 transition">
+                            :class="page === 1 ? 'opacity-40 cursor-not-allowed text-slate-400 border-slate-200 dark:border-zinc-800' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-zinc-800 border-slate-200 dark:border-zinc-700 active:scale-95'"
+                            class="h-8 sm:h-9 px-3.5 sm:px-4 rounded-full border text-xs font-bold flex items-center gap-1.5 transition-all shrink-0">
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
                             <span>Prev</span>
                         </button>
                         <template x-for="(p, idx) in getPages()" :key="idx">
-                            <span>
+                            <div class="shrink-0 flex items-center justify-center">
                                 <template x-if="p === '...'">
-                                    <span class="px-2 py-1 text-slate-400 font-bold">...</span>
+                                    <span class="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-slate-400 font-bold text-xs">...</span>
                                 </template>
                                 <template x-if="p !== '...'">
                                     <button type="button" @click="changePage(p)"
                                         :class="page === p 
-                                            ? 'bg-indigo-600 text-white font-black shadow-sm shadow-indigo-500/30' 
-                                            : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-700 font-semibold'"
-                                        class="min-w-[32px] h-8 rounded-xl text-xs transition flex items-center justify-center px-1.5 active:scale-95"
+                                            ? 'bg-indigo-600 text-white font-black shadow-md shadow-indigo-500/30 ring-2 ring-indigo-600/20' 
+                                            : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-700 font-bold hover:border-slate-300'"
+                                        class="w-8 h-8 sm:w-9 sm:h-9 rounded-full text-xs transition-all flex items-center justify-center shrink-0 active:scale-95"
                                         x-text="p"></button>
                                 </template>
-                            </span>
+                            </div>
                         </template>
                         <button type="button" @click="changePage(page + 1)" :disabled="page === maxPage"
-                            :class="page === maxPage ? 'opacity-40 cursor-not-allowed text-slate-400' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-zinc-800 active:scale-95'"
-                            class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-zinc-700 text-xs font-bold flex items-center gap-1 transition">
+                            :class="page === maxPage ? 'opacity-40 cursor-not-allowed text-slate-400 border-slate-200 dark:border-zinc-800' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-zinc-800 border-slate-200 dark:border-zinc-700 active:scale-95'"
+                            class="h-8 sm:h-9 px-3.5 sm:px-4 rounded-full border text-xs font-bold flex items-center gap-1.5 transition-all shrink-0">
                             <span>Next</span>
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
                         </button>
@@ -406,31 +406,31 @@
                         dari <span class="font-bold text-slate-800 dark:text-white">{{ $tagihanJatuhTempo->count() }}</span> data tagihan
                         <span class="text-slate-400 dark:text-zinc-500 ml-1 font-semibold">(Slide <span x-text="page"></span>/<span x-text="maxPage"></span>)</span>
                     </p>
-                    <div class="flex items-center gap-1.5 flex-wrap justify-center">
+                    <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-center">
                         <button type="button" @click="changePage(page - 1)" :disabled="page === 1"
-                            :class="page === 1 ? 'opacity-40 cursor-not-allowed text-slate-400' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-zinc-800 active:scale-95'"
-                            class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-zinc-700 text-xs font-bold flex items-center gap-1 transition">
+                            :class="page === 1 ? 'opacity-40 cursor-not-allowed text-slate-400 border-slate-200 dark:border-zinc-800' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-zinc-800 border-slate-200 dark:border-zinc-700 active:scale-95'"
+                            class="h-8 sm:h-9 px-3.5 sm:px-4 rounded-full border text-xs font-bold flex items-center gap-1.5 transition-all shrink-0">
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
                             <span>Prev</span>
                         </button>
                         <template x-for="(p, idx) in getPages()" :key="idx">
-                            <span>
+                            <div class="shrink-0 flex items-center justify-center">
                                 <template x-if="p === '...'">
-                                    <span class="px-2 py-1 text-slate-400 font-bold">...</span>
+                                    <span class="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-slate-400 font-bold text-xs">...</span>
                                 </template>
                                 <template x-if="p !== '...'">
                                     <button type="button" @click="changePage(p)"
                                         :class="page === p 
-                                            ? 'bg-indigo-600 text-white font-black shadow-sm shadow-indigo-500/30' 
-                                            : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-700 font-semibold'"
-                                        class="min-w-[32px] h-8 rounded-xl text-xs transition flex items-center justify-center px-1.5 active:scale-95"
+                                            ? 'bg-indigo-600 text-white font-black shadow-md shadow-indigo-500/30 ring-2 ring-indigo-600/20' 
+                                            : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-700 font-bold hover:border-slate-300'"
+                                        class="w-8 h-8 sm:w-9 sm:h-9 rounded-full text-xs transition-all flex items-center justify-center shrink-0 active:scale-95"
                                         x-text="p"></button>
                                 </template>
-                            </span>
+                            </div>
                         </template>
                         <button type="button" @click="changePage(page + 1)" :disabled="page === maxPage"
-                            :class="page === maxPage ? 'opacity-40 cursor-not-allowed text-slate-400' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-zinc-800 active:scale-95'"
-                            class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-zinc-700 text-xs font-bold flex items-center gap-1 transition">
+                            :class="page === maxPage ? 'opacity-40 cursor-not-allowed text-slate-400 border-slate-200 dark:border-zinc-800' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-zinc-800 border-slate-200 dark:border-zinc-700 active:scale-95'"
+                            class="h-8 sm:h-9 px-3.5 sm:px-4 rounded-full border text-xs font-bold flex items-center gap-1.5 transition-all shrink-0">
                             <span>Next</span>
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
                         </button>
