@@ -64,7 +64,8 @@ class AppServiceProvider extends ServiceProvider
         // Cache akan terhapus otomatis via Observer jika data ditable berubah
         // Gunakan View::composer alih-alih View::share langsung agar data di-resolve per request (kompatibel dengan Octane)
         \Illuminate\Support\Facades\View::composer('*', function ($view) {
-            if ($view->getName() === 'errors.license-lock') {
+            $viewName = $view->getName();
+            if (str_starts_with($viewName, 'errors.') || str_starts_with($viewName, 'errors::')) {
                 return;
             }
 
