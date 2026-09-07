@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Semua Program Bimbingan | {{ $masterData->nama_lembaga ?? 'Sistem Akademik' }}</title>
+    <title>Semua Program Bimbingan | {{ $masterData->nama_lembaga ?? config('app.name') }}</title>
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

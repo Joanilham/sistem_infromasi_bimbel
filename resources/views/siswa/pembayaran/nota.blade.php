@@ -7,7 +7,7 @@
     @php
         $master = \App\Models\MasterData\Master::first();
         $logoUrl = $master && $master->logo ? asset('storage/' . $master->logo) : null;
-        $namaLembaga = $master->nama_lembaga ?? 'Bimbingan Belajar Sistem Akademik';
+        $namaLembaga = $master->nama_lembaga ?? config('app.name');
         $alamatLembaga = $master->alamat_lembaga ?? 'Jl. Pendidikan No. 1, Kota Belajar';
         $waNumber = $master->wa_number ?? '';
     @endphp

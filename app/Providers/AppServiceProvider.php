@@ -91,17 +91,23 @@ class AppServiceProvider extends ServiceProvider
                     $view->with('masterData', $masterData);
                 }
 
-                // Set config mail per request karena Octane bisa mempertahankan state lama
-                if ($masterData && $masterData->mail_host) {
-                    config([
-                        'mail.mailers.smtp.host' => $masterData->mail_host,
-                        'mail.mailers.smtp.port' => $masterData->mail_port,
-                        'mail.mailers.smtp.encryption' => $masterData->mail_encryption,
-                        'mail.mailers.smtp.username' => $masterData->mail_username,
-                        'mail.mailers.smtp.password' => $masterData->mail_password,
-                        'mail.from.address' => $masterData->mail_from_address,
-                        'mail.from.name' => $masterData->mail_from_name,
-                    ]);
+                // Set app.name dan mail config secara dinamis dari data lembaga
+                if ($masterData) {
+                    if (!empty($masterData->nama_lembaga)) {
+                        config(['app.name' => $masterData->nama_lembaga]);
+                    }
+
+                    if ($masterData->mail_host) {
+                        config([
+                            'mail.mailers.smtp.host' => $masterData->mail_host,
+                            'mail.mailers.smtp.port' => $masterData->mail_port,
+                            'mail.mailers.smtp.encryption' => $masterData->mail_encryption,
+                            'mail.mailers.smtp.username' => $masterData->mail_username,
+                            'mail.mailers.smtp.password' => $masterData->mail_password,
+                            'mail.from.address' => $masterData->mail_from_address,
+                            'mail.from.name' => $masterData->mail_from_name ?: ($masterData->nama_lembaga ?: config('app.name')),
+                        ]);
+                    }
                 }
             } catch (\Exception $e) {
                 $viewData = $view->getData();

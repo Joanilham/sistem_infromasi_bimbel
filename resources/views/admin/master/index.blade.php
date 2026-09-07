@@ -130,7 +130,7 @@
                             </div>
                             <div class="space-y-1.5">
                                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">From Name</label>
-                                <input type="text" name="mail_from_name" value="{{ old('mail_from_name', $master->mail_from_name) }}" placeholder="Bimbel Sistem Akademik"
+                                <input type="text" name="mail_from_name" value="{{ old('mail_from_name', $master->mail_from_name) }}" placeholder="Contoh: Bimbel Prestasi"
                                     class="w-full bg-white dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 rounded-lg text-sm py-2 px-3 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all">
                             </div>
                             <div class="sm:col-span-2 space-y-1.5">
@@ -216,7 +216,7 @@
                     <div class="w-40 h-40 bg-slate-50 dark:bg-zinc-950 rounded-lg border border-slate-200 dark:border-zinc-800 flex items-center justify-center p-4">
                         @if($master->instance_id && $master->wa_token)
                             <div class="relative w-full h-full flex flex-col items-center justify-center gap-3">
-                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=genius_connected" class="w-20 h-20 object-contain">
+                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=whatsapp_connected" class="w-20 h-20 object-contain">
                                 <span class="bg-emerald-100 text-emerald-700 text-xs font-semibold px-2.5 py-0.5 rounded-full">Terkoneksi</span>
                             </div>
                         @else

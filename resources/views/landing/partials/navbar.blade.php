@@ -6,7 +6,7 @@
                     @if(isset($masterData) && $masterData->logo)
                         <img src="{{ Storage::url($masterData->logo) }}" alt="Logo" class="h-8 sm:h-12 w-auto object-contain flex-shrink-0 rounded-xl sm:rounded-2xl shadow-sm">
                     @endif
-                    <span class="font-black text-base sm:text-xl tracking-tight block text-slate-900 truncate">{{ $masterData->nama_lembaga ?? 'Sistem Akademik' }}</span>
+                    <span class="font-black text-base sm:text-xl tracking-tight block text-slate-900 truncate">{{ $masterData->nama_lembaga ?? config('app.name') }}</span>
                 </a>
                 
                 <div class="flex-shrink-0 flex items-center gap-1 sm:gap-4">

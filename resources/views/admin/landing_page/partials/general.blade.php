@@ -11,7 +11,7 @@
                     <div class="space-y-4">
                         <div class="space-y-1.5">
                             <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Nama Instansi / Lembaga</label>
-                            <input type="text" name="nama_lembaga" value="{{ old('nama_lembaga', $master->nama_lembaga) }}" class="w-full bg-white dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 rounded-lg text-sm py-2 px-3 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all" placeholder="Sistem Akademik">
+                            <input type="text" name="nama_lembaga" value="{{ old('nama_lembaga', $master->nama_lembaga) }}" class="w-full bg-white dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 rounded-lg text-sm py-2 px-3 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all" placeholder="Contoh: Bimbel Prestasi Gemilang">
                         </div>
                         <div class="space-y-1.5">
                             <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Logo Instansi</label>
@@ -95,7 +95,7 @@
                         <div class="space-y-4">
                             <div class="space-y-1.5">
                                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Headline Utama</label>
-                                <input type="text" name="hero_title" value="{{ old('hero_title', $master->hero_title) }}" class="w-full bg-white dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 rounded-lg text-sm py-2 px-3 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all" placeholder="Bimbingan Belajar Genius">
+                                <input type="text" name="hero_title" value="{{ old('hero_title', $master->hero_title) }}" class="w-full bg-white dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 rounded-lg text-sm py-2 px-3 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all" placeholder="Contoh: Bimbingan Belajar Modern & Terpercaya">
                             </div>
                             <div class="space-y-1.5">
                                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Deskripsi Sub-headline</label>

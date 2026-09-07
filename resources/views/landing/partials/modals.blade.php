@@ -9,7 +9,7 @@
                 </button>
             </div>
             <div class="prose prose-sm text-slate-600 max-h-[60vh] overflow-y-auto pr-2">
-                <p>Selamat datang di <strong>{{ $masterData->nama_lembaga ?? 'Sistem Akademik' }}</strong>. Dengan mengakses dan menggunakan sistem kami, Anda menyetujui syarat berikut:</p>
+                <p>Selamat datang di <strong>{{ $masterData->nama_lembaga ?? config('app.name') }}</strong>. Dengan mengakses dan menggunakan sistem kami, Anda menyetujui syarat berikut:</p>
                 <h4 class="font-bold text-slate-800 mt-4">1. Penggunaan Layanan</h4>
                 <p>Platform ini disediakan untuk menunjang kegiatan akademik, ujian CBT, dan pembayaran tagihan bimbingan belajar. Segala bentuk penyalahgunaan sistem akan ditindak tegas.</p>
                 <h4 class="font-bold text-slate-800 mt-4">2. Keamanan Akun</h4>
@@ -34,7 +34,7 @@
                 </button>
             </div>
             <div class="prose prose-sm text-slate-600 max-h-[60vh] overflow-y-auto pr-2">
-                <p>Privasi Anda sangat penting bagi <strong>{{ $masterData->nama_lembaga ?? 'Sistem Akademik' }}</strong>. Kebijakan ini menjelaskan bagaimana kami mengumpulkan dan melindungi data Anda.</p>
+                <p>Privasi Anda sangat penting bagi <strong>{{ $masterData->nama_lembaga ?? config('app.name') }}</strong>. Kebijakan ini menjelaskan bagaimana kami mengumpulkan dan melindungi data Anda.</p>
                 <h4 class="font-bold text-slate-800 mt-4">1. Pengumpulan Data</h4>
                 <p>Kami mengumpulkan informasi pribadi yang Anda berikan saat mendaftar, seperti nama, email, nomor telepon, dan data akademik yang diperlukan untuk proses belajar.</p>
                 <h4 class="font-bold text-slate-800 mt-4">2. Penggunaan Informasi</h4>

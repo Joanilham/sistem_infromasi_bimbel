@@ -575,7 +575,7 @@ class PlatformIntegrity
             $appName = env('CLIENT_NAME') ?: env('APP_NAME');
         }
         if (empty($appName)) {
-            $appName = getenv('CLIENT_NAME') ?: (getenv('APP_NAME') ?: 'GeniusEdu');
+            $appName = getenv('CLIENT_NAME') ?: (getenv('APP_NAME') ?: 'Sistem Edukasi');
         }
 
         // 2. Domain / Host yang sedang diakses (prioritaskan real domain jika HTTP_HOST localhost)

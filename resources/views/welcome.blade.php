@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>{{ $masterData->nama_lembaga ?? 'Sistem Akademik' }} - Platform Manajemen Pendidikan</title>
+    <title>{{ $masterData->nama_lembaga ?? config('app.name') }} - Platform Manajemen Pendidikan</title>
     
     <!-- Meta Tags SEO -->
     <meta name="description" content="{{ $masterData->hero_subtitle ?? 'Sistem informasi manajemen pendidikan terpadu untuk bimbingan belajar modern.' }}">

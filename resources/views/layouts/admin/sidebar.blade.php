@@ -18,7 +18,7 @@
             {{ $masterData->nama_lembaga }}
         </span>
         @else
-        <span class="text-xl font-extrabold text-slate-800 dark:text-white tracking-tight">Genius<span class="text-emerald-600">Edu</span></span>
+        <span class="text-base font-extrabold text-slate-800 dark:text-white tracking-tight leading-tight max-w-[130px] truncate">{{ config('app.name') }}</span>
         @endif
     </a>
 </div>

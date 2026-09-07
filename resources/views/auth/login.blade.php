@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Masuk - {{ $masterData->nama_lembaga ?? 'Sistem Akademik' }}</title>
+    <title>Masuk - {{ $masterData->nama_lembaga ?? config('app.name') }}</title>
     
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -70,7 +70,7 @@
                         </svg>
                     </div>
                 @endif
-                <span class="text-2xl font-extrabold tracking-tight text-slate-900">{{ $masterData->nama_lembaga ?? 'Sistem Akademik' }}</span>
+                <span class="text-2xl font-extrabold tracking-tight text-slate-900">{{ $masterData->nama_lembaga ?? config('app.name') }}</span>
             </div>
         </div>
 
@@ -107,71 +107,100 @@
                         </div>
                         <div class="ml-3">
                             <div class="text-sm font-semibold text-red-800">
-                                @foreach ($errors->all() as $error)
-                                    <p>{{ $error }}</p>
-                                @endforeach
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <p class="mt-2 text-sm text-slate-500 font-medium">Silakan masuk ke akun Anda</p>
+            </div>
+
+            @if(session('success'))
+            <div class="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-2xl flex items-center gap-3 text-sm font-medium">
+                <svg class="h-5 w-5 text-emerald-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{{ session('success') }}</span>
+            </div>
             @endif
 
-            <form action="{{ route('login') }}" method="POST" class="space-y-5">
+            @if($errors->any())
+            <div class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl flex items-center gap-3 text-sm font-medium">
+                <svg class="h-5 w-5 text-red-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{{ $errors->first() }}</span>
+            </div>
+            @endif
+
+            <form action="{{ route('login') }}" method="POST" class="space-y-5" onsubmit="window.showLoading()">
                 @csrf
 
-                <div class="input-animated">
-                    <label for="email" class="block text-sm font-bold text-slate-700 mb-1.5">Alamat Email</label>
+                <!-- Login Input (Email / Username / NISN) -->
+                <div>
+                    <label for="login" class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
+                        Email / Username / NISN
+                    </label>
                     <div class="relative">
-                        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
-                            <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
                             </svg>
                         </div>
-                        <input id="email" name="email" type="email" value="{{ old('email') }}" required autofocus
-                            class="block w-full rounded-xl border-slate-200 bg-slate-50 pl-11 pr-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-600 focus:bg-white focus:ring-1 focus:ring-blue-600 transition-all duration-200"
-                            placeholder="Masukkan email anda">
+                        <input type="text" id="login" name="login" required autofocus
+                            class="input-animated block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 text-sm font-medium placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600"
+                            placeholder="Ketik email, username, atau NISN..."
+                            value="{{ old('login') }}">
                     </div>
                 </div>
 
-                <div class="input-animated">
-                    <label for="password" class="block text-sm font-bold text-slate-700 mb-1.5">Kata Sandi</label>
+                <!-- Password Input -->
+                <div x-data="{ showPassword: false }">
+                    <div class="flex items-center justify-between mb-2">
+                        <label for="password" class="block text-xs font-bold uppercase tracking-wider text-slate-500">
+                            Kata Sandi
+                        </label>
+                        <a href="{{ route('password.request') }}" class="text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors">
+                            Lupa sandi?
+                        </a>
+                    </div>
                     <div class="relative">
-                        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
-                            <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                             </svg>
                         </div>
-                        <input id="password" name="password" type="password" required
-                            class="block w-full rounded-xl border-slate-200 bg-slate-50 pl-11 pr-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-600 focus:bg-white focus:ring-1 focus:ring-blue-600 transition-all duration-200"
-                            placeholder="Masukkan kata sandi anda">
+                        <input :type="showPassword ? 'text' : 'password'" id="password" name="password" required
+                            class="input-animated block w-full pl-11 pr-11 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 text-sm font-medium placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600"
+                            placeholder="••••••••">
+                        <button type="button" @click="showPassword = !showPassword"
+                            class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600 transition-colors focus:outline-none">
+                            <svg x-show="!showPassword" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            <svg x-show="showPassword" x-cloak class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                            </svg>
+                        </button>
                     </div>
                 </div>
 
-                <div class="flex items-center pt-1">
-                    <input id="show_password" type="checkbox"
-                        class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-600 transition-colors cursor-pointer"
-                        onclick="document.getElementById('password').type = this.checked ? 'text' : 'password'">
-                    <label for="show_password" class="ml-2.5 block text-sm font-medium text-slate-600 cursor-pointer select-none">
-                        Tampilkan kata sandi
+                <!-- Remember Me & Submit -->
+                <div class="flex items-center justify-between pt-1">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="remember" class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-600/20">
+                        <span class="ml-2 text-xs font-medium text-slate-600">Ingat saya</span>
                     </label>
                 </div>
 
                 <button type="submit"
-                    class="mt-2 flex w-full justify-center rounded-xl bg-slate-900 px-4 py-3.5 text-sm font-bold text-white shadow-lg shadow-slate-900/20 hover:bg-slate-800 hover:shadow-xl hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 transition-all duration-200">
-                    Masuk
+                    class="w-full py-3.5 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-sm font-bold rounded-2xl shadow-lg shadow-blue-600/30 hover:shadow-blue-600/40 active:scale-[0.99] transition-all duration-200">
+                    Masuk ke Sistem
                 </button>
-                
-                <div class="mt-4 flex justify-center">
-                    <a href="{{ route('password.request') }}" class="text-sm font-bold text-blue-600 hover:text-blue-500 transition-colors">
-                        Lupa sandi?
-                    </a>
-                </div>
 
-                <div class="mt-8 text-center text-sm text-slate-600 border-b border-slate-100 pb-6">
-                    Belum memiliki akun? 
-                    <a href="{{ route('daftar.step1') }}" class="font-bold text-blue-600 hover:text-blue-500 transition-colors ml-1">
-                        Daftar di sini
-                    </a>
+                <div class="mt-6 text-center">
+                    <p class="text-sm text-slate-500 font-medium">
+                        Belum punya akun? 
+                        <a href="{{ route('daftar.step1') }}" class="font-bold text-blue-600 hover:text-blue-700 hover:underline transition-all">
+                            Daftar Siswa Baru
+                        </a>
+                    </p>
                 </div>
                 
                 <div class="mt-6 flex justify-center">
@@ -186,7 +215,7 @@
         </div>
 
         <p class="mt-8 text-center text-sm font-medium text-slate-500">
-            &copy; {{ date('Y') }} Sistem Akademik. All rights reserved.
+            &copy; {{ date('Y') }} {{ $masterData->nama_lembaga ?? config('app.name') }}. All rights reserved.
         </p>
 
     </div>

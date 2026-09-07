@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pilih Ruang Kerja - Sistem Akademik</title>
+    <title>Pilih Ruang Kerja - {{ $masterData->nama_lembaga ?? config('app.name') }}</title>
     
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -84,7 +84,7 @@
                         </svg>
                     </div>
                 @endif
-                <span class="text-2xl font-extrabold tracking-tight text-slate-900">{{ $masterData->nama_lembaga ?? 'Sistem Akademik' }}</span>
+                <span class="text-2xl font-extrabold tracking-tight text-slate-900">{{ $masterData->nama_lembaga ?? config('app.name') }}</span>
             </div>
         </div>
 
@@ -297,7 +297,7 @@
         </div>
 
         <p class="mt-8 text-center text-sm font-medium text-slate-500">
-            &copy; {{ date('Y') }} Sistem Akademik.
+            &copy; {{ date('Y') }} {{ $masterData->nama_lembaga ?? config('app.name') }}.
         </p>
 
     </div>

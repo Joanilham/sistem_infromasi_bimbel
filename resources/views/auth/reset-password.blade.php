@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Atur Ulang Kata Sandi - {{ $masterData->nama_lembaga ?? 'Sistem Akademik' }}</title>
+    <title>Atur Ulang Kata Sandi - {{ $masterData->nama_lembaga ?? config('app.name') }}</title>
     
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -32,12 +32,16 @@
         <!-- Logo -->
         <div class="flex justify-center mb-8">
             <div class="flex items-center gap-3">
-                <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-600/20">
-                    <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                    </svg>
-                </div>
-                <span class="text-2xl font-extrabold tracking-tight text-slate-900">Genius<span class="text-blue-600">Edu</span></span>
+                @if(isset($masterData) && $masterData->logo)
+                    <img src="{{ Storage::url($masterData->logo) }}" alt="Logo" class="h-16 w-auto object-contain drop-shadow-sm">
+                @else
+                    <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-600/20">
+                        <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                    </div>
+                @endif
+                <span class="text-2xl font-extrabold tracking-tight text-slate-900">{{ $masterData->nama_lembaga ?? config('app.name') }}</span>
             </div>
         </div>
 
@@ -145,7 +149,7 @@
         </div>
 
         <p class="mt-8 text-center text-sm font-medium text-slate-500">
-            &copy; {{ date('Y') }} Sistem Akademik. All rights reserved.
+            &copy; {{ date('Y') }} {{ $masterData->nama_lembaga ?? config('app.name') }}. All rights reserved.
         </p>
 
     </div>

@@ -6,12 +6,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Dashboard Sistem Informasi Manajemen Pendidikan Sistem Akademik">
+    <meta name="description" content="Dashboard Sistem Informasi Manajemen Pendidikan {{ $masterData->nama_lembaga ?? config('app.name') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="app-version" content="v1.0.1">
-    <meta name="author" content="Sistem Akademik">
+    <meta name="author" content="{{ $masterData->nama_lembaga ?? config('app.name') }}">
     <meta name="robots" content="index, follow">
-    <title>@yield('title', 'Dashboard') - Sistem Akademik</title>
+    <title>@yield('title', 'Dashboard') - {{ $masterData->nama_lembaga ?? config('app.name') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Otorisasi Sistem Diperlukan — GeniusEdu</title>
+    <title>Otorisasi Sistem Diperlukan — {{ config('app.name', 'Sistem') }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
@@ -413,7 +413,7 @@
     </div>
 
     <div class="footer">
-        &copy; {{ date('Y') }} GeniusEdu — Sistem Informasi Bimbingan Belajar.
+        &copy; {{ date('Y') }} {{ config('app.name', 'Sistem') }} — Platform Manajemen Pendidikan.
     </div>
 
     <script>
