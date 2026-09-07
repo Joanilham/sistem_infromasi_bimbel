@@ -184,9 +184,9 @@ class TelegramWebhookController extends Controller
                 $minutes = floor(($uptimeSecs % 3600) / 60);
 
                 $uptimeParts = [];
-                if ($days > 0) $uptimeParts[] = "{$days} hr";
+                if ($days > 0) $uptimeParts[] = "{$days} hari";
                 if ($hours > 0) $uptimeParts[] = "{$hours} jam";
-                $uptimeParts[] = "{$minutes} mnt";
+                $uptimeParts[] = "{$minutes} menit";
                 $uptimeInfo = implode(' ', $uptimeParts);
             }
         } catch (Throwable $e) {}
