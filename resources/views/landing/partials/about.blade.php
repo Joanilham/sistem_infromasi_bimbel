@@ -1,41 +1,79 @@
 <!-- About Section -->
-    <section id="tentang" class="py-16 sm:py-24 bg-white overflow-hidden w-full">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-                <div class="order-2 lg:order-1 relative" data-aos="fade-right">
-                    <div class="bg-slate-50 p-6 sm:p-10 lg:p-14 rounded-3xl sm:rounded-[3rem] border border-slate-100 relative z-10 shadow-xl sm:shadow-2xl shadow-slate-100/50">
-                        <h3 class="text-xl sm:text-2xl font-black text-slate-900 mb-6 sm:mb-8 flex items-center gap-3 sm:gap-4">
-                            <span class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-indigo-600 text-white flex items-center justify-center text-xs sm:text-sm shadow-lg shadow-indigo-100">V</span>
-                            Visi Kami
-                        </h3>
-                        <p class="text-slate-600 italic text-base sm:text-xl leading-relaxed mb-8 sm:mb-12 border-l-4 border-indigo-600 pl-4 sm:pl-8">
-                            "Menjadi lembaga pendidikan terdepan yang mengintegrasikan teknologi modern dengan metode pembelajaran efektif."
+<section id="tentang" class="py-20 sm:py-28 bg-white overflow-hidden w-full relative">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+            
+            <!-- Left Column: Visi & Misi Card -->
+            <div class="lg:col-span-6 order-2 lg:order-1 relative" data-aos="fade-right">
+                <div class="bg-slate-50/80 p-8 sm:p-12 rounded-[2.5rem] border border-slate-200/80 shadow-xl shadow-slate-200/40 relative z-10">
+                    
+                    <!-- Visi Section -->
+                    <div class="mb-10">
+                        <div class="flex items-center gap-3.5 mb-4">
+                            <span class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 text-white flex items-center justify-center font-black text-sm shadow-md shadow-orange-500/20">
+                                V
+                            </span>
+                            <h3 class="text-xl font-black text-slate-900">Visi Lembaga</h3>
+                        </div>
+                        <p class="text-slate-700 italic text-base sm:text-lg leading-relaxed border-l-4 border-orange-500 pl-5 py-1">
+                            "Menjadi lembaga pendidikan terdepan yang mengintegrasikan keunggulan materi akademik dengan teknologi pembelajaran mutakhir untuk melahirkan generasi berprestasi."
                         </p>
-                        <h3 class="text-xl sm:text-2xl font-black text-slate-900 mb-6 sm:mb-8 flex items-center gap-3 sm:gap-4">
-                            <span class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-indigo-600 text-white flex items-center justify-center text-xs sm:text-sm shadow-lg shadow-indigo-100">M</span>
-                            Misi Institusi
-                        </h3>
-                        <ul class="space-y-4 sm:space-y-6 text-slate-600 font-bold">
-                            @foreach(['Fasilitas Pembelajaran Digital','Kurikulum Adaptif Standar Tinggi','Evaluasi Sistem CBT Akurat'] as $index => $misi)
-                                <li class="flex items-center gap-4 sm:gap-5">
-                                    <div class="bg-white text-indigo-600 font-black rounded-lg sm:rounded-xl w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center flex-shrink-0 text-[10px] sm:text-xs shadow-md border border-slate-100">{{ $index + 1 }}</div>
-                                    <span class="text-xs sm:text-sm uppercase tracking-wider">{{ $misi }}</span>
+                    </div>
+
+                    <!-- Misi Section -->
+                    <div>
+                        <div class="flex items-center gap-3.5 mb-5">
+                            <span class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 text-white flex items-center justify-center font-black text-sm shadow-md shadow-orange-500/20">
+                                M
+                            </span>
+                            <h3 class="text-xl font-black text-slate-900">Misi Kami</h3>
+                        </div>
+                        <ul class="space-y-4 text-slate-700 font-semibold">
+                            @foreach([
+                                'Penyediaan modul adaptif dan kurikulum terstruktur berbasis target ujian',
+                                'Sistem evaluasi berkala dan simulasi CBT dengan akurasi penilaian tinggi',
+                                'Pendampingan belajar intensif oleh tim pengajar profesional berdedikasi'
+                            ] as $index => $misi)
+                                <li class="flex items-start gap-3.5">
+                                    <div class="bg-white text-orange-600 font-black rounded-lg w-7 h-7 flex items-center justify-center flex-shrink-0 text-xs shadow-sm border border-slate-200 mt-0.5">
+                                        {{ $index + 1 }}
+                                    </div>
+                                    <span class="text-xs sm:text-sm leading-relaxed text-slate-600 font-medium">
+                                        {{ $misi }}
+                                    </span>
                                 </li>
                             @endforeach
                         </ul>
                     </div>
+
                 </div>
-                <div class="order-1 lg:order-2 text-center lg:text-left" data-aos="fade-left">
-                    <span class="bg-indigo-50 text-indigo-700 text-[9px] sm:text-[10px] font-black px-3 py-1.5 sm:px-4 sm:py-2 rounded-full mb-4 sm:mb-6 inline-block uppercase tracking-[0.2em] border border-indigo-100">Profil Institusi</span>
-                    <h2 class="text-3xl sm:text-4xl lg:text-6xl font-black text-slate-900 mb-6 sm:mb-8 leading-[1.2] sm:leading-[1.1]">Eksosistem Belajar <span class="text-indigo-600 underline decoration-indigo-200 underline-offset-4 sm:underline-offset-8">Modern</span>.</h2>
-                    <p class="text-slate-500 text-sm sm:text-lg leading-relaxed mb-8 sm:mb-12 font-medium max-w-2xl mx-auto lg:mx-0">
-                        {{ $masterData->tentang_kami ?? 'Kami adalah institusi pendidikan yang berdedikasi tinggi dalam menyediakan bimbingan belajar berkualitas dengan teknologi informasi terkini.' }}
-                    </p>
-                    <a href="{{ route('daftar.step1') }}" class="inline-flex items-center justify-center gap-3 sm:gap-5 bg-indigo-600 text-white font-black px-6 py-3.5 sm:px-10 sm:py-5 rounded-xl sm:rounded-2xl hover:bg-indigo-700 transition-all shadow-xl sm:shadow-2xl shadow-indigo-200 active:scale-95 group text-sm sm:text-base">
-                        Mulai Bergabung
-                        <svg class="w-5 h-5 sm:w-6 sm:h-6 group-hover:translate-x-2 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+            </div>
+
+            <!-- Right Column: Institutional Identity -->
+            <div class="lg:col-span-6 order-1 lg:order-2 text-center lg:text-left" data-aos="fade-left">
+                <span class="bg-orange-50 border border-orange-200/60 text-orange-600 text-xs font-bold px-3.5 py-1.5 rounded-full mb-6 inline-block uppercase tracking-wider">
+                    Tentang Institusi
+                </span>
+                
+                <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 mb-6 leading-tight tracking-tight">
+                    Ekosistem Belajar <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-600">Modern & Terpadu</span>.
+                </h2>
+                
+                <p class="text-slate-600 text-base sm:text-lg leading-relaxed mb-8 font-normal">
+                    {{ $masterData->tentang_kami ?? 'Kami adalah institusi pendidikan yang berdedikasi tinggi dalam menyediakan bimbingan belajar terpercaya, menggabungkan kurikulum adaptif dengan teknologi manajemen akademik yang transparan bagi siswa dan orang tua.' }}
+                </p>
+
+                <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+                    <a href="{{ route('daftar.step1') }}" 
+                       class="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-bold px-8 py-4 rounded-2xl transition-all shadow-lg shadow-orange-500/25 active:scale-95 text-base">
+                        <span>Daftar Sekarang</span>
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
                     </a>
                 </div>
             </div>
+
         </div>
-    </section>
+    </div>
+</section>
