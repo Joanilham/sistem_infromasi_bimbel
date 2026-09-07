@@ -59,12 +59,34 @@ Route::get('/', function () {
         $features = \App\Models\System\Feature::orderBy('order_num')->get();
         $mitras = \App\Models\System\MitraLogo::orderBy('order_num')->get();
         $featuredGurus = \App\Models\User::where('level', 'Guru')->where('is_featured', true)->get();
+        $initialUniversities = (new \App\Services\PddiktiService())->searchUniversities(null, 'all', 1, 12);
 
-        return compact('masterData', 'pakets', 'testimonials', 'faqs', 'galleries', 'features', 'mitras', 'featuredGurus');
+        return compact('masterData', 'pakets', 'testimonials', 'faqs', 'galleries', 'features', 'mitras', 'featuredGurus', 'initialUniversities');
     });
 
     return view('welcome', $data);
 })->name('welcome');
+
+// Public University & Study Program Directory Endpoints
+Route::get('/eksplorasi-kampus/data', function (\Illuminate\Http\Request $request, \App\Services\PddiktiService $pddikti) {
+    $q = $request->query('q');
+    $filter = $request->query('filter', 'all');
+    $page = (int) $request->query('page', 1);
+    $perPage = (int) $request->query('per_page', 12);
+
+    return response()->json($pddikti->searchUniversities($q, $filter, $page, $perPage));
+})->name('eksplorasi.universitas');
+
+Route::get('/eksplorasi-kampus/{code}/prodi', function ($code, \Illuminate\Http\Request $request, \App\Services\PddiktiService $pddikti) {
+    $category = $request->query('category', 'all');
+    $detail = $pddikti->getUniversityDetail($code, $category);
+
+    if (!$detail) {
+        return response()->json(['error' => 'Universitas tidak ditemukan'], 404);
+    }
+
+    return response()->json($detail);
+})->name('eksplorasi.prodi');
 
 Route::get('/program-bimbingan', function () {
     $masterData = \App\Models\MasterData\Master::first();
