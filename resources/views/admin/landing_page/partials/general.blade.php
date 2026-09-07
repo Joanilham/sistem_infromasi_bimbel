@@ -185,44 +185,115 @@
                         </span>
                     </div>
 
-                    <!-- Slide Selector Tabs -->
-                    <div class="grid grid-cols-3 gap-2 p-1.5 bg-slate-100 dark:bg-zinc-800/90 rounded-xl mb-4">
-                        <button type="button" @click="activeSlideTab = 1" 
-                                :class="activeSlideTab === 1 ? 'bg-white dark:bg-zinc-700 shadow-sm text-teal-700 dark:text-teal-300 font-bold border border-slate-200/60 dark:border-zinc-600' : 'text-slate-600 dark:text-slate-400 font-medium hover:text-slate-900'"
-                                class="py-2 px-3 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer">
-                            <span>01.</span>
-                            <span>Slide Utama</span>
-                            @if($master->hero_image)
-                                <span class="w-1.5 h-1.5 rounded-full bg-teal-500"></span>
-                            @endif
-                        </button>
-                        <button type="button" @click="activeSlideTab = 2" 
-                                :class="activeSlideTab === 2 ? 'bg-white dark:bg-zinc-700 shadow-sm text-teal-700 dark:text-teal-300 font-bold border border-slate-200/60 dark:border-zinc-600' : 'text-slate-600 dark:text-slate-400 font-medium hover:text-slate-900'"
-                                class="py-2 px-3 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer">
-                            <span>02.</span>
-                            <span>Slide Fasilitas/CBT</span>
-                            @if($master->hero_image_2)
-                                <span class="w-1.5 h-1.5 rounded-full bg-teal-500"></span>
-                            @endif
-                        </button>
-                        <button type="button" @click="activeSlideTab = 3" 
-                                :class="activeSlideTab === 3 ? 'bg-white dark:bg-zinc-700 shadow-sm text-teal-700 dark:text-teal-300 font-bold border border-slate-200/60 dark:border-zinc-600' : 'text-slate-600 dark:text-slate-400 font-medium hover:text-slate-900'"
-                                class="py-2 px-3 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer">
-                            <span>03.</span>
-                            <span>Slide Mentor</span>
-                            @if($master->hero_image_3)
-                                <span class="w-1.5 h-1.5 rounded-full bg-teal-500"></span>
-                            @endif
-                        </button>
-                    </div>
-
-                    <!-- Slide Preview & Upload Box -->
+                    <!-- Slide Selector Tabs & Prominent Actions -->
                     <div class="space-y-4">
-                        <!-- Live Interactive Visual Stage -->
+                        <!-- 3 Slide Cards Grid with Direct Upload Buttons -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <!-- Slide 1 Card -->
+                            <div @click="activeSlideTab = 1" 
+                                 :class="activeSlideTab === 1 ? 'ring-2 ring-teal-500 border-teal-200 bg-teal-50/30 dark:bg-teal-950/20' : 'border-slate-200 dark:border-zinc-800 bg-slate-50/60 dark:bg-zinc-950/60 hover:border-slate-300'"
+                                 class="p-3.5 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between space-y-2.5">
+                                <div>
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="w-5 h-5 rounded-md bg-teal-600 text-white font-mono text-[10px] font-bold flex items-center justify-center">1</span>
+                                            <span class="text-xs font-bold text-slate-900 dark:text-white">Slide Utama</span>
+                                        </div>
+                                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-md {{ $master->hero_image ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-slate-100 text-slate-500 dark:bg-zinc-800 dark:text-slate-400' }}">
+                                            {{ $master->hero_image ? 'Kustom' : 'Default' }}
+                                        </span>
+                                    </div>
+                                    <div class="aspect-[16/10] rounded-xl overflow-hidden bg-stone-900 border border-slate-200/80 dark:border-zinc-700 relative">
+                                        <img :src="slide1Src" class="w-full h-full object-cover">
+                                    </div>
+                                </div>
+                                <div class="space-y-1.5 pt-1">
+                                    <label class="w-full py-2 px-3 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-semibold text-xs cursor-pointer shadow-xs transition-colors flex items-center justify-center gap-1.5 text-center">
+                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                                        <span>Ganti Foto 1</span>
+                                        <input type="file" name="hero_image" class="hidden" @change="previewSlide($event, 1)">
+                                    </label>
+                                    @if($master->hero_image)
+                                        <label class="w-full py-1 text-center text-[11px] text-rose-500 hover:text-rose-600 hover:underline cursor-pointer flex items-center justify-center gap-1">
+                                            <input type="checkbox" name="delete_hero_image_1" value="1" class="w-3 h-3 text-rose-600 rounded">
+                                            Reset ke Foto Default
+                                        </label>
+                                    @endif
+                                </div>
+                            </div>
+
+                            <!-- Slide 2 Card -->
+                            <div @click="activeSlideTab = 2" 
+                                 :class="activeSlideTab === 2 ? 'ring-2 ring-teal-500 border-teal-200 bg-teal-50/30 dark:bg-teal-950/20' : 'border-slate-200 dark:border-zinc-800 bg-slate-50/60 dark:bg-zinc-950/60 hover:border-slate-300'"
+                                 class="p-3.5 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between space-y-2.5">
+                                <div>
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="w-5 h-5 rounded-md bg-teal-600 text-white font-mono text-[10px] font-bold flex items-center justify-center">2</span>
+                                            <span class="text-xs font-bold text-slate-900 dark:text-white">Slide Fasilitas</span>
+                                        </div>
+                                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-md {{ $master->hero_image_2 ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-slate-100 text-slate-500 dark:bg-zinc-800 dark:text-slate-400' }}">
+                                            {{ $master->hero_image_2 ? 'Kustom' : 'Default' }}
+                                        </span>
+                                    </div>
+                                    <div class="aspect-[16/10] rounded-xl overflow-hidden bg-stone-900 border border-slate-200/80 dark:border-zinc-700 relative">
+                                        <img :src="slide2Src" class="w-full h-full object-cover">
+                                    </div>
+                                </div>
+                                <div class="space-y-1.5 pt-1">
+                                    <label class="w-full py-2 px-3 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-semibold text-xs cursor-pointer shadow-xs transition-colors flex items-center justify-center gap-1.5 text-center">
+                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                                        <span>Ganti Foto 2</span>
+                                        <input type="file" name="hero_image_2" class="hidden" @change="previewSlide($event, 2)">
+                                    </label>
+                                    @if($master->hero_image_2)
+                                        <label class="w-full py-1 text-center text-[11px] text-rose-500 hover:text-rose-600 hover:underline cursor-pointer flex items-center justify-center gap-1">
+                                            <input type="checkbox" name="delete_hero_image_2" value="1" class="w-3 h-3 text-rose-600 rounded">
+                                            Reset ke Foto Default
+                                        </label>
+                                    @endif
+                                </div>
+                            </div>
+
+                            <!-- Slide 3 Card -->
+                            <div @click="activeSlideTab = 3" 
+                                 :class="activeSlideTab === 3 ? 'ring-2 ring-teal-500 border-teal-200 bg-teal-50/30 dark:bg-teal-950/20' : 'border-slate-200 dark:border-zinc-800 bg-slate-50/60 dark:bg-zinc-950/60 hover:border-slate-300'"
+                                 class="p-3.5 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between space-y-2.5">
+                                <div>
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="w-5 h-5 rounded-md bg-teal-600 text-white font-mono text-[10px] font-bold flex items-center justify-center">3</span>
+                                            <span class="text-xs font-bold text-slate-900 dark:text-white">Slide Mentor</span>
+                                        </div>
+                                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-md {{ $master->hero_image_3 ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-slate-100 text-slate-500 dark:bg-zinc-800 dark:text-slate-400' }}">
+                                            {{ $master->hero_image_3 ? 'Kustom' : 'Default' }}
+                                        </span>
+                                    </div>
+                                    <div class="aspect-[16/10] rounded-xl overflow-hidden bg-stone-900 border border-slate-200/80 dark:border-zinc-700 relative">
+                                        <img :src="slide3Src" class="w-full h-full object-cover">
+                                    </div>
+                                </div>
+                                <div class="space-y-1.5 pt-1">
+                                    <label class="w-full py-2 px-3 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-semibold text-xs cursor-pointer shadow-xs transition-colors flex items-center justify-center gap-1.5 text-center">
+                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                                        <span>Ganti Foto 3</span>
+                                        <input type="file" name="hero_image_3" class="hidden" @change="previewSlide($event, 3)">
+                                    </label>
+                                    @if($master->hero_image_3)
+                                        <label class="w-full py-1 text-center text-[11px] text-rose-500 hover:text-rose-600 hover:underline cursor-pointer flex items-center justify-center gap-1">
+                                            <input type="checkbox" name="delete_hero_image_3" value="1" class="w-3 h-3 text-rose-600 rounded">
+                                            Reset ke Foto Default
+                                        </label>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Live Interactive Visual Stage Preview -->
                         <div class="relative rounded-2xl overflow-hidden aspect-[16/10] bg-stone-900 border border-slate-200 dark:border-zinc-800 shadow-inner group">
                             <!-- Image Frame -->
                             <img :src="activeSlideTab === 1 ? slide1Src : (activeSlideTab === 2 ? slide2Src : slide3Src)" 
-                                 class="w-full h-full object-cover object-center transition-all duration-300 group-hover:scale-101">
+                                 class="w-full h-full object-cover object-center transition-all duration-300">
                             
                             <!-- Live Overlay Layer -->
                             <div class="absolute inset-0 bg-black pointer-events-none transition-opacity duration-200" 
@@ -231,114 +302,18 @@
                             <!-- Floating Badges on Preview -->
                             <div class="absolute top-3.5 left-3.5 flex items-center gap-2">
                                 <span class="px-2.5 py-1 rounded-lg bg-black/75 backdrop-blur-md text-white text-[11px] font-mono font-bold tracking-wider uppercase border border-white/10"
-                                      x-text="'Slide 0' + activeSlideTab">
+                                      x-text="'Pratinjau Slide 0' + activeSlideTab">
                                 </span>
                                 <span class="px-2 py-1 rounded-lg bg-black/60 backdrop-blur-md text-stone-300 text-[10px] font-mono">
                                     Rasio 16:10 / 4:3
                                 </span>
                             </div>
 
-                            <!-- Status Badge Top Right -->
-                            <div class="absolute top-3.5 right-3.5">
-                                <template x-if="activeSlideTab === 1">
-                                    <span class="px-2.5 py-1 rounded-lg text-[10px] font-semibold tracking-wide backdrop-blur-md {{ $master->hero_image ? 'bg-emerald-600/90 text-white' : 'bg-stone-700/80 text-stone-200' }}">
-                                        {{ $master->hero_image ? 'Kustom Terpasang' : 'Foto Default Sistem' }}
-                                    </span>
-                                </template>
-                                <template x-if="activeSlideTab === 2">
-                                    <span class="px-2.5 py-1 rounded-lg text-[10px] font-semibold tracking-wide backdrop-blur-md {{ $master->hero_image_2 ? 'bg-emerald-600/90 text-white' : 'bg-stone-700/80 text-stone-200' }}">
-                                        {{ $master->hero_image_2 ? 'Kustom Terpasang' : 'Foto Default Sistem' }}
-                                    </span>
-                                </template>
-                                <template x-if="activeSlideTab === 3">
-                                    <span class="px-2.5 py-1 rounded-lg text-[10px] font-semibold tracking-wide backdrop-blur-md {{ $master->hero_image_3 ? 'bg-emerald-600/90 text-white' : 'bg-stone-700/80 text-stone-200' }}">
-                                        {{ $master->hero_image_3 ? 'Kustom Terpasang' : 'Foto Default Sistem' }}
-                                    </span>
-                                </template>
-                            </div>
-
-                            <!-- Bottom Floating Action Bar on Hover -->
-                            <div class="absolute inset-x-3.5 bottom-3.5 flex items-center justify-between p-2.5 rounded-xl bg-black/70 backdrop-blur-md border border-white/15 text-white text-xs">
-                                <span class="text-[11px] text-stone-300 font-medium">Klik tombol untuk ganti file:</span>
-                                <div class="flex items-center gap-2">
-                                    <!-- Upload Trigger for Slide 1 -->
-                                    <label x-show="activeSlideTab === 1" class="px-3 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-500 text-white font-semibold text-xs cursor-pointer shadow-xs transition-colors flex items-center gap-1.5">
-                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-                                        Pilih Foto Slide 1
-                                        <input type="file" name="hero_image" class="hidden" @change="previewSlide($event, 1)">
-                                    </label>
-
-                                    <!-- Upload Trigger for Slide 2 -->
-                                    <label x-show="activeSlideTab === 2" class="px-3 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-500 text-white font-semibold text-xs cursor-pointer shadow-xs transition-colors flex items-center gap-1.5">
-                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-                                        Pilih Foto Slide 2
-                                        <input type="file" name="hero_image_2" class="hidden" @change="previewSlide($event, 2)">
-                                    </label>
-
-                                    <!-- Upload Trigger for Slide 3 -->
-                                    <label x-show="activeSlideTab === 3" class="px-3 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-500 text-white font-semibold text-xs cursor-pointer shadow-xs transition-colors flex items-center gap-1.5">
-                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-                                        Pilih Foto Slide 3
-                                        <input type="file" name="hero_image_3" class="hidden" @change="previewSlide($event, 3)">
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 3 Mini Slide Thumbnails Strip -->
-                        <div class="grid grid-cols-3 gap-3 pt-1">
-                            <!-- Thumbnail 1 -->
-                            <div @click="activeSlideTab = 1" 
-                                 :class="activeSlideTab === 1 ? 'ring-2 ring-teal-500 border-transparent shadow-sm' : 'border-slate-200 dark:border-zinc-800 opacity-75 hover:opacity-100'"
-                                 class="p-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border transition-all cursor-pointer">
-                                <div class="aspect-[16/10] rounded-lg overflow-hidden bg-stone-800 mb-1.5">
-                                    <img :src="slide1Src" class="w-full h-full object-cover">
-                                </div>
-                                <div class="flex items-center justify-between text-[11px]">
-                                    <span class="font-bold text-slate-800 dark:text-slate-200">01. Utama</span>
-                                    @if($master->hero_image)
-                                        <label class="text-[10px] text-rose-500 hover:underline cursor-pointer flex items-center gap-1">
-                                            <input type="checkbox" name="delete_hero_image_1" value="1" class="w-3 h-3 text-rose-600 rounded">
-                                            Reset
-                                        </label>
-                                    @endif
-                                </div>
-                            </div>
-
-                            <!-- Thumbnail 2 -->
-                            <div @click="activeSlideTab = 2" 
-                                 :class="activeSlideTab === 2 ? 'ring-2 ring-teal-500 border-transparent shadow-sm' : 'border-slate-200 dark:border-zinc-800 opacity-75 hover:opacity-100'"
-                                 class="p-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border transition-all cursor-pointer">
-                                <div class="aspect-[16/10] rounded-lg overflow-hidden bg-stone-800 mb-1.5">
-                                    <img :src="slide2Src" class="w-full h-full object-cover">
-                                </div>
-                                <div class="flex items-center justify-between text-[11px]">
-                                    <span class="font-bold text-slate-800 dark:text-slate-200">02. Fasilitas</span>
-                                    @if($master->hero_image_2)
-                                        <label class="text-[10px] text-rose-500 hover:underline cursor-pointer flex items-center gap-1">
-                                            <input type="checkbox" name="delete_hero_image_2" value="1" class="w-3 h-3 text-rose-600 rounded">
-                                            Reset
-                                        </label>
-                                    @endif
-                                </div>
-                            </div>
-
-                            <!-- Thumbnail 3 -->
-                            <div @click="activeSlideTab = 3" 
-                                 :class="activeSlideTab === 3 ? 'ring-2 ring-teal-500 border-transparent shadow-sm' : 'border-slate-200 dark:border-zinc-800 opacity-75 hover:opacity-100'"
-                                 class="p-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border transition-all cursor-pointer">
-                                <div class="aspect-[16/10] rounded-lg overflow-hidden bg-stone-800 mb-1.5">
-                                    <img :src="slide3Src" class="w-full h-full object-cover">
-                                </div>
-                                <div class="flex items-center justify-between text-[11px]">
-                                    <span class="font-bold text-slate-800 dark:text-slate-200">03. Mentor</span>
-                                    @if($master->hero_image_3)
-                                        <label class="text-[10px] text-rose-500 hover:underline cursor-pointer flex items-center gap-1">
-                                            <input type="checkbox" name="delete_hero_image_3" value="1" class="w-3 h-3 text-rose-600 rounded">
-                                            Reset
-                                        </label>
-                                    @endif
-                                </div>
+                            <!-- Indicator Dots at Bottom -->
+                            <div class="absolute bottom-3 inset-x-0 flex items-center justify-center gap-2">
+                                <span @click="activeSlideTab = 1" :class="activeSlideTab === 1 ? 'w-6 bg-teal-400' : 'w-2 bg-white/60'" class="h-2 rounded-full transition-all cursor-pointer"></span>
+                                <span @click="activeSlideTab = 2" :class="activeSlideTab === 2 ? 'w-6 bg-teal-400' : 'w-2 bg-white/60'" class="h-2 rounded-full transition-all cursor-pointer"></span>
+                                <span @click="activeSlideTab = 3" :class="activeSlideTab === 3 ? 'w-6 bg-teal-400' : 'w-2 bg-white/60'" class="h-2 rounded-full transition-all cursor-pointer"></span>
                             </div>
                         </div>
 
