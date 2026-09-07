@@ -38,7 +38,9 @@
                         @if($feature->icon)
                             <img src="{{ asset('storage/' . $feature->icon) }}" class="w-full h-full object-contain">
                         @else
-                            <div class="w-full h-full rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl">⭐</div>
+                            <div class="w-full h-full rounded-lg bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center border border-indigo-100 dark:border-indigo-800">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                            </div>
                         @endif
                     </div>
                     <h3 class="text-base font-semibold text-slate-900 dark:text-white mb-2">{{ $feature->title }}</h3>

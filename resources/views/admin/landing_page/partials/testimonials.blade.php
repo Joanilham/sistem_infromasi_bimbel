@@ -51,7 +51,9 @@
                             @if($testi->foto)
                                 <img src="{{ asset('storage/' . $testi->foto) }}" class="w-full h-full object-cover">
                             @else
-                                <div class="w-full h-full flex items-center justify-center text-lg text-slate-400">👤</div>
+                                <div class="w-full h-full flex items-center justify-center text-slate-400 bg-slate-100 dark:bg-zinc-800">
+                                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                                </div>
                             @endif
                         </div>
                         <div>
@@ -70,7 +72,9 @@
                 </div>
             @empty
                 <div class="col-span-full py-16 text-center bg-white dark:bg-zinc-900 rounded-xl border border-slate-200 dark:border-zinc-800 shadow-sm">
-                    <div class="w-16 h-16 bg-slate-50 dark:bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-100 dark:border-zinc-700 text-3xl">💬</div>
+                    <div class="w-16 h-16 bg-slate-50 dark:bg-zinc-800 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-slate-100 dark:border-zinc-700 text-slate-400 shadow-sm">
+                        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                    </div>
                     <h3 class="font-semibold text-slate-900 dark:text-white text-lg">Belum Ada Testimoni</h3>
                     <p class="text-slate-500 text-sm mt-1">Testimoni akan membangun kepercayaan calon siswa Anda.</p>
                 </div>
