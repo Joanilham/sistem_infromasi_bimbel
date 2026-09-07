@@ -3,7 +3,7 @@
     <div class="w-full max-w-[1720px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-8 lg:px-12 2xl:px-16">
         <div class="flex items-center justify-between h-20">
             
-            <!-- Left: NIVORA Logo + Wordmark -->
+            <!-- Left: Brand Logo + Wordmark -->
             <a href="{{ route('welcome') }}" class="flex items-center gap-3 hover:opacity-95 transition-opacity group">
                 @if(isset($masterData) && $masterData->logo)
                     <div class="h-10 w-10 rounded-lg bg-white border border-[#E7E2D9] flex items-center justify-center p-1.5 transition-transform group-hover:scale-105">
@@ -11,7 +11,7 @@
                     </div>
                 @else
                     <div class="h-10 w-10 rounded-lg bg-[#E14D2A] flex items-center justify-center text-white font-black text-lg tracking-wider shadow-xs">
-                        N
+                        {{ substr($masterData->nama_lembaga ?? 'NIVORA', 0, 1) }}
                     </div>
                 @endif
                 <div class="flex flex-col">
@@ -26,18 +26,18 @@
 
             <!-- Center: Desktop Navigation Links -->
             <div class="hidden lg:flex items-center gap-1 xl:gap-2">
-                <a href="#program" class="text-sm font-medium text-[#44403C] hover:text-[#E14D2A] px-3.5 py-2 rounded-md hover:bg-[#F4EFEA]/60 transition-colors">Program</a>
-                <a href="#keunggulan" class="text-sm font-medium text-[#44403C] hover:text-[#E14D2A] px-3.5 py-2 rounded-md hover:bg-[#F4EFEA]/60 transition-colors">Keunggulan</a>
-                <a href="#ekosistem" class="text-sm font-medium text-[#44403C] hover:text-[#E14D2A] px-3.5 py-2 rounded-md hover:bg-[#F4EFEA]/60 transition-colors">Eksplorasi Kampus</a>
-                <a href="#tentang" class="text-sm font-medium text-[#44403C] hover:text-[#E14D2A] px-3.5 py-2 rounded-md hover:bg-[#F4EFEA]/60 transition-colors">Tentang Kami</a>
+                <a href="{{ request()->routeIs('welcome') ? '#program' : url('/#program') }}" class="text-sm font-medium text-[#44403C] hover:text-[#E14D2A] px-3.5 py-2 rounded-md hover:bg-[#F4EFEA]/60 transition-colors">Program</a>
+                <a href="{{ request()->routeIs('welcome') ? '#keunggulan' : url('/#keunggulan') }}" class="text-sm font-medium text-[#44403C] hover:text-[#E14D2A] px-3.5 py-2 rounded-md hover:bg-[#F4EFEA]/60 transition-colors">Keunggulan</a>
+                <a href="{{ request()->routeIs('welcome') ? '#ekosistem' : url('/#ekosistem') }}" class="text-sm font-medium text-[#44403C] hover:text-[#E14D2A] px-3.5 py-2 rounded-md hover:bg-[#F4EFEA]/60 transition-colors">Eksplorasi Kampus</a>
+                <a href="{{ request()->routeIs('welcome') ? '#tentang' : url('/#tentang') }}" class="text-sm font-medium text-[#44403C] hover:text-[#E14D2A] px-3.5 py-2 rounded-md hover:bg-[#F4EFEA]/60 transition-colors">Tentang Kami</a>
                 @if(isset($featuredGurus) && $featuredGurus->count() > 0)
-                    <a href="#pengajar" class="text-sm font-medium text-[#44403C] hover:text-[#E14D2A] px-3.5 py-2 rounded-md hover:bg-[#F4EFEA]/60 transition-colors">Pengajar</a>
+                    <a href="{{ request()->routeIs('welcome') ? '#pengajar' : url('/#pengajar') }}" class="text-sm font-medium text-[#44403C] hover:text-[#E14D2A] px-3.5 py-2 rounded-md hover:bg-[#F4EFEA]/60 transition-colors">Pengajar</a>
                 @endif
                 @if(isset($testimonials) && $testimonials->count() > 0)
-                    <a href="#testimoni" class="text-sm font-medium text-[#44403C] hover:text-[#E14D2A] px-3.5 py-2 rounded-md hover:bg-[#F4EFEA]/60 transition-colors">Testimoni</a>
+                    <a href="{{ request()->routeIs('welcome') ? '#testimoni' : url('/#testimoni') }}" class="text-sm font-medium text-[#44403C] hover:text-[#E14D2A] px-3.5 py-2 rounded-md hover:bg-[#F4EFEA]/60 transition-colors">Testimoni</a>
                 @endif
                 @if(isset($faqs) && $faqs->count() > 0)
-                    <a href="#faq" class="text-sm font-medium text-[#44403C] hover:text-[#E14D2A] px-3.5 py-2 rounded-md hover:bg-[#F4EFEA]/60 transition-colors">FAQ</a>
+                    <a href="{{ request()->routeIs('welcome') ? '#faq' : url('/#faq') }}" class="text-sm font-medium text-[#44403C] hover:text-[#E14D2A] px-3.5 py-2 rounded-md hover:bg-[#F4EFEA]/60 transition-colors">FAQ</a>
                 @endif
             </div>
 
@@ -77,18 +77,18 @@
             x-transition:leave-end="opacity-0 -translate-y-2"
             class="lg:hidden pb-6 pt-2 border-t border-[#E7E2D9]">
             <div class="flex flex-col space-y-1">
-                <a href="#program" @click="mobileMenuOpen = false" class="px-3 py-2.5 rounded-lg text-sm font-medium text-[#44403C] hover:bg-[#F4EFEA] hover:text-[#E14D2A]">Program</a>
-                <a href="#keunggulan" @click="mobileMenuOpen = false" class="px-3 py-2.5 rounded-lg text-sm font-medium text-[#44403C] hover:bg-[#F4EFEA] hover:text-[#E14D2A]">Keunggulan</a>
-                <a href="#ekosistem" @click="mobileMenuOpen = false" class="px-3 py-2.5 rounded-lg text-sm font-medium text-[#44403C] hover:bg-[#F4EFEA] hover:text-[#E14D2A]">Eksplorasi Kampus</a>
-                <a href="#tentang" @click="mobileMenuOpen = false" class="px-3 py-2.5 rounded-lg text-sm font-medium text-[#44403C] hover:bg-[#F4EFEA] hover:text-[#E14D2A]">Tentang Kami</a>
+                <a href="{{ request()->routeIs('welcome') ? '#program' : url('/#program') }}" @click="mobileMenuOpen = false" class="px-3 py-2.5 rounded-lg text-sm font-medium text-[#44403C] hover:bg-[#F4EFEA] hover:text-[#E14D2A]">Program</a>
+                <a href="{{ request()->routeIs('welcome') ? '#keunggulan' : url('/#keunggulan') }}" @click="mobileMenuOpen = false" class="px-3 py-2.5 rounded-lg text-sm font-medium text-[#44403C] hover:bg-[#F4EFEA] hover:text-[#E14D2A]">Keunggulan</a>
+                <a href="{{ request()->routeIs('welcome') ? '#ekosistem' : url('/#ekosistem') }}" @click="mobileMenuOpen = false" class="px-3 py-2.5 rounded-lg text-sm font-medium text-[#44403C] hover:bg-[#F4EFEA] hover:text-[#E14D2A]">Eksplorasi Kampus</a>
+                <a href="{{ request()->routeIs('welcome') ? '#tentang' : url('/#tentang') }}" @click="mobileMenuOpen = false" class="px-3 py-2.5 rounded-lg text-sm font-medium text-[#44403C] hover:bg-[#F4EFEA] hover:text-[#E14D2A]">Tentang Kami</a>
                 @if(isset($featuredGurus) && $featuredGurus->count() > 0)
-                    <a href="#pengajar" @click="mobileMenuOpen = false" class="px-3 py-2.5 rounded-lg text-sm font-medium text-[#44403C] hover:bg-[#F4EFEA] hover:text-[#E14D2A]">Pengajar</a>
+                    <a href="{{ request()->routeIs('welcome') ? '#pengajar' : url('/#pengajar') }}" @click="mobileMenuOpen = false" class="px-3 py-2.5 rounded-lg text-sm font-medium text-[#44403C] hover:bg-[#F4EFEA] hover:text-[#E14D2A]">Pengajar</a>
                 @endif
                 @if(isset($testimonials) && $testimonials->count() > 0)
-                    <a href="#testimoni" @click="mobileMenuOpen = false" class="px-3 py-2.5 rounded-lg text-sm font-medium text-[#44403C] hover:bg-[#F4EFEA] hover:text-[#E14D2A]">Testimoni</a>
+                    <a href="{{ request()->routeIs('welcome') ? '#testimoni' : url('/#testimoni') }}" @click="mobileMenuOpen = false" class="px-3 py-2.5 rounded-lg text-sm font-medium text-[#44403C] hover:bg-[#F4EFEA] hover:text-[#E14D2A]">Testimoni</a>
                 @endif
                 @if(isset($faqs) && $faqs->count() > 0)
-                    <a href="#faq" @click="mobileMenuOpen = false" class="px-3 py-2.5 rounded-lg text-sm font-medium text-[#44403C] hover:bg-[#F4EFEA] hover:text-[#E14D2A]">FAQ</a>
+                    <a href="{{ request()->routeIs('welcome') ? '#faq' : url('/#faq') }}" @click="mobileMenuOpen = false" class="px-3 py-2.5 rounded-lg text-sm font-medium text-[#44403C] hover:bg-[#F4EFEA] hover:text-[#E14D2A]">FAQ</a>
                 @endif
                 <div class="pt-3 flex flex-col gap-2">
                     <a href="{{ route('daftar.step1') }}" class="w-full text-center bg-[#E14D2A] hover:bg-[#C93B1A] text-white font-semibold py-3 rounded-lg text-sm shadow-xs transition-colors">

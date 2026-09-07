@@ -8,7 +8,7 @@
             </span>
 
             <h2 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-tight mb-6">
-                Mulai Perjalanan Belajarmu Bersama Nivora.
+                Mulai Perjalanan Belajarmu Bersama {{ ucwords(strtolower($masterData->nama_lembaga ?? 'Nivora')) }}.
             </h2>
 
             <p class="text-stone-300 text-base sm:text-lg lg:text-xl leading-relaxed mb-10 font-normal max-w-2xl mx-auto">
@@ -21,7 +21,7 @@
                     Daftar Sekarang
                 </a>
                 @if($masterData && $masterData->wa_number)
-                    <a href="https://wa.me/{{ $masterData->wa_number }}?text={{ urlencode('Halo Admin Nivora, saya ingin konsultasi mengenai program bimbingan belajar.') }}" 
+                    <a href="https://wa.me/{{ $masterData->wa_number }}?text={{ urlencode($masterData->wa_widget_message ?? ('Halo Admin ' . ($masterData->nama_lembaga ?? 'Nivora') . ', saya ingin konsultasi mengenai program bimbingan belajar.')) }}" 
                        target="_blank"
                        rel="noopener noreferrer"
                        class="w-full sm:w-auto bg-white/10 hover:bg-white/15 border border-white/20 text-white font-semibold px-7 py-4 rounded-lg transition-colors text-base text-center">

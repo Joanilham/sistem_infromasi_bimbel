@@ -12,7 +12,7 @@
                 Perjalanan Mereka, Cerita Mereka
             </h2>
             <p class="text-[#57534E] text-base sm:text-lg leading-relaxed font-normal">
-                Refleksi pengalaman nyata para siswa dan orang tua yang telah bertumbuh bersama metodologi bimbingan terstruktur Nivora.
+                Refleksi pengalaman nyata para siswa dan orang tua yang telah bertumbuh bersama metodologi bimbingan terstruktur {{ ucwords(strtolower($masterData->nama_lembaga ?? 'Nivora')) }}.
             </p>
         </div>
 

@@ -1,55 +1,6 @@
 <!-- Hero Section: Editorial & Sophisticated Educational Photography -->
 <section class="relative min-h-[calc(100vh-5rem)] lg:min-h-screen flex flex-col justify-center pt-24 pb-12 lg:pt-28 lg:pb-16 overflow-hidden bg-[#FAF8F5] text-[#141413] border-b border-[#E7E2D9] w-full">
-    @if($masterData && $masterData->hero_image)
-        <!-- Custom Background Image Variant -->
-        <div class="absolute inset-0 z-0 w-full h-full">
-            <img src="{{ asset('storage/' . $masterData->hero_image) }}" alt="Hero Background" class="w-full h-full object-cover object-center">
-            <div class="absolute inset-0 bg-[#141413]" style="opacity: {{ $masterData->hero_overlay_opacity ?? 0.85 }};"></div>
-        </div>
-        
-        <div class="w-full max-w-[1720px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-8 lg:px-12 2xl:px-16 relative z-10 w-full text-white my-auto">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
-                <div class="lg:col-span-7 text-center lg:text-left lg:pt-1.5">
-                    <h1 class="text-4xl sm:text-6xl lg:text-[4.25rem] font-extrabold text-white leading-[1.08] tracking-tight mb-6">
-                        {!! nl2br(e($masterData->hero_title ?? "Belajar Lebih Terarah.\nBertumbuh Lebih Percaya Diri.")) !!}
-                    </h1>
-
-                    <p class="text-stone-300 text-base sm:text-lg lg:text-xl leading-relaxed max-w-xl mx-auto lg:mx-0 mb-8 font-normal">
-                        {{ $masterData->hero_subtitle ?? 'Nivora menghadirkan bimbingan belajar terstruktur, mentor profesional, materi adaptif, simulasi CBT akurat, dan pemantauan perkembangan akademik yang terukur.' }}
-                    </p>
-
-                    <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-12">
-                        <a href="{{ $masterData->hero_cta_link ?? '#program' }}" 
-                           class="w-full sm:w-auto bg-[#E14D2A] hover:bg-[#C93B1A] text-white font-semibold px-8 py-3.5 rounded-lg shadow-sm transition-colors flex items-center justify-center gap-2 text-sm" style="background-color: #E14D2A;">
-                            <span>{{ $masterData->hero_cta_text ?? 'Jelajahi Program' }}</span>
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-                        </a>
-                        <a href="#tentang" 
-                           class="w-full sm:w-auto bg-white/10 hover:bg-white/20 border border-white/25 text-white font-semibold px-7 py-3.5 rounded-lg transition-colors flex items-center justify-center text-sm">
-                            Tentang Institusi
-                        </a>
-                    </div>
-
-                    <!-- Trust Metrics -->
-                    <div class="pt-8 border-t border-white/15 grid grid-cols-3 gap-6 max-w-lg mx-auto lg:mx-0 text-left">
-                        <div>
-                            <div class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">1,500+</div>
-                            <div class="text-xs text-stone-300 mt-1 font-medium">Siswa Terdaftar</div>
-                        </div>
-                        <div>
-                            <div class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">98.4%</div>
-                            <div class="text-xs text-stone-300 mt-1 font-medium">Tingkat Kelulusan</div>
-                        </div>
-                        <div>
-                            <div class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">4.9/5</div>
-                            <div class="text-xs text-stone-300 mt-1 font-medium">Rating Kepuasan</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @else
-        <!-- Default Editorial Hero Layout with Authentic Photography -->
+    <!-- Editorial Hero Layout with Authentic Photography Slider -->
         <div class="w-full max-w-[1720px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-8 lg:px-12 2xl:px-16 relative z-10 w-full my-auto">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 xl:gap-16 2xl:gap-20 items-start">
                 
@@ -88,15 +39,15 @@
                     <!-- Trust Indicators: Clean Integrated Numbers -->
                     <div class="pt-8 border-t border-[#E7E2D9] grid grid-cols-3 gap-4 sm:gap-6 max-w-lg mx-auto lg:mx-0 text-left" data-aos="fade-up" data-aos-delay="250">
                         <div class="border-l-2 border-[#141413] pl-3.5">
-                            <div class="font-mono text-2xl sm:text-3xl font-extrabold text-[#141413] tracking-tight">1,500+</div>
+                            <div class="font-mono text-2xl sm:text-3xl font-extrabold text-[#141413] tracking-tight">{{ (isset($masterData) && $masterData->stats_siswa) ? $masterData->stats_siswa : '1,500+' }}</div>
                             <div class="text-xs text-[#78716C] font-medium mt-1">Siswa Terdaftar</div>
                         </div>
                         <div class="border-l-2 border-[#E14D2A] pl-3.5">
-                            <div class="font-mono text-2xl sm:text-3xl font-extrabold text-[#141413] tracking-tight">98.4%</div>
+                            <div class="font-mono text-2xl sm:text-3xl font-extrabold text-[#141413] tracking-tight">{{ (isset($masterData) && $masterData->stats_tutor) ? $masterData->stats_tutor : '98.4%' }}</div>
                             <div class="text-xs text-[#78716C] font-medium mt-1">Tingkat Kelulusan</div>
                         </div>
                         <div class="border-l-2 border-[#A8A29E] pl-3.5">
-                            <div class="font-mono text-2xl sm:text-3xl font-extrabold text-[#141413] tracking-tight">4.9<span class="text-sm text-[#A8A29E]">/5</span></div>
+                            <div class="font-mono text-2xl sm:text-3xl font-extrabold text-[#141413] tracking-tight">{{ (isset($masterData) && $masterData->stats_kepuasan) ? $masterData->stats_kepuasan : '4.9/5' }}</div>
                             <div class="text-xs text-[#78716C] font-medium mt-1">Rating Kepuasan</div>
                         </div>
                     </div>
@@ -192,11 +143,14 @@
                                 
                                 <!-- Slide 1 -->
                                 <div class="w-full h-full flex-shrink-0 relative">
-                                    <img src="{{ asset('images/hero-slide-1.png') }}" 
+                                    <img src="{{ (isset($masterData) && $masterData->hero_image) ? asset('storage/' . $masterData->hero_image) : asset('images/hero-slide-1.png') }}" 
                                          alt="Interaksi Belajar dan Diskusi Bersama Guru di Kelas" 
                                          class="w-full h-full object-cover object-center pointer-events-none"
                                          draggable="false"
                                          loading="eager">
+                                    @if(isset($masterData) && $masterData->hero_image && $masterData->hero_overlay_opacity)
+                                        <div class="absolute inset-0 bg-black pointer-events-none" style="opacity: {{ $masterData->hero_overlay_opacity }};"></div>
+                                    @endif
                                 </div>
 
                                 <!-- Slide 2 -->
@@ -273,5 +227,4 @@
 
             </div>
         </div>
-    @endif
 </section>

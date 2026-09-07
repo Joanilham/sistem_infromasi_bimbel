@@ -12,7 +12,7 @@
                 Pertanyaan yang Sering Ditanyakan
             </h2>
             <p class="text-[#57534E] text-base sm:text-lg leading-relaxed font-normal">
-                Jawaban ringkas dan transparan seputar sistem pembelajaran, kurikulum, pendaftaran, dan jadwal kelas di Nivora.
+                Jawaban ringkas dan transparan seputar sistem pembelajaran, kurikulum, pendaftaran, dan jadwal kelas di {{ ucwords(strtolower($masterData->nama_lembaga ?? 'Nivora')) }}.
             </p>
         </div>
 

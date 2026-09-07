@@ -3,7 +3,7 @@
     <div class="w-full max-w-[1720px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-8 lg:px-12 2xl:px-16">
         <div class="grid grid-cols-1 md:grid-cols-12 gap-10 lg:gap-14 mb-16">
             
-            <!-- Column 1: NIVORA Brand & Description -->
+            <!-- Column 1: Brand & Description -->
             <div class="md:col-span-5 lg:col-span-4 space-y-5">
                 <a href="{{ route('welcome') }}" class="flex items-center gap-3">
                     @if(isset($masterData) && $masterData->logo)
@@ -12,7 +12,7 @@
                         </div>
                     @else
                         <div class="h-10 w-10 rounded-lg bg-[#E14D2A] flex items-center justify-center text-white font-black text-lg">
-                            N
+                            {{ substr($masterData->nama_lembaga ?? 'NIVORA', 0, 1) }}
                         </div>
                     @endif
                     <span class="font-black text-2xl text-white tracking-tight">
@@ -88,23 +88,30 @@
                 <div class="space-y-3 text-sm text-stone-400">
                     <div class="flex items-start gap-2.5">
                         <span class="text-stone-500 shrink-0 font-mono text-xs mt-0.5">ALAMAT:</span>
-                        <span class="leading-relaxed">{{ ($masterData && $masterData->alamat) ? $masterData->alamat : 'Jl. Boulevard Akademik No. 88, Gd. EduCenter Lt. 3, Jakarta Selatan' }}</span>
+                        <span class="leading-relaxed">{{ ($masterData && $masterData->alamat_lembaga) ? $masterData->alamat_lembaga : 'Jl. Boulevard Akademik No. 88, Gd. EduCenter Lt. 3, Jakarta Selatan' }}</span>
                     </div>
                     <div class="flex items-center gap-2.5">
                         <span class="text-stone-500 shrink-0 font-mono text-xs">EMAIL:</span>
-                        <a href="mailto:{{ ($masterData && $masterData->email) ? $masterData->email : 'sekretariat@nivora.id' }}" class="hover:text-white transition-colors">
-                            {{ ($masterData && $masterData->email) ? $masterData->email : 'sekretariat@nivora.id' }}
+                        @php
+                            $footerEmail = ($masterData && $masterData->email_kontak) ? $masterData->email_kontak : (($masterData && $masterData->mail_from_address) ? $masterData->mail_from_address : 'sekretariat@nivora.id');
+                        @endphp
+                        <a href="mailto:{{ $footerEmail }}" class="hover:text-white transition-colors">
+                            {{ $footerEmail }}
                         </a>
                     </div>
                     <div class="flex items-center gap-2.5">
                         <span class="text-stone-500 shrink-0 font-mono text-xs">TELP:</span>
-                        <a href="tel:{{ ($masterData && $masterData->telepon) ? $masterData->telepon : '+6281234567890' }}" class="hover:text-white transition-colors">
-                            {{ ($masterData && $masterData->telepon) ? $masterData->telepon : '+62 812-3456-7890' }}
+                        @php
+                            $footerTelp = ($masterData && $masterData->telepon_kantor) ? $masterData->telepon_kantor : (($masterData && $masterData->wa_number) ? ('+' . $masterData->wa_number) : '+62 812-3456-7890');
+                            $telpDigits = preg_replace('/[^0-9+]/', '', $footerTelp);
+                        @endphp
+                        <a href="tel:{{ $telpDigits }}" class="hover:text-white transition-colors">
+                            {{ $footerTelp }}
                         </a>
                     </div>
                     <div class="flex items-center gap-2.5 pt-1 text-xs text-stone-500 font-mono">
                         <span>LAYANAN:</span>
-                        <span class="text-stone-400">Senin – Sabtu (08.00 – 20.00 WIB)</span>
+                        <span class="text-stone-400">{{ ($masterData && $masterData->jam_layanan) ? $masterData->jam_layanan : 'Senin – Sabtu (08.00 – 20.00 WIB)' }}</span>
                     </div>
                 </div>
             </div>

@@ -7,7 +7,7 @@
             <!-- Left Column: Large Editorial Statement & Vision -->
             <div class="lg:col-span-6" data-aos="fade-up">
                 <span class="text-xs font-mono uppercase tracking-widest text-[#78716C] font-semibold block mb-4">
-                    [ TENTANG NIVORA ]
+                    [ TENTANG {{ strtoupper($masterData->nama_lembaga ?? 'NIVORA') }} ]
                 </span>
 
                 <h2 class="text-3xl sm:text-5xl lg:text-[3.5rem] font-extrabold text-[#141413] tracking-tight leading-[1.12] mb-8">

@@ -35,7 +35,6 @@
             background-color: #FAF8F5;
             color: #141413;
             max-width: 100%;
-            overflow-x: hidden;
         }
         button, input, select, textarea {
             font-family: inherit;

@@ -27,6 +27,9 @@ class Master extends Model
     protected $fillable = [
         'nama_lembaga',
         'alamat_lembaga',
+        'email_kontak',
+        'telepon_kantor',
+        'jam_layanan',
         'wa_url',
         'instance_id',
         'wa_token',

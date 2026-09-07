@@ -124,7 +124,7 @@
                         <input type="text" id="login" name="login" required autofocus
                             class="input-animated block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 text-sm font-medium placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
                             placeholder="Ketik email, username, atau NISN..."
-                            value="{{ old('login') }}">
+                            value="{{ old('login', old('email')) }}">
                     </div>
                 </div>
 

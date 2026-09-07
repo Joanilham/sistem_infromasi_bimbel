@@ -92,11 +92,21 @@ class LandingPageController extends Controller
             'facebook_url'   => 'nullable|string|max:255',
             'youtube_url'    => 'nullable|string|max:255',
             'tiktok_url'     => 'nullable|string|max:255',
+            'alamat_lembaga' => 'nullable|string',
+            'email_kontak'   => 'nullable|email|max:255',
+            'telepon_kantor' => 'nullable|string|max:50',
+            'jam_layanan'    => 'nullable|string|max:255',
+            'active_tab'     => 'nullable|string|max:50',
         ]);
 
         try {
             $master = Master::first() ?? new Master();
-            $validated['wa_widget_status'] = $request->has('wa_widget_status');
+            
+            if ($request->has('wa_widget_form_submitted')) {
+                $validated['wa_widget_status'] = $request->has('wa_widget_status');
+            } else {
+                unset($validated['wa_widget_status']);
+            }
 
             if ($request->hasFile('logo')) {
                 if ($master->logo) Storage::disk('public')->delete($master->logo);
@@ -116,15 +126,18 @@ class LandingPageController extends Controller
                 $validated['hero_overlay_opacity'] = $validated['hero_overlay_opacity'] / 100;
             }
 
+            $activeTab = $request->input('active_tab', 'general');
+            unset($validated['active_tab'], $validated['wa_widget_form_submitted']);
+
             $master->fill($validated);
             $master->save();
 
             $this->clearLandingCache();
 
-            return back()->with('success', 'Konfigurasi Landing Page berhasil diperbarui.')->with('active_tab', 'general');
+            return back()->with('success', 'Konfigurasi Landing Page berhasil diperbarui.')->with('active_tab', $activeTab);
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Update Landing Page Error: ' . $e->getMessage());
-            return back()->with('error', 'Gagal memperbarui konfigurasi.')->with('active_tab', 'general');
+            return back()->with('error', 'Gagal memperbarui konfigurasi.')->with('active_tab', $request->input('active_tab', 'general'));
         }
     }
 

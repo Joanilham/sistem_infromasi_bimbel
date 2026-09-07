@@ -9,7 +9,7 @@
         </div>
 
         <!-- Floating Button -->
-        <a href="https://wa.me/{{ $masterData->wa_number }}?text={{ urlencode($masterData->wa_widget_message ?? 'Halo Admin Nivora, saya ingin konsultasi mengenai program bimbingan belajar.') }}" 
+        <a href="https://wa.me/{{ $masterData->wa_number }}?text={{ urlencode($masterData->wa_widget_message ?? ('Halo Admin ' . ($masterData->nama_lembaga ?? 'Nivora') . ', saya ingin konsultasi mengenai program bimbingan belajar.')) }}" 
            target="_blank"
            rel="noopener noreferrer"
            class="relative bg-[#141413] hover:bg-[#292524] text-white rounded-xl w-13 h-13 sm:w-14 sm:h-14 flex items-center justify-center border border-[#3E3835] shadow-lg transition-all duration-200 hover:scale-105 active:scale-95"
