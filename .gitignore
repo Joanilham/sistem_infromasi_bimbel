@@ -136,4 +136,6 @@ rr
 # Secret generator tools (Local only - DO NOT UPLOAD)
 /tools/
 AGENTS.md
+mc
+reset_alpha.php
 
