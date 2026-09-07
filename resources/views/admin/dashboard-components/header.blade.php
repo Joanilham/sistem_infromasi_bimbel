@@ -19,14 +19,14 @@
     </style>
     @endpush
     
-    <div class="relative mb-8 rounded-[1.75rem] shadow-2xl z-20">
+    <div class="relative mb-8 rounded-3xl shadow-xl z-20">
         {{-- Animated gradient background layer (separated to prevent clipping dropdown) --}}
-        <div class="absolute inset-0 rounded-[1.75rem] overflow-hidden pointer-events-none -z-10">
+        <div class="absolute inset-0 rounded-3xl overflow-hidden pointer-events-none -z-10">
             <div class="absolute inset-0 bg-gradient-to-br from-rose-600 via-orange-600 to-amber-500 animate-gradient-xy"></div>
             {{-- Animated Blobs --}}
-            <div class="absolute -top-20 -left-20 w-80 h-80 rounded-full bg-rose-300/50 blur-3xl animate-blob pointer-events-none"></div>
-            <div class="absolute top-0 -right-20 w-96 h-96 rounded-full bg-white/40 blur-3xl animate-blob animation-delay-2000 pointer-events-none"></div>
-            <div class="absolute -bottom-32 left-1/3 w-80 h-80 rounded-full bg-amber-200/50 blur-3xl animate-blob animation-delay-4000 pointer-events-none"></div>
+            <div class="absolute -top-20 -left-20 w-80 h-80 rounded-full bg-rose-300/40 blur-3xl animate-blob pointer-events-none"></div>
+            <div class="absolute top-0 -right-20 w-96 h-96 rounded-full bg-white/30 blur-3xl animate-blob animation-delay-2000 pointer-events-none"></div>
+            <div class="absolute -bottom-32 left-1/3 w-80 h-80 rounded-full bg-amber-200/40 blur-3xl animate-blob animation-delay-4000 pointer-events-none"></div>
             {{-- Dot grid overlay --}}
             <div class="absolute inset-0 opacity-[0.04]"
                 style="background-image: radial-gradient(circle, #fff 1px, transparent 1px); background-size: 28px 28px;">
@@ -35,17 +35,17 @@
 
         <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none"></div>
 
-        <div class="relative z-10 p-5 sm:p-8 md:p-10 flex flex-col xl:flex-row xl:items-center justify-between gap-8">
+        <div class="relative z-10 p-6 sm:p-8 lg:p-10 flex flex-col xl:flex-row xl:items-center justify-between gap-6 sm:gap-8">
             {{-- Greeting --}}
             <div class="flex-1 relative z-20">
-                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 mb-5">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 mb-4">
                     <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span class="text-xs font-semibold tracking-widest text-indigo-100 uppercase">Sistem Aktif</span>
+                    <span class="text-xs font-semibold tracking-widest text-white/90 uppercase">Sistem Aktif</span>
                 </div>
 
-                <h1 class="text-3xl md:text-5xl font-extrabold text-white leading-tight mb-3 tracking-tight">
+                <h1 class="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-white leading-tight mb-2 tracking-tight">
                     Selamat Datang,<br>
-                    <span class="">
+                    <span>
                         {{ auth()->user()->name ?? 'Administrator' }}!
                     </span>
                 </h1>
@@ -54,7 +54,7 @@
                 <div class="flex flex-wrap items-center gap-3 mt-6">
                     @if(strtolower(auth()->user()->level) === 'super admin')
                     <form action="{{ route('session.konteks') }}" method="POST" id="switch-kantor-form" 
-                        class="relative inline-flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 shadow-sm text-white hover:bg-white/15 transition-colors cursor-pointer"
+                        class="relative inline-flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-xs text-white hover:bg-white/20 transition-colors cursor-pointer"
                         :class="open ? 'z-[60]' : 'z-20'"
                         x-data="{ open: false, selected: '{{ session('kantor_id') ?: 'all' }}', submitForm(val) { this.selected = val; $refs.kantorInput.value = val; $refs.form.submit(); } }" 
                         @click="open = !open" 
@@ -64,14 +64,14 @@
                         <input type="hidden" name="redirect" value="/dashboard">
                         <input type="hidden" name="periode_id" value="{{ session('periode_id') }}">
                         <input type="hidden" name="kantor_id" x-ref="kantorInput" :value="selected">
-                        <span class="flex items-center justify-center w-8 h-8 rounded-xl bg-white/10 text-white shrink-0">
+                        <span class="flex items-center justify-center w-8 h-8 rounded-xl bg-white/15 text-white shrink-0">
                             <svg class="h-4.5 w-4.5 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                             </svg>
                         </span>
                         <div class="flex flex-col text-left pr-6">
-                            <span class="text-[9px] uppercase tracking-widest text-indigo-100 font-bold leading-none mb-1">Kantor Cabang</span>
-                            <span class="text-xs font-black text-white tracking-tight">
+                            <span class="text-[9px] uppercase tracking-widest text-white/80 font-bold leading-none mb-1">Kantor Cabang</span>
+                            <span class="text-xs font-bold text-white tracking-tight">
                                 @if(session('kantor_id') == 'all' || !session('kantor_id'))
                                     Semua Cabang (Global)
                                 @else
@@ -79,7 +79,7 @@
                                 @endif
                             </span>
                         </div>
-                        <span class="absolute right-4 text-white/70">
+                        <span class="absolute right-4 text-white/80">
                             <svg class="h-4 w-4 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                         </span>
 
@@ -118,21 +118,21 @@
                         </div>
                     </form>
                     @else
-                    <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 shadow-sm text-white">
-                        <span class="flex items-center justify-center w-8 h-8 rounded-xl bg-white/10 text-white shrink-0">
+                    <div class="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-xs text-white">
+                        <span class="flex items-center justify-center w-8 h-8 rounded-xl bg-white/15 text-white shrink-0">
                             <svg class="h-4.5 w-4.5 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                             </svg>
                         </span>
                         <div class="flex flex-col text-left pr-2">
-                            <span class="text-[9px] uppercase tracking-widest text-indigo-100 font-bold leading-none mb-1">Kantor Cabang</span>
-                            <span class="text-xs font-black text-white tracking-tight">{{ $activeKantorName }}</span>
+                            <span class="text-[9px] uppercase tracking-widest text-white/80 font-bold leading-none mb-1">Kantor Cabang</span>
+                            <span class="text-xs font-bold text-white tracking-tight">{{ $activeKantorName }}</span>
                         </div>
                     </div>
                     @endif
 
                     <form action="{{ route('session.konteks') }}" method="POST" id="switch-periode-form" 
-                        class="relative inline-flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 shadow-sm text-white hover:bg-white/15 transition-colors cursor-pointer"
+                        class="relative inline-flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-xs text-white hover:bg-white/20 transition-colors cursor-pointer"
                         :class="open ? 'z-[50]' : 'z-10'"
                         x-data="{ open: false, selected: '{{ session('periode_id') }}', submitForm(val) { this.selected = val; $refs.periodeInput.value = val; $refs.form.submit(); } }" 
                         @click="open = !open" 
@@ -142,16 +142,16 @@
                         <input type="hidden" name="redirect" value="/dashboard">
                         <input type="hidden" name="kantor_id" value="{{ session('kantor_id') ?: 'all' }}">
                         <input type="hidden" name="periode_id" x-ref="periodeInput" :value="selected">
-                        <span class="flex items-center justify-center w-8 h-8 rounded-xl bg-white/10 text-white shrink-0">
+                        <span class="flex items-center justify-center w-8 h-8 rounded-xl bg-white/15 text-white shrink-0">
                             <svg class="h-4.5 w-4.5 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
                         </span>
                         <div class="flex flex-col text-left pr-6">
-                            <span class="text-[9px] uppercase tracking-widest text-indigo-100 font-bold leading-none mb-1">Tahun Ajaran</span>
-                            <span class="text-xs font-black text-white tracking-tight">{{ $activePeriodeYear }}</span>
+                            <span class="text-[9px] uppercase tracking-widest text-white/80 font-bold leading-none mb-1">Tahun Ajaran</span>
+                            <span class="text-xs font-bold text-white tracking-tight">{{ $activePeriodeYear }}</span>
                         </div>
-                        <span class="absolute right-4 text-white/70">
+                        <span class="absolute right-4 text-white/80">
                             <svg class="h-4 w-4 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                         </span>
 
@@ -187,18 +187,17 @@
             </div>
 
             {{-- Real-Time Clock --}}
-            <div class="shrink-0 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/15 p-5 lg:p-8 min-w-[240px] sm:min-w-[260px] shadow-[inset_0_1px_1px_rgba(255,255,255,0.12)] hover:bg-white/15 transition-colors duration-300 text-center text-white">
-                <div class="flex items-center justify-center gap-2 mb-2">
-                    <svg class="w-4 h-4 text-white-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div class="shrink-0 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-5 lg:p-6 min-w-[220px] sm:min-w-[250px] shadow-sm hover:bg-white/15 transition-colors duration-300 text-center text-white">
+                <div class="flex items-center justify-center gap-1.5 mb-1.5">
+                    <svg class="w-4 h-4 text-white/80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <span class="text-xs font-semibold uppercase tracking-widest" x-text="date">Memuat...</span>
+                    <span class="text-[11px] font-semibold uppercase tracking-wider text-white/90" x-text="date">Memuat...</span>
                 </div>
-                <div class="text-5xl lg:text-6xl font-black tabular-nums tracking-tight drop-shadow" x-text="time">00:00:00</div>
-                <div class="mt-3 text-xs font-medium text-white/80 bg-white/5 rounded-lg py-1.5 px-3" x-text="zonaWaktu">Waktu Lokal</div>
+                <div class="text-4xl sm:text-5xl font-black tabular-nums tracking-tight drop-shadow-sm" x-text="time">00:00:00</div>
+                <div class="mt-2.5 text-[11px] font-medium text-white/80 bg-white/10 rounded-lg py-1 px-2.5" x-text="zonaWaktu">Waktu Lokal</div>
             </div>
         </div>
     </div>
 
     @include('layouts.admin.pesan-panel')
-
