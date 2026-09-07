@@ -23,6 +23,14 @@
         .input-animated:focus-within {
             transform: translateY(-1px);
         }
+        /* Fix Chrome autofill background hiding icons or breaking theme */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover, 
+        input:-webkit-autofill:focus,
+        input:-webkit-autofill:active {
+            -webkit-text-fill-color: #0f172a !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
         /* Animated Blobs */
         @keyframes blob {
             0% { transform: translate(0px, 0px) scale(1); }
@@ -52,7 +60,7 @@
     </style>
     <link rel="stylesheet" href="{{ asset('css/loading.css') }}">
 </head>
-<body class="min-h-screen bg-slate-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 text-slate-900 antialiased selection:bg-orange-100 selection:text-orange-900 overflow-hidden relative">
+<body class="min-h-screen bg-slate-50 flex items-center justify-center py-8 sm:py-12 px-4 sm:px-6 lg:px-8 text-slate-900 antialiased selection:bg-orange-100 selection:text-orange-900 overflow-x-hidden relative">
 
     <!-- Background Animated Blobs (Pure CSS to ensure they always show) -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none flex items-center justify-center z-0">
@@ -61,10 +69,10 @@
         <div class="blob-shape blob-3"></div>
     </div>
     
-    <div class="w-full max-w-md relative z-10">
+    <div class="w-full max-w-md relative z-10 my-auto">
         
         <!-- Brand Header -->
-        <div class="flex flex-col items-center mb-8 text-center">
+        <div class="flex flex-col items-center mb-6 text-center">
             <a href="{{ url('/') }}" class="group flex flex-col items-center focus:outline-none">
                 <div class="h-16 w-16 mb-3 rounded-2xl bg-white shadow-xl shadow-slate-200/70 ring-1 ring-slate-900/5 flex items-center justify-center p-2.5 transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl group-hover:shadow-orange-500/10">
                     @if(isset($masterData) && $masterData->logo)
@@ -87,11 +95,30 @@
         </div>
 
         <!-- Card -->
-        <div class="bg-white rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-100 p-8 sm:p-10">
-            <div class="mb-8 text-center">
+        <div class="bg-white rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-100 p-6 sm:p-10">
+            <div class="mb-6 text-center">
                 <h2 class="text-2xl font-extrabold tracking-tight text-slate-900">Selamat datang!</h2>
                 <p class="mt-2 text-sm text-slate-500 font-medium leading-relaxed">Masuk ke akun Anda untuk mengakses dashboard.</p>
             </div>
+
+            @auth
+            <!-- Notifikasi Sesi Aktif -->
+            <div class="mb-6 p-3.5 bg-orange-50/90 border border-orange-200/90 rounded-2xl flex items-center justify-between gap-3 text-sm">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-8 h-8 rounded-xl bg-orange-500 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-sm">
+                        {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}
+                    </div>
+                    <div class="truncate text-left">
+                        <p class="text-[11px] text-slate-500 font-medium">Sesi aktif:</p>
+                        <p class="text-xs font-bold text-slate-800 truncate">{{ Auth::user()->name }}</p>
+                    </div>
+                </div>
+                <a href="{{ url('/dashboard') }}" class="px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold rounded-xl shadow-sm transition-colors shrink-0 flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                    Dashboard
+                </a>
+            </div>
+            @endauth
 
             {{-- Flash Messages --}}
             @if(session('success') || session('status'))
@@ -121,9 +148,9 @@
                         Email / Username / NISN
                     </label>
                     <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10 text-slate-400">
                             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                             </svg>
                         </div>
                         <input type="text" id="login" name="login" required autofocus autocomplete="username"
@@ -144,7 +171,7 @@
                         </a>
                     </div>
                     <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10 text-slate-400">
                             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                             </svg>
@@ -153,7 +180,7 @@
                             class="input-animated block w-full pl-11 pr-11 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 text-sm font-medium placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
                             placeholder="••••••••">
                         <button type="button" @click="showPassword = !showPassword"
-                            class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600 transition-colors focus:outline-none cursor-pointer"
+                            class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600 transition-colors focus:outline-none cursor-pointer z-10"
                             aria-label="Toggle password visibility">
                             <svg x-show="!showPassword" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -175,31 +202,43 @@
                 </div>
 
                 <button type="submit"
-                    class="w-full py-3.5 px-4 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white text-sm font-bold rounded-2xl shadow-lg shadow-orange-500/25 hover:shadow-orange-500/35 active:scale-[0.99] transition-all duration-200">
+                    class="w-full py-3.5 px-4 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white text-sm font-bold rounded-2xl shadow-lg shadow-orange-500/25 hover:shadow-orange-500/35 active:scale-[0.99] transition-all duration-200 cursor-pointer">
                     Masuk ke Sistem
                 </button>
 
-                <div class="mt-6 text-center">
-                    <p class="text-sm text-slate-500 font-medium">
+                <!-- Menu Pendaftaran & Navigasi -->
+                <div class="mt-6 pt-5 border-t border-slate-100 text-center space-y-3">
+                    <p class="text-sm text-slate-600 font-medium">
                         Belum punya akun? 
-                        <a href="{{ route('daftar.step1') }}" class="font-bold text-orange-600 hover:text-orange-700 hover:underline transition-all">
+                        <a href="{{ route('daftar.step1') }}" class="font-bold text-orange-600 hover:text-orange-700 hover:underline transition-all inline-flex items-center gap-1 ml-1">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>
                             Daftar Siswa Baru
                         </a>
                     </p>
-                </div>
-                
-                <div class="mt-6 flex justify-center">
-                    <a href="{{ url('/') }}" class="text-sm font-medium text-slate-500 hover:text-slate-800 flex items-center gap-2 transition-colors">
-                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                        </svg>
-                        Kembali ke Halaman Utama
-                    </a>
+
+                    <div class="flex flex-wrap items-center justify-center gap-3 pt-2 text-xs font-semibold text-slate-500">
+                        @auth
+                        <a href="{{ url('/dashboard') }}" class="hover:text-orange-600 flex items-center gap-1.5 transition-colors">
+                            <svg class="h-3.5 w-3.5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                            </svg>
+                            Kembali ke Dashboard
+                        </a>
+                        <span class="text-slate-300">•</span>
+                        @endauth
+
+                        <a href="{{ url('/') }}" class="hover:text-slate-800 flex items-center gap-1.5 transition-colors">
+                            <svg class="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                            </svg>
+                            Kembali ke Halaman Utama
+                        </a>
+                    </div>
                 </div>
             </form>
         </div>
 
-        <p class="mt-8 text-center text-sm font-medium text-slate-500">
+        <p class="mt-6 text-center text-xs font-medium text-slate-400 pb-6">
             &copy; {{ date('Y') }} {{ $masterData->nama_lembaga ?? config('app.name') }}. All rights reserved.
         </p>
 

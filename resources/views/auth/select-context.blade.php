@@ -61,7 +61,7 @@
     </style>
     <link rel="stylesheet" href="{{ asset('css/loading.css') }}">
 </head>
-<body class="min-h-screen bg-slate-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 text-slate-900 antialiased selection:bg-orange-100 selection:text-orange-900 overflow-hidden relative">
+<body class="min-h-screen bg-slate-50 flex items-center justify-center py-8 sm:py-12 px-4 sm:px-6 lg:px-8 text-slate-900 antialiased selection:bg-orange-100 selection:text-orange-900 overflow-x-hidden relative">
     
     <!-- Background Animated Blobs (Warm Palette identical to login) -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none flex items-center justify-center z-0">
@@ -70,10 +70,10 @@
         <div class="blob-shape blob-3"></div>
     </div>
 
-    <div class="w-full max-w-md relative z-10">
+    <div class="w-full max-w-md relative z-10 my-auto">
         
         <!-- Brand Header -->
-        <div class="flex flex-col items-center mb-8 text-center">
+        <div class="flex flex-col items-center mb-6 text-center">
             <a href="{{ url('/') }}" class="group flex flex-col items-center focus:outline-none">
                 <div class="h-16 w-16 mb-3 rounded-2xl bg-white shadow-xl shadow-slate-200/70 ring-1 ring-slate-900/5 flex items-center justify-center p-2.5 transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl group-hover:shadow-orange-500/10">
                     @if(isset($masterData) && $masterData->logo)
@@ -96,7 +96,7 @@
         </div>
 
         <!-- Card -->
-        <div class="bg-white rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-100 p-8 sm:p-10">
+        <div class="bg-white rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-100 p-6 sm:p-10">
             <div class="mb-8 text-center">
                 <h2 class="text-2xl font-extrabold tracking-tight text-slate-900">Pilih Konteks</h2>
                 <p class="mt-2 text-sm text-slate-500 font-medium leading-relaxed">
@@ -271,26 +271,45 @@
                     </div>
                 </div>
 
-                <button type="submit"
-                    class="w-full py-3.5 px-4 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white text-sm font-bold rounded-2xl shadow-lg shadow-orange-500/25 hover:shadow-orange-500/35 active:scale-[0.99] transition-all duration-200 mt-2 cursor-pointer">
-                    Lanjutkan ke Dashboard
-                </button>
+                <div class="space-y-2.5 mt-3">
+                    <button type="submit"
+                        class="w-full py-3.5 px-4 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white text-sm font-bold rounded-2xl shadow-lg shadow-orange-500/25 hover:shadow-orange-500/35 active:scale-[0.99] transition-all duration-200 cursor-pointer flex items-center justify-center gap-2">
+                        <span>Terapkan & Lanjutkan</span>
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                    </button>
+
+                    <a href="{{ url('/dashboard') }}"
+                        class="w-full py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-2xl transition-all duration-200 flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                        <span>Kembali ke Dashboard</span>
+                    </a>
+                </div>
             </form>
             
-            <div class="mt-8 pt-6 border-t border-slate-100 flex items-center justify-center">
-                <form method="POST" action="{{ route('logout', ['redirect' => 'login']) }}">
+            <div class="mt-6 pt-5 border-t border-slate-100 flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-xs font-semibold text-slate-500">
+                <a href="{{ route('daftar.step1') }}" class="hover:text-orange-600 flex items-center gap-1.5 transition-colors">
+                    <svg class="w-3.5 h-3.5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>
+                    Pendaftaran Siswa
+                </a>
+                <span class="text-slate-300">•</span>
+                <a href="{{ url('/') }}" class="hover:text-slate-800 flex items-center gap-1.5 transition-colors">
+                    <svg class="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                    Halaman Utama
+                </a>
+                <span class="text-slate-300">•</span>
+                <form method="POST" action="{{ route('logout', ['redirect' => 'login']) }}" class="inline">
                     @csrf
-                    <button type="submit" class="flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-orange-600 transition-colors cursor-pointer">
-                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <button type="submit" class="hover:text-red-600 flex items-center gap-1.5 transition-colors cursor-pointer">
+                        <svg class="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                         </svg>
-                        Masuk dengan akun lain
+                        Ganti Akun
                     </button>
                 </form>
             </div>
         </div>
 
-        <p class="mt-8 text-center text-sm font-medium text-slate-500">
+        <p class="mt-6 text-center text-xs font-medium text-slate-400 pb-6">
             &copy; {{ date('Y') }} {{ $masterData->nama_lembaga ?? config('app.name') }}. All rights reserved.
         </p>
 
