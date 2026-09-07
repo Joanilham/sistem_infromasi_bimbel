@@ -185,7 +185,7 @@ class TelegramWebhookController extends Controller
             }
         } catch (Throwable $e) {}
 
-        // 5. CPU Load (Dibulatkan 2 desimal)
+        // 5. Beban CPU (Format mudah dibaca dengan penjelasan)
         $loadInfo = 'Tidak diketahui';
         if (function_exists('sys_getloadavg')) {
             $load = sys_getloadavg();
@@ -193,8 +193,16 @@ class TelegramWebhookController extends Controller
                 $l1 = number_format($load[0], 2);
                 $l5 = number_format($load[1], 2);
                 $l15 = number_format($load[2], 2);
-                $icon = $load[0] > 4 ? '🔴' : ($load[0] > 2 ? '🟡' : '🟢');
-                $loadInfo = "{$icon} 1m: <b>{$l1}</b> | 5m: <b>{$l5}</b> | 15m: <b>{$l15}</b>";
+
+                if ($load[0] > 4.0) {
+                    $statusText = "🔴 Tinggi (Beban Berat)";
+                } elseif ($load[0] > 2.0) {
+                    $statusText = "🟡 Sedang (Ada Aktivitas)";
+                } else {
+                    $statusText = "🟢 Normal (Sangat Ringan)";
+                }
+
+                $loadInfo = "{$statusText}\n   1 Menit: <b>{$l1}</b> | 5 Menit: <b>{$l5}</b> | 15 Menit: <b>{$l15}</b>";
             }
         }
 
@@ -203,15 +211,15 @@ class TelegramWebhookController extends Controller
         $laravelVersion = app()->version();
         $env = strtoupper(config('app.env', 'PRODUCTION'));
 
-        $msg = "📊 <b>STATUS SERVER & SISTEM</b>\n"
+        $msg = "📊 <b>STATUS KESEHATAN SERVER</b>\n"
              . "━━━━━━━━━━━━━━━━━━━━\n"
              . "🏫 <b>Aplikasi:</b> {$appName} [{$env}]\n"
              . "⏰ <b>Waktu Server:</b> {$time}\n"
-             . "⏱ <b>Uptime:</b> <b>{$uptimeInfo}</b>\n\n"
+             . "⏱ <b>Uptime Server:</b> 🟢 Aktif {$uptimeInfo}\n\n"
              . "🗄 <b>Database MySQL:</b>\n{$dbStatus}\n\n"
              . "💾 <b>Penyimpanan Disk:</b>\n{$diskInfo}\n\n"
              . "🧠 <b>Penggunaan RAM:</b>\n{$ramInfo}\n\n"
-             . "⚙️ <b>Beban CPU:</b>\n{$loadInfo}\n\n"
+             . "⚙️ <b>Rata-rata Beban CPU:</b>\n{$loadInfo}\n\n"
              . "📦 <b>Versi Sistem:</b>\n"
              . "• PHP: <code>v{$phpVersion}</code>\n"
              . "• Laravel: <code>v{$laravelVersion}</code>\n"
