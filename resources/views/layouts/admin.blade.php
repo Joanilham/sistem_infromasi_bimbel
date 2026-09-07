@@ -60,6 +60,35 @@
 </head>
 
 <body class="bg-slate-50 dark:bg-slate-900 flex h-screen overflow-hidden text-slate-800 dark:text-slate-100">
+    @php
+        $kId            = session('kantor_id');
+        $pId            = session('periode_id');
+        $isSuperAdmin   = auth()->check() && strtolower(auth()->user()->level) === 'super admin';
+        $filterKantorId = $isSuperAdmin ? null : $kId;
+
+        $pendaftaranMenunggu = \App\Models\Pendaftaran\PendaftaranSiswa::where('status', 'menunggu')
+            ->when($filterKantorId, fn($q) => $q->where('kantor_id', $filterKantorId))->count();
+
+        $pembayaranBelumDikonfirmasi = \App\Models\Keuangan\PembayaranPendaftaran::where('status', 'menunggu')
+            ->whereHas('pendaftaranSiswa', fn($q) => $q->when($filterKantorId, fn($q2) => $q2->where('kantor_id', $filterKantorId)))->count();
+
+        $transferSppCount = ($kId && $pId) ? \App\Models\Keuangan\TransaksiPembayaran::where('tipe_pembayaran', 'TRANSFER')
+            ->where('status', 'PENDING')
+            ->whereHas('pembayaranSiswa.pesertaDidik', fn($q) => $q->inContext())
+            ->where('created_at', '>=', \Carbon\Carbon::now()->subDays(30))
+            ->count() : 0;
+
+        $tagihanJatuhTempoCount = 0;
+        if ($kId && $pId) {
+            $tagihanRaw = \App\Models\Keuangan\PembayaranSiswa::with('transaksi')
+                ->whereHas('pesertaDidik', fn($q) => $q->inContext()->aktif())
+                ->where('batas_waktu', '<=', \Carbon\Carbon::now()->addDays(31))
+                ->get();
+            $tagihanJatuhTempoCount = $tagihanRaw->filter(fn($p) => $p->kekurangan > 0)->count();
+        }
+
+        $totalPesan = $pendaftaranMenunggu + $pembayaranBelumDikonfirmasi + $transferSppCount + $tagihanJatuhTempoCount;
+    @endphp
 
     <!-- Mobile sidebar backdrop -->
     <div x-show="sidebarOpen" x-transition.opacity class="fixed inset-0 z-20 bg-gray-900 bg-opacity-50 lg:hidden" @click="sidebarOpen = false" x-cloak></div>

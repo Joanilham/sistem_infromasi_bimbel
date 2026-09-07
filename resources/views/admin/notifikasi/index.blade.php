@@ -16,7 +16,7 @@
             <h1 class="text-2xl font-black text-slate-900 dark:text-white flex items-center gap-3">
                 Pemberitahuan
                 @if($totalBadge > 0)
-                    <span class="bg-red-500 text-white text-xs font-black px-2.5 py-1 rounded-full">{{ $totalBadge }}</span>
+                    <span class="bg-red-500 text-white text-xs font-black px-2.5 py-1 rounded-full">{{ $totalBadge > 99 ? '99+' : $totalBadge }}</span>
                 @endif
             </h1>
             <p class="text-slate-500 dark:text-slate-400 mt-1 text-sm">Notifikasi pendaftaran, keuangan, dan tagihan siswa.</p>
@@ -69,7 +69,7 @@
                 <div class="flex items-center gap-2">
                     <span>Akun Pendaftar</span>
                     @if($pendaftaranMenunggu->count() > 0)
-                        <span class="bg-amber-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">{{ $pendaftaranMenunggu->count() }}</span>
+                        <span class="bg-amber-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">{{ $pendaftaranMenunggu->count() > 99 ? '99+' : $pendaftaranMenunggu->count() }}</span>
                     @endif
                 </div>
                 <span class="text-[10px] font-normal text-slate-400" :class="tab === 'pendaftaran' ? 'text-indigo-400' : ''">Butuh Verifikasi Akun</span>
@@ -84,7 +84,7 @@
                 <div class="flex items-center gap-2">
                     <span>Transfer Tagihan Rutin</span>
                     @if($transferSpp->count() > 0)
-                        <span class="bg-blue-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">{{ $transferSpp->count() }}</span>
+                        <span class="bg-blue-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">{{ $transferSpp->count() > 99 ? '99+' : $transferSpp->count() }}</span>
                     @endif
                 </div>
                 <span class="text-[10px] font-normal text-slate-400" :class="tab === 'transfer' ? 'text-blue-400' : ''">Menunggu Konfirmasi Transfer SPP Siswa Aktif</span>
@@ -99,7 +99,7 @@
                 <div class="flex items-center gap-2">
                     <span>Tagihan Jatuh Tempo</span>
                     @if($tagihanJatuhTempo->count() > 0)
-                        <span class="bg-yellow-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">{{ $tagihanJatuhTempo->count() }}</span>
+                        <span class="bg-yellow-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">{{ $tagihanJatuhTempo->count() > 99 ? '99+' : $tagihanJatuhTempo->count() }}</span>
                     @endif
                 </div>
                 <span class="text-[10px] font-normal text-slate-400" :class="tab === 'tagihan' ? 'text-yellow-500' : ''">Siswa dengan Tunggakan / Lewat Batas Bayar</span>

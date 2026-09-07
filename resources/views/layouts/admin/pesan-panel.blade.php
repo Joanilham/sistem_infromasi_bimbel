@@ -20,7 +20,7 @@
                 <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
             </span>
             <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                {{ $totalPesan }} Tindakan Perlu Perhatian
+                {{ $totalPesan > 99 ? '99+' : $totalPesan }} Tindakan Perlu Perhatian
             </span>
         </div>
         <button onclick="document.getElementById('panel-pesan').style.display='none'"
@@ -46,7 +46,7 @@
             <div class="flex-1 min-w-0">
                 <p class="text-sm font-bold text-amber-950 dark:text-amber-100 truncate">Pendaftaran Baru</p>
                 <p class="text-xs text-amber-700 dark:text-amber-300/90 mt-0.5 leading-snug">
-                    <span class="font-black text-amber-900 dark:text-amber-200">{{ $pendaftaranMenunggu }}</span> pendaftar menunggu verifikasi
+                    <span class="font-black text-amber-900 dark:text-amber-200">{{ ($pendaftaranMenunggu ?? 0) > 99 ? '99+' : ($pendaftaranMenunggu ?? 0) }}</span> pendaftar menunggu verifikasi
                 </p>
             </div>
             <svg class="w-4.5 h-4.5 text-amber-500 group-hover:text-amber-700 transition-transform group-hover:translate-x-1 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -67,7 +67,7 @@
             <div class="flex-1 min-w-0">
                 <p class="text-sm font-bold text-orange-950 dark:text-orange-100 truncate">Konfirmasi Pembayaran</p>
                 <p class="text-xs text-orange-700 dark:text-orange-300/90 mt-0.5 leading-snug">
-                    <span class="font-black text-orange-900 dark:text-orange-200">{{ $pembayaranBelumDikonfirmasi }}</span> bukti pembayaran baru
+                    <span class="font-black text-orange-900 dark:text-orange-200">{{ ($pembayaranBelumDikonfirmasi ?? 0) > 99 ? '99+' : ($pembayaranBelumDikonfirmasi ?? 0) }}</span> bukti pembayaran baru
                 </p>
             </div>
             <svg class="w-4.5 h-4.5 text-orange-500 group-hover:text-orange-700 transition-transform group-hover:translate-x-1 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -88,7 +88,7 @@
             <div class="flex-1 min-w-0">
                 <p class="text-sm font-bold text-yellow-950 dark:text-yellow-100 truncate">Tagihan Jatuh Tempo</p>
                 <p class="text-xs text-yellow-700 dark:text-yellow-300/90 mt-0.5 leading-snug">
-                    <span class="font-black text-yellow-900 dark:text-yellow-200">{{ $tagihanJatuhTempoCount }}</span> tagihan melewati atau mendekati jatuh tempo
+                    <span class="font-black text-yellow-900 dark:text-yellow-200">{{ ($tagihanJatuhTempoCount ?? 0) > 99 ? '99+' : ($tagihanJatuhTempoCount ?? 0) }}</span> tagihan melewati atau mendekati jatuh tempo
                 </p>
             </div>
             <svg class="w-4.5 h-4.5 text-yellow-500 group-hover:text-yellow-700 transition-transform group-hover:translate-x-1 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

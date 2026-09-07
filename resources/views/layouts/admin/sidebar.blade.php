@@ -33,6 +33,22 @@
             </svg>
             <span class="text-sm">Dashboard</span>
         </a>
+
+        {{-- Pemberitahuan Menu --}}
+        <a href="{{ route('notifikasi.index') }}" aria-label="Pemberitahuan"
+            class="flex items-center justify-between px-3 py-2.5 rounded-xl transition-all duration-150 group {{ request()->routeIs('notifikasi.*') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 font-bold shadow-xs' : 'text-slate-600 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-900 hover:text-slate-900 dark:hover:text-white font-semibold' }}">
+            <div class="flex items-center min-w-0">
+                <svg class="w-5 h-5 mr-3 shrink-0 transition-colors {{ request()->routeIs('notifikasi.*') ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 dark:text-zinc-500 group-hover:text-slate-600 dark:group-hover:text-zinc-300' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+                <span class="text-sm">Pemberitahuan</span>
+            </div>
+            @if(isset($totalPesan) && $totalPesan > 0)
+                <span class="min-w-[20px] h-5 px-1.5 rounded-full bg-red-600 text-white text-[10px] font-black flex items-center justify-center shadow-xs">
+                    {{ $totalPesan > 99 ? '99+' : $totalPesan }}
+                </span>
+            @endif
+        </a>
     </nav>
 
     @include('layouts.admin.sidebar-components.menu-pengguna')
