@@ -107,7 +107,29 @@
         </div>
 
         {{-- ── TAB 1: Pendaftaran Siswa ─────────────────────────── --}}
-        <div x-show="tab === 'pendaftaran'" x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+        <div x-show="tab === 'pendaftaran'" x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+             x-data="{
+                 page: 1,
+                 perPage: 10,
+                 total: {{ $pendaftaranMenunggu->count() }},
+                 get maxPage() { return Math.max(1, Math.ceil(this.total / this.perPage)); },
+                 getPages() {
+                     if (this.maxPage <= 6) return Array.from({ length: this.maxPage }, (_, i) => i + 1);
+                     let pages = [1];
+                     if (this.page > 3) pages.push('...');
+                     let start = Math.max(2, this.page - 1);
+                     let end = Math.min(this.maxPage - 1, this.page + 1);
+                     for (let i = start; i <= end; i++) pages.push(i);
+                     if (this.page < this.maxPage - 2) pages.push('...');
+                     pages.push(this.maxPage);
+                     return pages;
+                 },
+                 changePage(p) {
+                     if (p < 1 || p > this.maxPage) return;
+                     this.page = p;
+                     document.getElementById('ajax-table-body')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                 }
+             }">
             @if($pendaftaranMenunggu->isEmpty())
                 <div class="py-16 text-center text-slate-400">
                     <div class="font-bold text-slate-600 dark:text-slate-300">Tidak ada pendaftaran baru yang menunggu</div>
@@ -116,7 +138,11 @@
             @else
                 <ul class="divide-y divide-slate-100 dark:divide-zinc-800">
                     @foreach($pendaftaranMenunggu as $item)
-                        <li class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4 sm:px-6 py-4 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition">
+                        <li x-show="page === {{ floor($loop->index / 10) + 1 }}"
+                            x-transition:enter="transition ease-out duration-150"
+                            x-transition:enter-start="opacity-0 translate-y-1"
+                            x-transition:enter-end="opacity-100 translate-y-0"
+                            class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4 sm:px-6 py-4 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition">
                             <div class="flex items-start sm:items-center gap-3 sm:gap-4">
                                 <div class="w-10 h-10 rounded-2xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center shrink-0 mt-1 sm:mt-0">
                                     <svg class="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
@@ -141,22 +167,88 @@
                         </li>
                     @endforeach
                 </ul>
+
+                @if($pendaftaranMenunggu->count() > 10)
+                <div class="px-4 sm:px-6 py-4 border-t border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-900/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                    <p class="text-slate-500 dark:text-slate-400 font-medium text-center sm:text-left">
+                        Menampilkan <span class="font-bold text-slate-800 dark:text-white" x-text="((page - 1) * perPage) + 1"></span> – 
+                        <span class="font-bold text-slate-800 dark:text-white" x-text="Math.min(page * perPage, total)"></span> 
+                        dari <span class="font-bold text-slate-800 dark:text-white">{{ $pendaftaranMenunggu->count() }}</span> data
+                        <span class="text-slate-400 dark:text-zinc-500 ml-1 font-semibold">(Slide <span x-text="page"></span>/<span x-text="maxPage"></span>)</span>
+                    </p>
+                    <div class="flex items-center gap-1.5 flex-wrap justify-center">
+                        <button type="button" @click="changePage(page - 1)" :disabled="page === 1"
+                            :class="page === 1 ? 'opacity-40 cursor-not-allowed text-slate-400' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-zinc-800 active:scale-95'"
+                            class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-zinc-700 text-xs font-bold flex items-center gap-1 transition">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+                            <span>Prev</span>
+                        </button>
+                        <template x-for="(p, idx) in getPages()" :key="idx">
+                            <span>
+                                <template x-if="p === '...'">
+                                    <span class="px-2 py-1 text-slate-400 font-bold">...</span>
+                                </template>
+                                <template x-if="p !== '...'">
+                                    <button type="button" @click="changePage(p)"
+                                        :class="page === p 
+                                            ? 'bg-indigo-600 text-white font-black shadow-sm shadow-indigo-500/30' 
+                                            : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-700 font-semibold'"
+                                        class="min-w-[32px] h-8 rounded-xl text-xs transition flex items-center justify-center px-1.5 active:scale-95"
+                                        x-text="p"></button>
+                                </template>
+                            </span>
+                        </template>
+                        <button type="button" @click="changePage(page + 1)" :disabled="page === maxPage"
+                            :class="page === maxPage ? 'opacity-40 cursor-not-allowed text-slate-400' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-zinc-800 active:scale-95'"
+                            class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-zinc-700 text-xs font-bold flex items-center gap-1 transition">
+                            <span>Next</span>
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                        </button>
+                    </div>
+                </div>
+                @endif
             @endif
         </div>
 
 
 
-        {{-- ── TAB 3: Transfer SPP (7 hari terakhir) ───────────── --}}
-        <div x-show="tab === 'transfer'" x-cloak x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+        {{-- ── TAB 2: Transfer SPP (30 hari terakhir) ───────────── --}}
+        <div x-show="tab === 'transfer'" x-cloak x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+             x-data="{
+                 page: 1,
+                 perPage: 10,
+                 total: {{ $transferSpp->count() }},
+                 get maxPage() { return Math.max(1, Math.ceil(this.total / this.perPage)); },
+                 getPages() {
+                     if (this.maxPage <= 6) return Array.from({ length: this.maxPage }, (_, i) => i + 1);
+                     let pages = [1];
+                     if (this.page > 3) pages.push('...');
+                     let start = Math.max(2, this.page - 1);
+                     let end = Math.min(this.maxPage - 1, this.page + 1);
+                     for (let i = start; i <= end; i++) pages.push(i);
+                     if (this.page < this.maxPage - 2) pages.push('...');
+                     pages.push(this.maxPage);
+                     return pages;
+                 },
+                 changePage(p) {
+                     if (p < 1 || p > this.maxPage) return;
+                     this.page = p;
+                     document.getElementById('ajax-table-body')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                 }
+             }">
             @if($transferSpp->isEmpty())
                 <div class="py-16 text-center text-slate-400">
-                    <div class="font-bold text-slate-600 dark:text-slate-300">Belum ada transfer SPP dalam 7 hari terakhir</div>
+                    <div class="font-bold text-slate-600 dark:text-slate-300">Belum ada transfer SPP dalam 30 hari terakhir</div>
                 </div>
             @else
                 <ul class="divide-y divide-slate-100 dark:divide-zinc-800">
                     @foreach($transferSpp as $item)
                         @php $siswa = $item->pembayaranSiswa?->pesertaDidik; @endphp
-                        <li class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4 sm:px-6 py-4 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition">
+                        <li x-show="page === {{ floor($loop->index / 10) + 1 }}"
+                            x-transition:enter="transition ease-out duration-150"
+                            x-transition:enter-start="opacity-0 translate-y-1"
+                            x-transition:enter-end="opacity-100 translate-y-0"
+                            class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4 sm:px-6 py-4 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition">
                             <div class="flex items-start sm:items-center gap-3 sm:gap-4">
                                 <div class="w-10 h-10 rounded-2xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center shrink-0 mt-1 sm:mt-0">
                                     <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
@@ -183,11 +275,73 @@
                         </li>
                     @endforeach
                 </ul>
+
+                @if($transferSpp->count() > 10)
+                <div class="px-4 sm:px-6 py-4 border-t border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-900/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                    <p class="text-slate-500 dark:text-slate-400 font-medium text-center sm:text-left">
+                        Menampilkan <span class="font-bold text-slate-900 dark:text-white" x-text="((page - 1) * perPage) + 1"></span> – 
+                        <span class="font-bold text-slate-900 dark:text-white" x-text="Math.min(page * perPage, total)"></span> 
+                        dari <span class="font-bold text-slate-900 dark:text-white">{{ $transferSpp->count() }}</span> data
+                        <span class="text-slate-400 dark:text-zinc-500 ml-1 font-semibold">(Slide <span x-text="page"></span>/<span x-text="maxPage"></span>)</span>
+                    </p>
+                    <div class="flex items-center gap-1.5 flex-wrap justify-center">
+                        <button type="button" @click="changePage(page - 1)" :disabled="page === 1"
+                            :class="page === 1 ? 'opacity-40 cursor-not-allowed text-slate-400' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-zinc-800 active:scale-95'"
+                            class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-zinc-700 text-xs font-bold flex items-center gap-1 transition">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+                            <span>Prev</span>
+                        </button>
+                        <template x-for="(p, idx) in getPages()" :key="idx">
+                            <span>
+                                <template x-if="p === '...'">
+                                    <span class="px-2 py-1 text-slate-400 font-bold">...</span>
+                                </template>
+                                <template x-if="p !== '...'">
+                                    <button type="button" @click="changePage(p)"
+                                        :class="page === p 
+                                            ? 'bg-indigo-600 text-white font-black shadow-sm shadow-indigo-500/30' 
+                                            : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-700 font-semibold'"
+                                        class="min-w-[32px] h-8 rounded-xl text-xs transition flex items-center justify-center px-1.5 active:scale-95"
+                                        x-text="p"></button>
+                                </template>
+                            </span>
+                        </template>
+                        <button type="button" @click="changePage(page + 1)" :disabled="page === maxPage"
+                            :class="page === maxPage ? 'opacity-40 cursor-not-allowed text-slate-400' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-zinc-800 active:scale-95'"
+                            class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-zinc-700 text-xs font-bold flex items-center gap-1 transition">
+                            <span>Next</span>
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                        </button>
+                    </div>
+                </div>
+                @endif
             @endif
         </div>
 
-        {{-- ── TAB 4: Tagihan Jatuh Tempo ──────────────────────── --}}
-        <div x-show="tab === 'tagihan'" x-cloak x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+        {{-- ── TAB 3: Tagihan Jatuh Tempo ──────────────────────── --}}
+        <div x-show="tab === 'tagihan'" x-cloak x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+             x-data="{
+                 page: 1,
+                 perPage: 10,
+                 total: {{ $tagihanJatuhTempo->count() }},
+                 get maxPage() { return Math.max(1, Math.ceil(this.total / this.perPage)); },
+                 getPages() {
+                     if (this.maxPage <= 6) return Array.from({ length: this.maxPage }, (_, i) => i + 1);
+                     let pages = [1];
+                     if (this.page > 3) pages.push('...');
+                     let start = Math.max(2, this.page - 1);
+                     let end = Math.min(this.maxPage - 1, this.page + 1);
+                     for (let i = start; i <= end; i++) pages.push(i);
+                     if (this.page < this.maxPage - 2) pages.push('...');
+                     pages.push(this.maxPage);
+                     return pages;
+                 },
+                 changePage(p) {
+                     if (p < 1 || p > this.maxPage) return;
+                     this.page = p;
+                     document.getElementById('ajax-table-body')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                 }
+             }">
             @if($tagihanJatuhTempo->isEmpty())
                 <div class="py-16 text-center text-slate-400">
                     <div class="font-bold text-slate-600 dark:text-slate-300">Tidak ada tagihan yang akan jatuh tempo</div>
@@ -201,7 +355,11 @@
                             $overdue  = $item->batas_waktu && $item->batas_waktu->isPast();
                             $hasDate  = !empty($item->batas_waktu);
                         @endphp
-                        <li class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4 sm:px-6 py-4 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition {{ $overdue ? 'bg-red-50/40 dark:bg-red-900/5' : '' }}">
+                        <li x-show="page === {{ floor($loop->index / 10) + 1 }}"
+                            x-transition:enter="transition ease-out duration-150"
+                            x-transition:enter-start="opacity-0 translate-y-1"
+                            x-transition:enter-end="opacity-100 translate-y-0"
+                            class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4 sm:px-6 py-4 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition {{ $overdue ? 'bg-red-50/40 dark:bg-red-900/5' : '' }}">
                             <div class="flex items-start sm:items-center gap-3 sm:gap-4">
                                 <div class="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 mt-1 sm:mt-0
                                     {{ $overdue ? 'bg-red-100 dark:bg-red-900/30' : ($hasDate ? 'bg-yellow-100 dark:bg-yellow-900/30' : 'bg-slate-100 dark:bg-zinc-800') }}">
@@ -239,6 +397,46 @@
                         </li>
                     @endforeach
                 </ul>
+
+                @if($tagihanJatuhTempo->count() > 10)
+                <div class="px-4 sm:px-6 py-4 border-t border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-900/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                    <p class="text-slate-500 dark:text-slate-400 font-medium text-center sm:text-left">
+                        Menampilkan <span class="font-bold text-slate-800 dark:text-white" x-text="((page - 1) * perPage) + 1"></span> – 
+                        <span class="font-bold text-slate-800 dark:text-white" x-text="Math.min(page * perPage, total)"></span> 
+                        dari <span class="font-bold text-slate-800 dark:text-white">{{ $tagihanJatuhTempo->count() }}</span> data tagihan
+                        <span class="text-slate-400 dark:text-zinc-500 ml-1 font-semibold">(Slide <span x-text="page"></span>/<span x-text="maxPage"></span>)</span>
+                    </p>
+                    <div class="flex items-center gap-1.5 flex-wrap justify-center">
+                        <button type="button" @click="changePage(page - 1)" :disabled="page === 1"
+                            :class="page === 1 ? 'opacity-40 cursor-not-allowed text-slate-400' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-zinc-800 active:scale-95'"
+                            class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-zinc-700 text-xs font-bold flex items-center gap-1 transition">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+                            <span>Prev</span>
+                        </button>
+                        <template x-for="(p, idx) in getPages()" :key="idx">
+                            <span>
+                                <template x-if="p === '...'">
+                                    <span class="px-2 py-1 text-slate-400 font-bold">...</span>
+                                </template>
+                                <template x-if="p !== '...'">
+                                    <button type="button" @click="changePage(p)"
+                                        :class="page === p 
+                                            ? 'bg-indigo-600 text-white font-black shadow-sm shadow-indigo-500/30' 
+                                            : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-700 font-semibold'"
+                                        class="min-w-[32px] h-8 rounded-xl text-xs transition flex items-center justify-center px-1.5 active:scale-95"
+                                        x-text="p"></button>
+                                </template>
+                            </span>
+                        </template>
+                        <button type="button" @click="changePage(page + 1)" :disabled="page === maxPage"
+                            :class="page === maxPage ? 'opacity-40 cursor-not-allowed text-slate-400' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-zinc-800 active:scale-95'"
+                            class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-zinc-700 text-xs font-bold flex items-center gap-1 transition">
+                            <span>Next</span>
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                        </button>
+                    </div>
+                </div>
+                @endif
             @endif
         </div>
     </div>
