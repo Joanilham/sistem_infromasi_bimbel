@@ -201,7 +201,9 @@
                     @empty
                         <tr>
                             <td colspan="6" class="px-8 py-24 text-center">
-                                <div class="w-20 h-20 bg-slate-50 dark:bg-zinc-800 rounded-[2.5rem] flex items-center justify-center mx-auto mb-6 text-4xl shadow-inner">📦</div>
+                                <div class="w-16 h-16 bg-slate-100 dark:bg-zinc-800 rounded-2xl flex items-center justify-center mx-auto mb-4 text-slate-400 dark:text-zinc-500">
+                                    <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                                </div>
                                 <h3 class="font-black text-slate-900 dark:text-white text-lg">Belum Ada Paket</h3>
                                 <p class="text-slate-400 text-sm mt-2 font-medium">Tambahkan paket bimbingan belajar pertama Anda.</p>
                                 <a href="{{ route('paket-bimbingan.create') }}" class="mt-8 inline-flex items-center gap-3 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black px-8 py-4 rounded-2xl shadow-xl shadow-indigo-500/20 transition-all active:scale-95">

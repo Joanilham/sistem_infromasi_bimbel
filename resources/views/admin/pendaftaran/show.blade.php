@@ -14,7 +14,7 @@
         @php $s = $pendaftaran->status; @endphp
         <span class="px-3 py-1.5 rounded-xl text-sm font-bold
             {{ $s === 'diverifikasi' ? 'bg-emerald-100 text-emerald-700' : ($s === 'ditolak' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700') }}">
-            {{ $s === 'menunggu' ? '⏳ Menunggu Verifikasi' : ($s === 'diverifikasi' ? '✅ Diverifikasi' : '❌ Ditolak') }}
+            {{ $s === 'menunggu' ? 'Menunggu Verifikasi' : ($s === 'diverifikasi' ? 'Diverifikasi' : 'Ditolak') }}
         </span>
     </div>
 </div>
@@ -198,7 +198,7 @@
                 @else
                     <span>Nominal Dibayar:</span>
                     <div class="flex items-center gap-2">
-                        <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">✅ LUNAS</span>
+                        <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">LUNAS</span>
                         <span class="font-bold text-emerald-700 dark:text-emerald-400" id="dp-dibayar-text" data-dp="{{ $pendaftaran->pembayaran->jumlah }}">Rp {{ number_format($pendaftaran->pembayaran->jumlah, 0, ',', '.') }},-</span>
                     </div>
                 @endif
@@ -287,7 +287,7 @@ function bukaModal(aksi) {
     const btn   = document.getElementById('modal-confirm-btn');
 
     if (aksi === 'terima') {
-        icon.textContent  = '✅';
+        icon.innerHTML    = '<svg class="w-8 h-8 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>';
         title.textContent = 'Terima Pendaftaran?';
         desc.textContent  = 'Pendaftaran ini akan diverifikasi dan akun siswa akan otomatis dibuat. Tindakan ini tidak dapat dibatalkan.';
         btn.textContent   = 'Ya, Terima';
@@ -301,7 +301,7 @@ function bukaModal(aksi) {
         document.getElementById('error-kelompok').style.display = 'none';
         setTimeout(() => hitungSisaTagihan(), 100);
     } else {
-        icon.textContent  = '❌';
+        icon.innerHTML    = '<svg class="w-8 h-8 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>';
         title.textContent = 'Tolak Pendaftaran?';
         desc.textContent  = 'Pendaftaran ini akan ditolak. Siswa akan mendapatkan notifikasi penolakan beserta alasan yang Anda berikan.';
         btn.textContent   = 'Ya, Tolak';

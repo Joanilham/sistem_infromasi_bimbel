@@ -46,7 +46,7 @@
                 <h1 class="text-3xl md:text-5xl font-extrabold text-white leading-tight mb-3 tracking-tight">
                     Selamat Datang,<br>
                     <span class="">
-                        {{ auth()->user()->name ?? 'Administrator' }}! 👋
+                        {{ auth()->user()->name ?? 'Administrator' }}!
                     </span>
                 </h1>
 

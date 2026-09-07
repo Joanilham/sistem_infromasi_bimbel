@@ -90,8 +90,8 @@
                     @empty
                         <tr>
                             <td colspan="6" class="px-8 py-24 text-center border border-slate-200 dark:border-zinc-800">
-                                <div class="w-20 h-20 bg-slate-50 dark:bg-zinc-800 rounded-[2rem] flex items-center justify-center mx-auto mb-6 text-4xl shadow-inner">
-                                    💳
+                                <div class="w-16 h-16 bg-slate-100 dark:bg-zinc-800 rounded-2xl flex items-center justify-center mx-auto mb-4 text-slate-400 dark:text-zinc-500">
+                                    <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
                                 </div>
                                 <h3 class="font-black text-slate-900 dark:text-white text-lg">Rekening Bank Belum Terdaftar</h3>
                                 <p class="text-slate-400 text-sm mt-2 font-medium">Daftar rekening penerima pembayaran akan muncul di sini setelah Anda menambahkannya.</p>

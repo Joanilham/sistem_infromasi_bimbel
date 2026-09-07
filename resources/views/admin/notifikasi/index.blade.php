@@ -67,10 +67,7 @@
                     : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 font-semibold'"
                 class="whitespace-nowrap flex flex-col items-center justify-center gap-1 py-4 px-6 border-b-2 text-sm transition-all duration-200">
                 <div class="flex items-center gap-2">
-                    <span class="w-6 h-6 rounded-md bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-                        <svg class="w-3.5 h-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                    </span>
-                    Akun Pendaftar
+                    <span>Akun Pendaftar</span>
                     @if($pendaftaranMenunggu->count() > 0)
                         <span class="bg-amber-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">{{ $pendaftaranMenunggu->count() }}</span>
                     @endif
@@ -85,10 +82,7 @@
                     : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 font-semibold'"
                 class="whitespace-nowrap flex flex-col items-center justify-center gap-1 py-4 px-6 border-b-2 text-sm transition-all duration-200">
                 <div class="flex items-center gap-2">
-                    <span class="w-6 h-6 rounded-md bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                        <svg class="w-3.5 h-3.5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
-                    </span>
-                    Transfer Tagihan Rutin
+                    <span>Transfer Tagihan Rutin</span>
                     @if($transferSpp->count() > 0)
                         <span class="bg-blue-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">{{ $transferSpp->count() }}</span>
                     @endif
@@ -103,10 +97,7 @@
                     : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 font-semibold'"
                 class="whitespace-nowrap flex flex-col items-center justify-center gap-1 py-4 px-6 border-b-2 text-sm transition-all duration-200">
                 <div class="flex items-center gap-2">
-                    <span class="w-6 h-6 rounded-md bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
-                        <svg class="w-3.5 h-3.5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                    </span>
-                    Tagihan Jatuh Tempo
+                    <span>Tagihan Jatuh Tempo</span>
                     @if($tagihanJatuhTempo->count() > 0)
                         <span class="bg-yellow-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">{{ $tagihanJatuhTempo->count() }}</span>
                     @endif
@@ -119,7 +110,6 @@
         <div x-show="tab === 'pendaftaran'" x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
             @if($pendaftaranMenunggu->isEmpty())
                 <div class="py-16 text-center text-slate-400">
-                    <div class="text-4xl mb-3">✅</div>
                     <div class="font-bold text-slate-600 dark:text-slate-300">Tidak ada pendaftaran baru yang menunggu</div>
                     <p class="text-sm mt-1">Semua pendaftaran sudah diproses.</p>
                 </div>
@@ -160,7 +150,6 @@
         <div x-show="tab === 'transfer'" x-cloak x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
             @if($transferSpp->isEmpty())
                 <div class="py-16 text-center text-slate-400">
-                    <div class="text-4xl mb-3">📭</div>
                     <div class="font-bold text-slate-600 dark:text-slate-300">Belum ada transfer SPP dalam 7 hari terakhir</div>
                 </div>
             @else
@@ -201,7 +190,6 @@
         <div x-show="tab === 'tagihan'" x-cloak x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
             @if($tagihanJatuhTempo->isEmpty())
                 <div class="py-16 text-center text-slate-400">
-                    <div class="text-4xl mb-3">🎉</div>
                     <div class="font-bold text-slate-600 dark:text-slate-300">Tidak ada tagihan yang akan jatuh tempo</div>
                     <p class="text-sm mt-1">Semua siswa dalam kondisi aman.</p>
                 </div>

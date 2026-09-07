@@ -56,9 +56,9 @@
                 <div class="flex-1 min-w-0">
                     <p class="text-sm font-bold {{ $bulanSisa == 0 ? 'text-red-800 dark:text-red-300' : 'text-amber-800 dark:text-amber-300' }}">
                         @if($bulanSisa == 0)
-                            ⚠️ Periode <strong>{{ $activePeriode->tahun_periode }}</strong> akan berakhir bulan ini!
+                            Periode <strong>{{ $activePeriode->tahun_periode }}</strong> akan berakhir bulan ini!
                         @else
-                            🗓️ Periode <strong>{{ $activePeriode->tahun_periode }}</strong> akan berakhir dalam <strong>{{ $bulanSisa }} bulan</strong> lagi.
+                            Periode <strong>{{ $activePeriode->tahun_periode }}</strong> akan berakhir dalam <strong>{{ $bulanSisa }} bulan</strong> lagi.
                         @endif
                     </p>
                     <p class="text-xs mt-0.5 {{ $bulanSisa == 0 ? 'text-red-600 dark:text-red-400' : 'text-amber-600 dark:text-amber-400' }}">

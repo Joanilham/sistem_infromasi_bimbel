@@ -219,7 +219,9 @@
                     @empty
                         <tr>
                             <td colspan="9" class="px-8 py-24 text-center border border-slate-200 dark:border-zinc-800">
-                                <div class="w-20 h-20 bg-slate-50 dark:bg-zinc-800 rounded-[2.5rem] flex items-center justify-center mx-auto mb-6 text-4xl shadow-inner">🎓</div>
+                                <div class="w-16 h-16 bg-slate-100 dark:bg-zinc-800 rounded-2xl flex items-center justify-center mx-auto mb-4 text-slate-400 dark:text-zinc-500">
+                                    <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>
+                                </div>
                                 <h3 class="font-black text-slate-900 dark:text-white text-lg">Data Siswa Kosong</h3>
                                 <p class="text-slate-400 text-sm mt-2 font-medium max-w-xs mx-auto">Belum ada data peserta didik aktif yang terdaftar di sistem.</p>
                                 <a href="{{ route('peserta-didik.create') }}" class="mt-8 inline-flex items-center gap-2 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest px-8 py-4 rounded-2xl hover:bg-indigo-700 transition-all active:scale-95 shadow-xl shadow-indigo-500/20">

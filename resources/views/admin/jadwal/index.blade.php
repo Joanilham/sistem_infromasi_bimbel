@@ -194,7 +194,7 @@
                                     
                                     {{-- Time Details --}}
                                     <div class="flex items-center gap-0.5 mt-0.5 text-[7px] font-black text-slate-500 dark:text-slate-400 tracking-tighter">
-                                        <span>🕒 {{ \Carbon\Carbon::parse($j->jam_mulai)->format('H:i') }}-{{ \Carbon\Carbon::parse($j->jam_selesai)->format('H:i') }}</span>
+                                        <span>{{ \Carbon\Carbon::parse($j->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($j->jam_selesai)->format('H:i') }}</span>
                                     </div>
                                     
                                     {{-- Guru & Room Info --}}

@@ -204,7 +204,9 @@
                     @empty
                         <tr>
                             <td colspan="7" class="px-6 py-20 text-center border border-slate-200 dark:border-zinc-800">
-                                <div class="w-20 h-20 bg-slate-50 dark:bg-zinc-800 rounded-[2.5rem] flex items-center justify-center mx-auto mb-6 text-4xl shadow-inner">📭</div>
+                                <div class="w-16 h-16 bg-slate-100 dark:bg-zinc-800 rounded-2xl flex items-center justify-center mx-auto mb-4 text-slate-400 dark:text-zinc-500">
+                                    <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg>
+                                </div>
                                 <h3 class="font-black text-slate-900 dark:text-white text-lg">Tidak Ada Guru Keluar</h3>
                                 <p class="text-slate-400 text-sm mt-2 font-medium max-w-xs mx-auto">Data tenaga pengajar yang keluar atau non-aktif akan tampil di sini.</p>
                             </td>

@@ -225,7 +225,6 @@
                     @empty
                         <tr>
                             <td colspan="7" class="px-6 py-20 text-center border border-slate-200 dark:border-zinc-800">
-                                <div class="text-4xl mb-3">📭</div>
                                 <p class="font-bold text-slate-600 dark:text-slate-300">Tidak ada data peserta didik keluar</p>
                             </td>
                         </tr>

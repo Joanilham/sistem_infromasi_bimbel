@@ -114,7 +114,7 @@
                             <strong>Manfaat Harian:</strong> Keamanan data maksimal! Kehilangan data maksimal hanya 24 jam jika terjadi server crash.
                         </p>
                         <p class="text-xs text-slate-600 dark:text-zinc-400 leading-relaxed">
-                            🔄 <strong>Kebijakan Rotasi:</strong> Server akan secara mandiri menyimpan <strong>7 file harian terakhir</strong> saja. Backup lama di atas 7 hari akan otomatis dihapus untuk menghemat ruang disk.
+                            <strong>Kebijakan Rotasi:</strong> Server akan secara mandiri menyimpan <strong>7 file harian terakhir</strong> saja. Backup lama di atas 7 hari akan otomatis dihapus untuk menghemat ruang disk.
                         </p>
                     </div>
 
@@ -127,7 +127,7 @@
                             <strong>Manfaat Mingguan:</strong> Menyediakan histori pemulihan data mingguan terpisah untuk menganalisis rekapan mingguan.
                         </p>
                         <p class="text-xs text-slate-600 dark:text-zinc-400 leading-relaxed">
-                            🔄 <strong>Kebijakan Rotasi:</strong> Server akan secara mandiri menyimpan <strong>4 file mingguan terakhir</strong> (mencakup data 1 bulan ke belakang).
+                            <strong>Kebijakan Rotasi:</strong> Server akan secara mandiri menyimpan <strong>4 file mingguan terakhir</strong> (mencakup data 1 bulan ke belakang).
                         </p>
                     </div>
 
@@ -140,7 +140,7 @@
                             <strong>Manfaat Bulanan:</strong> Sangat bagus untuk arsip permanen bulanan guna mencadangkan rekapan keuangan bulanan dan periode belajar.
                         </p>
                         <p class="text-xs text-slate-600 dark:text-zinc-400 leading-relaxed">
-                            🔄 <strong>Kebijakan Rotasi:</strong> Server akan secara mandiri menyimpan <strong>3 file bulanan terakhir</strong> (mencakup data 3 bulan ke belakang).
+                            <strong>Kebijakan Rotasi:</strong> Server akan secara mandiri menyimpan <strong>3 file bulanan terakhir</strong> (mencakup data 3 bulan ke belakang).
                         </p>
                     </div>
                 </div>
