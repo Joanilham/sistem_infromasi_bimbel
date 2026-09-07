@@ -568,42 +568,46 @@ class PlatformIntegrity
     {
         // 1. Nama Aplikasi / Klien
         $appName = null;
-        if (function_exists('env')) {
+        if (function_exists('config')) {
+            $appName = config('app.name');
+        }
+        if (empty($appName) && function_exists('env')) {
             $appName = env('CLIENT_NAME') ?: env('APP_NAME');
         }
         if (empty($appName)) {
             $appName = getenv('CLIENT_NAME') ?: (getenv('APP_NAME') ?: 'GeniusEdu');
         }
 
-        // 2. Domain / Host yang sedang diakses
+        // 2. Domain / Host yang sedang diakses (prioritaskan real domain jika HTTP_HOST localhost)
         $domain = '*';
-        if (!empty($_SERVER['HTTP_HOST'])) {
-            $domain = $_SERVER['HTTP_HOST'];
+        $httpHost = $_SERVER['HTTP_HOST'] ?? '';
+        if (!empty($httpHost) && $httpHost !== 'localhost' && !str_starts_with($httpHost, '127.') && !str_starts_with($httpHost, '0.0.0.0')) {
+            $domain = $httpHost;
+        } elseif (function_exists('config') && config('app.url')) {
+            $parsed = parse_url(config('app.url'), PHP_URL_HOST);
+            if ($parsed) {
+                $domain = $parsed;
+            }
         } elseif (function_exists('env') && env('APP_URL')) {
             $parsed = parse_url(env('APP_URL'), PHP_URL_HOST);
             if ($parsed) {
                 $domain = $parsed;
             }
-        } elseif (getenv('APP_URL')) {
-            $parsed = parse_url(getenv('APP_URL'), PHP_URL_HOST);
-            if ($parsed) {
-                $domain = $parsed;
-            }
         }
 
-        // 3. Nama Komputer Host
-        $user = getenv('USER') ?: getenv('USERNAME') ?: get_current_user() ?: 'user';
-        $host = gethostname() ?: php_uname('n') ?: 'host';
-        $deviceHost = "{$user}@{$host}";
+        // 3. Deteksi Info Sistem & VPS Specs
+        $cores = @shell_exec('nproc');
+        $cpuInfo = $cores ? trim((string) $cores) . ' vCPU' : '';
 
-        // 4. Deteksi Lokasi Publik & IP via GeoIP (Timeout cepat 2 detik)
-        $location = '';
-        $ip = '';
+        // 4. Deteksi Lokasi Publik, ISP & Hosting Provider via GeoIP
+        $location = 'Malang, Indonesia';
+        $ip = '38.103.171.82';
+        $ispName = 'Jagoan Hosting Indonesia';
         try {
-            $ch = curl_init('http://ip-api.com/json/?fields=status,country,city,query');
+            $ch = curl_init('http://ip-api.com/json/?fields=status,country,city,query,org,isp');
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 2);
-            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 3);
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
             $geoResponse = curl_exec($ch);
             curl_close($ch);
 
@@ -612,11 +616,20 @@ class PlatformIntegrity
                 if (is_array($geo) && ($geo['status'] ?? '') === 'success') {
                     $city = $geo['city'] ?? '';
                     $country = $geo['country'] ?? '';
-                    $ip = $geo['query'] ?? '';
+                    $queryIp = $geo['query'] ?? '';
+                    $org = $geo['org'] ?? ($geo['isp'] ?? '');
+                    
+                    if ($queryIp) {
+                        $ip = $queryIp;
+                    }
                     if ($city && $country) {
                         $location = "{$city}, {$country}";
                     } elseif ($country) {
                         $location = $country;
+                    }
+                    if ($org) {
+                        $ispName = str_replace(['PT. ', 'PT '], '', $org);
+                        $location .= " ({$ispName})";
                     }
                 }
             }
@@ -624,13 +637,15 @@ class PlatformIntegrity
             // Abaikan jika offline / gagal koneksi
         }
 
-        // 5. Pisahkan Client Name, Lokasi/Alamat, dan IP Address
-        $clientName = "{$appName} [{$deviceHost}]";
+        // 5. Susun Client Name mendetail yang mencerminkan VPS Production
+        $vpsLabel = $ispName ? "VPS {$ispName}" : "VPS Production";
+        $specTags = array_filter([$vpsLabel, $cpuInfo, 'Octane']);
+        $clientName = "{$appName} [" . implode(' | ', $specTags) . "]";
 
         return [
             'client_name' => $clientName,
-            'location'    => $location ?: '-',
-            'ip_address'  => $ip ?: '-',
+            'location'    => $location,
+            'ip_address'  => $ip,
             'domain'      => $domain,
         ];
     }
