@@ -4,6 +4,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 
+// Webhook Telegram Bot (Dikecualikan dari RestrictApiAccess agar Telegram server bisa memanggil)
+Route::post('/telegram/webhook', [\App\Http\Controllers\Api\TelegramWebhookController::class, 'handle']);
+
 Route::middleware([\App\Http\Middleware\RestrictApiAccess::class])->group(function () {
 
     Route::get('/', function () {

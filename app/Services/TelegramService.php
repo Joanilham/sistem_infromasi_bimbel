@@ -46,7 +46,7 @@ class TelegramService
     }
 
     /**
-     * Kirim notifikasi error / exception ke Telegram.
+     * Kirim notifikasi error / exception ke Telegram dengan format terstruktur dan rapi.
      */
     public function sendExceptionNotification(Throwable $e, ?Request $request = null): bool
     {
@@ -61,16 +61,16 @@ class TelegramService
         }
 
         $appName = config('app.name', 'Genius Education');
-        $env = config('app.env', 'production');
-        $time = now()->format('Y-m-d H:i:s');
+        $env = strtoupper(config('app.env', 'PRODUCTION'));
+        $time = now()->translatedFormat('d M Y, H:i:s') . ' WIB';
         $exceptionClass = get_class($e);
-        $message = htmlspecialchars($e->getMessage() ?: 'No message', ENT_QUOTES, 'UTF-8');
+        $message = htmlspecialchars($e->getMessage() ?: 'No exception message provided', ENT_QUOTES, 'UTF-8');
         $file = $this->sanitizePath($e->getFile());
         $line = $e->getLine();
 
         // Data Request & Pengguna
         $requestInfo = 'CLI / Background Process';
-        $userInfo = 'Tidak ada / Guest';
+        $userInfo = 'Guest (Belum Login)';
         $clientInfo = '-';
 
         if ($request && !app()->runningInConsole()) {
@@ -81,30 +81,37 @@ class TelegramService
             if ($user = $request->user()) {
                 $userName = htmlspecialchars($user->name ?? 'User', ENT_QUOTES, 'UTF-8');
                 $userLevel = htmlspecialchars($user->level ?? '-', ENT_QUOTES, 'UTF-8');
-                $userInfo = "{$userName} (ID: {$user->id}, Level: {$userLevel})";
+                $userInfo = "<b>{$userName}</b> (ID: <code>{$user->id}</code> | Level: <code>{$userLevel}</code>)";
             }
 
             $ip = $request->ip();
             $clientInfo = "IP: <code>{$ip}</code>";
         }
 
-        // Stack trace ringkas (3 baris teratas)
+        // Stack trace ringkas (3 baris teratas yang relevan)
         $traceSnippet = '';
         $traces = explode("\n", $e->getTraceAsString());
-        $shortTrace = array_slice($traces, 0, 4);
+        $shortTrace = array_slice($traces, 0, 3);
         if (!empty($shortTrace)) {
-            $traceSnippet = "\n\n🔍 <b>Trace:</b>\n<pre>" . htmlspecialchars(implode("\n", $shortTrace), ENT_QUOTES, 'UTF-8') . "</pre>";
+            $cleanedTrace = array_map(fn($t) => $this->sanitizePath($t), $shortTrace);
+            $traceSnippet = "\n\n <b>Stack Trace (Top 3):</b>\n<pre>" . htmlspecialchars(implode("\n", $cleanedTrace), ENT_QUOTES, 'UTF-8') . "</pre>";
         }
 
-        $telegramMessage = "🚨 <b>[ERROR REPORT] {$appName}</b> ({$env})\n\n"
-            . "⏰ <b>Waktu:</b> {$time}\n"
-            . "⚠️ <b>Tipe:</b> <code>{$exceptionClass}</code>\n"
-            . "📝 <b>Pesan:</b>\n<code>{$message}</code>\n\n"
-            . "📍 <b>Lokasi:</b>\n<code>{$file}:{$line}</code>\n\n"
-            . "🌐 <b>Request:</b> {$requestInfo}\n"
-            . "👤 <b>Pengguna:</b> {$userInfo}\n"
-            . "💻 <b>Klien:</b> {$clientInfo}"
-            . $traceSnippet;
+        $telegramMessage = "<b>LAPORAN INSIDEN SISTEM</b>\n"
+            . "━━━━━━━━━━━━━━━━━━━━\n"
+            . " <b>Lembaga:</b> {$appName} [{$env}]\n"
+            . " <b>Waktu:</b> {$time}\n\n"
+            . " <b>Detail Kesalahan:</b>\n"
+            . "• <b>Tipe:</b> <code>{$exceptionClass}</code>\n"
+            . "• <b>Pesan:</b>\n<blockquote>{$message}</blockquote>\n"
+            . "• <b>Lokasi:</b> <code>{$file}:{$line}</code>\n\n"
+            . "  <b>Konteks Request:</b>\n"
+            . "• <b>Endpoint:</b> {$requestInfo}\n"
+            . "• <b>Pengguna:</b> {$userInfo}\n"
+            . "• <b>Klien:</b> {$clientInfo}"
+            . $traceSnippet
+            . "\n━━━━━━━━━━━━━━━━━━━━\n"
+            . "<i>🤖 Notifikasi otomatis dari Sistem Informasi {$appName}</i>";
 
         return $this->sendMessage($telegramMessage);
     }
@@ -134,7 +141,7 @@ class TelegramService
     }
 
     /**
-     * Bersihkan path absolut server agar lebih ringkas.
+     * Bersihkan path absolut server agar lebih ringkas dan rapi.
      */
     protected function sanitizePath(string $path): string
     {
