@@ -119,35 +119,30 @@
                                 {{ $paket->nama_paket }}
                             </h3>
 
-                            <p class="text-xs text-[#57534E] leading-relaxed mb-4 font-normal line-clamp-2">
-                                {{ $paket->deskripsi ?? 'Pendampingan belajar intensif dengan kurikulum adaptif, simulasi ujian, dan bimbingan mentor berpengalaman.' }}
-                            </p>
+                            @if($paket->deskripsi)
+                                <p class="text-xs text-[#57534E] leading-relaxed mb-4 font-normal line-clamp-2">
+                                    {{ $paket->deskripsi }}
+                                </p>
+                            @endif
 
                             <!-- Facility / Benefits Checklist -->
-                            <div class="space-y-1.5 pt-3 border-t border-[#F4EFEA] mb-4">
-                                <div class="text-[10px] font-mono uppercase tracking-wider text-[#78716C] mb-1.5 font-semibold">Fasilitas Utama:</div>
-                                @php 
-                                    $benefits = explode("\n", str_replace("\r", "", $paket->benefits ?? ''));
-                                    $topBenefits = array_slice(array_filter($benefits), 0, 3);
-                                @endphp
-                                @forelse($topBenefits as $benefit)
-                                    <div class="flex items-start gap-2 text-[11px] sm:text-xs text-[#44403C]">
-                                        <svg class="w-3.5 h-3.5 text-[#E14D2A] shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                        </svg>
-                                        <span class="leading-relaxed line-clamp-1">{{ trim($benefit) }}</span>
-                                    </div>
-                                @empty
-                                    <div class="flex items-start gap-2 text-[11px] sm:text-xs text-[#44403C]">
-                                        <svg class="w-3.5 h-3.5 text-[#E14D2A] shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
-                                        <span class="line-clamp-1">Modul materi adaptif & bank soal</span>
-                                    </div>
-                                    <div class="flex items-start gap-2 text-[11px] sm:text-xs text-[#44403C]">
-                                        <svg class="w-3.5 h-3.5 text-[#E14D2A] shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
-                                        <span class="line-clamp-1">Simulasi CBT berkala & evaluasi</span>
-                                    </div>
-                                @endforelse
-                            </div>
+                            @php 
+                                $benefits = array_filter(array_map('trim', explode("\n", str_replace("\r", "", $paket->benefits ?? ''))));
+                                $topBenefits = array_slice($benefits, 0, 3);
+                            @endphp
+                            @if(count($topBenefits) > 0)
+                                <div class="space-y-1.5 pt-3 border-t border-[#F4EFEA] mb-4">
+                                    <div class="text-[10px] font-mono uppercase tracking-wider text-[#78716C] mb-1.5 font-semibold">Benefit & Fasilitas:</div>
+                                    @foreach($topBenefits as $benefit)
+                                        <div class="flex items-start gap-2 text-[11px] sm:text-xs text-[#44403C]">
+                                            <svg class="w-3.5 h-3.5 text-[#E14D2A] shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                            </svg>
+                                            <span class="leading-relaxed line-clamp-1">{{ $benefit }}</span>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endif
                         </div>
                     </div>
 

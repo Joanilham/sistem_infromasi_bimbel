@@ -88,9 +88,11 @@
                 <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#141413] tracking-tight leading-tight mb-4">
                     {{ $paket->nama_paket }}
                 </h1>
-                <p class="text-[#57534E] text-base sm:text-lg max-w-3xl leading-relaxed">
-                    {{ $paket->deskripsi ?: 'Program bimbingan komprehensif yang dirancang untuk membantu siswa mencapai target akademik secara optimal.' }}
-                </p>
+                @if($paket->deskripsi)
+                    <p class="text-[#57534E] text-base sm:text-lg max-w-3xl leading-relaxed">
+                        {{ $paket->deskripsi }}
+                    </p>
+                @endif
             </div>
         </section>
 
@@ -133,17 +135,18 @@
                                 </div>
                             @endif
 
+                            @php 
+                                $benefitList = array_filter(array_map('trim', explode("\n", str_replace("\r", "", $paket->benefits ?? '')))); 
+                            @endphp
+
                             <!-- Card: Yang Akan Didapatkan -->
-                            <div class="bg-white rounded-2xl p-6 sm:p-8 border border-[#E7E2D9] shadow-xs">
-                                <div class="flex items-center justify-between mb-6">
-                                    <h2 class="text-xl font-bold text-[#141413]">Benefit & Keunggulan Paket</h2>
-                                    <span class="text-xs font-mono uppercase tracking-wider text-[#78716C]">[ EKSKLUSIF ]</span>
-                                </div>
-                                
-                                @php 
-                                    $benefitList = array_filter(array_map('trim', explode("\n", str_replace("\r", "", $paket->benefits ?? '')))); 
-                                @endphp
-                                @if(count($benefitList) > 0)
+                            @if(count($benefitList) > 0)
+                                <div class="bg-white rounded-2xl p-6 sm:p-8 border border-[#E7E2D9] shadow-xs">
+                                    <div class="flex items-center justify-between mb-6">
+                                        <h2 class="text-xl font-bold text-[#141413]">Benefit & Keunggulan Paket</h2>
+                                        <span class="text-xs font-mono uppercase tracking-wider text-[#78716C]">[ EKSKLUSIF ]</span>
+                                    </div>
+                                    
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         @foreach($benefitList as $benefit)
                                             <div class="flex items-start gap-3 p-3.5 rounded-xl bg-[#FAF8F5] border border-[#F4EFEA]">
@@ -154,22 +157,22 @@
                                             </div>
                                         @endforeach
                                     </div>
-                                @else
-                                    <div class="p-6 rounded-xl bg-[#FAF8F5] border border-[#F4EFEA] text-center">
-                                        <p class="text-xs sm:text-sm text-[#78716C] leading-relaxed">
-                                            Materi adaptif, modul pembelajaran terstruktur, dan pendampingan mentor berdedikasi untuk memaksimalkan capaian akademik siswa.
-                                        </p>
-                                    </div>
-                                @endif
-                            </div>
+                                </div>
+                            @endif
 
                             <!-- Card: Tentang Program -->
-                            <div class="bg-white rounded-2xl p-6 sm:p-8 border border-[#E7E2D9] shadow-xs">
-                                <h2 class="text-xl font-bold text-[#141413] mb-4">Mengenai Program Ini</h2>
-                                <p class="text-[#57534E] text-sm sm:text-base leading-relaxed whitespace-pre-line">
-                                    {{ $paket->deskripsi ?: 'Program bimbingan komprehensif yang dirancang untuk membantu siswa mencapai target akademik secara optimal melalui pendekatan belajar terstruktur dan evaluasi berkala.' }}
-                                </p>
-                            </div>
+                            @if($paket->deskripsi)
+                                <div class="bg-white rounded-2xl p-6 sm:p-8 border border-[#E7E2D9] shadow-xs">
+                                    <h2 class="text-xl font-bold text-[#141413] mb-4">Mengenai Program Ini</h2>
+                                    <p class="text-[#57534E] text-sm sm:text-base leading-relaxed whitespace-pre-line">{{ $paket->deskripsi }}</p>
+                                </div>
+                            @endif
+
+                            @if(empty($paket->gambar_paket) && count($benefitList) === 0 && empty($paket->deskripsi))
+                                <div class="bg-white rounded-2xl p-10 border border-[#E7E2D9] shadow-xs text-center">
+                                    <p class="text-sm text-[#78716C]">Belum ada detail atau benefit tambahan yang dicantumkan untuk paket ini.</p>
+                                </div>
+                            @endif
 
                         </div>
 
@@ -200,25 +203,12 @@
                                         @endforeach
                                     </div>
                                 @else
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        <div class="flex items-start gap-4 p-4 rounded-xl bg-[#FAF8F5] border border-[#F4EFEA]">
-                                            <div class="w-10 h-10 rounded-xl bg-[#141413] text-white flex items-center justify-center shrink-0">
-                                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-                                            </div>
-                                            <div>
-                                                <h4 class="font-bold text-sm text-[#141413]">Ruang Kelas & Fasilitas Belajar</h4>
-                                                <p class="text-xs text-[#78716C] mt-0.5">Lingkungan belajar kondusif dengan rasio peserta proporsional.</p>
-                                            </div>
+                                    <div class="py-12 px-6 rounded-xl bg-[#FAF8F5] border border-[#F4EFEA] text-center">
+                                        <div class="w-12 h-12 mx-auto mb-3 rounded-xl bg-[#E7E2D9]/60 flex items-center justify-center text-[#78716C]">
+                                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
                                         </div>
-                                        <div class="flex items-start gap-4 p-4 rounded-xl bg-[#FAF8F5] border border-[#F4EFEA]">
-                                            <div class="w-10 h-10 rounded-xl bg-[#E14D2A] text-white flex items-center justify-center shrink-0">
-                                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-                                            </div>
-                                            <div>
-                                                <h4 class="font-bold text-sm text-[#141413]">Bank Soal & Modul Belajar</h4>
-                                                <p class="text-xs text-[#78716C] mt-0.5">Materi terstruktur dan latihan soal sesuai kurikulum terbaru.</p>
-                                            </div>
-                                        </div>
+                                        <p class="text-sm font-semibold text-[#141413]">Belum Ada Fasilitas Tambahan</p>
+                                        <p class="text-xs text-[#78716C] mt-1">Fasilitas tambahan untuk paket ini belum ditambahkan oleh admin.</p>
                                     </div>
                                 @endif
                             </div>
@@ -312,14 +302,18 @@
                                     <svg class="w-4 h-4 text-[#E14D2A] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                                     <span>Skema: <strong>{{ $paket->bisa_dicicil ? 'Tersedia cicilan fleksibel' : 'Pembayaran lunas' }}</strong></span>
                                 </div>
-                                <div class="flex items-center gap-2">
-                                    <svg class="w-4 h-4 text-[#E14D2A] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                    <span>Durasi: <strong>{{ $paket->durasi_jumlah ? $paket->durasi_jumlah . ' ' . $paket->durasi_satuan : '1 Tahun' }}</strong></span>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <svg class="w-4 h-4 text-[#E14D2A] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                                    <span>Sasaran: <strong>{{ $paket->target_peserta ?: 'Semua Jenjang' }}</strong></span>
-                                </div>
+                                @if($paket->durasi_jumlah)
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-[#E14D2A] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        <span>Durasi: <strong>{{ $paket->durasi_jumlah }} {{ $paket->durasi_satuan }}</strong></span>
+                                    </div>
+                                @endif
+                                @if($paket->target_peserta)
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-[#E14D2A] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                        <span>Sasaran: <strong>{{ $paket->target_peserta }}</strong></span>
+                                    </div>
+                                @endif
                             </div>
 
                         </div>
