@@ -283,22 +283,26 @@
     {{-- Modal Pengaturan Auto Alpha --}}
     <div x-show="autoAlphaModal" 
          x-cloak 
-         class="fixed inset-0 z-50 overflow-y-auto"
+         @keydown.escape.window="autoAlphaModal = false"
+         class="fixed inset-0 z-[100] overflow-y-auto"
          aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            {{-- Backdrop --}}
-            <div x-show="autoAlphaModal"
-                 x-transition:enter="ease-out duration-300"
-                 x-transition:enter-start="opacity-0"
-                 x-transition:enter-end="opacity-100"
-                 x-transition:leave="ease-in duration-200"
-                 x-transition:leave-start="opacity-100"
-                 x-transition:leave-end="opacity-0"
-                 class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity" 
-                 @click="autoAlphaModal = false"></div>
+        
+        {{-- Backdrop with explicit z-10 behind the card --}}
+        <div x-show="autoAlphaModal"
+             x-transition:enter="ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity z-10" 
+             @click="autoAlphaModal = false"
+             aria-hidden="true"></div>
 
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        {{-- Centering wrapper with explicit z-20 on top of backdrop, pointer-events-none --}}
+        <div class="flex min-h-screen items-center justify-center p-4 text-center sm:p-0 relative z-20 pointer-events-none">
 
+            {{-- Modal Card: pointer-events-auto, solid white background, guaranteed opaque --}}
             <div x-show="autoAlphaModal"
                  x-transition:enter="ease-out duration-300"
                  x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
@@ -306,12 +310,22 @@
                  x-transition:leave="ease-in duration-200"
                  x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
                  x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                 class="inline-block align-bottom bg-white dark:bg-zinc-900 rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-slate-100 dark:border-zinc-800">
+                 @click.stop
+                 class="pointer-events-auto relative w-full sm:max-w-lg transform overflow-hidden rounded-3xl bg-white dark:bg-zinc-900 text-left shadow-2xl border border-slate-200 dark:border-zinc-800 transition-all sm:my-8"
+                 style="background-color: #ffffff;">
                 
                 {{-- Form Settings --}}
-                <form action="{{ route('absensi.auto-alpha.settings') }}" method="POST">
+                <form action="{{ route('absensi.auto-alpha.settings') }}" method="POST"
+                      x-data="{ 
+                          enabled: {{ ($autoAlphaSettings['auto_alpha_enabled'] ?? true) ? 'true' : 'false' }},
+                          timeVal: '{{ $autoAlphaSettings['auto_alpha_time'] ?? '23:00' }}',
+                          excludeSun: {{ ($autoAlphaSettings['exclude_sunday'] ?? false) ? 'true' : 'false' }}
+                      }">
                     @csrf
-                    <div class="p-6 sm:p-8">
+                    {{-- Hidden input to ensure value is always submitted even if switch is off --}}
+                    <input type="hidden" name="auto_alpha_enabled" :value="enabled ? '1' : '0'">
+
+                    <div class="p-6 sm:p-8 bg-white dark:bg-zinc-900">
                         {{-- Modal Header --}}
                         <div class="flex items-center justify-between pb-5 border-b border-slate-100 dark:border-zinc-800">
                             <div class="flex items-center gap-3">
@@ -325,7 +339,7 @@
                                     <p class="text-xs text-slate-500 dark:text-slate-400">Otomatisasi penandaan status Alpha harian</p>
                                 </div>
                             </div>
-                            <button type="button" @click="autoAlphaModal = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors p-1 rounded-lg">
+                            <button type="button" @click="autoAlphaModal = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors p-1.5 rounded-lg cursor-pointer">
                                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                 </svg>
@@ -333,22 +347,29 @@
                         </div>
 
                         {{-- Modal Body --}}
-                        <div class="py-6 space-y-5" x-data="{ enabled: {{ ($autoAlphaSettings['auto_alpha_enabled'] ?? true) ? 'true' : 'false' }} }">
+                        <div class="py-6 space-y-5">
                             {{-- Toggle Card --}}
                             <div class="rounded-2xl p-4 transition-colors border"
-                                 :class="enabled ? 'bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800/60' : 'bg-slate-50 dark:bg-zinc-800/40 border-slate-200 dark:border-zinc-800'">
+                                 :class="enabled ? 'bg-emerald-50/80 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800' : 'bg-slate-50 dark:bg-zinc-800/40 border-slate-200 dark:border-zinc-800'">
                                 <div class="flex items-center justify-between gap-4">
                                     <div>
-                                        <label for="auto_alpha_toggle" class="text-sm font-bold text-slate-900 dark:text-white cursor-pointer block">
+                                        <span class="text-sm font-bold text-slate-900 dark:text-white block">
                                             Status Otomatisasi
-                                        </label>
-                                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5" x-text="enabled ? 'Sistem Aktif: Siswa tanpa absen otomatis ditandai Alpha' : 'Sistem Nonaktif: Penandaan Alpha otomatis dimatikan'"></p>
+                                        </span>
+                                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium" 
+                                           x-text="enabled ? 'Sistem Aktif: Siswa tanpa presensi otomatis ditandai Alpha' : 'Sistem Nonaktif: Penandaan Alpha otomatis dimatikan'"></p>
                                     </div>
-                                    <label class="relative inline-flex items-center cursor-pointer shrink-0">
-                                        <input type="checkbox" id="auto_alpha_toggle" name="auto_alpha_enabled" value="1" class="sr-only peer"
-                                               :checked="enabled" @change="enabled = $event.target.checked">
-                                        <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-zinc-600 peer-checked:bg-emerald-600"></div>
-                                    </label>
+                                    <button type="button" 
+                                            @click="enabled = !enabled"
+                                            role="switch"
+                                            :aria-checked="enabled"
+                                            class="relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                                            :class="enabled ? 'bg-emerald-600' : 'bg-slate-300 dark:bg-zinc-700'">
+                                        <span class="sr-only">Toggle Auto Alpha</span>
+                                        <span aria-hidden="true" 
+                                              class="pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out"
+                                              :class="enabled ? 'translate-x-5' : 'translate-x-0'"></span>
+                                    </button>
                                 </div>
                             </div>
 
@@ -359,25 +380,25 @@
                                 </label>
                                 <div class="relative">
                                     <input type="time" id="auto_alpha_time" name="auto_alpha_time" required
-                                           value="{{ $autoAlphaSettings['auto_alpha_time'] ?? '23:00' }}"
-                                           class="w-full bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
+                                           x-model="timeVal"
+                                           class="w-full bg-white dark:bg-zinc-800 border border-slate-300 dark:border-zinc-700 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
                                 </div>
-                                <p class="text-[11px] text-slate-400">Jadwal server saat penandaan Alpha otomatis dijalankan setiap harinya.</p>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400">Jadwal server saat penandaan Alpha otomatis dijalankan setiap harinya.</p>
                             </div>
 
                             {{-- Pengecualian Hari Minggu --}}
-                            <label class="flex items-start gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-zinc-800/40 cursor-pointer border border-transparent hover:border-slate-200 dark:border-zinc-800 transition-all">
+                            <label class="flex items-start gap-3 p-3.5 rounded-2xl bg-slate-50 dark:bg-zinc-800/40 border border-slate-200 dark:border-zinc-700 hover:border-indigo-300 dark:hover:border-indigo-700 cursor-pointer transition-all">
                                 <input type="checkbox" name="exclude_sunday" value="1"
-                                       {{ ($autoAlphaSettings['exclude_sunday'] ?? false) ? 'checked' : '' }}
-                                       class="mt-0.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 dark:border-zinc-700 dark:bg-zinc-800">
-                                <div>
+                                       x-model="excludeSun"
+                                       class="mt-0.5 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 dark:border-zinc-700 dark:bg-zinc-800">
+                                <div class="flex-1">
                                     <span class="text-xs font-bold text-slate-800 dark:text-slate-200 block">Lewati Hari Minggu</span>
                                     <span class="text-[11px] text-slate-500 dark:text-slate-400">Jangan menandai siswa Alpha jika hari tersebut adalah hari Minggu.</span>
                                 </div>
                             </label>
 
                             {{-- Status Terakhir --}}
-                            <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-100 dark:border-zinc-800 text-xs text-slate-600 dark:text-slate-400 space-y-1">
+                            <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-100 dark:border-zinc-800 text-xs text-slate-600 dark:text-slate-400 space-y-1.5">
                                 <div class="flex items-center justify-between">
                                     <span class="font-medium text-slate-500">Eksekusi Terakhir:</span>
                                     <span class="font-bold text-slate-800 dark:text-slate-200">
@@ -400,25 +421,25 @@
                             <button type="button" 
                                     @click="runAutoAlphaInstant()"
                                     :disabled="isRunning"
-                                    class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40 border border-amber-200 dark:border-amber-800 text-xs font-bold transition-all disabled:opacity-50">
-                                <svg x-show="!isRunning" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40 border border-amber-200 dark:border-amber-800 text-xs font-bold transition-all disabled:opacity-50 cursor-pointer">
+                                <svg x-show="!isRunning" class="w-4 h-4 text-amber-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                <svg x-show="isRunning" class="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <svg x-show="isRunning" class="animate-spin w-4 h-4 text-amber-600 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                 </svg>
                                 <span x-text="isRunning ? 'Memproses...' : 'Jalankan Sekarang'"></span>
                             </button>
 
-                            <div class="flex items-center gap-2 justify-end">
+                            <div class="flex items-center gap-2.5 justify-end">
                                 <button type="button" @click="autoAlphaModal = false"
-                                        class="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors">
+                                        class="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer">
                                     Batal
                                 </button>
                                 <button type="submit"
-                                        class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm shadow-indigo-500/30 transition-colors">
+                                        class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm shadow-indigo-500/30 transition-colors cursor-pointer">
                                     Simpan Pengaturan
                                 </button>
                             </div>
