@@ -88,7 +88,7 @@
                 <div class="space-y-3 text-sm text-stone-400">
                     <div class="flex items-start gap-2.5">
                         <span class="text-stone-500 shrink-0 font-mono text-xs mt-0.5">ALAMAT:</span>
-                        <span class="leading-relaxed">{{ ($masterData && $masterData->alamat_lembaga) ? $masterData->alamat_lembaga : 'Jl. Boulevard Akademik No. 88, Gd. EduCenter Lt. 3, Jakarta Selatan' }}</span>
+                        <span class="leading-relaxed">{{ ($masterData && $masterData->alamat_lembaga) ? $masterData->alamat_lembaga : 'Jl. Adi Sucipto No. 88, Sobo, Kec. Banyuwangi, Kabupaten Banyuwangi, Jawa Timur 68418' }}</span>
                     </div>
                     <div class="flex items-center gap-2.5">
                         <span class="text-stone-500 shrink-0 font-mono text-xs">EMAIL:</span>

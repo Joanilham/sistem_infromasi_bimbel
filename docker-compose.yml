@@ -16,7 +16,7 @@ services:
       - ./resources/views:/var/www/html/resources/views:ro,z
       - ./app:/var/www/html/app:ro,z
       - ./routes:/var/www/html/routes:ro,z
-      - ./database/data:/var/www/html/database/data:ro,z
+      - ./database:/var/www/html/database:ro,z
       - ./public/build:/var/www/html/public/build:ro,z
       - ./public/images:/var/www/html/public/images:ro,z
       - ./public/vendor:/var/www/html/public/vendor:ro,z

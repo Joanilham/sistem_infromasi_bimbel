@@ -105,7 +105,7 @@
                     <div class="space-y-4">
                         <div class="space-y-1.5">
                             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">Alamat Kantor / Sekretariat</label>
-                            <textarea name="alamat_lembaga" rows="3" class="w-full bg-white dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 rounded-lg text-sm py-2 px-3 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 transition-all resize-none leading-relaxed" placeholder="Contoh: Jl. Boulevard Akademik No. 88, Gd. EduCenter Lt. 3, Jakarta Selatan">{{ old('alamat_lembaga', $master->alamat_lembaga) }}</textarea>
+                            <textarea name="alamat_lembaga" rows="3" class="w-full bg-white dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 rounded-lg text-sm py-2 px-3 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 transition-all resize-none leading-relaxed" placeholder="Contoh: Jl. Adi Sucipto No. 88, Sobo, Kec. Banyuwangi, Kabupaten Banyuwangi, Jawa Timur 68418">{{ old('alamat_lembaga', $master->alamat_lembaga) }}</textarea>
                         </div>
                         <div class="space-y-1.5">
                             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">Email Kontak Publik</label>

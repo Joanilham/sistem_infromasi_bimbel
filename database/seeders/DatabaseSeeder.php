@@ -21,9 +21,25 @@ class DatabaseSeeder extends Seeder
 
         $kantor = \App\Models\MasterData\Kantor::firstOrCreate(
             ['nama_kantor' => 'Sistem Akademik Pusat'],
-            ['alamat' => 'Cluring']
+            ['alamat' => 'Cluring, Banyuwangi']
         );
         $periode = \App\Models\MasterData\Periode::first();
+
+        \App\Models\MasterData\Master::firstOrCreate(
+            ['id' => 1],
+            [
+                'nama_lembaga'   => 'Nivora',
+                'alamat_lembaga' => 'Jl. Adi Sucipto No. 88, Sobo, Kec. Banyuwangi, Kabupaten Banyuwangi, Jawa Timur 68418',
+                'email_kontak'   => 'sekretariat@nivora.id',
+                'telepon_kantor' => '(0333) 412345',
+                'jam_layanan'    => 'Senin – Sabtu (08.00 – 20.00 WIB)',
+                'stats_siswa'    => '1,500+',
+                'stats_tutor'    => '98.4%',
+                'stats_modul'    => '100+',
+                'stats_kepuasan' => '4.9/5',
+                'logo'           => 'logos/nivora-logo.png',
+            ]
+        );
 
         User::factory()->create([
             'name'     => 'Super Admin',
