@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cookie;
 use App\Http\Requests\Auth\AuthLoginRequest;
 
 class AuthController extends Controller
@@ -86,6 +87,8 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
+        $recallerName = Auth::guard('web')->getRecallerName();
+
         // Log out specifically from the web guard
         Auth::guard('web')->logout();
 
@@ -94,14 +97,24 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        // Redirect to welcome or login based on query parameter
-        $redirectRoute = $request->query('redirect') === 'login' ? 'login' : 'welcome';
+        // Redirect to login or welcome (default to login)
+        $redirectParam = $request->query('redirect');
+        $redirectRoute = $redirectParam === 'welcome' ? 'welcome' : 'login';
 
-        return redirect()->route($redirectRoute)->withHeaders([
+        $response = redirect()->route($redirectRoute)->withHeaders([
             'Cache-Control' => 'no-cache, no-store, max-age=0, must-revalidate',
             'Pragma'        => 'no-cache',
             'Expires'       => 'Sun, 02 Jan 1990 00:00:00 GMT',
         ]);
+
+        // Explicitly forget remember cookie and session cookie
+        if ($recallerName) {
+            $response->withCookie(Cookie::forget($recallerName));
+        }
+        $sessionCookieName = config('session.cookie', 'nivora-session');
+        $response->withCookie(Cookie::forget($sessionCookieName));
+
+        return $response;
     }
 
     // ═══════════════════════════════════════════════════════

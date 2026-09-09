@@ -250,8 +250,7 @@
             });
         });
     </script>
-    
-
+    @include('components.prevent-back-history')
 </body>
 
 </html>

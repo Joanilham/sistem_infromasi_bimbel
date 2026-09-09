@@ -246,5 +246,6 @@
 
     </div>
     @include('components.loading-overlay')
+    @include('components.prevent-back-history')
 </body>
 </html>

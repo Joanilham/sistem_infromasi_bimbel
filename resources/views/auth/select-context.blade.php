@@ -278,17 +278,18 @@
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
                     </button>
 
-                    <form method="POST" action="{{ route('logout', ['redirect' => 'login']) }}" class="w-full">
-                        @csrf
-                        <button type="submit"
-                            class="w-full py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-2xl transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer">
-                            <svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                            </svg>
-                            <span>Ganti Akun</span>
-                        </button>
-                    </form>
+                    <button type="button" onclick="document.getElementById('logout-form-context').submit();"
+                        class="w-full py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-2xl transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer">
+                        <svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        <span>Ganti Akun</span>
+                    </button>
                 </div>
+            </form>
+
+            <form id="logout-form-context" method="POST" action="{{ route('logout', ['redirect' => 'login']) }}" class="hidden">
+                @csrf
             </form>
         </div>
 
@@ -298,5 +299,6 @@
 
     </div>
     @include('components.loading-overlay')
+    @include('components.prevent-back-history')
 </body>
 </html>
