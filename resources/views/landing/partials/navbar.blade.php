@@ -7,7 +7,7 @@
             <a href="{{ route('welcome') }}" class="flex items-center gap-3 hover:opacity-95 transition-opacity group">
                 @if(isset($masterData) && $masterData->logo)
                     <div class="h-10 w-10 rounded-lg bg-white border border-[#E7E2D9] flex items-center justify-center p-1.5 transition-transform group-hover:scale-105">
-                        <img src="{{ Storage::url($masterData->logo) }}" alt="{{ $masterData->nama_lembaga ?? 'NIVORA' }}" class="h-full w-full object-contain">
+                        <img src="{{ Storage::url($masterData->logo) }}" onerror="this.onerror=null; this.src='{{ asset('images/nivora-logo.png') }}';" alt="{{ $masterData->nama_lembaga ?? 'NIVORA' }}" class="h-full w-full object-contain">
                     </div>
                 @else
                     <div class="h-10 w-10 rounded-lg bg-[#E14D2A] flex items-center justify-center text-white font-black text-lg tracking-wider shadow-xs">

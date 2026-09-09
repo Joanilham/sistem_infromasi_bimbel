@@ -8,7 +8,7 @@
                 <a href="{{ route('welcome') }}" class="flex items-center gap-3">
                     @if(isset($masterData) && $masterData->logo)
                         <div class="h-10 w-10 rounded-lg bg-white p-1 flex items-center justify-center">
-                            <img src="{{ Storage::url($masterData->logo) }}" alt="{{ $masterData->nama_lembaga ?? 'NIVORA' }}" class="h-full w-full object-contain">
+                            <img src="{{ Storage::url($masterData->logo) }}" onerror="this.onerror=null; this.src='{{ asset('images/nivora-logo.png') }}';" alt="{{ $masterData->nama_lembaga ?? 'NIVORA' }}" class="h-full w-full object-contain">
                         </div>
                     @else
                         <div class="h-10 w-10 rounded-lg bg-[#E14D2A] flex items-center justify-center text-white font-black text-lg">

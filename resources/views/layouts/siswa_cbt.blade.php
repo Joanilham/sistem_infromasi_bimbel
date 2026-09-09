@@ -20,7 +20,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="{{ asset('vendor/alpinejs/alpine.min.js') }}"></script>
     <style>
         :root {
             --primary: #4318FF;
@@ -171,7 +171,7 @@
         }
     </style>
     <!-- TomSelect CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+    <link href="{{ asset('vendor/tom-select/tom-select.css') }}" rel="stylesheet">
     @stack('head')
     <link rel="stylesheet" href="{{ asset('css/loading.css') }}">
 </head>
@@ -376,7 +376,7 @@
 @include('components.autosave-script')
 
 <!-- TomSelect JS -->
-<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+<script src="{{ asset('vendor/tom-select/tom-select.complete.min.js') }}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('select').forEach((el) => {

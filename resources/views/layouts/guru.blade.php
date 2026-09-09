@@ -17,7 +17,7 @@
 
     
     <!-- TomSelect CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+    <link href="{{ asset('vendor/tom-select/tom-select.css') }}" rel="stylesheet">
     <style>
         .ts-control { border-radius: 0.75rem !important; border: 1px solid #e2e8f0 !important; padding: 0.625rem 0.875rem !important; font-size: 0.875rem !important; box-shadow: none !important; }
         .ts-dropdown { border-radius: 0.75rem !important; border: 1px solid #e2e8f0 !important; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important; font-size: 0.875rem !important; }
@@ -107,7 +107,7 @@
     </div>
 
     <!-- SweetAlert2 -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ asset('vendor/sweetalert2/sweetalert2.min.js') }}"></script>
 
     <!-- Scripts -->
     <script defer src="{{ asset('vendor/alpinejs/alpine.min.js') }}"></script>
@@ -141,7 +141,7 @@
     @stack('scripts')
     
     <!-- TomSelect JS -->
-    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+    <script src="{{ asset('vendor/tom-select/tom-select.complete.min.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Scroll to top of main content area on navigation

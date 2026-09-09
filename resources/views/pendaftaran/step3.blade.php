@@ -389,5 +389,5 @@ document.getElementById('formPendaftaran').addEventListener('submit', function(e
     });
 });
 </script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{{ asset('vendor/sweetalert2/sweetalert2.min.js') }}"></script>
 @endsection

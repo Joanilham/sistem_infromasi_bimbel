@@ -8,6 +8,7 @@ services:
       replicas: 1
     env_file:
       - .env
+      
     environment:
       - DB_HOST=mysql
       - REDIS_HOST=redis
@@ -15,6 +16,11 @@ services:
       - ./resources/views:/var/www/html/resources/views:ro,z
       - ./app:/var/www/html/app:ro,z
       - ./routes:/var/www/html/routes:ro,z
+      - ./database/data:/var/www/html/database/data:ro,z
+      - ./public/build:/var/www/html/public/build:ro,z
+      - ./public/images:/var/www/html/public/images:ro,z
+      - ./public/vendor:/var/www/html/public/vendor:ro,z
+      - ./storage/app/public:/var/www/html/storage/app/public:z
     networks:
       - geniusedu
     mem_limit: 2g
