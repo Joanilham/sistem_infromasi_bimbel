@@ -83,6 +83,28 @@ class Master extends Model
         'gdrive_client_secret'        => 'encrypted',
         'gdrive_refresh_token'        => 'encrypted',
     ];
+
+    /**
+     * Dapatkan URL logo instansi (mitra).
+     * Jika mitra telah mengunggah logo ke storage dan filenya ada, tampilkan logo mitra.
+     * Jika tidak ada, otomatis fallback ke logo bawaan aplikasi (Nivora).
+     */
+    public function getLogoUrlAttribute(): string
+    {
+        if (!empty($this->logo) && \Illuminate\Support\Facades\Storage::disk('public')->exists($this->logo)) {
+            return \Illuminate\Support\Facades\Storage::url($this->logo);
+        }
+
+        return asset('images/nivora-logo.png');
+    }
+
+    /**
+     * Cek apakah instansi/mitra telah mengunggah logo kustom.
+     */
+    public function hasCustomLogo(): bool
+    {
+        return !empty($this->logo) && \Illuminate\Support\Facades\Storage::disk('public')->exists($this->logo);
+    }
 }
 
 

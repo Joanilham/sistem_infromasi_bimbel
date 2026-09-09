@@ -37,7 +37,7 @@ class DatabaseSeeder extends Seeder
                 'stats_tutor'    => '98.4%',
                 'stats_modul'    => '100+',
                 'stats_kepuasan' => '4.9/5',
-                'logo'           => 'logos/nivora-logo.png',
+                'logo'           => null,
             ]
         );
 

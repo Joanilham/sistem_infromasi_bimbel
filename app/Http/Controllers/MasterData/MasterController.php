@@ -49,8 +49,8 @@ class MasterController extends Controller
             $master->gdrive_folder_id      = $validated['gdrive_folder_id'] ?? $master->gdrive_folder_id;
 
             if ($request->hasFile('logo')) {
-                // Hapus logo lama jika ada
-                if ($master->logo) {
+                // Hapus logo lama jika ada di storage
+                if ($master->logo && Storage::disk('public')->exists($master->logo)) {
                     Storage::disk('public')->delete($master->logo);
                 }
 

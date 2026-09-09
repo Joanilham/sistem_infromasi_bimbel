@@ -111,7 +111,9 @@ class LandingPageController extends Controller
             }
 
             if ($request->hasFile('logo')) {
-                if ($master->logo) Storage::disk('public')->delete($master->logo);
+                if ($master->logo && Storage::disk('public')->exists($master->logo)) {
+                    Storage::disk('public')->delete($master->logo);
+                }
                 $validated['logo'] = $this->compressAndStore($request->file('logo'), 'logos', 80);
             } else {
                 unset($validated['logo']);
