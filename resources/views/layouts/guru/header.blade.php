@@ -25,7 +25,7 @@
                         @if(auth()->user() && auth()->user()->photo)
                             <img src="{{ asset('storage/' . auth()->user()->photo) }}" alt="Profile" class="w-[26px] h-[26px] rounded-full object-cover">
                         @else
-                            <div class="w-[26px] h-[26px] rounded-full bg-indigo-100 dark:bg-indigo-950/60 flex items-center justify-center text-indigo-700 dark:text-indigo-300 font-bold text-xs">
+                            <div class="w-[26px] h-[26px] rounded-full bg-emerald-100 dark:bg-emerald-950/60 flex items-center justify-center text-emerald-700 dark:text-emerald-300 font-bold text-xs">
                                 {{ strtoupper(substr($cleanName, 0, 1)) }}
                             </div>
                         @endif

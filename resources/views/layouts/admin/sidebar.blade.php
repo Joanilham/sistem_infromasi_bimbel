@@ -2,7 +2,7 @@
 <div class="flex items-center justify-center h-20 border-b border-slate-100 dark:border-zinc-800 px-4 bg-white dark:bg-zinc-950">
     <a href="{{ route('dashboard') }}" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
         {{-- Logo: tampilkan gambar dari DB jika ada, fallback ke icon SVG --}}
-        @if($masterData && $masterData->logo)
+        @if($masterData && $masterData->hasCustomLogo())
         <div class="w-9 h-9 rounded-xl overflow-hidden shadow-md border border-slate-100 dark:border-zinc-700 shrink-0">
             <img src="{{ asset('storage/' . $masterData->logo) }}" alt="Logo" class="w-full h-full object-contain bg-white rounded-xl">
         </div>
