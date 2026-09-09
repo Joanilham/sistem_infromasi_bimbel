@@ -289,6 +289,9 @@ Route::middleware('auth')->group(function () {
                 Route::post('/absensi/store-manual', [\App\Http\Controllers\Akademik\AbsensiController::class, 'storeManual'])->name('absensi.store.manual');
                 // Absensi — Export
                 Route::get('/absensi/export/rekap', [\App\Http\Controllers\Akademik\AbsensiController::class, 'exportRekap'])->name('absensi.export.rekap');
+                // Absensi — Auto Alpha Automation Controls
+                Route::post('/absensi/auto-alpha/settings', [\App\Http\Controllers\Akademik\AbsensiController::class, 'updateAutoAlphaSettings'])->name('absensi.auto-alpha.settings');
+                Route::post('/absensi/auto-alpha/run', [\App\Http\Controllers\Akademik\AbsensiController::class, 'runAutoAlphaNow'])->name('absensi.auto-alpha.run');
             });
 
             // ── Manajemen Jadwal (Admin) ──

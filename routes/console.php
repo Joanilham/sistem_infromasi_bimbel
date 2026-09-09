@@ -52,8 +52,15 @@ Schedule::command('db:auto-backup --type=monthly')->monthlyOn(1, $monthlyTime)->
     return false; // Default nonaktif
 });
 
-// Otomatis Alpha (Setiap hari pukul 23:00)
-Schedule::command('absensi:auto-alpha')->dailyAt('23:00');
+// Otomatis Alpha (Waktu kustom & toggle status dari berkas pengaturan)
+$autoAlphaSettings = \App\Console\Commands\AutoAlphaCommand::getSettings();
+$autoAlphaTime = $autoAlphaSettings['auto_alpha_time'] ?? '23:00';
+
+Schedule::command('absensi:auto-alpha')
+    ->dailyAt($autoAlphaTime)
+    ->when(function () {
+        return \App\Console\Commands\AutoAlphaCommand::isAutoAlphaEnabled();
+    });
 
 // ✅ Auto-submit ujian CBT yang melewati batas waktu (jalan setiap menit)
 // Memberikan toleransi 5 menit setelah durasi habis sebelum submit otomatis

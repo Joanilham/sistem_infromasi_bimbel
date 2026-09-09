@@ -64,8 +64,9 @@ class AbsensiController extends Controller
 
         $pakets = PaketBimbingan::get();
         $kelompoks = KelompokBelajar::query()->get();
+        $autoAlphaSettings = \App\Console\Commands\AutoAlphaCommand::getSettings();
 
-        return view('admin.absensi.rekap', compact('pesertaDidiks', 'bulan', 'tahun', 'pakets', 'kelompoks'));
+        return view('admin.absensi.rekap', compact('pesertaDidiks', 'bulan', 'tahun', 'pakets', 'kelompoks', 'autoAlphaSettings'));
     }
 
     public function detail(Request $request, $id)
@@ -131,6 +132,68 @@ class AbsensiController extends Controller
         );
 
         return back()->with('success', 'Data absensi tanggal ' . \Carbon\Carbon::parse($request->tanggal)->format('d M Y') . ' berhasil diperbarui.');
+    }
+
+    /**
+     * Memperbarui pengaturan Auto Alpha (On/Off, Jam Eksekusi, Pengecualian Hari Minggu)
+     */
+    public function updateAutoAlphaSettings(Request $request)
+    {
+        $request->validate([
+            'auto_alpha_time' => 'required|date_format:H:i',
+        ]);
+
+        $settings = \App\Console\Commands\AutoAlphaCommand::saveSettings([
+            'auto_alpha_enabled' => $request->boolean('auto_alpha_enabled'),
+            'auto_alpha_time'    => $request->input('auto_alpha_time', '23:00'),
+            'exclude_sunday'     => $request->boolean('exclude_sunday'),
+        ]);
+
+        $statusText = $settings['auto_alpha_enabled'] ? 'Aktif (Pukul ' . $settings['auto_alpha_time'] . ')' : 'Nonaktif';
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success'  => true,
+                'message'  => "Pengaturan Auto Alpha berhasil disimpan ({$statusText}).",
+                'settings' => $settings,
+            ]);
+        }
+
+        return back()->with('success', "Pengaturan Auto Alpha berhasil diperbarui ({$statusText}).");
+    }
+
+    /**
+     * Menjalankan Auto Alpha secara instan saat ini juga
+     */
+    public function runAutoAlphaNow(Request $request)
+    {
+        try {
+            \Illuminate\Support\Facades\Artisan::call('absensi:auto-alpha', ['--force' => true]);
+            
+            $settings = \App\Console\Commands\AutoAlphaCommand::getSettings();
+            $count = $settings['last_run_count'] ?? 0;
+            $msg = "Auto Alpha berhasil dijalankan. Sebanyak {$count} siswa ditandai sebagai Alpha hari ini.";
+
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success'  => true,
+                    'message'  => $msg,
+                    'count'    => $count,
+                    'settings' => $settings,
+                ]);
+            }
+
+            return back()->with('success', $msg);
+        } catch (\Throwable $e) {
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal menjalankan Auto Alpha: ' . $e->getMessage(),
+                ], 500);
+            }
+
+            return back()->with('error', 'Gagal menjalankan Auto Alpha: ' . $e->getMessage());
+        }
     }
 
     // ═══════════════════════════════════════════════════════════

@@ -3,7 +3,7 @@
 @section('title', 'Rekap Absensi')
 
 @section('content')
-<div class="space-y-6" x-data="ajaxTable()">
+<div class="space-y-6" x-data="{ autoAlphaModal: false, isRunning: false, ...ajaxTable() }">
 
     {{-- Header --}}
     <div class="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-zinc-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6">
@@ -12,6 +12,26 @@
             <p class="text-slate-500 dark:text-slate-400 mt-2 text-sm font-medium">Monitoring tingkat kehadiran dan kedisiplinan siswa secara periodik.</p>
         </div>
         <div class="flex flex-wrap items-center gap-3 shrink-0">
+            {{-- Tombol Pengaturan Auto Alpha --}}
+            <button type="button" @click="autoAlphaModal = true"
+                    class="inline-flex items-center gap-2.5 bg-white dark:bg-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-700 text-slate-700 dark:text-slate-200 font-bold text-xs px-5 py-4 rounded-2xl shadow-sm border border-slate-200 dark:border-zinc-700 transition-all active:scale-95"
+                    title="Buka Pengaturan Sistem Auto Alpha">
+                @if($autoAlphaSettings['auto_alpha_enabled'] ?? true)
+                    <span class="relative flex h-2.5 w-2.5">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                    </span>
+                    <span>Auto Alpha: <span class="text-emerald-600 dark:text-emerald-400 font-black">Aktif</span> ({{ $autoAlphaSettings['auto_alpha_time'] ?? '23:00' }})</span>
+                @else
+                    <span class="inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>
+                    <span>Auto Alpha: <span class="text-rose-500 font-black">Nonaktif</span></span>
+                @endif
+                <svg class="w-4 h-4 text-slate-400 ml-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+            </button>
+
             <a href="{{ route('absensi.export.rekap', ['bulan' => $bulan, 'tahun' => $tahun]) }}"
                class="inline-flex items-center gap-3 bg-white dark:bg-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-700 text-slate-700 dark:text-slate-200 font-black text-xs px-6 py-4 rounded-2xl shadow-sm border border-slate-200 dark:border-zinc-700 transition-all active:scale-95">
                 <svg class="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -260,5 +280,220 @@
         </div>
     </div>
 
+    {{-- Modal Pengaturan Auto Alpha --}}
+    <div x-show="autoAlphaModal" 
+         x-cloak 
+         class="fixed inset-0 z-50 overflow-y-auto"
+         aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            {{-- Backdrop --}}
+            <div x-show="autoAlphaModal"
+                 x-transition:enter="ease-out duration-300"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 x-transition:leave="ease-in duration-200"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity" 
+                 @click="autoAlphaModal = false"></div>
+
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+            <div x-show="autoAlphaModal"
+                 x-transition:enter="ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave="ease-in duration-200"
+                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 class="inline-block align-bottom bg-white dark:bg-zinc-900 rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-slate-100 dark:border-zinc-800">
+                
+                {{-- Form Settings --}}
+                <form action="{{ route('absensi.auto-alpha.settings') }}" method="POST">
+                    @csrf
+                    <div class="p-6 sm:p-8">
+                        {{-- Modal Header --}}
+                        <div class="flex items-center justify-between pb-5 border-b border-slate-100 dark:border-zinc-800">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-bold text-slate-900 dark:text-white leading-tight">Pengaturan Auto Alpha</h3>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400">Otomatisasi penandaan status Alpha harian</p>
+                                </div>
+                            </div>
+                            <button type="button" @click="autoAlphaModal = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors p-1 rounded-lg">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        {{-- Modal Body --}}
+                        <div class="py-6 space-y-5" x-data="{ enabled: {{ ($autoAlphaSettings['auto_alpha_enabled'] ?? true) ? 'true' : 'false' }} }">
+                            {{-- Toggle Card --}}
+                            <div class="rounded-2xl p-4 transition-colors border"
+                                 :class="enabled ? 'bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800/60' : 'bg-slate-50 dark:bg-zinc-800/40 border-slate-200 dark:border-zinc-800'">
+                                <div class="flex items-center justify-between gap-4">
+                                    <div>
+                                        <label for="auto_alpha_toggle" class="text-sm font-bold text-slate-900 dark:text-white cursor-pointer block">
+                                            Status Otomatisasi
+                                        </label>
+                                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5" x-text="enabled ? 'Sistem Aktif: Siswa tanpa absen otomatis ditandai Alpha' : 'Sistem Nonaktif: Penandaan Alpha otomatis dimatikan'"></p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                                        <input type="checkbox" id="auto_alpha_toggle" name="auto_alpha_enabled" value="1" class="sr-only peer"
+                                               :checked="enabled" @change="enabled = $event.target.checked">
+                                        <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-zinc-600 peer-checked:bg-emerald-600"></div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            {{-- Jam Eksekusi --}}
+                            <div class="space-y-1.5">
+                                <label for="auto_alpha_time" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                                    Waktu Eksekusi Harian
+                                </label>
+                                <div class="relative">
+                                    <input type="time" id="auto_alpha_time" name="auto_alpha_time" required
+                                           value="{{ $autoAlphaSettings['auto_alpha_time'] ?? '23:00' }}"
+                                           class="w-full bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
+                                </div>
+                                <p class="text-[11px] text-slate-400">Jadwal server saat penandaan Alpha otomatis dijalankan setiap harinya.</p>
+                            </div>
+
+                            {{-- Pengecualian Hari Minggu --}}
+                            <label class="flex items-start gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-zinc-800/40 cursor-pointer border border-transparent hover:border-slate-200 dark:border-zinc-800 transition-all">
+                                <input type="checkbox" name="exclude_sunday" value="1"
+                                       {{ ($autoAlphaSettings['exclude_sunday'] ?? false) ? 'checked' : '' }}
+                                       class="mt-0.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 dark:border-zinc-700 dark:bg-zinc-800">
+                                <div>
+                                    <span class="text-xs font-bold text-slate-800 dark:text-slate-200 block">Lewati Hari Minggu</span>
+                                    <span class="text-[11px] text-slate-500 dark:text-slate-400">Jangan menandai siswa Alpha jika hari tersebut adalah hari Minggu.</span>
+                                </div>
+                            </label>
+
+                            {{-- Status Terakhir --}}
+                            <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-100 dark:border-zinc-800 text-xs text-slate-600 dark:text-slate-400 space-y-1">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-medium text-slate-500">Eksekusi Terakhir:</span>
+                                    <span class="font-bold text-slate-800 dark:text-slate-200">
+                                        {{ !empty($autoAlphaSettings['last_run_at']) ? \Carbon\Carbon::parse($autoAlphaSettings['last_run_at'])->translatedFormat('d M Y, H:i') : 'Belum pernah' }}
+                                    </span>
+                                </div>
+                                @if(!empty($autoAlphaSettings['last_run_count']))
+                                <div class="flex items-center justify-between">
+                                    <span class="font-medium text-slate-500">Siswa Ditandai Alpha:</span>
+                                    <span class="font-bold text-emerald-600 dark:text-emerald-400">
+                                        {{ $autoAlphaSettings['last_run_count'] }} Siswa
+                                    </span>
+                                </div>
+                                @endif
+                            </div>
+                        </div>
+
+                        {{-- Modal Footer --}}
+                        <div class="pt-5 border-t border-slate-100 dark:border-zinc-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                            <button type="button" 
+                                    @click="runAutoAlphaInstant()"
+                                    :disabled="isRunning"
+                                    class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40 border border-amber-200 dark:border-amber-800 text-xs font-bold transition-all disabled:opacity-50">
+                                <svg x-show="!isRunning" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <svg x-show="isRunning" class="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span x-text="isRunning ? 'Memproses...' : 'Jalankan Sekarang'"></span>
+                            </button>
+
+                            <div class="flex items-center gap-2 justify-end">
+                                <button type="button" @click="autoAlphaModal = false"
+                                        class="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors">
+                                    Batal
+                                </button>
+                                <button type="submit"
+                                        class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm shadow-indigo-500/30 transition-colors">
+                                    Simpan Pengaturan
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
 </div>
+
+<script>
+function runAutoAlphaInstant() {
+    Swal.fire({
+        title: 'Jalankan Auto Alpha Sekarang?',
+        text: 'Semua siswa aktif yang belum memiliki catatan absensi hari ini akan langsung ditandai sebagai Alpha.',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#4f46e5',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: 'Ya, Jalankan!',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            
+            Swal.fire({
+                title: 'Sedang Memproses...',
+                text: 'Memeriksa kehadiran siswa aktif hari ini.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            fetch('{{ route("absensi.auto-alpha.run") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': token,
+                    'Accept': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: data.message,
+                        confirmButtonColor: '#4f46e5'
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal!',
+                        text: data.message || 'Terjadi kesalahan pada sistem.',
+                        confirmButtonColor: '#4f46e5'
+                    });
+                }
+            })
+            .catch(err => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Kesalahan Jaringan',
+                    text: 'Gagal menghubungi server.',
+                    confirmButtonColor: '#4f46e5'
+                });
+            });
+        }
+    });
+}
+</script>
 @endsection
