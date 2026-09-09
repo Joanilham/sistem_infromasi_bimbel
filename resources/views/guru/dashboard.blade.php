@@ -10,43 +10,71 @@
     $mapel = $guru->matapelajaran ?: 'Mata Pelajaran Umum';
 @endphp
 
+@push('head')
+<style>
+    .animate-blob {
+        animation: blob 7s infinite;
+    }
+    .animation-delay-2000 {
+        animation-delay: 2s;
+    }
+    .animation-delay-4000 {
+        animation-delay: 4s;
+    }
+    @keyframes blob {
+        0% { transform: translate(0px, 0px) scale(1); }
+        33% { transform: translate(60px, -60px) scale(1.2); }
+        66% { transform: translate(-40px, 40px) scale(0.8); }
+        100% { transform: translate(0px, 0px) scale(1); }
+    }
+</style>
+@endpush
+
 {{-- ─── Executive Welcome Hero Banner ─── --}}
-<div class="relative mb-8 rounded-3xl shadow-xl overflow-hidden bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950 border border-slate-800/80" x-data="dashboardClock">
-    {{-- Subtle dot grid pattern overlay --}}
-    <div class="absolute inset-0 opacity-[0.05] pointer-events-none"
-        style="background-image: radial-gradient(circle, #fff 1px, transparent 1px); background-size: 24px 24px;">
+<div class="relative mb-8 rounded-3xl shadow-xl z-20" x-data="dashboardClock">
+    {{-- Animated gradient background layer --}}
+    <div class="absolute inset-0 rounded-3xl overflow-hidden pointer-events-none -z-10"
+         style="background: linear-gradient(135deg, #0d9488 0%, #115e59 45%, #042f2e 100%);">
+        {{-- Animated Blobs --}}
+        <div class="absolute -top-20 -left-20 w-80 h-80 rounded-full bg-emerald-400/30 blur-3xl animate-blob pointer-events-none"></div>
+        <div class="absolute top-0 -right-20 w-96 h-96 rounded-full bg-white/20 blur-3xl animate-blob animation-delay-2000 pointer-events-none"></div>
+        <div class="absolute -bottom-32 left-1/3 w-80 h-80 rounded-full bg-teal-300/30 blur-3xl animate-blob animation-delay-4000 pointer-events-none"></div>
+        {{-- Dot grid overlay --}}
+        <div class="absolute inset-0 opacity-[0.05]"
+            style="background-image: radial-gradient(circle, #fff 1px, transparent 1px); background-size: 28px 28px;">
+        </div>
     </div>
-    
-    {{-- Subtle top glow accent --}}
-    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-px bg-gradient-to-r from-transparent via-indigo-400/30 to-transparent pointer-events-none"></div>
+
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none"></div>
 
     <div class="relative z-10 p-6 sm:p-8 lg:p-10 flex flex-col xl:flex-row xl:items-center justify-between gap-6 sm:gap-8">
         {{-- Left: Greeting & Status --}}
         <div class="flex-1 min-w-0">
-            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 mb-4 shadow-xs">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span class="text-xs font-bold tracking-widest text-emerald-300 uppercase">Status Pengajar Aktif</span>
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/25 mb-4 shadow-xs">
+                <span class="w-2 h-2 rounded-full bg-emerald-300 animate-pulse"></span>
+                <span class="text-xs font-bold tracking-widest text-emerald-100 uppercase">Status Pengajar Aktif</span>
             </div>
 
-            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white leading-tight mb-3 tracking-tight">
-                Selamat Datang, <span class="text-indigo-200">{{ $cleanName }}</span>
+            <h1 class="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-white leading-tight mb-3 tracking-tight">
+                Selamat Datang,<br>
+                <span class="text-emerald-200">{{ $cleanName }}</span>
             </h1>
 
-            <p class="text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl mb-5">
+            <p class="text-emerald-50/95 text-sm sm:text-base leading-relaxed max-w-2xl mb-6">
                 Kelola jadwal pembelajaran, bank butir soal, dan pantau hasil evaluasi ujian CBT peserta didik dalam satu portal terpadu.
             </p>
 
             {{-- Info Capsules --}}
             <div class="flex flex-wrap items-center gap-2.5 sm:gap-3 text-xs font-semibold">
-                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 text-white border border-white/10 backdrop-blur-sm">
-                    <svg class="w-4 h-4 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/15 text-white border border-white/20 backdrop-blur-md shadow-xs">
+                    <svg class="w-4 h-4 text-emerald-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                     </svg>
-                    <span>Bidang: <strong class="text-indigo-200">{{ $mapel }}</strong></span>
+                    <span>Bidang: <strong class="text-white">{{ $mapel }}</strong></span>
                 </div>
 
-                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 text-white border border-white/10 backdrop-blur-sm">
-                    <svg class="w-4 h-4 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/15 text-white border border-white/20 backdrop-blur-md shadow-xs">
+                    <svg class="w-4 h-4 text-emerald-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                     <span>{{ \Carbon\Carbon::now()->locale('id')->isoFormat('dddd, D MMMM Y') }}</span>
@@ -55,15 +83,15 @@
         </div>
 
         {{-- Right: Compact Real-Time Clock Widget --}}
-        <div class="shrink-0 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 p-4 sm:p-6 min-w-0 sm:min-w-[240px] text-center shadow-inner">
-            <div class="flex items-center justify-center gap-1.5 text-indigo-300 mb-1.5">
+        <div class="shrink-0 bg-white/15 backdrop-blur-xl rounded-2xl border border-white/25 p-5 sm:p-6 min-w-0 sm:min-w-[240px] text-center shadow-lg text-white">
+            <div class="flex items-center justify-center gap-1.5 text-emerald-200 mb-1.5">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-300" x-text="date">Memuat...</span>
+                <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-100" x-text="date">Memuat...</span>
             </div>
             <div class="text-3xl sm:text-4xl font-black tabular-nums tracking-tight text-white my-1" x-text="time">00:00:00</div>
-            <div class="inline-block mt-1 text-[10px] font-bold text-indigo-200 bg-indigo-900/50 border border-indigo-700/40 rounded-lg py-1 px-2.5" x-text="zonaWaktu">
+            <div class="inline-block mt-1 text-[10px] font-bold text-white bg-white/20 border border-white/30 rounded-lg py-1 px-2.5 shadow-xs" x-text="zonaWaktu">
                 Waktu Indonesia Barat (WIB)
             </div>
         </div>
