@@ -102,9 +102,10 @@ class AuthController extends Controller
         $redirectRoute = $redirectParam === 'welcome' ? 'welcome' : 'login';
 
         $response = redirect()->route($redirectRoute)->withHeaders([
-            'Cache-Control' => 'no-cache, no-store, max-age=0, must-revalidate',
-            'Pragma'        => 'no-cache',
-            'Expires'       => 'Sun, 02 Jan 1990 00:00:00 GMT',
+            'Cache-Control'     => 'no-cache, no-store, max-age=0, must-revalidate',
+            'Pragma'            => 'no-cache',
+            'Expires'           => 'Sun, 02 Jan 1990 00:00:00 GMT',
+            'Clear-Site-Data'   => '"cache", "storage"',
         ]);
 
         // Explicitly forget remember cookie and session cookie

@@ -46,8 +46,9 @@ class SecurityHeaders
             $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
             $response->headers->set('Permissions-Policy', 'camera=*, microphone=*, geolocation=()');
 
-            // Anti-cache header untuk halaman berautentikasi / sensitif (mencegah Back-Forward Cache / bfcache)
-            if ($request->user() || $request->is('dashboard*', 'admin*', 'guru*', 'siswa*', 'select-context*', 'profile*', 'absensi*', 'cbt*', 'session*', 'notifikasi*')) {
+            // Anti-cache header untuk semua halaman berautentikasi / internal / sensitif (mencegah Back-Forward Cache / bfcache)
+            $isPublicPage = $request->is('/', 'program-bimbingan*', 'paket/*', 'login', 'forgot-password*', 'reset-password*', 'step*', 'selesai', 'verifikasi-email*');
+            if ($request->user() || !$isPublicPage) {
                 $response->headers->set('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate');
                 $response->headers->set('Pragma', 'no-cache');
                 $response->headers->set('Expires', 'Sun, 02 Jan 1990 00:00:00 GMT');
