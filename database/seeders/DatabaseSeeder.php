@@ -41,12 +41,14 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        User::factory()->create([
-            'name'     => 'Super Admin',
-            'email'    => 'superadmin@admin.com',
-            'level'    => 'Super Admin',
-            'password' => bcrypt('password'),
-        ]);
+        User::firstOrCreate(
+            ['email' => 'superadmin@admin.com'],
+            [
+                'name'     => 'Super Admin',
+                'level'    => 'Super Admin',
+                'password' => bcrypt('password'),
+            ]
+        );
 
         // Akun Admin dan data dummy dinonaktifkan untuk produksi (cPanel)
         // User::factory()->create([
