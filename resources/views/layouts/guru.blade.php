@@ -115,10 +115,6 @@
     <!-- SweetAlert2 -->
     <script src="{{ asset('vendor/sweetalert2/sweetalert2.min.js') }}"></script>
 
-    <!-- Scripts -->
-    <script defer src="{{ asset('vendor/alpinejs/alpine.min.js') }}"></script>
-    <script defer src="{{ asset('js/sidebar-scroll.js') }}?v={{ time() }}"></script>
-
     <!-- Global Delete Confirmation Script -->
     <script>
         function confirmDelete(title, text, formElement) {
@@ -140,8 +136,105 @@
                 if (result.isConfirmed) {
                     formElement.submit();
                 }
-            })
+            });
         }
+    </script>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('ajaxTable', () => ({
+                isLoading: false,
+                _safetyTimer: null,
+                
+                fetchData(e) {
+                    let form = null;
+                    if (e && e.target && e.target.tagName === 'FORM') {
+                        form = e.target;
+                    } else if (e && e.target && e.target.form) {
+                        form = e.target.form;
+                    } else {
+                        form = this.$el.querySelector('form');
+                    }
+
+                    if (!form) return;
+
+                    let url = new URL(form.action || window.location.href);
+                    let formData = new FormData(form);
+                    
+                    url.search = '';
+                    for (let [key, value] of formData.entries()) {
+                        if (value) url.searchParams.append(key, value);
+                    }
+
+                    this.doFetch(url.toString());
+                },
+                
+                navigate(e, urlStr) {
+                    if (e) e.preventDefault();
+                    this.doFetch(urlStr);
+                },
+
+                doFetch(urlStr) {
+                    if (this.isLoading) return;
+                    this.isLoading = true;
+
+                    clearTimeout(this._safetyTimer);
+                    this._safetyTimer = setTimeout(() => {
+                        if (this.isLoading) {
+                            this.isLoading = false;
+                            if (typeof App !== 'undefined' && App.Progress) {
+                                App.Progress.fail();
+                            }
+                        }
+                    }, 15000);
+                    
+                    fetch(urlStr, {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    })
+                    .then(res => {
+                        if (!res.ok) throw new Error('HTTP ' + res.status);
+                        return res.text();
+                    })
+                    .then(html => {
+                        let parser = new DOMParser();
+                        let doc = parser.parseFromString(html, 'text/html');
+                        
+                        const updateElement = (id) => {
+                            let newEl = doc.getElementById(id);
+                            let oldEl = document.getElementById(id);
+                            if (newEl && oldEl) {
+                                const loadingOverlay = oldEl.querySelector('[x-show="isLoading"]');
+                                oldEl.innerHTML = newEl.innerHTML;
+                                if (loadingOverlay) {
+                                    const staleOverlay = oldEl.querySelector('[x-show="isLoading"]');
+                                    if (staleOverlay) staleOverlay.remove();
+                                    oldEl.insertBefore(loadingOverlay, oldEl.firstChild);
+                                }
+                            }
+                        };
+
+                        updateElement('ajax-summary-cards');
+                        updateElement('ajax-table-body');
+                        updateElement('ajax-pagination');
+                        
+                        window.history.pushState({}, '', urlStr);
+                    })
+                    .catch(error => {
+                        console.error('AJAX Error:', error);
+                        if (typeof App !== 'undefined' && App.Toast) {
+                            App.Toast.error('Gagal Memuat', 'Terjadi kesalahan saat memuat data. Silakan coba lagi.');
+                        }
+                    })
+                    .finally(() => {
+                        clearTimeout(this._safetyTimer);
+                        this.isLoading = false;
+                        if (typeof App !== 'undefined' && App.Progress) {
+                            App.Progress.done();
+                        }
+                    });
+                }
+            }));
+        });
     </script>
 
     @stack('scripts')
@@ -149,6 +242,44 @@
     <!-- TomSelect JS -->
     <script src="{{ asset('vendor/tom-select/tom-select.complete.min.js') }}"></script>
     <script>
+        // Global Format Rupiah
+        function formatRupiah(value) {
+            if (!value) return '';
+            let number_string = value.toString().replace(/[^,\d]/g, '').toString(),
+                split         = number_string.split(','),
+                sisa          = split[0].length % 3,
+                rupiah        = split[0].substr(0, sisa),
+                ribuan        = split[0].substr(sisa).match(/\d{3}/gi);
+
+            if (ribuan) {
+                let separator = sisa ? '.' : '';
+                rupiah += separator + ribuan.join('.');
+            }
+
+            rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
+            return rupiah;
+        }
+
+        // Event delegation untuk format rupiah saat input
+        document.addEventListener('input', function(e) {
+            if (e.target && e.target.matches('input.nominal-format, input.nominal-input, input[name="nominal"], input[name="biaya_pendaftaran"]')) {
+                if (e.target.type === 'number') {
+                    e.target.type = 'text';
+                    e.target.setAttribute('inputmode', 'numeric');
+                }
+                e.target.value = formatRupiah(e.target.value);
+            }
+        });
+
+        // Hapus titik sebelum form disubmit
+        document.addEventListener('submit', function(e) {
+            if (e.target && e.target.tagName === 'FORM') {
+                e.target.querySelectorAll('input.nominal-format, input.nominal-input, input[name="nominal"], input[name="biaya_pendaftaran"]').forEach(input => {
+                    input.value = input.value.replace(/\./g, '');
+                });
+            }
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
             // Scroll to top of main content area on navigation
             const mainScrollArea = document.getElementById('main-scroll-area');
@@ -157,10 +288,11 @@
             }
 
             document.querySelectorAll('select').forEach((el) => {
-                if (el.classList.contains('no-tomselect') || el.closest('.ql-toolbar')) return;
+                if (el.classList.contains('no-tomselect') || el.tomselect || el.closest('.ql-toolbar')) return;
                 new TomSelect(el, {
                     create: false,
-                    sortField: null,
+                    sortField: [{field: '$order'}],
+                    allowEmptyOption: true,
                     plugins: ['dropdown_input'],
                 });
             });

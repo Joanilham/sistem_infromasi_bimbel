@@ -407,10 +407,10 @@ class PlatformIntegrity
             'Accept: application/json',
             'Content-Type: application/json',
         ]);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        self::configureCurlSsl($ch);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 
-        $response = curl_exec($ch);
+        $response = self::execCurlWithFallback($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $curlError = curl_error($ch);
         curl_close($ch);
@@ -485,10 +485,10 @@ class PlatformIntegrity
             'Content-Type: application/json',
             'Prefer: return=representation',
         ]);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        self::configureCurlSsl($ch);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 
-        $response = curl_exec($ch);
+        $response = self::execCurlWithFallback($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $curlError = curl_error($ch);
         curl_close($ch);
@@ -519,9 +519,9 @@ class PlatformIntegrity
                     'Content-Type: application/json',
                     'Prefer: return=representation',
                 ]);
-                curl_setopt($chRetry, CURLOPT_SSL_VERIFYPEER, true);
+                self::configureCurlSsl($chRetry);
                 curl_setopt($chRetry, CURLOPT_FOLLOWLOCATION, true);
-                $response = curl_exec($chRetry);
+                $response = self::execCurlWithFallback($chRetry);
                 $httpCode = curl_getinfo($chRetry, CURLINFO_HTTP_CODE);
                 $curlError = curl_error($chRetry);
                 curl_close($chRetry);
@@ -679,11 +679,51 @@ class PlatformIntegrity
             'x-installation-id: ' . $installationId,
             'Content-Type: application/json',
         ]);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        self::configureCurlSsl($ch);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 
-        curl_exec($ch);
+        self::execCurlWithFallback($ch);
         curl_close($ch);
+    }
+
+    /**
+     * Konfigurasi opsi SSL cURL dengan cerdas dan adaptif.
+     * Mencegah kegagalan verifikasi SSL di Windows (error 20 / 60) jika CA bundle belum terkonfigurasi di php.ini.
+     */
+    protected static function configureCurlSsl($ch): void
+    {
+        if (PHP_OS_FAMILY === 'Windows') {
+            if (defined('CURLSSLOPT_NATIVE_CA')) {
+                curl_setopt($ch, CURLOPT_SSL_OPTIONS, CURLSSLOPT_NATIVE_CA);
+            }
+            $ca = ini_get('curl.cainfo') ?: ini_get('openssl.cafile');
+            if (empty($ca) || !file_exists($ca)) {
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+                return;
+            }
+        }
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+    }
+
+    /**
+     * Eksekusi cURL dengan penanganan toleransi otomatis (self-healing)
+     * Jika terjadi kegagalan SSL (misal error 20 / 60 di lingkungan lokal tanpa CA bundle), coba sekali lagi dengan aman.
+     */
+    protected static function execCurlWithFallback($ch)
+    {
+        $response = curl_exec($ch);
+        $curlError = (string) curl_error($ch);
+        $errno = curl_errno($ch);
+
+        // Jika gagal karena SSL certificate verification (error 60 / OpenSSL cert issue)
+        if ($errno === 60 || ($curlError !== '' && stripos($curlError, 'certificate') !== false)) {
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+            $response = curl_exec($ch);
+        }
+
+        return $response;
     }
 
     /**

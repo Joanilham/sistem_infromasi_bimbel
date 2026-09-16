@@ -23,9 +23,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="{{ asset('vendor/alpinejs/alpine.min.js') }}"></script>
     <script defer src="{{ asset('js/sidebar-scroll.js') }}?v={{ time() }}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ asset('vendor/sweetalert2/sweetalert2.min.js') }}"></script>
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         {{-- Halaman profil lama masih memakai var(...) --}}
@@ -49,7 +49,7 @@
         .dark .ts-control input { color: #f4f4f5 !important; }
     </style>
     <!-- TomSelect CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+    <link href="{{ asset('vendor/tom-select/tom-select.css') }}" rel="stylesheet">
     @stack('head')
     <link rel="stylesheet" href="{{ asset('css/loading.css') }}">
 </head>
@@ -183,10 +183,35 @@
         </a>
     </nav>
 
+    <!-- Global Delete Confirmation Script -->
+    <script>
+        function confirmDelete(title, text, formElement) {
+            Swal.fire({
+                title: title || 'Apakah Anda yakin?',
+                text: text || "Data yang dihapus tidak dapat direstore!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#388782',
+                cancelButtonColor: '#ef4444',
+                confirmButtonText: 'Ya, lanjutkan!',
+                cancelButtonText: 'Batal',
+                background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#ffffff',
+                color: document.documentElement.classList.contains('dark') ? '#f8fafc' : '#0f172a',
+                customClass: {
+                    popup: 'rounded-2xl border border-slate-100 dark:border-slate-700',
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    formElement.submit();
+                }
+            });
+        }
+    </script>
+
     @stack('scripts')
     
     <!-- TomSelect JS -->
-    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+    <script src="{{ asset('vendor/tom-select/tom-select.complete.min.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Scroll to top of main content area on navigation
@@ -197,10 +222,11 @@
 
             // TomSelect Init
             document.querySelectorAll('select').forEach((el) => {
-                if (el.classList.contains('no-tomselect')) return;
+                if (el.classList.contains('no-tomselect') || el.tomselect) return;
                 new TomSelect(el, {
                     create: false,
-                    sortField: null,
+                    sortField: [{field: '$order'}],
+                    allowEmptyOption: true,
                     plugins: ['dropdown_input'],
                 });
             });

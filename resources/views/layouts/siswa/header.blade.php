@@ -24,10 +24,9 @@
                         </div>
                     @endif
 
-                    <div class="relative shrink-0" x-data="{ open: false }">
+                    <div class="relative shrink-0" x-data="{ open: false }" @click.outside="open = false">
                         <button type="button"
                             @click="open = !open"
-                            @click.away="open = false"
                             @keydown.escape.window="open = false"
                             class="flex items-center gap-2 sm:gap-2.5 bg-slate-50 dark:bg-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-700/80 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-full border border-slate-200 dark:border-zinc-700 focus:outline-none transition-colors cursor-pointer"
                             :aria-expanded="open"

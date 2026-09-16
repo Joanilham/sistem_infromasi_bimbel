@@ -31,7 +31,7 @@
 @endpush
 
 {{-- ─── Executive Welcome Hero Banner ─── --}}
-<div class="relative mb-8 rounded-3xl shadow-xl z-20" x-data="dashboardClock">
+<div class="relative mb-8 rounded-3xl shadow-xl z-20 overflow-hidden" x-data="dashboardClock">
     {{-- Animated gradient background layer --}}
     <div class="absolute inset-0 rounded-3xl overflow-hidden pointer-events-none -z-10"
          style="background: linear-gradient(135deg, #0d9488 0%, #115e59 45%, #042f2e 100%);">

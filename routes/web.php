@@ -368,6 +368,9 @@ Route::get('/admin/rekapitulasi/export', [\App\Http\Controllers\Admin\Rekapitula
     // ensure_role memastikan hanya guru yang bisa masuk ke sini
     // ----------------------------------------------------------
     Route::middleware('ensure_role:guru')->prefix('guru')->name('guru.')->group(function () {
+        Route::get('/', function () {
+            return redirect()->route('guru.dashboard');
+        });
         Route::get('/dashboard', [\App\Http\Controllers\Guru\DashboardController::class, 'index'])->name('dashboard');
 
         // Profil Guru
@@ -417,6 +420,9 @@ Route::get('/admin/rekapitulasi/export', [\App\Http\Controllers\Admin\Rekapitula
     // ensure_role memastikan hanya siswa yang bisa masuk ke sini
     // ----------------------------------------------------------
     Route::middleware('ensure_role:siswa')->prefix('siswa')->name('siswa.')->group(function () {
+        Route::get('/', function () {
+            return redirect()->route('siswa.dashboard');
+        });
         
         // ── Halaman Terkunci (Overdue) ──
         Route::get('/locked', function () {
