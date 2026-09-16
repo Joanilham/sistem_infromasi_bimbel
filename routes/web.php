@@ -402,6 +402,14 @@ Route::get('/admin/rekapitulasi/export', [\App\Http\Controllers\Admin\Rekapitula
         Route::get('/ujian/{id}/koreksi/{peserta_id}', [\App\Http\Controllers\Guru\UjianController::class, 'koreksi'])->name('ujian.koreksi');
         Route::post('/ujian/{id}/koreksi/{peserta_id}', [\App\Http\Controllers\Guru\UjianController::class, 'simpanKoreksi'])->name('ujian.koreksi.store');
 
+        // ── Learning Management System ──
+        Route::get('/lms', [\App\Http\Controllers\Guru\LmsController::class, 'index'])->name('lms.index');
+        Route::get('/lms/create', [\App\Http\Controllers\Guru\LmsController::class, 'create'])->name('lms.create');
+        Route::post('/lms', [\App\Http\Controllers\Guru\LmsController::class, 'store'])->name('lms.store');
+        Route::get('/lms/{lms}/open', [\App\Http\Controllers\Guru\LmsController::class, 'open'])->name('lms.open');
+        Route::get('/lms/{lms}/download', [\App\Http\Controllers\Guru\LmsController::class, 'download'])->name('lms.download');
+        Route::delete('/lms/{lms}', [\App\Http\Controllers\Guru\LmsController::class, 'destroy'])->name('lms.destroy');
+
     });
 
     // ----------------------------------------------------------
@@ -451,6 +459,10 @@ Route::get('/admin/rekapitulasi/export', [\App\Http\Controllers\Admin\Rekapitula
 
             // ── Jadwal Siswa ──
             Route::get('/jadwal', [\App\Http\Controllers\Siswa\JadwalController::class, 'index'])->name('jadwal.index');
+
+            // ── Learning Management System ──
+            Route::get('/lms', [\App\Http\Controllers\Siswa\LmsController::class, 'index'])->name('lms.index');
+            Route::get('/lms/{lms}/download', [\App\Http\Controllers\Siswa\LmsController::class, 'download'])->name('lms.download');
         });
     });
 });

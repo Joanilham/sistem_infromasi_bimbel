@@ -73,7 +73,7 @@
             <div class="w-full">
                 @if(session('success'))
                 <div x-data="{ show: true }"
-                     x-init="setTimeout(() => show = false, 4000)"
+                     x-init="setTimeout(() => show = false, 3000)"
                      x-show="show"
                      x-transition:leave="transition ease-in duration-500"
                      x-transition:leave-start="opacity-100 transform scale-100"
@@ -88,7 +88,7 @@
 
                 @if(session('error'))
                 <div x-data="{ show: true }"
-                     x-init="setTimeout(() => show = false, 5000)"
+                     x-init="setTimeout(() => show = false, 3000)"
                      x-show="show"
                      x-transition:leave="transition ease-in duration-500"
                      x-transition:leave-start="opacity-100 transform scale-100"
@@ -103,7 +103,7 @@
 
                 @if(session('info'))
                 <div x-data="{ show: true }"
-                     x-init="setTimeout(() => show = false, 4000)"
+                     x-init="setTimeout(() => show = false, 3000)"
                      x-show="show"
                      class="mb-6 bg-sky-50 dark:bg-sky-950/40 dark:border-sky-800 border border-sky-200 text-sky-800 dark:text-sky-200 px-4 py-4 rounded-xl shadow-sm">
                     {{ session('info') }}
@@ -111,7 +111,13 @@
                 @endif
 
                 @if($errors->any())
-                <div class="mb-6 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-4 rounded-xl shadow-sm" role="alert">
+                 <div x-data="{ show: true }"
+                     x-init="setTimeout(() => show = false, 3000)"
+                     x-show="show"
+                     x-transition:leave="transition ease-in duration-500"
+                     x-transition:leave-start="opacity-100 transform scale-100"
+                     x-transition:leave-end="opacity-0 transform scale-95"
+                     class="mb-6 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-4 rounded-xl shadow-sm" role="alert">
                     <ul class="list-disc list-inside text-sm">
                         @foreach($errors->all() as $error)
                         <li>{{ $error }}</li>

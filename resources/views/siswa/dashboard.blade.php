@@ -81,6 +81,10 @@
         </div>
     </div>
 
+    <a href="{{ route('siswa.lms.index') }}" class="group flex items-center justify-between rounded-2xl border border-indigo-200 bg-indigo-50 p-5 shadow-sm transition hover:border-indigo-400 hover:shadow-md dark:border-indigo-900 dark:bg-indigo-950/40">
+        <div class="flex items-center gap-4"><div class="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-600 text-white"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332 0.477 4.5 1.253v13C19.832 18 18.247 18 16.5 18c-1.746 0 0 0-4.5 1.253" /></svg></div><div><h2 class="font-black text-slate-900 dark:text-white">LMS</h2><p class="text-sm text-slate-600 dark:text-slate-300">Lihat materi dan tugas dari guru</p></div></div><span class="text-indigo-600 transition group-hover:translate-x-1">&rarr;</span>
+    </a>
+
     {{-- WARNINGS --}}
     @if(!$isAktif || session('pending_message'))
         <div class="relative bg-amber-50/90 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 shadow-xs rounded-2xl overflow-hidden">

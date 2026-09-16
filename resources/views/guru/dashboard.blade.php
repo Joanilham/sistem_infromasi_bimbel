@@ -181,7 +181,12 @@
     <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">Pintasan navigasi untuk aktivitas pengajaran harian</p>
 </div>
 
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+    {{-- Action LMS --}}
+    <a href="{{ route('guru.lms.create') }}" class="group bg-indigo-600 rounded-2xl p-4 sm:p-5 shadow-xs hover:bg-indigo-700 hover:shadow-md transition-all flex items-center gap-4 text-white">
+        <div class="w-11 h-11 rounded-xl bg-white/15 flex items-center justify-center shrink-0"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332 0.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18 18.247 18 16.5 18c-1.746 0-3.332 0.477-4.5 1.253" /></svg></div>
+        <div class="flex-1 min-w-0"><h3 class="font-bold text-sm">Buat Konten LMS</h3><p class="text-xs text-indigo-100 mt-0.5 truncate">Upload materi atau buat tugas</p></div>
+    </a>
     {{-- Action 1: Jadwal Mengajar --}}
     <a href="{{ route('guru.jadwal.index') }}"
         class="group bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-100 dark:border-slate-800 shadow-xs hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-md transition-all flex items-center gap-4">
