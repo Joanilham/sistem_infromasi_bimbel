@@ -569,7 +569,11 @@ class PlatformIntegrity
         // 1. Nama Aplikasi / Klien
         $appName = null;
         if (function_exists('config')) {
-            $appName = config('app.name');
+            try {
+                $appName = config('app.name');
+            } catch (\Throwable $e) {
+                $appName = null;
+            }
         }
         if (empty($appName) && function_exists('env')) {
             $appName = env('CLIENT_NAME') ?: env('APP_NAME');
@@ -583,15 +587,26 @@ class PlatformIntegrity
         $httpHost = $_SERVER['HTTP_HOST'] ?? '';
         if (!empty($httpHost) && $httpHost !== 'localhost' && !str_starts_with($httpHost, '127.') && !str_starts_with($httpHost, '0.0.0.0')) {
             $domain = $httpHost;
-        } elseif (function_exists('config') && config('app.url')) {
-            $parsed = parse_url(config('app.url'), PHP_URL_HOST);
-            if ($parsed) {
-                $domain = $parsed;
+        } else {
+            $appUrl = null;
+            if (function_exists('config')) {
+                try {
+                    $appUrl = config('app.url');
+                } catch (\Throwable $e) {
+                    $appUrl = null;
+                }
             }
-        } elseif (function_exists('env') && env('APP_URL')) {
-            $parsed = parse_url(env('APP_URL'), PHP_URL_HOST);
-            if ($parsed) {
-                $domain = $parsed;
+            if (empty($appUrl) && function_exists('env')) {
+                $appUrl = env('APP_URL');
+            }
+            if (empty($appUrl)) {
+                $appUrl = getenv('APP_URL');
+            }
+            if (!empty($appUrl)) {
+                $parsed = parse_url($appUrl, PHP_URL_HOST);
+                if ($parsed) {
+                    $domain = $parsed;
+                }
             }
         }
 
