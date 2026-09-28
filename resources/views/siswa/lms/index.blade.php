@@ -21,7 +21,13 @@
                             <p class="mt-1 text-xs font-semibold text-slate-500">Oleh {{ $content->guru->name }} &middot; {{ $content->created_at->format('d M Y') }}</p>
                             @if($content->description)<p class="mt-3 whitespace-pre-line text-sm leading-6 text-slate-600 dark:text-slate-300">{{ $content->description }}</p>@endif
                             @if($content->due_at)<p class="mt-3 text-xs font-bold text-amber-700">Batas pengumpulan: {{ $content->due_at->format('d M Y, H:i') }}</p>@endif
-                            @if($content->file_path)<a href="{{ route('siswa.lms.download', $content) }}" class="mt-4 inline-flex items-center gap-2 text-xs font-bold text-indigo-600 hover:text-indigo-700">Unduh lampiran &darr;</a>@endif
+                            @if($content->file_path)
+                                <div class="mt-4 flex flex-wrap items-center gap-2">
+                                    <span class="mr-1 max-w-full truncate text-xs font-semibold text-slate-500">Lampiran: {{ $content->file_name }}</span>
+                                    <a href="{{ route('siswa.lms.open', $content) }}" target="_blank" rel="noopener" class="inline-flex items-center rounded-lg bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-700 transition hover:bg-indigo-100 dark:bg-indigo-950/50 dark:text-indigo-300">Buka</a>
+                                    <a href="{{ route('siswa.lms.download', $content) }}" class="inline-flex items-center rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-700 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200">Download</a>
+                                </div>
+                            @endif
                         </article>
                     @empty
                         <p class="rounded-xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500">Belum ada {{ strtolower($heading) }}.</p>

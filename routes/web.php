@@ -267,8 +267,8 @@ Route::middleware('auth')->group(function () {
                 Route::get('/guru/keluar', [\App\Http\Controllers\Akademik\GuruController::class, 'keluar'])->name('manajemen-guru.keluar');
                 Route::get('/guru/keluar/export', [\App\Http\Controllers\Akademik\GuruController::class, 'exportKeluar'])->name('manajemen-guru.keluar.export');
                 Route::get('/guru/{id}/edit', [\App\Http\Controllers\Akademik\GuruController::class, 'edit'])->name('manajemen-guru.edit');
-                Route::resource('guru', \App\Http\Controllers\Akademik\GuruController::class)->except(['edit', 'show'])->names([
-                    'index'   => 'manajemen-guru.index',
+                Route::get('/admin/guru', [\App\Http\Controllers\Akademik\GuruController::class, 'index'])->name('manajemen-guru.index');
+                Route::resource('guru', \App\Http\Controllers\Akademik\GuruController::class)->except(['index', 'edit', 'show'])->names([
                     'create'  => 'manajemen-guru.create',
                     'store'   => 'manajemen-guru.store',
                     'update'  => 'manajemen-guru.update',
@@ -468,6 +468,7 @@ Route::get('/admin/rekapitulasi/export', [\App\Http\Controllers\Admin\Rekapitula
 
             // ── Learning Management System ──
             Route::get('/lms', [\App\Http\Controllers\Siswa\LmsController::class, 'index'])->name('lms.index');
+            Route::get('/lms/{lms}/open', [\App\Http\Controllers\Siswa\LmsController::class, 'open'])->name('lms.open');
             Route::get('/lms/{lms}/download', [\App\Http\Controllers\Siswa\LmsController::class, 'download'])->name('lms.download');
         });
     });
