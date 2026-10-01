@@ -12,6 +12,9 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (DB::getDriverName() === 'sqlite') {
+            return;
+        }
         DB::statement("ALTER TABLE users MODIFY COLUMN level ENUM('Super Admin', 'Admin', 'Staff', 'Guru', 'Siswa') DEFAULT 'Siswa'");
     }
 
@@ -20,6 +23,9 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (DB::getDriverName() === 'sqlite') {
+            return;
+        }
         // Reverting this might cause data loss if there are 'Staff' users, but here is the reverse
         DB::statement("ALTER TABLE users MODIFY COLUMN level ENUM('Super Admin', 'Admin', 'Guru', 'Siswa') DEFAULT 'Siswa'");
     }

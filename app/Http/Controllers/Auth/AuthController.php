@@ -20,61 +20,50 @@ class AuthController extends Controller
     {
         $request->validated();
 
-        $loginInput = trim((string) ($request->input('login') ?? $request->input('email')));
-        $password   = (string) $request->input('password');
+        $email    = trim((string) $request->input('email'));
+        $password = (string) $request->input('password');
 
-        // Cari user berdasarkan email, username, atau NISN (via pesertaDidik)
-        $user = \App\Models\User::where(function ($query) use ($loginInput) {
-            $query->where('email', $loginInput)
-                  ->orWhere('username', $loginInput)
-                  ->orWhereHas('pesertaDidik', function ($q) use ($loginInput) {
-                      $q->where('nisn', $loginInput);
-                  });
-        })->first();
+        // Cari user murni berdasarkan email
+        $user = \App\Models\User::where('email', $email)->first();
 
         // Jika user tidak ditemukan, periksa status pendaftaran siswa
         if (!$user) {
-            $pendaftaran = \App\Models\Pendaftaran\PendaftaranSiswa::where('email', $loginInput)->first();
+            $pendaftaran = \App\Models\Pendaftaran\PendaftaranSiswa::where('email', $email)->first();
             if ($pendaftaran && $pendaftaran->status === 'ditolak') {
                 $catatan = $pendaftaran->catatan_admin
                     ? ' Catatan admin: ' . $pendaftaran->catatan_admin
                     : ' Hubungi administrator untuk informasi lebih lanjut.';
                 return back()->withErrors([
-                    'login' => 'Pendaftaran Anda ditolak.' . $catatan,
                     'email' => 'Pendaftaran Anda ditolak.' . $catatan,
-                ])->onlyInput('login', 'email');
+                ])->onlyInput('email');
             }
 
             return back()->withErrors([
-                'login' => 'Email, Username, atau NISN belum terdaftar dalam sistem.',
-                'email' => 'Email, Username, atau NISN belum terdaftar dalam sistem.',
-            ])->onlyInput('login', 'email');
+                'email' => 'Email belum terdaftar dalam sistem.',
+            ])->onlyInput('email');
         }
 
         // Lakukan autentikasi menggunakan email user yang ditemukan
         if (!Auth::attempt(['email' => $user->email, 'password' => $password], $request->boolean('remember'))) {
             return back()->withErrors([
-                'login' => 'Kata sandi yang Anda masukkan salah.',
-                'email' => 'Kata sandi yang Anda masukkan salah.',
-            ])->onlyInput('login', 'email');
+                'password' => 'Kata sandi yang Anda masukkan salah.',
+            ])->onlyInput('email');
         }
 
         // Cek akun dinonaktifkan (Banned)
         if (!Auth::user()->is_active) {
             $this->forceLogout($request);
             return back()->withErrors([
-                'login' => 'Akun Anda telah dinonaktifkan. Hubungi administrator.',
                 'email' => 'Akun Anda telah dinonaktifkan. Hubungi administrator.',
-            ])->onlyInput('login', 'email');
+            ])->onlyInput('email');
         }
 
         // Batasan Sesi: Maks 2 Perangkat Sekaligus
         $sessionError = $this->checkSessionLimit($request);
         if ($sessionError) {
             return back()->withErrors([
-                'login' => $sessionError,
                 'email' => $sessionError,
-            ])->onlyInput('login', 'email');
+            ])->onlyInput('email');
         }
 
         $request->session()->regenerate();

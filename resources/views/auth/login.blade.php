@@ -142,10 +142,10 @@
             <form action="{{ route('login') }}" method="POST" class="space-y-5" onsubmit="window.showLoading()">
                 @csrf
 
-                <!-- Login Input (Email / Username / NISN) -->
+                <!-- Login Input (Email) -->
                 <div>
-                    <label for="login" class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
-                        Email / Username / NISN
+                    <label for="email" class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
+                        Alamat Email
                     </label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10 text-slate-400">
@@ -153,10 +153,10 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                             </svg>
                         </div>
-                        <input type="text" id="login" name="login" required autofocus autocomplete="username"
+                        <input type="email" id="email" name="email" required autofocus autocomplete="email"
                             class="input-animated block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 text-sm font-medium placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
-                            placeholder="Ketik email, username, atau NISN..."
-                            value="{{ old('login', old('email')) }}">
+                            placeholder="nama@email.com"
+                            value="{{ old('email') }}">
                     </div>
                 </div>
 

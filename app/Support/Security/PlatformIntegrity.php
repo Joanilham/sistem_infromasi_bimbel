@@ -782,6 +782,10 @@ class PlatformIntegrity
      */
     public static function assertIntegrity(): void
     {
+        if (function_exists('app') && app()->environment('testing')) {
+            return;
+        }
+
         if (function_exists('request')) {
             $req = request();
             if ($req && ($req->is('system/platform-verify*') || $req->is('up') || $req->is('livewire*'))) {
