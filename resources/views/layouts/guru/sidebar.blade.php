@@ -2,17 +2,9 @@
 <div class="flex items-center justify-center h-20 border-b border-slate-100 dark:border-zinc-800 px-4 bg-white dark:bg-zinc-950">
     <a href="{{ route('guru.dashboard') }}" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
         {{-- Logo: tampilkan gambar dari DB jika ada, fallback ke icon SVG --}}
-        @if($masterData && $masterData->hasCustomLogo())
-        <div class="w-9 h-9 rounded-xl overflow-hidden shadow-md border border-slate-100 dark:border-zinc-700 shrink-0">
-            <img src="{{ asset('storage/' . $masterData->logo) }}" alt="Logo" class="w-full h-full object-contain bg-white rounded-xl">
+        <div class="w-9 h-9 rounded-xl overflow-hidden shadow-xs shrink-0">
+            <img src="{{ $masterData ? $masterData->logo_url : asset('images/nivora-logo.png') . '?v=2' }}" alt="Logo" class="w-full h-full object-contain">
         </div>
-        @else
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-md shadow-emerald-500/30 shrink-0">
-            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-            </svg>
-        </div>
-        @endif
         @if($masterData && $masterData->nama_lembaga)
         <span class="text-base font-extrabold text-slate-800 dark:text-white tracking-tight leading-tight max-w-[130px] truncate">
             {{ $masterData->nama_lembaga }}
@@ -53,10 +45,12 @@
     <div class="mb-6">
         <h3 class="px-3 text-[10px] font-bold uppercase text-slate-400 dark:text-zinc-500 tracking-widest mb-2">PEMBELAJARAN</h3>
         <nav class="space-y-1">
-            <a href="{{ route('guru.lms.index') }}" aria-label="LMS"
+            <a href="{{ route('guru.lms.index') }}" aria-label="LMS (Materi & Tugas)"
                 class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-150 group {{ request()->routeIs('guru.lms.*') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 font-bold shadow-xs' : 'text-slate-600 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-900 hover:text-slate-900 dark:hover:text-white font-semibold' }}">
-                <svg class="w-5 h-5 mr-3 shrink-0 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
-                <span class="text-sm">LMS</span>
+                <svg class="w-5 h-5 mr-3 shrink-0 transition-colors {{ request()->routeIs('guru.lms.*') ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 dark:text-zinc-500 group-hover:text-slate-600 dark:group-hover:text-zinc-300' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                <span class="text-sm">LMS (Materi & Tugas)</span>
             </a>
         </nav>
     </div>

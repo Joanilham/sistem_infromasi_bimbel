@@ -36,6 +36,12 @@ class CbtMapel extends Model
     {
         return $this->hasMany(CbtBankSoal::class, 'cbt_mapel_id');
     }
+
+    public function gurus(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(\App\Models\User::class, 'guru_mata_pelajaran', 'cbt_mapel_id', 'user_id')
+            ->withTimestamps();
+    }
 }
 
 

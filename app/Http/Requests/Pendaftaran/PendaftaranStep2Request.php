@@ -25,6 +25,7 @@ class PendaftaranStep2Request extends FormRequest
     {
         return [
             'nama_lengkap'       => 'required|string|max:255',
+            'nisn'               => ['required', 'digits:10', 'regex:/^[0-9]{10}$/', 'unique:pendaftaran_siswas,nisn', 'unique:peserta_didiks,nisn'],
             'jenis_kelamin'      => 'required|in:L,P',
             'no_telepon'         => ['required', 'regex:/^\+?[0-9]{8,15}$/'],
             'alamat_lengkap'     => 'required|string',
@@ -44,6 +45,10 @@ class PendaftaranStep2Request extends FormRequest
     public function messages()
     {
         return [
+            'nisn.required'                    => 'Nomor Induk Siswa Nasional (NISN) wajib diisi untuk verifikasi dan akses materi LMS.',
+            'nisn.digits'                      => 'NISN harus terdiri dari tepat 10 digit angka.',
+            'nisn.regex'                       => 'Format NISN tidak valid, hanya boleh berisi 10 digit angka.',
+            'nisn.unique'                      => 'NISN ini sudah terdaftar dalam sistem bimbel.',
             'no_telepon.required'              => 'Nomor telepon/WhatsApp wajib diisi agar bimbel dapat menghubungi Anda.',
             'alamat_lengkap.required'          => 'Alamat lengkap wajib diisi.',
             'nama_ayah.required_without'       => 'Anda wajib mengisi Nama Ayah ATAU Nama Ibu.',

@@ -409,9 +409,18 @@ Route::get('/admin/rekapitulasi/export', [\App\Http\Controllers\Admin\Rekapitula
         Route::get('/lms', [\App\Http\Controllers\Guru\LmsController::class, 'index'])->name('lms.index');
         Route::get('/lms/create', [\App\Http\Controllers\Guru\LmsController::class, 'create'])->name('lms.create');
         Route::post('/lms', [\App\Http\Controllers\Guru\LmsController::class, 'store'])->name('lms.store');
+        Route::get('/lms/{lms}/edit', [\App\Http\Controllers\Guru\LmsController::class, 'edit'])->name('lms.edit');
+        Route::put('/lms/{lms}', [\App\Http\Controllers\Guru\LmsController::class, 'update'])->name('lms.update');
         Route::get('/lms/{lms}/open', [\App\Http\Controllers\Guru\LmsController::class, 'open'])->name('lms.open');
+        Route::get('/lms/{lms}/viewer', [\App\Http\Controllers\Guru\LmsController::class, 'viewer'])->name('lms.viewer');
         Route::get('/lms/{lms}/download', [\App\Http\Controllers\Guru\LmsController::class, 'download'])->name('lms.download');
         Route::delete('/lms/{lms}', [\App\Http\Controllers\Guru\LmsController::class, 'destroy'])->name('lms.destroy');
+        Route::get('/lms/{lms}/submissions', [\App\Http\Controllers\Guru\LmsController::class, 'submissions'])->name('lms.submissions');
+        Route::get('/lms/{lms}/readers', [\App\Http\Controllers\Guru\LmsController::class, 'readers'])->name('lms.readers');
+        Route::post('/lms/submissions/{submission}/grade', [\App\Http\Controllers\Guru\LmsController::class, 'gradeSubmission'])->name('lms.submission.grade');
+        Route::get('/lms/submissions/{submission}/download', [\App\Http\Controllers\Guru\LmsController::class, 'downloadSubmission'])->name('lms.submission.download');
+        Route::get('/lms/submissions/{submission}/open', [\App\Http\Controllers\Guru\LmsController::class, 'openSubmission'])->name('lms.submission.open');
+        Route::get('/lms/submissions/{submission}/viewer', [\App\Http\Controllers\Guru\LmsController::class, 'viewerSubmission'])->name('lms.submission.viewer');
 
     });
 
@@ -468,8 +477,16 @@ Route::get('/admin/rekapitulasi/export', [\App\Http\Controllers\Admin\Rekapitula
 
             // ── Learning Management System ──
             Route::get('/lms', [\App\Http\Controllers\Siswa\LmsController::class, 'index'])->name('lms.index');
+            Route::get('/lms/{lms}', [\App\Http\Controllers\Siswa\LmsController::class, 'show'])->name('lms.show');
             Route::get('/lms/{lms}/open', [\App\Http\Controllers\Siswa\LmsController::class, 'open'])->name('lms.open');
+            Route::get('/lms/{lms}/viewer', [\App\Http\Controllers\Siswa\LmsController::class, 'viewer'])->name('lms.viewer');
             Route::get('/lms/{lms}/download', [\App\Http\Controllers\Siswa\LmsController::class, 'download'])->name('lms.download');
+            Route::post('/lms/{lms}/submit', [\App\Http\Controllers\Siswa\LmsController::class, 'submit'])->name('lms.submit');
+            Route::delete('/lms/{lms}/unsubmit', [\App\Http\Controllers\Siswa\LmsController::class, 'unsubmit'])->name('lms.unsubmit');
+            Route::post('/lms/{lms}/complete', [\App\Http\Controllers\Siswa\LmsController::class, 'toggleComplete'])->name('lms.complete');
+            Route::get('/lms/submission/{submission}/download', [\App\Http\Controllers\Siswa\LmsController::class, 'downloadSubmission'])->name('lms.submission.download');
+            Route::get('/lms/submission/{submission}/open', [\App\Http\Controllers\Siswa\LmsController::class, 'openSubmission'])->name('lms.submission.open');
+            Route::get('/lms/submission/{submission}/viewer', [\App\Http\Controllers\Siswa\LmsController::class, 'viewerSubmission'])->name('lms.submission.viewer');
         });
     });
 });

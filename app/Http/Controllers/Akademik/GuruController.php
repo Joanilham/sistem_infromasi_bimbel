@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Akademik;
 use App\Http\Controllers\Controller;
 
 use App\Models\User;
+use App\Models\CBT\CbtMapel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
@@ -29,7 +30,7 @@ class GuruController extends Controller
 
         $gurus = $this->buildIndexQuery($search, $mapel, $sort, $order, $perPage);
 
-        $daftarMapel = User::where('level', 'Guru')->inContext()->whereNotNull('matapelajaran')->distinct()->pluck('matapelajaran');
+        $daftarMapel = CbtMapel::orderBy('nama')->pluck('nama');
 
         return view('admin.guru.aktif', compact('gurus', 'daftarMapel', 'search', 'perPage'));
     }
@@ -47,7 +48,7 @@ class GuruController extends Controller
 
         $gurus = $this->buildKeluarQuery($search, $mapel, $sort, $order, $perPage);
 
-        $daftarMapel = User::where('level', 'guru')->inContext()->whereNotNull('matapelajaran')->distinct()->pluck('matapelajaran');
+        $daftarMapel = CbtMapel::orderBy('nama')->pluck('nama');
 
         return view('admin.guru.keluar', compact('gurus', 'daftarMapel', 'search', 'perPage'));
     }
@@ -57,7 +58,8 @@ class GuruController extends Controller
      */
     public function create()
     {
-        return view('admin.guru.create');
+        $allMapels = CbtMapel::orderBy('nama')->get();
+        return view('admin.guru.create', compact('allMapels'));
     }
 
     /**
@@ -67,19 +69,35 @@ class GuruController extends Controller
     {
         $validated = $request->validated();
 
-        $validated['password']  = Hash::make($validated['password']);
-        $validated['level']     = 'Guru';
-        $validated['status']    = 'Aktif';
-        $validated['is_active'] = true;
-        $validated['username']  = $request->email;
+        $selectedMapelIds = (array) $request->input('mata_pelajaran_ids', []);
+        $newMapelName = trim((string) $request->input('new_matapelajaran', ''));
+        if (!empty($newMapelName)) {
+            $createdMapel = CbtMapel::firstOrCreate(['nama' => $newMapelName]);
+            if (!in_array($createdMapel->id, $selectedMapelIds)) {
+                $selectedMapelIds[] = $createdMapel->id;
+            }
+        }
+
+        $mapelModels = CbtMapel::whereIn('id', $selectedMapelIds)->get();
+        $validated['matapelajaran'] = $mapelModels->pluck('nama')->implode(', ') ?: ($validated['matapelajaran'] ?? null);
+
+        $validated['password']    = Hash::make($validated['password']);
+        $validated['level']       = 'Guru';
+        $validated['status']      = 'Aktif';
+        $validated['is_active']   = true;
+        $validated['username']    = $request->email;
         $validated['is_featured'] = $request->has('is_featured');
 
         try {
-            unset($validated['password_confirmation']);
-            User::create($validated + [
-                'kantor_id' => session('kantor_id'),
+            unset($validated['password_confirmation'], $validated['mata_pelajaran_ids'], $validated['new_matapelajaran']);
+            $guru = User::create($validated + [
+                'kantor_id'  => session('kantor_id'),
                 'periode_id' => session('periode_id'),
             ]);
+
+            if (!empty($selectedMapelIds)) {
+                $guru->mataPelajarans()->sync($selectedMapelIds);
+            }
 
             \App\Services\CacheService::clearGuruCache();
 
@@ -88,7 +106,7 @@ class GuruController extends Controller
             try {
                 \Illuminate\Support\Facades\Log::error('Guru Store Error: ' . $e->getMessage());
             } catch (\Throwable $logError) {
-                // Ignore log errors (e.g. permission denied on storage/logs)
+                // Ignore log errors
             }
             return back()->withInput()->with('error', 'Error: ' . $e->getMessage());
         }
@@ -99,8 +117,9 @@ class GuruController extends Controller
      */
     public function edit(string $id)
     {
-        $guru = User::where('level', 'Guru')->findOrFail($id);
-        return view('admin.guru.edit', compact('guru'));
+        $guru = User::where('level', 'Guru')->with('mataPelajarans')->findOrFail($id);
+        $allMapels = CbtMapel::orderBy('nama')->get();
+        return view('admin.guru.edit', compact('guru', 'allMapels'));
     }
 
     /**
@@ -111,6 +130,18 @@ class GuruController extends Controller
         $guru = User::where('level', 'Guru')->inContext()->findOrFail($id);
 
         $validated = $request->validated();
+
+        $selectedMapelIds = (array) $request->input('mata_pelajaran_ids', []);
+        $newMapelName = trim((string) $request->input('new_matapelajaran', ''));
+        if (!empty($newMapelName)) {
+            $createdMapel = CbtMapel::firstOrCreate(['nama' => $newMapelName]);
+            if (!in_array($createdMapel->id, $selectedMapelIds)) {
+                $selectedMapelIds[] = $createdMapel->id;
+            }
+        }
+
+        $mapelModels = CbtMapel::whereIn('id', $selectedMapelIds)->get();
+        $validated['matapelajaran'] = $mapelModels->pluck('nama')->implode(', ') ?: ($validated['matapelajaran'] ?? null);
 
         // Hapus field keluar jika status bukan Keluar
         if ($validated['status'] !== 'Keluar') {
@@ -129,11 +160,10 @@ class GuruController extends Controller
         try {
             $validated['username'] = $validated['email'];
             $validated['is_active'] = ($validated['status'] === 'Aktif');
-            unset($validated['password_confirmation']);
+            unset($validated['password_confirmation'], $validated['mata_pelajaran_ids'], $validated['new_matapelajaran']);
             $guru->update($validated);
 
-            // Debug: log after update
-            \Illuminate\Support\Facades\Log::info('Guru updated successfully:', ['id' => $guru->id, 'status' => $guru->fresh()->status]);
+            $guru->mataPelajarans()->sync($selectedMapelIds);
 
             \App\Services\CacheService::clearGuruCache();
 
@@ -235,6 +265,7 @@ class GuruController extends Controller
         
         return User::where('level', 'Guru')
             ->where('status', 'Aktif')
+            ->with('mataPelajarans')
             ->inContext()
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($sq) use ($search) {
@@ -243,7 +274,12 @@ class GuruController extends Controller
                        ->orWhere('email', 'like', "%{$search}%");
                 });
             })
-            ->when($mapel, fn($q) => $q->where('matapelajaran', $mapel))
+            ->when($mapel, function ($q) use ($mapel) {
+                $q->where(function ($sq) use ($mapel) {
+                    $sq->where('matapelajaran', 'like', "%{$mapel}%")
+                       ->orWhereHas('mataPelajarans', fn($m) => $m->where('nama', $mapel));
+                });
+            })
             ->when($jenisKelamin, fn($q) => $q->where('jenis_kelamin', $jenisKelamin))
             ->orderBy($sort, $order)
             ->paginate($perPage)
@@ -256,6 +292,7 @@ class GuruController extends Controller
         
         return User::where('level', 'Guru')
             ->where('status', 'Keluar')
+            ->with('mataPelajarans')
             ->inContext()
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($sq) use ($search) {
@@ -264,7 +301,12 @@ class GuruController extends Controller
                        ->orWhere('email', 'like', "%{$search}%");
                 });
             })
-            ->when($mapel, fn($q) => $q->where('matapelajaran', $mapel))
+            ->when($mapel, function ($q) use ($mapel) {
+                $q->where(function ($sq) use ($mapel) {
+                    $sq->where('matapelajaran', 'like', "%{$mapel}%")
+                       ->orWhereHas('mataPelajarans', fn($m) => $m->where('nama', $mapel));
+                });
+            })
             ->when($jenisKelamin, fn($q) => $q->where('jenis_kelamin', $jenisKelamin))
             ->orderBy($sort, $order)
             ->paginate($perPage)

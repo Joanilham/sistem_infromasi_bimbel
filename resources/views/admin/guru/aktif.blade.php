@@ -180,9 +180,15 @@
                                 {{ $guru->jenis_kelamin == 'Laki-Laki' ? 'L' : ($guru->jenis_kelamin == 'Perempuan' ? 'P' : '-') }}
                             </td>
                             <td class="px-4 py-3 border border-slate-200 dark:border-zinc-800">
-                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 text-[10px] font-black uppercase ring-1 ring-purple-100">
-                                    {{ $guru->matapelajaran }}
-                                </span>
+                                <div class="flex flex-wrap gap-1.5 max-w-[220px]">
+                                    @forelse($guru->daftar_mapel as $mapelItem)
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 text-[10px] font-black uppercase ring-1 ring-purple-100 dark:ring-purple-900/30">
+                                            {{ $mapelItem }}
+                                        </span>
+                                    @empty
+                                        <span class="text-xs text-slate-400 italic">-</span>
+                                    @endforelse
+                                </div>
                             </td>
                             <td class="px-4 py-3 border border-slate-200 dark:border-zinc-800">
                                 <div class="flex flex-col gap-0.5">

@@ -1,0 +1,158 @@
+services:
+  # Laravel App (Octane RoadRunner)
+  app:
+    build:
+      context: .
+      dockerfile: Containerfile
+    image: geniusedu-app:latest
+    pull_policy: never
+    container_name: geniusedu-app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    deploy:
+      replicas: 1
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=mysql
+      - REDIS_HOST=redis
+    volumes:
+      - ./resources/views:/var/www/html/resources/views:ro,z
+      - ./app:/var/www/html/app:ro,z
+      - ./routes:/var/www/html/routes:ro,z
+      - ./database:/var/www/html/database:ro,z
+      - ./public/build:/var/www/html/public/build:ro,z
+      - ./public/images:/var/www/html/public/images:ro,z
+      - ./public/vendor:/var/www/html/public/vendor:ro,z
+      - ./config:/var/www/html/config:ro,z
+      - ./storage/app/public:/var/www/html/storage/app/public:z
+    networks:
+      - geniusedu
+    mem_limit: 2g
+    memswap_limit: 2560m
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  # Nginx Web Server (with ModSecurity WAF)
+  nginx:
+    image: docker.io/owasp/modsecurity-crs:nginx-alpine
+    container_name: geniusedu-nginx
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - ENFORCE_MODSECURITY=1
+      - PARANOIA=1
+      - SEC_RULE_ENGINE=DetectionOnly
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/templates/conf.d/default.conf.template:ro,z
+      - ./public:/var/www/html/public:ro,z
+      - ./storage/app/public:/var/www/html/storage/app/public:ro,z
+    networks:
+      - geniusedu
+    mem_limit: 128m
+    memswap_limit: 192m
+    depends_on:
+      - app
+
+  # MySQL Database
+  mysql:
+    image: docker.io/library/mysql:8.0
+    container_name: geniusedu-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-sistem_infromasi_bimbel}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-secret}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-secret}
+      MYSQL_ALLOW_EMPTY_PASSWORD: "no"
+    ports:
+      - "127.0.0.1:3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql:z
+      - ./docker/mysql/my.cnf:/etc/mysql/conf.d/optimized.cnf:ro,z
+    networks:
+      - geniusedu
+    mem_limit: 1g
+    memswap_limit: 1280m
+    healthcheck:
+      test: ["CMD", "sh", "-c", "mysqladmin ping -h localhost -uroot -p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache & Session
+  redis:
+    image: docker.io/library/redis:alpine
+    container_name: geniusedu-redis
+    restart: unless-stopped
+    command: redis-server --maxmemory 64mb --maxmemory-policy allkeys-lru --save ""
+    networks:
+      - geniusedu
+    mem_limit: 96m
+    memswap_limit: 128m
+
+  # Queue Worker
+  queue:
+    build:
+      context: .
+      dockerfile: Containerfile
+    image: geniusedu-app:latest
+    pull_policy: never
+    container_name: geniusedu-queue
+    restart: unless-stopped
+    working_dir: /var/www/html
+    command: php artisan queue:work --tries=3 --sleep=3
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=mysql
+      - REDIS_HOST=redis
+    volumes:
+      - ./app:/var/www/html/app:ro,z
+      - ./database:/var/www/html/database:ro,z
+    networks:
+      - geniusedu
+    mem_limit: 256m
+    memswap_limit: 384m
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  # Scheduler Worker (Cron)
+  scheduler:
+    build:
+      context: .
+      dockerfile: Containerfile
+    image: geniusedu-app:latest
+    pull_policy: never
+    container_name: geniusedu-scheduler
+    restart: unless-stopped
+    working_dir: /var/www/html
+    command: php artisan schedule:work
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=mysql
+      - REDIS_HOST=redis
+    volumes:
+      - ./app:/var/www/html/app:ro,z
+      - ./database:/var/www/html/database:ro,z
+    networks:
+      - geniusedu
+    mem_limit: 256m
+    memswap_limit: 384m
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  geniusedu:
+    driver: bridge

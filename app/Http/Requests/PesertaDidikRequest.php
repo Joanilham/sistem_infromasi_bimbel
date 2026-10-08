@@ -103,6 +103,7 @@ class PesertaDidikRequest extends FormRequest
             'no_telepon.regex'      => 'Nomor telepon hanya boleh berisi angka (8-15 digit).',
             'no_telepon_ayah.regex' => 'Nomor telepon ayah hanya boleh berisi angka (8-15 digit).',
             'no_telepon_ibu.regex'  => 'Nomor telepon ibu hanya boleh berisi angka (8-15 digit).',
+            'nisn.required'         => 'Nomor Induk Siswa Nasional (NISN) wajib diisi untuk sinkronisasi LMS dan data akademik.',
             'nisn.digits'           => 'NISN harus tepat 10 digit angka.',
             'nisn.unique'           => 'NISN ini sudah terdaftar pada sistem.',
         ];

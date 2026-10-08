@@ -5,13 +5,13 @@
             
             <!-- Left: Brand Logo + Wordmark -->
             <a href="{{ route('welcome') }}" class="flex items-center gap-3 hover:opacity-95 transition-opacity group">
-                @if(isset($masterData) && $masterData->logo)
+                @if(isset($masterData) && $masterData->hasCustomLogo())
                     <div class="h-10 w-10 rounded-lg bg-white border border-[#E7E2D9] flex items-center justify-center p-1.5 transition-transform group-hover:scale-105">
-                        <img src="{{ Storage::url($masterData->logo) }}" onerror="this.onerror=null; this.src='{{ asset('images/nivora-logo.png') }}';" alt="{{ $masterData->nama_lembaga ?? 'NIVORA' }}" class="h-full w-full object-contain">
+                        <img src="{{ $masterData->logo_url }}" onerror="this.onerror=null; this.src='{{ asset('images/nivora-logo.png') }}?v=2';" alt="{{ $masterData->nama_lembaga ?? 'NIVORA' }}" class="h-full w-full object-contain">
                     </div>
                 @else
-                    <div class="h-10 w-10 rounded-lg bg-[#E14D2A] flex items-center justify-center text-white font-black text-lg tracking-wider shadow-xs">
-                        {{ substr($masterData->nama_lembaga ?? 'NIVORA', 0, 1) }}
+                    <div class="h-10 w-10 rounded-xl overflow-hidden shadow-md shadow-[#E14D2A]/15 shrink-0 transition-transform group-hover:scale-105">
+                        <img src="{{ $masterData ? $masterData->logo_url : asset('images/nivora-logo.png') . '?v=2' }}" alt="{{ $masterData->nama_lembaga ?? 'NIVORA' }}" class="h-full w-full object-contain">
                     </div>
                 @endif
                 <div class="flex flex-col">

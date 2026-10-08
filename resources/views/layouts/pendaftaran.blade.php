@@ -4,15 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Pendaftaran Siswa') - {{ $masterData->nama_lembaga ?? config('app.name') }}</title>
+    
+    <!-- Favicon -->
+    @if(isset($masterData) && $masterData->logo)
+        <link rel="icon" type="image/png" href="{{ Storage::url($masterData->logo) }}">
+        <link rel="apple-touch-icon" href="{{ Storage::url($masterData->logo) }}">
+    @else
+        <link rel="icon" type="image/png" href="{{ asset('images/nivora-icon.png') }}">
+        <link rel="apple-touch-icon" href="{{ asset('images/nivora-icon.png') }}">
+    @endif
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
     <!-- Alpine.js -->
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="{{ asset('vendor/alpinejs/alpine.min.js') }}"></script>
+    <script defer src="{{ asset('js/instant-nav.js') }}"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- TomSelect CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+    <link href="{{ asset('vendor/tom-select/tom-select.css') }}" rel="stylesheet">
     <style>
         /* TomSelect Styles */
         .ts-control { border-radius: 0.75rem !important; border: 1.5px solid #E2E8F0 !important; padding: 0.75rem 1rem !important; font-size: 0.95rem !important; box-shadow: none !important; background: #FAFBFC !important; }

@@ -8,11 +8,22 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="app-version" content="v1.0.1">
     <title>@yield('title', 'Guru Dashboard') - {{ $masterData->nama_lembaga ?? config('app.name') }}</title>
+    
+    <!-- Favicon -->
+    @if(isset($masterData) && $masterData->logo)
+        <link rel="icon" type="image/png" href="{{ Storage::url($masterData->logo) }}">
+        <link rel="apple-touch-icon" href="{{ Storage::url($masterData->logo) }}">
+    @else
+        <link rel="icon" type="image/png" href="{{ asset('images/nivora-icon.png') }}">
+        <link rel="apple-touch-icon" href="{{ asset('images/nivora-icon.png') }}">
+    @endif
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <script defer src="{{ asset('vendor/alpinejs/alpine.min.js') }}"></script>
-    <script defer src="{{ asset('js/sidebar-scroll.js') }}?v={{ time() }}"></script>
+    <script defer src="{{ asset('js/sidebar-scroll.js') }}?v=1.0.1"></script>
+    <script defer src="{{ asset('js/instant-nav.js') }}"></script>
     
 
     

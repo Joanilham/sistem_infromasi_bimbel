@@ -38,12 +38,15 @@
                 @error('nama_lengkap')<span class="invalid-feedback">{{ $message }}</span>@enderror
             </div>
             <div class="form-group">
-                <label>No. Induk (NISN)</label>
-                <input type="text" name="nisn" class="form-control" value="{{ old('nisn', $sessData['nisn'] ?? '') }}" placeholder="NISN (opsional)"
+                <label>No. Induk Siswa Nasional (NISN) <span class="req">*</span></label>
+                <input type="text" name="nisn" class="form-control @error('nisn') is-invalid @enderror" value="{{ old('nisn', $sessData['nisn'] ?? '') }}" placeholder="10 digit NISN resmi siswa"
                     inputmode="numeric"
                     maxlength="10"
+                    pattern="[0-9]{10}"
+                    required
                     oninput="this.value=this.value.replace(/[^0-9]/g,'')"
-                    title="NISN hanya boleh berisi angka">
+                    title="NISN wajib 10 digit angka">
+                @error('nisn')<span class="invalid-feedback" style="display:block;">{{ $message }}</span>@enderror
             </div>
             <div class="form-group">
                 <label>Jenis Kelamin <span class="req">*</span></label>

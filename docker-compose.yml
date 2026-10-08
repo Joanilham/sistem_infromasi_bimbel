@@ -1,7 +1,11 @@
 services:
   # Laravel App (Octane RoadRunner)
   app:
-    image: geniusedu-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: geniusedu-app:latest
+    pull_policy: never
     restart: unless-stopped
     working_dir: /var/www/html
     deploy:
@@ -20,6 +24,7 @@ services:
       - ./public/build:/var/www/html/public/build:ro,z
       - ./public/images:/var/www/html/public/images:ro,z
       - ./public/vendor:/var/www/html/public/vendor:ro,z
+      - ./config:/var/www/html/config:ro,z
       - ./storage/app/public:/var/www/html/storage/app/public:z
     networks:
       - geniusedu
@@ -33,7 +38,7 @@ services:
 
   # Nginx Web Server (with ModSecurity WAF)
   nginx:
-    image: owasp/modsecurity-crs:nginx-alpine
+    image: docker.io/owasp/modsecurity-crs:nginx-alpine
     container_name: geniusedu-nginx
     restart: unless-stopped
     ports:
@@ -45,6 +50,8 @@ services:
       - SEC_RULE_ENGINE=DetectionOnly
     volumes:
       - ./docker/nginx/default.conf:/etc/nginx/templates/conf.d/default.conf.template:ro,z
+      - ./public:/var/www/html/public:ro,z
+      - ./storage/app/public:/var/www/html/storage/app/public:ro,z
     networks:
       - geniusedu
     mem_limit: 128m
@@ -54,32 +61,32 @@ services:
 
   # MySQL Database
   mysql:
-    image: mysql:8.0
+    image: docker.io/library/mysql:8.0
     container_name: geniusedu-mysql
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: ${DB_DATABASE}
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE:-sistem_infromasi_bimbel}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-secret}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-secret}
       MYSQL_ALLOW_EMPTY_PASSWORD: "no"
     ports:
       - "127.0.0.1:3307:3306"
     volumes:
-      - mysql_data:/var/lib/mysql
-      - ./docker/mysql/my.cnf:/etc/mysql/conf.d/optimized.cnf:ro
+      - mysql_data:/var/lib/mysql:z
+      - ./docker/mysql/my.cnf:/etc/mysql/conf.d/optimized.cnf:ro,z
     networks:
       - geniusedu
     mem_limit: 1g
     memswap_limit: 1280m
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "sh", "-c", "mysqladmin ping -h localhost -uroot -p$$MYSQL_ROOT_PASSWORD"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   # Redis Cache & Session
   redis:
-    image: redis:alpine
+    image: docker.io/library/redis:alpine
     container_name: geniusedu-redis
     restart: unless-stopped
     command: redis-server --maxmemory 64mb --maxmemory-policy allkeys-lru --save ""
@@ -90,7 +97,11 @@ services:
 
   # Queue Worker
   queue:
-    image: geniusedu-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: geniusedu-app:latest
+    pull_policy: never
     container_name: geniusedu-queue
     restart: unless-stopped
     working_dir: /var/www/html
@@ -100,6 +111,9 @@ services:
     environment:
       - DB_HOST=mysql
       - REDIS_HOST=redis
+    volumes:
+      - ./app:/var/www/html/app:ro,z
+      - ./database:/var/www/html/database:ro,z
     networks:
       - geniusedu
     mem_limit: 256m
@@ -110,7 +124,11 @@ services:
 
   # Scheduler Worker (Cron)
   scheduler:
-    image: geniusedu-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: geniusedu-app:latest
+    pull_policy: never
     container_name: geniusedu-scheduler
     restart: unless-stopped
     working_dir: /var/www/html
@@ -120,6 +138,9 @@ services:
     environment:
       - DB_HOST=mysql
       - REDIS_HOST=redis
+    volumes:
+      - ./app:/var/www/html/app:ro,z
+      - ./database:/var/www/html/database:ro,z
     networks:
       - geniusedu
     mem_limit: 256m

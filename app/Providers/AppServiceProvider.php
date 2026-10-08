@@ -64,54 +64,92 @@ class AppServiceProvider extends ServiceProvider
         Kantor::observe(\App\Observers\KantorObserver::class);
         Periode::observe(\App\Observers\PeriodeObserver::class);
 
+        // Profiling Octane Lifecycle
+        \Illuminate\Support\Facades\Event::listen(\Laravel\Octane\Events\RequestReceived::class, function ($event) {
+            $event->request->attributes->set('__octane_t0', microtime(true));
+        });
+        \Illuminate\Support\Facades\Event::listen(\Laravel\Octane\Events\RequestHandled::class, function ($event) {
+            $t0 = $event->request->attributes->get('__octane_t0');
+            $ms = $t0 ? sprintf('%.2f', (microtime(true) - $t0) * 1000) : '0';
+            error_log("[PERF] RequestHandled: {$ms} ms");
+        });
+        \Illuminate\Support\Facades\Event::listen(\Laravel\Octane\Events\RequestTerminated::class, function ($event) {
+            $t0 = $event->request->attributes->get('__octane_t0');
+            $ms = $t0 ? sprintf('%.2f', (microtime(true) - $t0) * 1000) : '0';
+            error_log("[PERF] RequestTerminated: {$ms} ms");
+        });
+
+        // Nonaktifkan Debugbar untuk memangkas overhead profiling dan latency per-request
+        if (class_exists(\Barryvdh\Debugbar\Facades\Debugbar::class)) {
+            \Barryvdh\Debugbar\Facades\Debugbar::disable();
+        }
+
         // Share daftar kantor dan periode ke seluruh view dengan Caching Forever
         // Cache akan terhapus otomatis via Observer jika data ditable berubah
-        // Gunakan View::composer alih-alih View::share langsung agar data di-resolve per request (kompatibel dengan Octane)
+        // Memoize per-request via $request->attributes agar tidak query berulang untuk setiap sub-view (16x partials)
         \Illuminate\Support\Facades\View::composer('*', function ($view) {
             $viewName = $view->getName();
             if (str_starts_with($viewName, 'errors.') || str_starts_with($viewName, 'errors::')) {
                 return;
             }
 
-            // Validasi integritas platform (Secondary Tripwire jika middleware dilewati)
-            \App\Support\Security\PlatformIntegrity::assertIntegrity();
+            $req = request();
+
+            // Validasi integritas platform — dieksekusi maksimal 1x per HTTP request
+            if ($req && !$req->attributes->get('__integrity_checked')) {
+                \App\Support\Security\PlatformIntegrity::assertIntegrity();
+                $req->attributes->set('__integrity_checked', true);
+            }
 
             try {
                 $viewData = $view->getData();
                 
+                // Ambil shared data dari request attribute (1x hit cache per request alih-alih 16x per sub-view)
+                $shared = $req ? $req->attributes->get('__global_view_data') : null;
+                if ($shared === null) {
+                    $kantors = \Illuminate\Support\Facades\Cache::remember('global_kantors', 86400, fn() => \App\Models\MasterData\Kantor::all());
+                    $periodes = \Illuminate\Support\Facades\Cache::remember('global_periodes', 86400, fn() => \App\Models\MasterData\Periode::all());
+                    $masterData = \Illuminate\Support\Facades\Cache::remember('global_master', 86400, fn() => \App\Models\MasterData\Master::first());
+                    
+                    if ($masterData) {
+                        if (!empty($masterData->nama_lembaga)) {
+                            config(['app.name' => $masterData->nama_lembaga]);
+                        }
+
+                        if ($masterData->mail_host) {
+                            config([
+                                'mail.mailers.smtp.host' => $masterData->mail_host,
+                                'mail.mailers.smtp.port' => $masterData->mail_port,
+                                'mail.mailers.smtp.encryption' => $masterData->mail_encryption,
+                                'mail.mailers.smtp.username' => $masterData->mail_username,
+                                'mail.mailers.smtp.password' => $masterData->mail_password,
+                                'mail.from.address' => $masterData->mail_from_address,
+                                'mail.from.name' => $masterData->mail_from_name ?: ($masterData->nama_lembaga ?: config('app.name')),
+                            ]);
+                        }
+                    }
+
+                    $shared = [
+                        'kantors' => $kantors,
+                        'periodes' => $periodes,
+                        'masterData' => $masterData,
+                    ];
+
+                    if ($req) {
+                        $req->attributes->set('__global_view_data', $shared);
+                    }
+                }
+
                 if (!array_key_exists('kantors', $viewData)) {
-                    $kantors = \Illuminate\Support\Facades\Cache::remember('global_kantors',  86400, fn() => \App\Models\MasterData\Kantor::all());
-                    $view->with('kantors', $kantors);
+                    $view->with('kantors', $shared['kantors']);
                 }
 
                 if (!array_key_exists('periodes', $viewData)) {
-                    $periodes = \Illuminate\Support\Facades\Cache::remember('global_periodes',  86400, fn() => \App\Models\MasterData\Periode::all());
-                    $view->with('periodes', $periodes);
+                    $view->with('periodes', $shared['periodes']);
                 }
                 
-                // masterData selalu kita butuhkan untuk config, jadi kita fetch, tapi hanya share ke view jika belum ada
-                $masterData = \Illuminate\Support\Facades\Cache::remember('global_master', 86400, fn() => \App\Models\MasterData\Master::first());
                 if (!array_key_exists('masterData', $viewData)) {
-                    $view->with('masterData', $masterData);
-                }
-
-                // Set app.name dan mail config secara dinamis dari data lembaga
-                if ($masterData) {
-                    if (!empty($masterData->nama_lembaga)) {
-                        config(['app.name' => $masterData->nama_lembaga]);
-                    }
-
-                    if ($masterData->mail_host) {
-                        config([
-                            'mail.mailers.smtp.host' => $masterData->mail_host,
-                            'mail.mailers.smtp.port' => $masterData->mail_port,
-                            'mail.mailers.smtp.encryption' => $masterData->mail_encryption,
-                            'mail.mailers.smtp.username' => $masterData->mail_username,
-                            'mail.mailers.smtp.password' => $masterData->mail_password,
-                            'mail.from.address' => $masterData->mail_from_address,
-                            'mail.from.name' => $masterData->mail_from_name ?: ($masterData->nama_lembaga ?: config('app.name')),
-                        ]);
-                    }
+                    $view->with('masterData', $shared['masterData']);
                 }
             } catch (\Exception $e) {
                 $viewData = $view->getData();

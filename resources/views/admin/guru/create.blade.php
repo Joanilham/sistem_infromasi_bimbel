@@ -59,19 +59,50 @@
                 {{-- Data Kepegawaian --}}
                 <div class="space-y-4">
                     <h3 class="text-xs font-black uppercase tracking-widest text-emerald-500 flex items-center gap-2 border-b border-slate-100 dark:border-zinc-800 pb-2">
-                        Data Kepegawaian
+                        Data Kepegawaian & Mata Pelajaran
                     </h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <div class="space-y-2">
-                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Mata Pelajaran <span class="text-rose-500">*</span></label>
-                            <input type="text" name="matapelajaran" required value="{{ old('matapelajaran') }}" placeholder="Mata pelajaran" class="w-full border bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold py-3 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
-                        </div>
-                        <div class="space-y-2">
-                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Tampilkan di Landing Page</label>
-                            <label class="flex items-center gap-3 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-2xl py-3 px-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-zinc-900 transition-colors">
-                                <input type="checkbox" name="is_featured" value="1" {{ old('is_featured') ? 'checked' : '' }} class="w-5 h-5 rounded-md text-indigo-600 focus:ring-indigo-500 border-slate-300 dark:border-zinc-700 bg-white dark:bg-zinc-900">
-                                <span class="text-sm font-bold text-slate-800 dark:text-white">Jadikan Guru Unggulan</span>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">
+                                Mata Pelajaran yang Diampu <span class="text-rose-500">*</span>
+                                <span class="text-slate-400 font-normal normal-case ml-1">(Dapat memilih 1 atau lebih pelajaran)</span>
                             </label>
+                            @error('mata_pelajaran_ids')
+                                <span class="text-xs text-rose-500 font-bold">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 max-h-48 overflow-y-auto p-3 rounded-2xl border border-slate-200 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-950/50 custom-scrollbar">
+                            @forelse($allMapels ?? [] as $mapelItem)
+                                <label class="flex items-center gap-2.5 p-2 rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 cursor-pointer hover:border-indigo-400 dark:hover:border-indigo-600 transition-all select-none">
+                                    <input type="checkbox" name="mata_pelajaran_ids[]" value="{{ $mapelItem->id }}"
+                                           {{ in_array($mapelItem->id, old('mata_pelajaran_ids', [])) ? 'checked' : '' }}
+                                           class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300 dark:border-zinc-700 bg-white dark:bg-zinc-900">
+                                    <span class="text-xs font-bold text-slate-800 dark:text-slate-200 truncate" title="{{ $mapelItem->nama }}">
+                                        {{ $mapelItem->nama }}
+                                    </span>
+                                </label>
+                            @empty
+                                <div class="col-span-full text-center py-2 text-xs text-slate-400 font-medium">
+                                    Belum ada data mata pelajaran di master data.
+                                </div>
+                            @endforelse
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                            <div class="space-y-1.5">
+                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">+ Tambah Mapel Baru (Jika belum ada di daftar)</label>
+                                <input type="text" name="new_matapelajaran" value="{{ old('new_matapelajaran') }}" placeholder="Contoh: Astronomi, Robotika..." class="w-full border bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 rounded-2xl text-xs font-bold py-2.5 px-4 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-white">
+                            </div>
+
+                            <div class="space-y-1.5">
+                                <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Tampilkan di Landing Page</label>
+                                <label class="flex items-center gap-3 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-2xl py-2.5 px-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-zinc-900 transition-colors">
+                                    <input type="checkbox" name="is_featured" value="1" {{ old('is_featured') ? 'checked' : '' }} class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300 dark:border-zinc-700 bg-white dark:bg-zinc-900">
+                                    <span class="text-xs font-bold text-slate-800 dark:text-white">Jadikan Guru Unggulan</span>
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>

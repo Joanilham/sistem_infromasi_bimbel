@@ -5,6 +5,8 @@ use App\Models\Akademik\PesertaDidik;
 use App\Models\MasterData\Periode;
 use App\Models\Pendaftaran\PendaftaranSiswa;
 use App\Models\MasterData\Kantor;
+use App\Models\CBT\CbtMapel;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -99,6 +101,52 @@ class User extends Authenticatable
     public function periode(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Periode::class);
+    }
+
+    /**
+     * Relasi Many-to-Many: Daftar mata pelajaran yang diampu oleh guru.
+     */
+    public function mataPelajarans(): BelongsToMany
+    {
+        return $this->belongsToMany(CbtMapel::class, 'guru_mata_pelajaran', 'user_id', 'cbt_mapel_id')
+            ->withTimestamps();
+    }
+
+    /**
+     * Dapatkan daftar nama mata pelajaran yang diampu oleh guru (dalam bentuk array).
+     */
+    public function getDaftarMapelAttribute(): array
+    {
+        if ($this->relationLoaded('mataPelajarans')) {
+            $list = $this->mataPelajarans->pluck('nama')->toArray();
+            if (!empty($list)) {
+                return $list;
+            }
+        }
+
+        $fromPivot = $this->mataPelajarans()->pluck('nama')->toArray();
+        if (!empty($fromPivot)) {
+            return $fromPivot;
+        }
+
+        if (!empty($this->matapelajaran)) {
+            return array_values(array_filter(array_map('trim', preg_split('/[,\|\/]/', $this->matapelajaran))));
+        }
+
+        return ['Matematika'];
+    }
+
+    /**
+     * Cek apakah guru berhak mengampu mata pelajaran tertentu.
+     */
+    public function teachesSubject(?string $subject): bool
+    {
+        if (empty($subject)) {
+            return true;
+        }
+
+        $mySubjects = array_map('strtolower', $this->daftar_mapel);
+        return in_array(strtolower(trim($subject)), $mySubjects, true);
     }
 
     /**

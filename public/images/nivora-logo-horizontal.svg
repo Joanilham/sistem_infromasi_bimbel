@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 140" width="540" height="140">
+  <defs>
+    <linearGradient id="hNivoraGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF6339"/>
+      <stop offset="50%" stop-color="#E14D2A"/>
+      <stop offset="100%" stop-color="#BA300E"/>
+    </linearGradient>
+    <filter id="hNivoraShadow" x="-10%" y="-10%" width="125%" height="130%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#BA300E" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+
+  <!-- Left: Squircle Icon 120x120 -->
+  <g transform="translate(10, 10)">
+    <rect width="120" height="120" rx="33" fill="url(#hNivoraGrad)" filter="url(#hNivoraShadow)"/>
+    <rect x="0.5" y="0.5" width="119" height="119" rx="32.5" fill="none" stroke="#FFFFFF" stroke-opacity="0.22" stroke-width="1"/>
+    
+    <g transform="scale(0.234375)" fill="#FFFFFF">
+      <!-- Mortarboard Diamond Top -->
+      <polygon points="256,92 384,136 256,180 128,136"/>
+      <!-- Cap Skull Underside -->
+      <path d="M 180 162 L 180 200 C 180 218 214 228 256 228 C 298 228 332 218 332 200 L 332 162 L 256 188 Z"/>
+      <!-- Hanging Tassel -->
+      <path d="M 384 136 L 400 174 L 408 174 L 404 220 L 396 220 L 392 174 Z"/>
+      <circle cx="256" cy="136" r="6" fill="#FFFFFF"/>
+
+      <!-- Left Open Book Page -->
+      <path d="M 244 260 C 196 246 150 250 116 264 C 108 267 104 275 104 284 L 104 356 C 104 366 114 373 124 369 C 154 358 196 356 244 370 C 248 371 252 367 252 362 L 252 268 C 252 263 248 259 244 260 Z"/>
+
+      <!-- Right Open Book Page -->
+      <path d="M 268 260 C 316 246 362 250 396 264 C 404 267 408 275 408 284 L 408 356 C 408 366 398 373 388 369 C 358 358 316 356 268 370 C 264 371 260 367 260 362 L 260 268 C 260 263 264 259 268 260 Z"/>
+
+      <!-- Depth Lines -->
+      <path d="M 126 384 C 160 372 200 370 244 384 C 248 385 252 382 252 378 L 252 376 C 206 364 164 366 126 376 C 120 378 120 386 126 384 Z" opacity="0.6"/>
+      <path d="M 386 384 C 352 372 312 370 268 384 C 264 385 260 382 260 378 L 260 376 C 306 364 348 366 386 376 C 392 378 392 386 386 384 Z" opacity="0.6"/>
+    </g>
+  </g>
+
+  <!-- Right: Editorial Wordmark Typography -->
+  <text x="156" y="68" font-family="'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="52" font-weight="900" fill="#141413" letter-spacing="-0.035em">Nivora</text>
+  <text x="158" y="96" font-family="'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11.5" font-weight="800" fill="#E14D2A" letter-spacing="0.18em">BIMBINGAN BELAJAR &amp; AKADEMIK</text>
+  <text x="158" y="116" font-family="'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600" fill="#78716C">Smart Learning Ecosystem</text>
+</svg>

@@ -17,6 +17,8 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             PeriodeSeeder::class,
+            GuruSeeder::class,
+            SiswaSeeder::class,
         ]);
 
         $kantor = \App\Models\MasterData\Kantor::firstOrCreate(

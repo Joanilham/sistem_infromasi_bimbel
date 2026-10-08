@@ -77,7 +77,12 @@ class BankSoalController extends Controller
     public function create()
     {
         $guru = Auth::user();
-        if (!empty($guru->matapelajaran)) {
+        $mapelIds = $guru->mataPelajarans()->pluck('cbt_mapel_id')->toArray();
+        if (!empty($mapelIds)) {
+            $mapels = CbtMapel::whereIn('id', $mapelIds)->orderBy('nama')->get();
+            $mapel = $mapels->first();
+            $babs = CbtBab::whereIn('cbt_mapel_id', $mapelIds)->orderBy('nama')->get();
+        } elseif (!empty($guru->matapelajaran)) {
             $mapel = CbtMapel::firstOrCreate(['nama' => $guru->matapelajaran]);
             $mapels = collect([$mapel]);
             $babs = CbtBab::where('cbt_mapel_id', $mapel->id)->orderBy('nama')->get();
@@ -200,7 +205,12 @@ class BankSoalController extends Controller
             ->findOrFail($id);
 
         $guru = Auth::user();
-        if (!empty($guru->matapelajaran)) {
+        $mapelIds = $guru->mataPelajarans()->pluck('cbt_mapel_id')->toArray();
+        if (!empty($mapelIds)) {
+            $mapels = CbtMapel::whereIn('id', $mapelIds)->orderBy('nama')->get();
+            $mapel = $mapels->where('id', $soal->cbt_mapel_id)->first() ?: $mapels->first();
+            $babs = CbtBab::whereIn('cbt_mapel_id', $mapels->pluck('id'))->orderBy('nama')->get();
+        } elseif (!empty($guru->matapelajaran)) {
             $mapel = CbtMapel::firstOrCreate(['nama' => $guru->matapelajaran]);
             $mapels = collect([$mapel]);
             $babs = CbtBab::where('cbt_mapel_id', $mapel->id)->orderBy('nama')->get();

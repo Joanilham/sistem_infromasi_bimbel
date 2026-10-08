@@ -196,7 +196,7 @@
             </svg>
         </div>
         <div class="flex-1 min-w-0">
-            <h3 class="font-bold text-slate-900 dark:text-white text-sm group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">Atur Jadwal Mengajar</h3>
+            <h3 class="font-bold text-slate-900 dark:text-white text-sm group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">Lihat Jadwal Mengajar</h3>
             <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">Pantau dan kelola jadwal sesi mengajar</p>
         </div>
         <div class="w-7 h-7 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors shrink-0">

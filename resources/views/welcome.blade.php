@@ -27,6 +27,7 @@
     
     <!-- Alpine.js -->
     <script defer src="{{ asset('vendor/alpinejs/alpine.min.js') }}"></script>
+    <script defer src="{{ asset('js/instant-nav.js') }}"></script>
     
     <style>
         [x-cloak] { display: none !important; }

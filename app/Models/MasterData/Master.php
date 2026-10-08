@@ -95,7 +95,9 @@ class Master extends Model
             return \Illuminate\Support\Facades\Storage::url($this->logo);
         }
 
-        return asset('images/nivora-logo.png');
+        $path = public_path('images/nivora-logo.png');
+        $v = file_exists($path) ? filemtime($path) : '2';
+        return asset('images/nivora-logo.png') . '?v=' . $v;
     }
 
     /**

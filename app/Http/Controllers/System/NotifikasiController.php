@@ -26,37 +26,53 @@ class NotifikasiController extends Controller
         $isSuperAdmin = auth()->check() && strtolower(auth()->user()->level) === 'super admin';
         $filterKantorId = $isSuperAdmin ? null : $kantorId;
 
-        $pendaftaranMenunggu = PendaftaranSiswa::where('status', 'menunggu')
-            ->when($filterKantorId, fn($q) => $q->where('kantor_id', $filterKantorId))
-            ->count();
-
-        $transferSppCount = ($kantorId && $periodeId) ? TransaksiPembayaran::where('tipe_pembayaran', 'TRANSFER')
-            ->where('status', 'PENDING')
-            ->whereHas('pembayaranSiswa.pesertaDidik', fn($q) => $q->inContext())
-            ->where('created_at', '>=', Carbon::now()->subDays(30))
-            ->count() : 0;
-
-        $tagihanJatuhTempoCount = 0;
-        if ($kantorId && $periodeId) {
-            $tagihanJatuhTempoCount = PembayaranSiswa::withSum(['transaksi' => fn($q) => $q->where('status', 'sukses')], 'nominal')
-                ->whereHas('pesertaDidik', fn($q) => $q->inContext()->aktif())
-                ->where(function($q) {
-                    $q->where('batas_waktu', '<=', Carbon::now()->addDays(31))
-                      ->orWhere('batas_waktu', '<', Carbon::today())
-                      ->orWhereNull('batas_waktu');
-                })
-                ->havingRaw('total_harus_dibayar > COALESCE(transaksi_sum_nominal, 0)')
-                ->count();
+        // Memoize per HTTP request
+        $req = request();
+        $cacheKey = 'notif_counts_' . ($filterKantorId ?? 'all') . '_' . ($periodeId ?? 'all');
+        if ($req && $req->attributes->has('__memo_' . $cacheKey)) {
+            return $req->attributes->get('__memo_' . $cacheKey);
         }
 
-        $totalBadge = $pendaftaranMenunggu + $transferSppCount + $tagihanJatuhTempoCount;
+        // Cache 20 detik di Redis/Cache store untuk memangkas 3 heavy queries saat klik antar page
+        $counts = \Illuminate\Support\Facades\Cache::remember($cacheKey, 20, function () use ($filterKantorId, $kantorId, $periodeId) {
+            $pendaftaranMenunggu = PendaftaranSiswa::where('status', 'menunggu')
+                ->when($filterKantorId, fn($q) => $q->where('kantor_id', $filterKantorId))
+                ->count();
 
-        return [
-            'pendaftaranMenunggu'   => $pendaftaranMenunggu,
-            'transferSppCount'       => $transferSppCount,
-            'tagihanJatuhTempoCount' => $tagihanJatuhTempoCount,
-            'totalBadge'             => $totalBadge,
-        ];
+            $transferSppCount = ($kantorId && $periodeId) ? TransaksiPembayaran::where('tipe_pembayaran', 'TRANSFER')
+                ->where('status', 'PENDING')
+                ->whereHas('pembayaranSiswa.pesertaDidik', fn($q) => $q->inContext())
+                ->where('created_at', '>=', Carbon::now()->subDays(30))
+                ->count() : 0;
+
+            $tagihanJatuhTempoCount = 0;
+            if ($kantorId && $periodeId) {
+                $tagihanJatuhTempoCount = PembayaranSiswa::withSum(['transaksi' => fn($q) => $q->where('status', 'sukses')], 'nominal')
+                    ->whereHas('pesertaDidik', fn($q) => $q->inContext()->aktif())
+                    ->where(function($q) {
+                        $q->where('batas_waktu', '<=', Carbon::now()->addDays(31))
+                          ->orWhere('batas_waktu', '<', Carbon::today())
+                          ->orWhereNull('batas_waktu');
+                    })
+                    ->havingRaw('total_harus_dibayar > COALESCE(transaksi_sum_nominal, 0)')
+                    ->count();
+            }
+
+            $totalBadge = $pendaftaranMenunggu + $transferSppCount + $tagihanJatuhTempoCount;
+
+            return [
+                'pendaftaranMenunggu'   => $pendaftaranMenunggu,
+                'transferSppCount'       => $transferSppCount,
+                'tagihanJatuhTempoCount' => $tagihanJatuhTempoCount,
+                'totalBadge'             => $totalBadge,
+            ];
+        });
+
+        if ($req) {
+            $req->attributes->set('__memo_' . $cacheKey, $counts);
+        }
+
+        return $counts;
     }
 
     public function index(Request $request)

@@ -6,13 +6,13 @@
             <!-- Column 1: Brand & Description -->
             <div class="md:col-span-5 lg:col-span-4 space-y-5">
                 <a href="{{ route('welcome') }}" class="flex items-center gap-3">
-                    @if(isset($masterData) && $masterData->logo)
+                    @if(isset($masterData) && $masterData->hasCustomLogo())
                         <div class="h-10 w-10 rounded-lg bg-white p-1 flex items-center justify-center">
-                            <img src="{{ Storage::url($masterData->logo) }}" onerror="this.onerror=null; this.src='{{ asset('images/nivora-logo.png') }}';" alt="{{ $masterData->nama_lembaga ?? 'NIVORA' }}" class="h-full w-full object-contain">
+                            <img src="{{ $masterData->logo_url }}" onerror="this.onerror=null; this.src='{{ asset('images/nivora-logo.png') }}?v=2';" alt="{{ $masterData->nama_lembaga ?? 'NIVORA' }}" class="h-full w-full object-contain">
                         </div>
                     @else
-                        <div class="h-10 w-10 rounded-lg bg-[#E14D2A] flex items-center justify-center text-white font-black text-lg">
-                            {{ substr($masterData->nama_lembaga ?? 'NIVORA', 0, 1) }}
+                        <div class="h-10 w-10 rounded-xl overflow-hidden shadow-md shrink-0">
+                            <img src="{{ $masterData ? $masterData->logo_url : asset('images/nivora-logo.png') . '?v=2' }}" alt="{{ $masterData->nama_lembaga ?? 'NIVORA' }}" class="h-full w-full object-contain">
                         </div>
                     @endif
                     <span class="font-black text-2xl text-white tracking-tight">

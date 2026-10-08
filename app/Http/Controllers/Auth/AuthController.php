@@ -180,11 +180,29 @@ class AuthController extends Controller
             return redirect()->route('konteks.select');
         }
 
-        return match ($level) {
-            'guru'  => redirect()->route('guru.dashboard'),
-            'siswa' => redirect()->route('siswa.dashboard'),
-            default => redirect()->intended('dashboard'),
-        };
+        if ($level === 'guru') {
+            $kantorId = $user->kantor_id ?: ($user->pegawai->kantor_id ?? (\App\Models\MasterData\Kantor::first()->id ?? 1));
+            $periodeId = $user->periode_id 
+                ?: (\App\Models\MasterData\Periode::where('is_active', true)->value('id') ?? \App\Models\MasterData\Periode::first()->id ?? 1);
+
+            if ($kantorId)  $request->session()->put('kantor_id', $kantorId);
+            if ($periodeId) $request->session()->put('periode_id', $periodeId);
+
+            return redirect()->route('guru.dashboard');
+        }
+
+        if ($level === 'siswa') {
+            $kantorId = $user->kantor_id ?? $user->pesertaDidik?->kantor_id ?? (\App\Models\MasterData\Kantor::first()->id ?? 1);
+            $periodeId = $user->periode_id ?? $user->pesertaDidik?->periode_id 
+                ?: (\App\Models\MasterData\Periode::where('is_active', true)->value('id') ?? \App\Models\MasterData\Periode::first()->id ?? 1);
+
+            if ($kantorId)  $request->session()->put('kantor_id', $kantorId);
+            if ($periodeId) $request->session()->put('periode_id', $periodeId);
+
+            return redirect()->route('siswa.dashboard');
+        }
+
+        return redirect()->intended('dashboard');
     }
 
     /**

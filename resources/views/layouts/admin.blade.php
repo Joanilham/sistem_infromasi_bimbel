@@ -12,6 +12,16 @@
     <meta name="author" content="{{ $masterData->nama_lembaga ?? config('app.name') }}">
     <meta name="robots" content="index, follow">
     <title>@yield('title', 'Dashboard') - {{ $masterData->nama_lembaga ?? config('app.name') }}</title>
+    
+    <!-- Favicon -->
+    @if(isset($masterData) && $masterData->logo)
+        <link rel="icon" type="image/png" href="{{ Storage::url($masterData->logo) }}">
+        <link rel="apple-touch-icon" href="{{ Storage::url($masterData->logo) }}">
+    @else
+        <link rel="icon" type="image/png" href="{{ asset('images/nivora-icon.png') }}">
+        <link rel="apple-touch-icon" href="{{ asset('images/nivora-icon.png') }}">
+    @endif
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,7 +31,8 @@
 
 
     <script defer src="{{ asset('vendor/alpinejs/alpine.min.js') }}"></script>
-    <script defer src="{{ asset('js/sidebar-scroll.js') }}?v={{ time() }}"></script>
+    <script defer src="{{ asset('js/sidebar-scroll.js') }}?v=1.0.1"></script>
+    <script defer src="{{ asset('js/instant-nav.js') }}"></script>
     
     <!-- TomSelect CSS -->
     <link href="{{ asset('vendor/tom-select/tom-select.css') }}" rel="stylesheet" media="print" onload="this.media='all'">
@@ -54,9 +65,7 @@
     </style>
 
     @stack('head')
-    <style>
-        {!! file_get_contents(public_path('css/loading.css')) !!}
-    </style>
+    <link rel="stylesheet" href="{{ asset('css/loading.css') }}">
 </head>
 
 <body class="bg-slate-50 dark:bg-slate-900 flex h-screen overflow-hidden text-slate-800 dark:text-slate-100">
