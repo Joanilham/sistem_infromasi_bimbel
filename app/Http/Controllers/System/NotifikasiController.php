@@ -54,7 +54,8 @@ class NotifikasiController extends Controller
                           ->orWhere('batas_waktu', '<', Carbon::today())
                           ->orWhereNull('batas_waktu');
                     })
-                    ->havingRaw('total_harus_dibayar > COALESCE(transaksi_sum_nominal, 0)')
+                    ->get()
+                    ->filter(fn($p) => $p->total_harus_dibayar > ($p->transaksi_sum_nominal ?? 0))
                     ->count();
             }
 

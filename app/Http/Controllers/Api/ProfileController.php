@@ -1,14 +1,14 @@
 <?php
 
 namespace App\Http\Controllers\Api;
-use App\Models\Akademik\PesertaDidik;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
+use App\Models\Akademik\PesertaDidik;
+use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
-use App\Traits\ApiResponse;
-use App\Http\Resources\UserResource;
 
 class ProfileController extends Controller
 {
@@ -19,10 +19,10 @@ class ProfileController extends Controller
         $user = $request->user();
 
         $validated = $request->validate([
-            'name'     => 'sometimes|string|max:255',
-            'email'    => 'sometimes|email|unique:users,email,' . $user->id,
-            'no_telp'  => 'nullable|string|max:20',
-            'alamat'   => 'nullable|string',
+            'name' => 'sometimes|string|max:255',
+            'email' => 'sometimes|email|unique:users,email,'.$user->id,
+            'no_telp' => 'nullable|string|max:20',
+            'alamat' => 'nullable|string',
             'password' => 'nullable|string|min:6|confirmed',
         ]);
 
@@ -38,7 +38,7 @@ class ProfileController extends Controller
         if (isset($validated['alamat'])) {
             $user->alamat = $validated['alamat'];
         }
-        if (!empty($validated['password'])) {
+        if (! empty($validated['password'])) {
             $user->password = Hash::make($validated['password']);
         }
 
@@ -46,7 +46,7 @@ class ProfileController extends Controller
 
         // Sinkronisasi dengan tabel PesertaDidik jika user adalah Siswa
         if ($user->level === 'Siswa' && $user->peserta_didik_id) {
-            $peserta = \App\Models\Akademik\PesertaDidik::find($user->peserta_didik_id);
+            $peserta = PesertaDidik::find($user->peserta_didik_id);
             if ($peserta) {
                 if (isset($validated['name'])) {
                     $peserta->nama_lengkap = $validated['name'];
@@ -83,12 +83,10 @@ class ProfileController extends Controller
             $user->save();
 
             return $this->successResponse([
-                'photo_url' => asset('storage/' . $path)
+                'photo_url' => asset('storage/'.$path),
             ], 'Foto profil berhasil diperbarui');
         }
 
         return $this->errorResponse('Gagal mengupload foto', 400);
     }
 }
-
-

@@ -111,7 +111,8 @@ test('admin can store new student and triggers WhatsApp notification', function 
             'paket_bimbingan_id' => $paket->id,
         ]);
 
-    $response->assertRedirect(route('peserta-didik.index'));
+    $peserta = PesertaDidik::where('nisn', '1122334455')->first();
+    $response->assertRedirect(route('keuangan.pembayaran.show', $peserta->id));
     $this->assertDatabaseHas('peserta_didiks', [
         'nama_lengkap' => 'Citra Kirana',
         'nisn'         => '1122334455',

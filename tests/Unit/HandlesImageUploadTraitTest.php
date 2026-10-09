@@ -20,7 +20,15 @@ beforeEach(function () {
     };
 });
 
+function requireGd(): void
+{
+    if (!extension_loaded('gd')) {
+        test()->markTestSkipped('GD extension is not installed.');
+    }
+}
+
 test('it handles jpeg image compression and storage', function () {
+    requireGd();
     $file = UploadedFile::fake()->image('avatar.jpg', 100, 100);
 
     $path = $this->uploader->upload($file, 'avatars');
@@ -30,6 +38,7 @@ test('it handles jpeg image compression and storage', function () {
 });
 
 test('it handles png image compression and storage', function () {
+    requireGd();
     $file = UploadedFile::fake()->image('avatar.png', 100, 100);
 
     $path = $this->uploader->upload($file, 'avatars');
@@ -39,6 +48,7 @@ test('it handles png image compression and storage', function () {
 });
 
 test('it handles webp image compression and storage', function () {
+    requireGd();
     $file = UploadedFile::fake()->image('avatar.webp', 100, 100);
 
     $path = $this->uploader->upload($file, 'avatars');
@@ -58,6 +68,7 @@ test('it falls back to normal store for invalid images', function () {
 });
 
 test('it falls back to normal store for unsupported image formats', function () {
+    requireGd();
     $file = UploadedFile::fake()->image('avatar.gif', 100, 100);
 
     $path = $this->uploader->upload($file, 'gifs');
@@ -67,6 +78,7 @@ test('it falls back to normal store for unsupported image formats', function () 
 });
 
 test('it logs error and falls back on exception during compression', function () {
+    requireGd();
     $file = UploadedFile::fake()->image('avatar.jpg', 100, 100);
 
     // Mock storage to throw exception when public disk is accessed

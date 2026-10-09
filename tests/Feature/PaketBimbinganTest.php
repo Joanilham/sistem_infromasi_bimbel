@@ -125,5 +125,5 @@ test('admin can delete paket bimbingan', function () {
         ->delete(route('paket-bimbingan.destroy', $paket));
 
     $response->assertRedirect(route('paket-bimbingan.index'));
-    $this->assertDatabaseMissing('paket_bimbingans', ['id' => $paket->id]);
+    $this->assertSoftDeleted('paket_bimbingans', ['id' => $paket->id]);
 });

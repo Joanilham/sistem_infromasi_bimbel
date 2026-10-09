@@ -242,6 +242,12 @@ Route::middleware('auth')->group(function () {
                 Route::resource('admin/pengumuman', \App\Http\Controllers\Admin\PengumumanController::class)->names('admin.pengumuman');
                 Route::patch('/admin/pengumuman/{pengumuman}/toggle-active', [\App\Http\Controllers\Admin\PengumumanController::class, 'toggleActive'])->name('admin.pengumuman.toggle-active');
             });
+
+            // Absensi — Auto Alpha Automation Controls (Global)
+            Route::middleware('check_permission:manage_absensi')->group(function () {
+                Route::post('/absensi/auto-alpha/settings', [\App\Http\Controllers\Akademik\AbsensiController::class, 'updateAutoAlphaSettings'])->name('absensi.auto-alpha.settings');
+                Route::post('/absensi/auto-alpha/run', [\App\Http\Controllers\Akademik\AbsensiController::class, 'runAutoAlphaNow'])->name('absensi.auto-alpha.run');
+            });
         });
 
         // ----------------------------------------------------------
@@ -273,7 +279,7 @@ Route::middleware('auth')->group(function () {
                     'store'   => 'manajemen-guru.store',
                     'update'  => 'manajemen-guru.update',
                     'destroy' => 'manajemen-guru.destroy',
-                ]);
+                ])->whereNumber('guru');
             });
 
             // Absensi — Halaman Scan
@@ -289,9 +295,6 @@ Route::middleware('auth')->group(function () {
                 Route::post('/absensi/store-manual', [\App\Http\Controllers\Akademik\AbsensiController::class, 'storeManual'])->name('absensi.store.manual');
                 // Absensi — Export
                 Route::get('/absensi/export/rekap', [\App\Http\Controllers\Akademik\AbsensiController::class, 'exportRekap'])->name('absensi.export.rekap');
-                // Absensi — Auto Alpha Automation Controls
-                Route::post('/absensi/auto-alpha/settings', [\App\Http\Controllers\Akademik\AbsensiController::class, 'updateAutoAlphaSettings'])->name('absensi.auto-alpha.settings');
-                Route::post('/absensi/auto-alpha/run', [\App\Http\Controllers\Akademik\AbsensiController::class, 'runAutoAlphaNow'])->name('absensi.auto-alpha.run');
             });
 
             // ── Manajemen Jadwal (Admin) ──

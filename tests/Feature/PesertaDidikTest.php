@@ -93,7 +93,8 @@ test('admin can store peserta didik', function () {
             'kelompok_belajar_id' => $this->kelompok->id,
         ]);
 
-    $response->assertRedirect(route('peserta-didik.index'));
+    $peserta = PesertaDidik::where('nisn', '1122334455')->first();
+    $response->assertRedirect(route('keuangan.pembayaran.show', $peserta->id));
     $this->assertDatabaseHas('peserta_didiks', [
         'nama_lengkap' => 'Peserta Baru',
         'nisn'         => '1122334455',

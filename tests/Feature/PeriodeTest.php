@@ -112,7 +112,7 @@ test('super admin can restore soft deleted periode', function () {
 
 // ── Access Control ───────────────────────────────────────────────────────────
 test('non super admin cannot access periode index', function () {
-    $admin = User::factory()->create(['level' => 'Admin', 'is_active' => true]);
+    $admin = User::factory()->create(['level' => 'Admin', 'is_active' => true, 'permissions' => []]);
 
     $response = $this->actingAs($admin)->get(route('periode.index'));
     $response->assertRedirect(route('dashboard'));

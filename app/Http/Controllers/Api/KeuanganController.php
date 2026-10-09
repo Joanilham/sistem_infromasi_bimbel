@@ -1,16 +1,15 @@
 <?php
 
 namespace App\Http\Controllers\Api;
-use App\Models\Akademik\PesertaDidik;
-use App\Models\MasterData\Bank;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Resources\BankResource;
+use App\Http\Resources\TransaksiPembayaranResource;
 use App\Models\Keuangan\PembayaranSiswa;
 use App\Models\Keuangan\TransaksiPembayaran;
+use App\Models\MasterData\Bank;
 use App\Traits\ApiResponse;
-use App\Http\Resources\TransaksiPembayaranResource;
-use App\Http\Resources\BankResource;
+use Illuminate\Http\Request;
 
 class KeuanganController extends Controller
 {
@@ -20,13 +19,13 @@ class KeuanganController extends Controller
     {
         $user = $request->user();
 
-        if (!$user->peserta_didik_id || !$user->pesertaDidik) {
+        if (! $user->peserta_didik_id || ! $user->pesertaDidik) {
             return $this->errorResponse('Data keuangan hanya tersedia untuk siswa.', 403);
         }
 
         $pembayaran = PembayaranSiswa::where('peserta_didik_id', $user->peserta_didik_id)->first();
 
-        if (!$pembayaran) {
+        if (! $pembayaran) {
             return $this->successResponse(null, 'Tidak ada tagihan aktif');
         }
 
@@ -34,17 +33,17 @@ class KeuanganController extends Controller
 
         $data = [
             'total_harus_dibayar' => $pembayaran->total_harus_dibayar,
-            'total_terbayar'      => $pembayaran->total_terbayar,
-            'total_menunggu'      => (int) $total_pending,
-            'kekurangan'          => $pembayaran->kekurangan,
-            'lunas'               => $pembayaran->lunas,
-            'batas_waktu'         => $pembayaran->batas_waktu ? $pembayaran->batas_waktu->format('Y-m-d') : null,
-            'rincian'             => [
+            'total_terbayar' => $pembayaran->total_terbayar,
+            'total_menunggu' => (int) $total_pending,
+            'kekurangan' => $pembayaran->kekurangan,
+            'lunas' => $pembayaran->lunas,
+            'batas_waktu' => $pembayaran->batas_waktu ? $pembayaran->batas_waktu->format('Y-m-d') : null,
+            'rincian' => [
                 'biaya_pendaftaran' => $pembayaran->biaya_pendaftaran,
-                'diskon_persen'     => $pembayaran->diskon_persen,
-                'diskon_nominal'    => $pembayaran->diskon_nominal,
+                'diskon_persen' => $pembayaran->diskon_persen,
+                'diskon_nominal' => $pembayaran->diskon_nominal,
                 'keterangan_diskon' => $pembayaran->keterangan_diskon,
-            ]
+            ],
         ];
 
         return $this->successResponse($data, 'Tagihan berhasil dimuat');
@@ -54,13 +53,13 @@ class KeuanganController extends Controller
     {
         $user = $request->user();
 
-        if (!$user->peserta_didik_id || !$user->pesertaDidik) {
+        if (! $user->peserta_didik_id || ! $user->pesertaDidik) {
             return $this->errorResponse('Data keuangan hanya tersedia untuk siswa.', 403);
         }
 
         $pembayaranId = $user->pesertaDidik->pembayaran->id ?? null;
 
-        if (!$pembayaranId) {
+        if (! $pembayaranId) {
             return $this->successResponse([], 'Tidak ada riwayat pembayaran');
         }
 
@@ -71,16 +70,17 @@ class KeuanganController extends Controller
             ->paginate(15);
 
         return $this->successResponse([
-            'data'         => TransaksiPembayaranResource::collection($transaksi->items()),
+            'data' => TransaksiPembayaranResource::collection($transaksi->items()),
             'current_page' => $transaksi->currentPage(),
-            'last_page'    => $transaksi->lastPage(),
+            'last_page' => $transaksi->lastPage(),
         ], 'Riwayat pembayaran berhasil dimuat');
     }
 
     public function bank()
     {
         // Assuming Bank model is App\Models\MasterData\Bank
-        $banks = \App\Models\MasterData\Bank::where('is_active', true)->get();
+        $banks = Bank::where('is_active', true)->get();
+
         return $this->successResponse(BankResource::collection($banks), 'Daftar bank tujuan berhasil dimuat');
     }
 
@@ -88,12 +88,12 @@ class KeuanganController extends Controller
     {
         $user = $request->user();
 
-        if (!$user->peserta_didik_id || !$user->pesertaDidik) {
+        if (! $user->peserta_didik_id || ! $user->pesertaDidik) {
             return $this->errorResponse('Hanya siswa yang dapat melakukan pembayaran.', 403);
         }
 
         $pembayaran = PembayaranSiswa::where('peserta_didik_id', $user->peserta_didik_id)->first();
-        if (!$pembayaran) {
+        if (! $pembayaran) {
             return $this->errorResponse('Tidak ada tagihan aktif.', 404);
         }
 
@@ -112,12 +112,12 @@ class KeuanganController extends Controller
         }
 
         if ($request->nominal > $sisa_boleh_dibayar) {
-            return $this->errorResponse("Nominal tidak boleh melebihi sisa tagihan dikurangi pembayaran yang menunggu konfirmasi (Maks: Rp " . number_format($sisa_boleh_dibayar, 0, ',', '.') . ").", 422);
+            return $this->errorResponse('Nominal tidak boleh melebihi sisa tagihan dikurangi pembayaran yang menunggu konfirmasi (Maks: Rp '.number_format($sisa_boleh_dibayar, 0, ',', '.').').', 422);
         }
 
         // Buat no kwitansi: ambil 5 karakter pertama dari username/name saja agar tidak overflow
         $kodeUser = strtolower(substr($user->name ?? $user->username ?? 'sis', 0, 5));
-        $noKwitansi = 'TMP-' . TransaksiPembayaran::generateNoKwitansi($kodeUser);
+        $noKwitansi = 'TMP-'.TransaksiPembayaran::generateNoKwitansi($kodeUser);
 
         $buktiPath = null;
         if ($request->hasFile('bukti_pembayaran')) {
@@ -140,5 +140,3 @@ class KeuanganController extends Controller
         return $this->successResponse(new TransaksiPembayaranResource($transaksi), 'Pengajuan pembayaran berhasil dikirim. Menunggu verifikasi admin.');
     }
 }
-
-

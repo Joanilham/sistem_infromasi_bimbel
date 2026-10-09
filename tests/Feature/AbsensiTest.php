@@ -1,11 +1,11 @@
 <?php
 
-use App\Models\Absensi;
-use App\Models\PesertaDidik;
-use App\Models\Kantor;
-use App\Models\Periode;
-use App\Models\PaketBimbingan;
-use App\Models\KelompokBelajar;
+use App\Models\Akademik\Absensi;
+use App\Models\Akademik\PesertaDidik;
+use App\Models\MasterData\Kantor;
+use App\Models\MasterData\Periode;
+use App\Models\Akademik\PaketBimbingan;
+use App\Models\Akademik\KelompokBelajar;
 use App\Models\User;
 use App\Http\Controllers\Siswa\QrController;
 use Illuminate\Support\Facades\Http;
@@ -32,7 +32,7 @@ beforeEach(function () {
     ]);
 
     $this->admin = User::factory()->create([
-        'level'     => 'Admin',
+        'level'     => 'Super Admin',
         'is_active' => true,
     ]);
 

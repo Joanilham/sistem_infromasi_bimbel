@@ -1,16 +1,16 @@
 <?php
 
-use App\Models\CbtUjian;
-use App\Models\CbtUjianSoal;
-use App\Models\CbtBankSoal;
-use App\Models\CbtOpsiJawaban;
-use App\Models\CbtPeserta;
-use App\Models\CbtPesertaJawaban;
-use App\Models\CbtUjianAssign;
-use App\Models\PesertaDidik;
-use App\Models\Kantor;
-use App\Models\Periode;
-use App\Models\PaketBimbingan;
+use App\Models\CBT\CbtUjian;
+use App\Models\CBT\CbtUjianSoal;
+use App\Models\CBT\CbtBankSoal;
+use App\Models\CBT\CbtOpsiJawaban;
+use App\Models\CBT\CbtPeserta;
+use App\Models\CBT\CbtPesertaJawaban;
+use App\Models\CBT\CbtUjianAssign;
+use App\Models\Akademik\PesertaDidik;
+use App\Models\MasterData\Kantor;
+use App\Models\MasterData\Periode;
+use App\Models\Akademik\PaketBimbingan;
 use App\Models\User;
 
 beforeEach(function () {

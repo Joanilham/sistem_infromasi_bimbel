@@ -39,7 +39,7 @@
         <div class="relative z-10 flex flex-col justify-between gap-6">
             <div class="flex-1">
                 <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-4">
-                    <span class="text-xs font-bold tracking-widest text-white uppercase">Hasil Ujian</span>
+                    <span class="text-xs font-bold tracking-widest text-white uppercase">Hasil Akhir</span>
                 </div>
                 
                 <h1 class="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight mb-4 leading-tight">

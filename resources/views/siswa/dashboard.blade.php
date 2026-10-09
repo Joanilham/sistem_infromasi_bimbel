@@ -5,7 +5,7 @@
 @section('content')
 @php
     $namaDepan = explode(' ', $peserta ? $peserta->nama_lengkap : auth()->user()->name)[0];
-    $isAktif = strtolower(auth()->user()->status) === 'aktif';
+    $isAktif = strtolower(auth()->user()->status ?? '') === 'aktif' || (bool) auth()->user()->is_active;
 @endphp
 
 @push('head')

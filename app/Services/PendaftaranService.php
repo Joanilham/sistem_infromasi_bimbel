@@ -173,6 +173,19 @@ class PendaftaranService
                 'status'           => 'aktif',
                 'peserta_didik_id' => $peserta->id,
             ]);
+        } else {
+            User::create([
+                'name'             => $pendaftaran->nama_lengkap,
+                'email'            => $pendaftaran->email,
+                'username'         => $pendaftaran->email,
+                'password'         => $pendaftaran->password ?? bcrypt('Password123!'),
+                'level'            => 'Siswa',
+                'is_active'        => true,
+                'status'           => 'aktif',
+                'kantor_id'        => $pendaftaran->kantor_id,
+                'periode_id'       => $pendaftaran->periode_id,
+                'peserta_didik_id' => $peserta->id,
+            ]);
         }
 
         // Konfirmasi pembayaran

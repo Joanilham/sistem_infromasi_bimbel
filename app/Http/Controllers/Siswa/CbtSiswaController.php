@@ -269,7 +269,7 @@ class CbtSiswaController extends Controller
      */
     public function simpanJawaban(Request $request, $id)
     {
-        // ✅ Auth check via Redis cache — 0 query DB (sebelumnya 1 query)
+        // Auth check via Redis cache — 0 query DB (sebelumnya 1 query)
         $sesi = Cache::remember("cbt_sesi:{$id}", 3600, function () use ($id) {
             return CbtPeserta::find($id);
         });
@@ -288,13 +288,13 @@ class CbtSiswaController extends Controller
             return response()->json(['status' => 'timeout', 'message' => 'Waktu ujian telah habis.'], 403);
         }
 
-        // ✅ Direct DB update — 1 query (sebelumnya 2 query: load + save)
+        // Direct DB update — 1 query (sebelumnya 2 query: load + save)
         $updateData = ['updated_at' => now()];
 
         if ($request->has('cbt_opsi_jawaban_id')) {
             $updateData['cbt_opsi_jawaban_id'] = $request->cbt_opsi_jawaban_id;
-        } elseif ($request->has('jawaban_essay')) {
-            $updateData['jawaban_essay'] = $request->jawaban_essay;
+        } elseif ($request->has('jawaban_teks') || $request->has('jawaban_essay')) {
+            $updateData['jawaban_essay'] = $request->input('jawaban_teks', $request->input('jawaban_essay'));
         }
 
         if ($request->has('ragu_ragu')) {
@@ -334,8 +334,9 @@ class CbtSiswaController extends Controller
         }
 
         DB::table('cbt_pesertas')->where('id', $id)->increment('blur_count');
+        $count = (int) DB::table('cbt_pesertas')->where('id', $id)->value('blur_count');
 
-        return response()->json(['status' => 'logged']);
+        return response()->json(['status' => 'logged', 'count' => $count]);
     }
 
     /**
@@ -358,7 +359,7 @@ class CbtSiswaController extends Controller
         // if ($pesertaDidik) {
         //     $pembayaran = $pesertaDidik->pembayaran()->first();
         //     if ($pembayaran && !$pembayaran->lunas && !$pembayaran->dispensasi) {
-        //         return redirect()->route('siswa.ujian.riwayat')->with('error', '⚠️ Silakan melunasi tagihan Anda untuk melihat hasil & analisis ujian.');
+        //         return redirect()->route('siswa.ujian.riwayat')->with('error', 'Silakan melunasi tagihan Anda untuk melihat hasil & analisis ujian.');
         //     }
         // }
 

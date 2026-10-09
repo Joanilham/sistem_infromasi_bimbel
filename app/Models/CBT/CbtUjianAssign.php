@@ -14,7 +14,11 @@ class CbtUjianAssign extends Model
 
     protected $table = 'cbt_ujian_assigns';
     protected $fillable = [
-        'cbt_ujian_id', 'assignable_type', 'assignable_id'
+        'cbt_ujian_id',
+        'tipe_assign',
+        'assign_id',
+        'assignable_type',
+        'assignable_id',
     ];
 
     public function ujian()

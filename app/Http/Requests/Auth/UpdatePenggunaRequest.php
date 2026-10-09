@@ -7,7 +7,7 @@ use Illuminate\Validation\Rule;
 
 class UpdatePenggunaRequest extends FormRequest
 {
-    protected $allowedLevels = ['Super Admin', 'Admin', 'Siswa', 'Guru'];
+    protected $allowedLevels = ['Super Admin', 'Admin', 'Staff'];
 
     /**
      * Determine if the user is authorized to make this request.

@@ -20,6 +20,12 @@ beforeEach(function () {
         'tahun_periode' => '2026/2027',
         'is_active'    => true,
     ]);
+    $this->paket = PaketBimbingan::create([
+        'nama_paket' => 'Paket Reguler',
+        'nominal'    => 500000,
+        'kantor_id'  => $this->kantor->id,
+        'periode_id' => $this->periode->id,
+    ]);
 });
 
 // Helper untuk membuat user admin
@@ -66,10 +72,14 @@ test('step 2 store saves input to session', function () {
     Session::put('daftar_email', 'siswa@gmail.com');
 
     $response = $this->post(route('daftar.step2.store'), [
-        'nama_lengkap'  => 'Siswa Baru',
-        'jenis_kelamin' => 'L',
-        'asal_sekolah'  => 'SMP 1',
-        'no_telepon'    => '081234567890',
+        'nama_lengkap'    => 'Siswa Baru',
+        'nisn'            => '1234567890',
+        'jenis_kelamin'   => 'L',
+        'asal_sekolah'    => 'SMP 1',
+        'no_telepon'      => '081234567890',
+        'alamat_lengkap'  => 'Jl. Raya No 1',
+        'nama_ayah'       => 'Ayah Siswa',
+        'no_telepon_ayah' => '081234567891',
     ]);
 
     $response->assertRedirect(route('daftar.step3'));
@@ -100,15 +110,22 @@ test('step 3 store uploads file and creates pendaftaran', function () {
     Session::put('daftar_password', 'Password123!');
     Session::put('daftar_kantor_id', $this->kantor->id);
     Session::put('daftar_data', [
-        'nama_lengkap'  => 'Siswa Baru',
-        'jenis_kelamin' => 'L',
-        'asal_sekolah'  => 'SMP 1',
-        'no_telepon'    => '081234567890',
+        'nama_lengkap'    => 'Siswa Baru',
+        'nisn'            => '1234567890',
+        'jenis_kelamin'   => 'L',
+        'asal_sekolah'    => 'SMP 1',
+        'no_telepon'      => '081234567890',
+        'alamat_lengkap'  => 'Jl. Raya No 1',
+        'nama_ayah'       => 'Ayah Siswa',
+        'no_telepon_ayah' => '081234567891',
     ]);
 
     $response = $this->post(route('daftar.step3.store'), [
-        'metode_pembayaran' => 'Transfer',
-        'bukti_pembayaran'  => $file,
+        'paket_bimbingan_id' => $this->paket->id,
+        'jenis_bayar'        => 'full',
+        'metode_pembayaran'  => 'Transfer',
+        'bukti_pembayaran'   => $file,
+        'syarat_ketentuan'   => '1',
     ]);
 
     $response->assertRedirect(route('daftar.selesai'));

@@ -23,10 +23,10 @@ class PaketBimbinganRequest extends FormRequest
      */
     protected function prepareForValidation()
     {
-        // Checkboxes return 'on', we want boolean true/false
         $this->merge([
-            'bisa_dicicil' => $this->has('bisa_dicicil') ? true : false,
-            'is_featured'  => $this->has('is_featured') ? true : false,
+            'bisa_dicicil'      => $this->has('bisa_dicicil') ? true : false,
+            'is_featured'       => $this->has('is_featured') ? true : false,
+            'dp_persen_minimal' => ($this->filled('dp_persen_minimal')) ? $this->dp_persen_minimal : 10,
         ]);
         
         // Remove non-numeric chars for prices if they contain formatting

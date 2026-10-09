@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\CBT\CbtBankSoal;
-use App\Models\CBT\CbtOpsiJawaban;
-use App\Models\CBT\CbtMapel;
 use App\Models\CBT\CbtBab;
+use App\Models\CBT\CbtBankSoal;
+use App\Models\CBT\CbtMapel;
+use App\Models\CBT\CbtOpsiJawaban;
+use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Traits\ApiResponse;
 
 class GuruBankSoalController extends Controller
 {
@@ -26,7 +26,7 @@ class GuruBankSoalController extends Controller
         $query = CbtBankSoal::with(['mapel', 'bab'])->byGuru($user->id);
 
         if ($request->filled('search')) {
-            $query->where('pertanyaan', 'like', '%' . $request->search . '%');
+            $query->where('pertanyaan', 'like', '%'.$request->search.'%');
         }
 
         $soals = $query->orderBy('created_at', 'desc')->paginate(20);
@@ -62,43 +62,47 @@ class GuruBankSoalController extends Controller
         }
 
         $request->validate([
-            'pertanyaan'        => 'required|string',
-            'tipe_soal'         => 'required|in:pg,essay',
+            'pertanyaan' => 'required|string',
+            'tipe_soal' => 'required|in:pg,essay',
             'tingkat_kesulitan' => 'required|in:easy,medium,hard',
-            'cbt_mapel_id'      => 'nullable|exists:cbt_mapels,id',
-            'cbt_bab_id'        => 'nullable|exists:cbt_babs,id',
-            'opsi'              => 'required_if:tipe_soal,pg|array',
-            'opsi.*'            => 'required_if:tipe_soal,pg|string',
-            'kunci'             => 'required_if:tipe_soal,pg|integer',
+            'cbt_mapel_id' => 'nullable|exists:cbt_mapels,id',
+            'cbt_bab_id' => 'nullable|exists:cbt_babs,id',
+            'opsi' => 'required_if:tipe_soal,pg|array',
+            'opsi.*' => 'required_if:tipe_soal,pg|string',
+            'kunci' => 'required_if:tipe_soal,pg|integer',
         ]);
 
         DB::beginTransaction();
         try {
             $soal = CbtBankSoal::create([
-                'pertanyaan'        => strip_tags($request->pertanyaan), // Sederhana untuk mobile
-                'tipe_soal'         => $request->tipe_soal,
+                'pertanyaan' => strip_tags($request->pertanyaan), // Sederhana untuk mobile
+                'tipe_soal' => $request->tipe_soal,
                 'tingkat_kesulitan' => $request->tingkat_kesulitan,
-                'cbt_mapel_id'      => $request->cbt_mapel_id,
-                'cbt_bab_id'        => $request->cbt_bab_id,
-                'status'            => 'published',
-                'created_by'        => $user->id,
+                'cbt_mapel_id' => $request->cbt_mapel_id,
+                'cbt_bab_id' => $request->cbt_bab_id,
+                'status' => 'published',
+                'created_by' => $user->id,
             ]);
 
             if ($request->tipe_soal === 'pg' && $request->has('opsi')) {
                 foreach ($request->opsi as $idx => $teks) {
-                    if (empty(trim($teks))) continue;
+                    if (empty(trim($teks))) {
+                        continue;
+                    }
                     CbtOpsiJawaban::create([
                         'cbt_bank_soal_id' => $soal->id,
-                        'teks_opsi'        => strip_tags($teks),
-                        'is_benar'         => $idx == $request->kunci,
+                        'teks_opsi' => strip_tags($teks),
+                        'is_benar' => $idx == $request->kunci,
                     ]);
                 }
             }
 
             DB::commit();
+
             return $this->successResponse($soal, 'Soal berhasil ditambahkan.');
         } catch (\Exception $e) {
             DB::rollBack();
+
             return $this->errorResponse('Terjadi kesalahan saat menyimpan soal.', 500);
         }
     }
@@ -113,7 +117,7 @@ class GuruBankSoalController extends Controller
 
         $soal = CbtBankSoal::byGuru($user->id)->find($id);
 
-        if (!$soal) {
+        if (! $soal) {
             return $this->errorResponse('Soal tidak ditemukan.', 404);
         }
 

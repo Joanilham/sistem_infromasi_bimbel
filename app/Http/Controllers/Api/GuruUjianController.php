@@ -3,22 +3,23 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\CBT\CbtUjian;
-use App\Models\CBT\CbtBankSoal;
-use App\Models\CBT\CbtMapel;
 use App\Models\Akademik\KelompokBelajar;
+use App\Models\CBT\CbtBankSoal;
+use App\Models\CBT\CbtPeserta;
+use App\Models\CBT\CbtPesertaJawaban;
+use App\Models\CBT\CbtUjian;
+use App\Models\CBT\CbtUjianSoal;
 use App\Models\User;
 use App\Services\CbtService;
+use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Traits\ApiResponse;
 
 class GuruUjianController extends Controller
 {
     use ApiResponse;
 
-    public function __construct(protected CbtService $cbtService)
-    {}
+    public function __construct(protected CbtService $cbtService) {}
 
     public function index(Request $request)
     {
@@ -37,7 +38,7 @@ class GuruUjianController extends Controller
             }]);
 
         if ($request->filled('search')) {
-            $query->where('judul', 'like', '%' . $request->search . '%');
+            $query->where('judul', 'like', '%'.$request->search.'%');
         }
 
         $ujians = $query->orderBy('created_at', 'desc')->paginate(20);
@@ -50,6 +51,7 @@ class GuruUjianController extends Controller
                 : null;
             // Hapus relasi besar sebelum serialize (hemat memori)
             $ujian->unsetRelation('ujianSoals');
+
             return $ujian;
         });
 
@@ -85,32 +87,32 @@ class GuruUjianController extends Controller
         }
 
         $request->validate([
-            'judul'          => 'required|string|max:255',
-            'deskripsi'      => 'nullable|string',
-            'durasi'         => 'required|integer|min:5|max:300',
-            'waktu_mulai'    => 'nullable|date',
-            'waktu_selesai'  => 'nullable|date|after:waktu_mulai',
-            'mode'           => 'required|in:latihan,resmi',
-            'acak_soal'      => 'boolean',
-            'acak_opsi'      => 'boolean',
+            'judul' => 'required|string|max:255',
+            'deskripsi' => 'nullable|string',
+            'durasi' => 'required|integer|min:5|max:300',
+            'waktu_mulai' => 'nullable|date',
+            'waktu_selesai' => 'nullable|date|after:waktu_mulai',
+            'mode' => 'required|in:latihan,resmi',
+            'acak_soal' => 'boolean',
+            'acak_opsi' => 'boolean',
             'tampilkan_hasil' => 'boolean',
-            'limit_attempt'  => 'required|integer|min:0',
-            'token'          => 'nullable|string|max:20',
+            'limit_attempt' => 'required|integer|min:0',
+            'token' => 'nullable|string|max:20',
         ]);
 
         $ujian = CbtUjian::create([
-            'judul'           => $request->judul,
-            'deskripsi'       => $request->deskripsi,
-            'durasi'          => $request->durasi,
-            'waktu_mulai'     => $request->waktu_mulai,
-            'waktu_selesai'   => $request->waktu_selesai,
-            'mode'            => $request->mode,
-            'acak_soal'       => $request->boolean('acak_soal'),
-            'acak_opsi'       => $request->boolean('acak_opsi'),
+            'judul' => $request->judul,
+            'deskripsi' => $request->deskripsi,
+            'durasi' => $request->durasi,
+            'waktu_mulai' => $request->waktu_mulai,
+            'waktu_selesai' => $request->waktu_selesai,
+            'mode' => $request->mode,
+            'acak_soal' => $request->boolean('acak_soal'),
+            'acak_opsi' => $request->boolean('acak_opsi'),
             'tampilkan_hasil' => $request->boolean('tampilkan_hasil', true),
-            'limit_attempt'   => $request->limit_attempt,
-            'token'           => $request->token,
-            'created_by'      => $user->id,
+            'limit_attempt' => $request->limit_attempt,
+            'token' => $request->token,
+            'created_by' => $user->id,
         ]);
 
         return $this->successResponse($ujian, 'Ujian berhasil dibuat.', 201);
@@ -127,7 +129,7 @@ class GuruUjianController extends Controller
             ->withCount(['ujianSoals', 'pesertas'])
             ->with(['ujianSoals.bankSoal', 'assigns'])
             ->findOrFail($id);
-            
+
         // Get available bank soals
         $soalTerpilihIds = $ujian->ujianSoals->pluck('cbt_bank_soal_id')->toArray();
         $bankSoals = CbtBankSoal::where('created_by', $user->id)
@@ -138,7 +140,7 @@ class GuruUjianController extends Controller
 
         return $this->successResponse([
             'ujian' => $ujian,
-            'available_soals' => $bankSoals
+            'available_soals' => $bankSoals,
         ], 'Detail ujian berhasil dimuat');
     }
 
@@ -156,6 +158,7 @@ class GuruUjianController extends Controller
         }
 
         $ujian->delete();
+
         return $this->successResponse(null, 'Ujian berhasil dihapus.');
     }
 
@@ -169,13 +172,13 @@ class GuruUjianController extends Controller
         $ujian = CbtUjian::where('created_by', $user->id)->findOrFail($id);
 
         $request->validate([
-            'soal_ids'   => 'required|array',
+            'soal_ids' => 'required|array',
             'soal_ids.*' => 'exists:cbt_bank_soals,id',
         ]);
 
         $added = $this->cbtService->addSoals($ujian, $request->soal_ids);
 
-        return $this->successResponse(null, $added . ' soal ditambahkan ke ujian.');
+        return $this->successResponse(null, $added.' soal ditambahkan ke ujian.');
     }
 
     public function hapusSoal(Request $request, string $id, string $soalId)
@@ -252,18 +255,18 @@ class GuruUjianController extends Controller
             ->with('pesertaDidik.kelompokBelajar')
             ->get();
 
-        $pesertas = \App\Models\CBT\CbtPeserta::where('cbt_ujian_id', $ujian->id)->get()->keyBy('user_id');
+        $pesertas = CbtPeserta::where('cbt_ujian_id', $ujian->id)->get()->keyBy('user_id');
 
         $result = [];
         foreach ($targetUsers as $siswa) {
             $peserta = $pesertas->get($siswa->id);
-            $status = 'belum'; 
+            $status = 'belum';
             $skor = null;
 
             $peserta_id = null;
 
             if ($peserta) {
-                $status = $peserta->status; 
+                $status = $peserta->status;
                 $skor = $peserta->skor;
                 $peserta_id = $peserta->id;
             }
@@ -279,9 +282,9 @@ class GuruUjianController extends Controller
         }
 
         $grouped = [
-            'selesai' => array_values(array_filter($result, fn($r) => in_array($r['status'], ['selesai', 'timeout']))),
-            'mengerjakan' => array_values(array_filter($result, fn($r) => $r['status'] === 'mengerjakan')),
-            'belum' => array_values(array_filter($result, fn($r) => $r['status'] === 'belum')),
+            'selesai' => array_values(array_filter($result, fn ($r) => in_array($r['status'], ['selesai', 'timeout']))),
+            'mengerjakan' => array_values(array_filter($result, fn ($r) => $r['status'] === 'mengerjakan')),
+            'belum' => array_values(array_filter($result, fn ($r) => $r['status'] === 'belum')),
         ];
 
         return $this->successResponse($grouped, 'Data monitoring berhasil dimuat');
@@ -295,18 +298,18 @@ class GuruUjianController extends Controller
         }
 
         $ujian = CbtUjian::where('created_by', $user->id)->findOrFail($id);
-        $sesi = \App\Models\CBT\CbtPeserta::with(['user', 'jawabans.bankSoal.opsiJawabans', 'jawabans.opsiJawaban'])
+        $sesi = CbtPeserta::with(['user', 'jawabans.bankSoal.opsiJawabans', 'jawabans.opsiJawaban'])
             ->where('cbt_ujian_id', $ujian->id)
             ->findOrFail($peserta_id);
 
-        $ujianSoalsMap = \App\Models\CBT\CbtUjianSoal::where('cbt_ujian_id', $ujian->id)
+        $ujianSoalsMap = CbtUjianSoal::where('cbt_ujian_id', $ujian->id)
             ->get()
             ->keyBy('cbt_bank_soal_id');
 
-        $detailJawabans = $sesi->jawabans->map(function($jawaban) use ($ujianSoalsMap) {
+        $detailJawabans = $sesi->jawabans->map(function ($jawaban) use ($ujianSoalsMap) {
             $bobot = $ujianSoalsMap->get($jawaban->cbt_bank_soal_id)?->bobot ?? 1;
             $soal = $jawaban->bankSoal;
-            
+
             $jawaban_siswa = null;
             $kunci_jawaban = null;
 
@@ -342,7 +345,7 @@ class GuruUjianController extends Controller
                 'status' => $sesi->status,
                 'skor_akhir' => $sesi->skor,
             ],
-            'jawabans' => $detailJawabans
+            'jawabans' => $detailJawabans,
         ], 'Data koreksi berhasil dimuat');
     }
 
@@ -354,27 +357,27 @@ class GuruUjianController extends Controller
         }
 
         $ujian = CbtUjian::where('created_by', $user->id)->findOrFail($id);
-        $sesi = \App\Models\CBT\CbtPeserta::where('cbt_ujian_id', $ujian->id)->findOrFail($peserta_id);
+        $sesi = CbtPeserta::where('cbt_ujian_id', $ujian->id)->findOrFail($peserta_id);
 
         $request->validate([
             'skor' => 'required|array',
-            'skor.*' => 'numeric|min:0'
+            'skor.*' => 'numeric|min:0',
         ]);
 
         $skorData = $request->input('skor', []);
-        
-        $ujianSoalsMap = \App\Models\CBT\CbtUjianSoal::where('cbt_ujian_id', $ujian->id)
+
+        $ujianSoalsMap = CbtUjianSoal::where('cbt_ujian_id', $ujian->id)
             ->get()
             ->keyBy('cbt_bank_soal_id');
 
         foreach ($skorData as $jawaban_id => $inputSkor) {
-            $jawaban = \App\Models\CBT\CbtPesertaJawaban::where('cbt_peserta_id', $sesi->id)->find($jawaban_id);
+            $jawaban = CbtPesertaJawaban::where('cbt_peserta_id', $sesi->id)->find($jawaban_id);
             if ($jawaban && $jawaban->bankSoal->tipe_soal === 'essay') {
                 $bobotMaksimal = $ujianSoalsMap->get($jawaban->cbt_bank_soal_id)?->bobot ?? 1;
-                
+
                 // Validasi skor tidak melebihi bobot
                 $skorDiinput = min(max(0, (float) $inputSkor), $bobotMaksimal);
-                
+
                 $jawaban->skor = $skorDiinput;
                 $jawaban->is_benar = ($skorDiinput > 0);
                 $jawaban->save();
@@ -382,11 +385,11 @@ class GuruUjianController extends Controller
         }
 
         // Kalkulasi Ulang Skor Akhir
-        app(\App\Services\CbtService::class)->recalculateSkor($sesi);
+        app(CbtService::class)->recalculateSkor($sesi);
         $sesi->refresh();
 
         return $this->successResponse([
-            'skor_baru' => $sesi->skor
+            'skor_baru' => $sesi->skor,
         ], 'Nilai koreksi berhasil disimpan.');
     }
 }

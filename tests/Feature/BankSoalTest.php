@@ -1,9 +1,9 @@
 <?php
 
-use App\Models\CbtBab;
-use App\Models\CbtBankSoal;
-use App\Models\CbtMapel;
-use App\Models\CbtOpsiJawaban;
+use App\Models\CBT\CbtBab;
+use App\Models\CBT\CbtBankSoal;
+use App\Models\CBT\CbtMapel;
+use App\Models\CBT\CbtOpsiJawaban;
 use App\Models\User;
 
 function makeGuruUser(): User

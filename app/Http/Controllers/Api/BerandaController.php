@@ -1,19 +1,18 @@
 <?php
 
 namespace App\Http\Controllers\Api;
-use App\Models\Akademik\PesertaDidik;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\CbtUjianResource;
+use App\Http\Resources\JadwalResource;
+use App\Http\Resources\PengumumanResource;
+use App\Models\Akademik\Jadwal;
+use App\Models\CBT\CbtUjian;
+use App\Models\System\Pengumuman;
+use App\Traits\ApiResponse;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Carbon\Carbon;
-use App\Models\Akademik\Jadwal;
-use App\Models\System\Pengumuman;
-use App\Models\CBT\CbtUjian;
-use App\Traits\ApiResponse;
-use App\Http\Resources\PengumumanResource;
-use App\Http\Resources\JadwalResource;
-use App\Http\Resources\CbtUjianResource;
 
 class BerandaController extends Controller
 {
@@ -24,7 +23,7 @@ class BerandaController extends Controller
         $user = $request->user();
 
         // Cache per user per jam — beranda data jarang berubah dalam 5 menit
-        $cacheKey = "beranda_user_{$user->id}_" . Carbon::now()->format('YmdH') . '_' . (int)(Carbon::now()->minute / 5);
+        $cacheKey = "beranda_user_{$user->id}_".Carbon::now()->format('YmdH').'_'.(int) (Carbon::now()->minute / 5);
 
         $data = Cache::remember($cacheKey, 300, function () use ($user) {
             // Get today's day in Indonesian (e.g., 'Senin', 'Selasa')
@@ -58,13 +57,13 @@ class BerandaController extends Controller
 
                 // 2. Info Keuangan / Tagihan
                 $pembayaran = $peserta->pembayaran;
-                if ($pembayaran && !$pembayaran->lunas) {
+                if ($pembayaran && ! $pembayaran->lunas) {
                     $result['tagihan_aktif'] = [
                         'total_harus_dibayar' => $pembayaran->total_harus_dibayar,
-                        'total_terbayar'      => $pembayaran->total_terbayar,
-                        'kekurangan'          => $pembayaran->kekurangan,
-                        'batas_waktu'         => $pembayaran->batas_waktu ? $pembayaran->batas_waktu->format('Y-m-d') : null,
-                        'is_overdue'          => $pembayaran->batas_waktu && $pembayaran->batas_waktu->isPast()
+                        'total_terbayar' => $pembayaran->total_terbayar,
+                        'kekurangan' => $pembayaran->kekurangan,
+                        'batas_waktu' => $pembayaran->batas_waktu ? $pembayaran->batas_waktu->format('Y-m-d') : null,
+                        'is_overdue' => $pembayaran->batas_waktu && $pembayaran->batas_waktu->isPast(),
                     ];
                 } else {
                     $result['tagihan_aktif'] = null;
@@ -73,9 +72,9 @@ class BerandaController extends Controller
                 // 3. Ujian CBT Aktif
                 if (strtolower($user->status) === 'aktif') {
                     $ujianData = CbtUjian::where(function ($q) {
-                            $q->whereNull('waktu_selesai')
-                              ->orWhere('waktu_selesai', '>=', now());
-                        })
+                        $q->whereNull('waktu_selesai')
+                            ->orWhere('waktu_selesai', '>=', now());
+                    })
                         ->orderBy('waktu_mulai', 'asc')
                         ->take(3)
                         ->get(['id', 'judul', 'waktu_mulai', 'waktu_selesai', 'durasi']);
@@ -104,5 +103,3 @@ class BerandaController extends Controller
             ->header('Cache-Control', 'private, max-age=300');
     }
 }
-
-

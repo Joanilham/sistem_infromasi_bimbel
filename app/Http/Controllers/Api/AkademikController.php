@@ -1,15 +1,14 @@
 <?php
 
 namespace App\Http\Controllers\Api;
-use App\Models\Akademik\PesertaDidik;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Akademik\Jadwal;
-use App\Models\Akademik\Absensi;
-use App\Traits\ApiResponse;
-use App\Http\Resources\JadwalResource;
 use App\Http\Resources\AbsensiResource;
+use App\Http\Resources\JadwalResource;
+use App\Models\Akademik\Absensi;
+use App\Models\Akademik\Jadwal;
+use App\Traits\ApiResponse;
+use Illuminate\Http\Request;
 
 class AkademikController extends Controller
 {
@@ -50,7 +49,7 @@ class AkademikController extends Controller
     {
         $user = $request->user();
 
-        if (!$user->peserta_didik_id || !$user->pesertaDidik) {
+        if (! $user->peserta_didik_id || ! $user->pesertaDidik) {
             return $this->errorResponse('Data absensi hanya tersedia untuk siswa.', 403);
         }
 
@@ -60,9 +59,9 @@ class AkademikController extends Controller
             ->paginate(20);
 
         return $this->successResponse([
-            'data'         => AbsensiResource::collection($absensi->items()),
+            'data' => AbsensiResource::collection($absensi->items()),
             'current_page' => $absensi->currentPage(),
-            'last_page'    => $absensi->lastPage(),
+            'last_page' => $absensi->lastPage(),
         ], 'Riwayat absensi berhasil dimuat');
     }
 
@@ -70,7 +69,7 @@ class AkademikController extends Controller
     {
         $user = $request->user();
 
-        if (!$user->peserta_didik_id) {
+        if (! $user->peserta_didik_id) {
             return $this->errorResponse('Data absensi hanya tersedia untuk siswa.', 403);
         }
 
@@ -80,10 +79,8 @@ class AkademikController extends Controller
             ->first();
 
         return $this->successResponse(
-            $absensi ? new AbsensiResource($absensi) : null, 
+            $absensi ? new AbsensiResource($absensi) : null,
             'Status absensi hari ini dimuat'
         );
     }
 }
-
-

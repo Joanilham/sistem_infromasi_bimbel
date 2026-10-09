@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\System\Conversation;
 use App\Models\System\Message;
 use App\Models\User;
 use App\Traits\ApiResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ChatController extends Controller
@@ -20,17 +20,17 @@ class ChatController extends Controller
         $user = $request->user();
 
         $conversations = $user->conversations()
-            ->with(['users' => function($query) use ($user) {
+            ->with(['users' => function ($query) use ($user) {
                 $query->where('users.id', '!=', $user->id);
             }])
-            ->withCount(['messages as unread_count' => function($query) use ($user) {
+            ->withCount(['messages as unread_count' => function ($query) use ($user) {
                 $query->where('is_read', false)->where('sender_id', '!=', $user->id);
             }])
             ->get()
             ->map(function ($conversation) {
                 $latestMessage = $conversation->messages()->latest()->first();
                 $otherUser = $conversation->users->first();
-                
+
                 return [
                     'id' => $conversation->id,
                     'other_user' => $otherUser ? [
@@ -58,18 +58,18 @@ class ChatController extends Controller
     public function getMessages(Request $request, $userId)
     {
         $currentUser = $request->user();
-        
+
         // Find existing conversation between currentUser and $userId
-        $conversation = Conversation::whereHas('users', function($q) use ($currentUser) {
+        $conversation = Conversation::whereHas('users', function ($q) use ($currentUser) {
             $q->where('users.id', $currentUser->id);
-        })->whereHas('users', function($q) use ($userId) {
+        })->whereHas('users', function ($q) use ($userId) {
             $q->where('users.id', $userId);
         })->first();
 
-        if (!$conversation) {
+        if (! $conversation) {
             return $this->successResponse([
                 'conversation_id' => null,
-                'messages' => []
+                'messages' => [],
             ], 'Belum ada obrolan');
         }
 
@@ -82,7 +82,7 @@ class ChatController extends Controller
         $messages = $conversation->messages()
             ->orderBy('created_at', 'asc')
             ->get()
-            ->map(function($msg) {
+            ->map(function ($msg) {
                 return [
                     'id' => $msg->id,
                     'sender_id' => $msg->sender_id,
@@ -94,7 +94,7 @@ class ChatController extends Controller
 
         return $this->successResponse([
             'conversation_id' => $conversation->id,
-            'messages' => $messages
+            'messages' => $messages,
         ], 'Berhasil memuat pesan');
     }
 
@@ -112,13 +112,13 @@ class ChatController extends Controller
         DB::beginTransaction();
         try {
             // Find or create conversation
-            $conversation = Conversation::whereHas('users', function($q) use ($currentUser) {
+            $conversation = Conversation::whereHas('users', function ($q) use ($currentUser) {
                 $q->where('users.id', $currentUser->id);
-            })->whereHas('users', function($q) use ($receiverId) {
+            })->whereHas('users', function ($q) use ($receiverId) {
                 $q->where('users.id', $receiverId);
             })->first();
 
-            if (!$conversation) {
+            if (! $conversation) {
                 $conversation = Conversation::create(['type' => 'individual']);
                 $conversation->users()->attach([$currentUser->id, $receiverId]);
             }
@@ -144,7 +144,8 @@ class ChatController extends Controller
             ], 'Pesan terkirim');
         } catch (\Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('Gagal mengirim pesan: ' . $e->getMessage(), 500);
+
+            return $this->errorResponse('Gagal mengirim pesan: '.$e->getMessage(), 500);
         }
     }
 
@@ -152,14 +153,14 @@ class ChatController extends Controller
     public function getContacts(Request $request)
     {
         $currentUser = $request->user();
-        
+
         // Return users who are not the current user
         // You might want to filter by role (e.g., Siswa can only see Guru, etc.)
         $contacts = User::where('id', '!=', $currentUser->id)
             ->where('is_active', true)
             ->select('id', 'name', 'email', 'status', 'level')
             ->get()
-            ->map(function($user) {
+            ->map(function ($user) {
                 return [
                     'id' => $user->id,
                     'name' => $user->name,
@@ -170,4 +171,3 @@ class ChatController extends Controller
         return $this->successResponse($contacts, 'Berhasil memuat kontak');
     }
 }
-

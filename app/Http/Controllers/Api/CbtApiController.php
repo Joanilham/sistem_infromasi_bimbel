@@ -3,30 +3,30 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\CBT\CbtUjian;
-use App\Models\CBT\CbtUjianSoal;
+use App\Http\Resources\CbtPesertaJawabanResource;
+use App\Http\Resources\CbtPesertaResource;
+use App\Http\Resources\CbtUjianResource;
 use App\Models\CBT\CbtPeserta;
 use App\Models\CBT\CbtPesertaJawaban;
+use App\Models\CBT\CbtUjian;
+use App\Models\CBT\CbtUjianAssign;
 use App\Services\CbtService;
 use App\Traits\ApiResponse;
-use App\Http\Resources\CbtUjianResource;
-use App\Http\Resources\CbtPesertaResource;
-use App\Http\Resources\CbtPesertaJawabanResource;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class CbtApiController extends Controller
 {
     use ApiResponse;
 
-    public function __construct(protected CbtService $cbtService)
-    {}
+    public function __construct(protected CbtService $cbtService) {}
 
     private function getAssignedUjianIds($userId, $kelompokId): array
     {
-        return \App\Models\CBT\CbtUjianAssign::where(function($q) use ($userId, $kelompokId) {
+        return CbtUjianAssign::where(function ($q) use ($userId, $kelompokId) {
             $q->where('tipe_assign', 'user')->where('assign_id', $userId);
             if ($kelompokId) {
-                $q->orWhere(function($q2) use ($kelompokId) {
+                $q->orWhere(function ($q2) use ($kelompokId) {
                     $q2->where('tipe_assign', 'kelas')->where('assign_id', $kelompokId);
                 });
             }
@@ -40,7 +40,7 @@ class CbtApiController extends Controller
         $pesertaDidik = $user->pesertaDidik;
         $kelompokId = $pesertaDidik ? $pesertaDidik->kelompok_belajar_id : null;
 
-        if (strtolower($user->level) !== 'siswa' && !in_array($user->level, ['Super Admin', 'Admin'])) {
+        if (strtolower($user->level) !== 'siswa' && ! in_array($user->level, ['Super Admin', 'Admin'])) {
             return $this->errorResponse('Fitur CBT hanya tersedia untuk siswa.', 403);
         }
 
@@ -49,7 +49,7 @@ class CbtApiController extends Controller
         $ujianAktif = CbtUjian::whereIn('id', $assignedUjianIds)
             ->where(function ($q) {
                 $q->whereNull('waktu_selesai')
-                  ->orWhere('waktu_selesai', '>=', now());
+                    ->orWhere('waktu_selesai', '>=', now());
             })->orderBy('waktu_mulai', 'asc')->get();
 
         // Ambil SEMUA peserta user sekaligus — satu query, bukan N query per ujian
@@ -64,13 +64,12 @@ class CbtApiController extends Controller
             $peserta = $pesertas->get($ujian->id);
             // null = belum pernah, 'mengerjakan', 'selesai', 'timeout'
             $ujian->status_peserta = $peserta?->status;
-            $ujian->skor_peserta   = $peserta?->skor;
-            $ujian->attempt_ke     = $peserta?->attempt_ke ?? 0;
+            $ujian->skor_peserta = $peserta?->skor;
+            $ujian->attempt_ke = $peserta?->attempt_ke ?? 0;
         });
 
         return $this->successResponse(CbtUjianResource::collection($ujianAktif), 'Daftar ujian berhasil dimuat');
     }
-
 
     public function ambilSoal(Request $request, $id)
     {
@@ -80,7 +79,7 @@ class CbtApiController extends Controller
 
         $assignedUjianIds = $this->getAssignedUjianIds($user->id, $kelompokId);
 
-        if (!in_array($id, $assignedUjianIds)) {
+        if (! in_array($id, $assignedUjianIds)) {
             return $this->errorResponse('Anda tidak terdaftar untuk mengikuti ujian ini.', 403);
         }
 
@@ -98,7 +97,7 @@ class CbtApiController extends Controller
         }
 
         // Cek limit attempt (canAttempt ignores 'mengerjakan' sessions if they exist)
-        if (!$ujian->canAttempt($user->id)) {
+        if (! $ujian->canAttempt($user->id)) {
             return $this->errorResponse('Anda telah mencapai batas maksimal percobaan.', 403);
         }
 
@@ -107,28 +106,28 @@ class CbtApiController extends Controller
             ->where('status', 'mengerjakan')
             ->first();
 
-        if (!$peserta) {
+        if (! $peserta) {
             try {
                 $peserta = $this->cbtService->initiateSesi($ujian, $user->id, [
-                    'session_token' => \Illuminate\Support\Str::random(40),
-                    'ip_address'    => $request->ip(),
+                    'session_token' => Str::random(40),
+                    'ip_address' => $request->ip(),
                 ]);
             } catch (\Exception $e) {
-                return $this->errorResponse('Gagal memulai ujian: ' . $e->getMessage(), 500);
+                return $this->errorResponse('Gagal memulai ujian: '.$e->getMessage(), 500);
             }
         }
 
-        $soal = CbtPesertaJawaban::with(['bankSoal' => function($q) {
+        $soal = CbtPesertaJawaban::with(['bankSoal' => function ($q) {
             // Tidak include pembahasan di sini — hanya saat mengerjakan
             $q->select('id', 'pertanyaan', 'tipe_soal');
-        }, 'bankSoal.opsiJawabans' => function($q) {
+        }, 'bankSoal.opsiJawabans' => function ($q) {
             $q->select('id', 'cbt_bank_soal_id', 'teks_opsi', 'is_benar');
         }])->where('cbt_peserta_id', $peserta->id)->orderBy('urutan')->get();
 
         return $this->successResponse([
-            'ujian'   => new CbtUjianResource($ujian),
+            'ujian' => new CbtUjianResource($ujian),
             'peserta' => new CbtPesertaResource($peserta),
-            'soal'    => CbtPesertaJawabanResource::collection($soal)
+            'soal' => CbtPesertaJawabanResource::collection($soal),
         ], 'Soal berhasil dimuat');
     }
 
@@ -138,7 +137,7 @@ class CbtApiController extends Controller
             'cbt_bank_soal_id' => 'required|exists:cbt_bank_soals,id',
             'cbt_opsi_jawaban_id' => 'nullable|exists:cbt_opsi_jawabans,id',
             'jawaban_essay' => 'nullable|string',
-            'ragu_ragu' => 'boolean'
+            'ragu_ragu' => 'boolean',
         ]);
 
         $user = $request->user();
@@ -147,7 +146,7 @@ class CbtApiController extends Controller
             ->where('status', 'mengerjakan')
             ->first();
 
-        if (!$peserta) {
+        if (! $peserta) {
             return $this->errorResponse('Ujian sudah selesai atau sesi tidak ditemukan.', 400);
         }
 
@@ -158,6 +157,7 @@ class CbtApiController extends Controller
         if ($detikBerlalu > ($durasiDetik + 15)) {
             // Auto submit jika kedaluwarsa
             $this->cbtService->gradeAndSubmit($peserta, 'timeout');
+
             return $this->errorResponse('Waktu ujian telah habis.', 403);
         }
 
@@ -165,7 +165,7 @@ class CbtApiController extends Controller
             ->where('cbt_bank_soal_id', $request->cbt_bank_soal_id)
             ->first();
 
-        if (!$jawaban) {
+        if (! $jawaban) {
             return $this->errorResponse('Soal tidak ditemukan dalam sesi ini.', 404);
         }
 
@@ -189,7 +189,7 @@ class CbtApiController extends Controller
         $user = $request->user();
         $peserta = CbtPeserta::where('cbt_ujian_id', $id)->where('user_id', $user->id)->where('status', 'mengerjakan')->first();
 
-        if (!$peserta) {
+        if (! $peserta) {
             return $this->errorResponse('Sesi ujian tidak ditemukan atau sudah selesai.', 400);
         }
 
@@ -197,8 +197,8 @@ class CbtApiController extends Controller
         $sesi = $this->cbtService->gradeAndSubmit($peserta, 'selesai');
 
         return $this->successResponse([
-            'skor'  => (float) $sesi->skor,
-            'status'=> $sesi->status,
+            'skor' => (float) $sesi->skor,
+            'status' => $sesi->status,
         ], 'Ujian berhasil diselesaikan');
     }
 
@@ -217,39 +217,38 @@ class CbtApiController extends Controller
             ->latest('created_at')
             ->first();
 
-        if (!$peserta) {
+        if (! $peserta) {
             return $this->errorResponse('Hasil ujian tidak ditemukan.', 404);
         }
 
         $peserta->loadMissing('ujian');
 
-        if (!$peserta->ujian->tampilkan_hasil) {
+        if (! $peserta->ujian->tampilkan_hasil) {
             return $this->successResponse([
-                'skor'    => $peserta->skor,
-                'status'  => $peserta->status,
+                'skor' => $peserta->skor,
+                'status' => $peserta->status,
                 'peserta' => new CbtPesertaResource($peserta),
-                'soal'    => [],
+                'soal' => [],
                 'tampilkan_hasil' => false,
-                'message' => 'Detail disembunyikan oleh guru untuk menjaga kerahasiaan ujian.'
+                'message' => 'Detail disembunyikan oleh guru untuk menjaga kerahasiaan ujian.',
             ], 'Hasil ujian berhasil dimuat');
         }
 
-        $soal = CbtPesertaJawaban::with(['bankSoal' => function($q) {
+        $soal = CbtPesertaJawaban::with(['bankSoal' => function ($q) {
             $q->select('id', 'pertanyaan', 'tipe_soal');
-        }, 'bankSoal.opsiJawabans' => function($q) {
+        }, 'bankSoal.opsiJawabans' => function ($q) {
             $q->select('id', 'cbt_bank_soal_id', 'teks_opsi', 'is_benar');
-        }, 'bankSoal.pembahasan' => function($q) {
+        }, 'bankSoal.pembahasan' => function ($q) {
             // Ambil pembahasan dari tabel cbt_pembahasans
             $q->select('cbt_bank_soal_id', 'teks_pembahasan', 'referensi');
         }])->where('cbt_peserta_id', $peserta->id)->orderBy('urutan')->get();
 
         return $this->successResponse([
-            'skor'    => $peserta->skor,
-            'status'  => $peserta->status,
-            'soal'    => CbtPesertaJawabanResource::collection($soal),
+            'skor' => $peserta->skor,
+            'status' => $peserta->status,
+            'soal' => CbtPesertaJawabanResource::collection($soal),
             'peserta' => new CbtPesertaResource($peserta),
             'tampilkan_hasil' => true,
         ], 'Hasil ujian berhasil dimuat');
     }
 }
-

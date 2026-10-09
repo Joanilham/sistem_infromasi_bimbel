@@ -68,13 +68,27 @@ class User extends Authenticatable
      */
     public function hasPermission(string $permission): bool
     {
+        $level = strtolower($this->level ?? '');
+
         // Super Admin selalu memiliki semua akses
-        if ($this->level === 'Super Admin') {
+        if ($level === 'super admin') {
             return true;
         }
 
-        // Admin biasa dan Staff dicek melalui kolom permissions
-        if (in_array($this->level, ['Admin', 'Staff'])) {
+        // Admin tanpa pembatasan permissions (null) memiliki akses penuh ke modul operasional
+        if ($level === 'admin' && $this->permissions === null) {
+            $superAdminOnlyModules = [
+                'manage_kantor',
+                'manage_periode',
+                'manage_pengguna',
+                'manage_master',
+                'manage_backup',
+            ];
+            return !in_array($permission, $superAdminOnlyModules, true);
+        }
+
+        // Admin dengan pembatasan dan Staff dicek melalui kolom permissions
+        if (in_array($level, ['admin', 'staff'])) {
             return is_array($this->permissions) && in_array($permission, $this->permissions);
         }
 

@@ -33,9 +33,9 @@ class CbtPesertaJawaban extends Model
 
     protected $table = 'cbt_peserta_jawabans';
     protected $fillable = [
-        'cbt_peserta_id', 'cbt_bank_soal_id', 'jawaban_essay',
+        'cbt_peserta_id', 'cbt_bank_soal_id', 'jawaban_essay', 'jawaban_teks',
         'cbt_opsi_jawaban_id', 'jawaban_multi', 'opsi_order',
-        'ragu_ragu', 'is_benar', 'skor'
+        'ragu_ragu', 'is_benar', 'skor', 'urutan', 'file_jawaban'
     ];
 
     protected $casts = [

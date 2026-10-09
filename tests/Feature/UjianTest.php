@@ -1,11 +1,11 @@
 <?php
 
-use App\Models\CbtUjian;
-use App\Models\CbtUjianSoal;
-use App\Models\CbtUjianAssign;
-use App\Models\CbtBankSoal;
-use App\Models\CbtMapel;
-use App\Models\KelompokBelajar;
+use App\Models\CBT\CbtUjian;
+use App\Models\CBT\CbtUjianSoal;
+use App\Models\CBT\CbtUjianAssign;
+use App\Models\CBT\CbtBankSoal;
+use App\Models\CBT\CbtMapel;
+use App\Models\Akademik\KelompokBelajar;
 use App\Models\User;
 use Carbon\Carbon;
 
@@ -90,6 +90,7 @@ test('guru can store exam', function () {
         'acak_soal'       => 1,
         'acak_opsi'       => 1,
         'tampilkan_hasil' => 1,
+        'limit_attempt'   => 1,
         'token'           => 'FISIKA123',
     ]);
 
@@ -143,6 +144,7 @@ test('guru can update exam', function () {
         'acak_soal'       => 0,
         'acak_opsi'       => 0,
         'tampilkan_hasil' => 0,
+        'limit_attempt'   => 1,
         'token'           => 'NEWTOKEN',
     ]);
 
@@ -425,7 +427,7 @@ test('guru publish exam fails without start and end times', function () {
         'waktu_selesai' => null,
     ]);
 
-    $soal = \App\Models\CbtBankSoal::create([
+    $soal = CbtBankSoal::create([
         'pertanyaan'        => 'Pertanyaan Test?',
         'tipe_soal'         => 'essay',
         'tingkat_kesulitan' => 'easy',

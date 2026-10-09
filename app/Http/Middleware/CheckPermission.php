@@ -26,6 +26,19 @@ class CheckPermission
             return $next($request);
         }
 
+        // Admin tanpa pembatasan permissions (null) memiliki akses penuh ke modul operasional,
+        // namun modul sistem inti tetap eksklusif Super Admin kecuali diizinkan spesifik.
+        $superAdminOnlyModules = [
+            'manage_kantor',
+            'manage_periode',
+            'manage_pengguna',
+            'manage_master',
+            'manage_backup',
+        ];
+        if (strtolower($user->level) === 'admin' && $user->permissions === null && !in_array($permission, $superAdminOnlyModules, true)) {
+            return $next($request);
+        }
+
         // Otomatis menentukan izin granular (create, update, delete) berdasarkan HTTP Method & Route Name
         $baseModule = str_replace('manage_', '', $permission);
         $requiredPermission = $permission; // Default: manage_xxx (Lihat)

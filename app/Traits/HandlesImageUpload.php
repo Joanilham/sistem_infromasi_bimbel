@@ -15,6 +15,10 @@ trait HandlesImageUpload
      */
     protected function compressAndStore($file, $directory, $quality = 75)
     {
+        if (!extension_loaded('gd')) {
+            return $file->store($directory, 'public');
+        }
+
         $imageInfo = @getimagesize($file->getRealPath());
         if (!$imageInfo) {
             return $file->store($directory, 'public');

@@ -96,7 +96,8 @@ class DashboardController extends Controller
                       ->orWhere('batas_waktu', '<', Carbon::today())
                       ->orWhereNull('batas_waktu');
                 })
-                ->havingRaw('total_harus_dibayar > COALESCE(transaksi_sum_nominal, 0)')
+                ->get()
+                ->filter(fn($p) => $p->total_harus_dibayar > ($p->transaksi_sum_nominal ?? 0))
                 ->count();
         });
 
@@ -205,18 +206,27 @@ class DashboardController extends Controller
         // End date is Dec 31 for calendar year, Jun 30 for academic year
         $endDateStr = $yearStart === $yearEnd ? "{$yearStart}-12-31" : "{$yearEnd}-06-30";
 
+        $dbDriver = \Illuminate\Support\Facades\DB::connection()->getDriverName();
+        $dateExpr = function (string $col) use ($dbDriver) {
+            return match ($dbDriver) {
+                'sqlite' => "strftime('%Y-%m', {$col})",
+                'pgsql'  => "to_char({$col}, 'YYYY-MM')",
+                default  => "DATE_FORMAT({$col}, '%Y-%m')",
+            };
+        };
+
         // 1. Peserta Didik
         $pesertaMasukRaw = PesertaDidik::inContext()
             ->where('periode_id', $periodeId)
             ->whereNotNull('created_at')
-            ->selectRaw('DATE_FORMAT(created_at, "%Y-%m") as month, count(id) as total')
+            ->selectRaw("{$dateExpr('created_at')} as month, count(id) as total")
             ->groupBy('month')
             ->pluck('total', 'month')->toArray();
 
         $pesertaKeluarRaw = PesertaDidik::inContext()
             ->where('periode_id', $periodeId)
             ->whereNotNull('tanggal_keluar')
-            ->selectRaw('DATE_FORMAT(tanggal_keluar, "%Y-%m") as month, count(id) as total')
+            ->selectRaw("{$dateExpr('tanggal_keluar')} as month, count(id) as total")
             ->groupBy('month')
             ->pluck('total', 'month')->toArray();
 
@@ -227,21 +237,21 @@ class DashboardController extends Controller
             })
             ->where('status', 'sukses')
             ->whereBetween('tanggal', [$startDateStr, $endDateStr])
-            ->selectRaw('DATE_FORMAT(tanggal, "%Y-%m") as month, sum(nominal) as total')
+            ->selectRaw("{$dateExpr('tanggal')} as month, sum(nominal) as total")
             ->groupBy('month')
             ->pluck('total', 'month')->toArray();
 
         // 3. Keuangan - Pemasukan Lainnya
         $pemasukanLainRaw = Pemasukan::when($filterKantorId, fn($q) => $q->where('kantor_id', $filterKantorId))
             ->whereBetween('tanggal', [$startDateStr, $endDateStr])
-            ->selectRaw('DATE_FORMAT(tanggal, "%Y-%m") as month, sum(nominal) as total')
+            ->selectRaw("{$dateExpr('tanggal')} as month, sum(nominal) as total")
             ->groupBy('month')
             ->pluck('total', 'month')->toArray();
 
         // 4. Keuangan - Pengeluaran
         $pengeluaranRaw = Pengeluaran::when($filterKantorId, fn($q) => $q->where('kantor_id', $filterKantorId))
             ->whereBetween('tanggal', [$startDateStr, $endDateStr])
-            ->selectRaw('DATE_FORMAT(tanggal, "%Y-%m") as month, sum(nominal) as total')
+            ->selectRaw("{$dateExpr('tanggal')} as month, sum(nominal) as total")
             ->groupBy('month')
             ->pluck('total', 'month')->toArray();
 

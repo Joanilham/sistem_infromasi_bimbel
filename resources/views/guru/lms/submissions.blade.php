@@ -180,7 +180,7 @@
                             </td>
                             <td class="px-6 py-4 text-slate-600 dark:text-slate-300">
                                 @if($submission)
-                                    <span>{{ $submission->submitted_at->format('d M Y, H:i') }}</span>
+                                    <span>{{ $submission->submitted_at ? $submission->submitted_at->format('d M Y, H:i') : '-' }}</span>
                                 @else
                                     <span class="text-slate-400">-</span>
                                 @endif

@@ -70,7 +70,7 @@ test('camera permission headers are set correctly', function () {
     $response = $this->get('/_test/camera-headers');
     
     $response->assertStatus(200);
-    $response->assertHeader('Permissions-Policy', 'camera=*, microphone=*');
+    $response->assertHeader('Permissions-Policy', 'camera=*, microphone=*, geolocation=()');
     $response->assertHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
     $response->assertHeader('Cross-Origin-Embedder-Policy', 'unsafe-none');
     $response->assertHeader('Feature-Policy', "camera 'self'; microphone 'self'");
@@ -151,21 +151,14 @@ test('backup controller can upload database backup', function () {
 test('backup controller can download backup file', function () {
     $admin = User::factory()->create(['level' => 'Super Admin']);
     
-    $dir = storage_path('app/backups');
-    if (!is_dir($dir)) {
-        mkdir($dir, 0777, true);
-    }
-    $filePath = $dir . '/download_test.sql';
-    file_put_contents($filePath, 'SELECT * FROM users;');
+    Storage::put('backups/download_test.sql', 'SELECT * FROM users;');
 
     $response = $this->actingAs($admin)->get(route('admin.backup.download', 'download_test.sql'));
     
     $response->assertStatus(200);
     $response->assertHeader('Content-Disposition', 'attachment; filename=download_test.sql');
 
-    if (file_exists($filePath)) {
-        unlink($filePath);
-    }
+    Storage::delete('backups/download_test.sql');
 });
 
 test('backup controller can delete backup file', function () {

@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Akademik\KelompokBelajar;
+use App\Models\Akademik\PesertaDidik;
+use App\Models\Pendaftaran\PendaftaranSiswa;
+use App\Models\User;
 use App\Services\TelegramService;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -39,6 +42,7 @@ class TelegramWebhookController extends Controller
                     "⛔ <b>Akses Ditolak</b>\nID Telegram Anda (<code>{$chatId}</code>) tidak terdaftar.",
                     $chatId
                 );
+
                 return response()->json(['status' => 'unauthorized']);
             }
 
@@ -82,7 +86,7 @@ class TelegramWebhookController extends Controller
 
                 default:
                     $this->telegramService->sendMessage(
-                        "❓ Perintah tidak dikenali: <code>" . htmlspecialchars($text, ENT_QUOTES, 'UTF-8') . "</code>\n\nKetik /help untuk melihat menu.",
+                        '❓ Perintah tidak dikenali: <code>'.htmlspecialchars($text, ENT_QUOTES, 'UTF-8')."</code>\n\nKetik /help untuk melihat menu.",
                         $chatId
                     );
                     break;
@@ -100,15 +104,15 @@ class TelegramWebhookController extends Controller
     {
         $appName = config('app.name', 'Genius Education');
         $msg = "🤖 <b>{$appName} BOT</b>\n"
-             . "Halo, <b>{$name}</b>!\n\n"
-             . "📋 <b>Daftar Perintah:</b>\n"
-             . "• <b>/status</b> — Cek kondisi server\n"
-             . "• <b>/ringkasan</b> — Ringkasan data bimbel\n"
-             . "• <b>/db</b> — Info database MySQL\n"
-             . "• <b>/ping</b> — Latensi & respon server\n"
-             . "• <b>/clearcache</b> — Bersihkan cache sistem\n"
-             . "• <b>/help</b> — Menu bantuan ini\n\n"
-             . "<i>💡 Bot otomatis mengirim alert jika web mengalami error.</i>";
+             ."Halo, <b>{$name}</b>!\n\n"
+             ."📋 <b>Daftar Perintah:</b>\n"
+             ."• <b>/status</b> — Cek kondisi server\n"
+             ."• <b>/ringkasan</b> — Ringkasan data bimbel\n"
+             ."• <b>/db</b> — Info database MySQL\n"
+             ."• <b>/ping</b> — Latensi & respon server\n"
+             ."• <b>/clearcache</b> — Bersihkan cache sistem\n"
+             ."• <b>/help</b> — Menu bantuan ini\n\n"
+             .'<i>💡 Bot otomatis mengirim alert jika web mengalami error.</i>';
 
         $this->telegramService->sendMessage($msg, $chatId);
     }
@@ -119,48 +123,48 @@ class TelegramWebhookController extends Controller
     private function sendBimbelSummary(int|string $chatId)
     {
         $appName = config('app.name', 'Genius Education');
-        $time = now()->translatedFormat('d M Y, H:i') . ' WIB';
+        $time = now()->translatedFormat('d M Y, H:i').' WIB';
 
         try {
             // 1. Siswa Aktif
             $siswaAktif = 0;
-            if (class_exists(\App\Models\Akademik\PesertaDidik::class)) {
-                $siswaAktif = \App\Models\Akademik\PesertaDidik::where('status', 'aktif')->count();
+            if (class_exists(PesertaDidik::class)) {
+                $siswaAktif = PesertaDidik::where('status', 'aktif')->count();
             }
 
             // 2. Guru / Tutor
             $totalGuru = 0;
-            if (class_exists(\App\Models\User::class)) {
-                $totalGuru = \App\Models\User::where('level', 'guru')->count();
+            if (class_exists(User::class)) {
+                $totalGuru = User::where('level', 'guru')->count();
             }
 
             // 3. Kelompok Belajar / Kelas
             $totalKelas = 0;
-            if (class_exists(\App\Models\Akademik\KelompokBelajar::class)) {
-                $totalKelas = \App\Models\Akademik\KelompokBelajar::count();
+            if (class_exists(KelompokBelajar::class)) {
+                $totalKelas = KelompokBelajar::count();
             }
 
             // 4. Pendaftaran Siswa Baru Bulan Ini
             $pendaftaranBulanIni = 0;
-            if (class_exists(\App\Models\Pendaftaran\PendaftaranSiswa::class)) {
-                $pendaftaranBulanIni = \App\Models\Pendaftaran\PendaftaranSiswa::whereMonth('created_at', now()->month)
+            if (class_exists(PendaftaranSiswa::class)) {
+                $pendaftaranBulanIni = PendaftaranSiswa::whereMonth('created_at', now()->month)
                     ->whereYear('created_at', now()->year)
                     ->count();
             }
 
             $msg = "📚 <b>RINGKASAN BIMBEL</b>\n"
-                 . "🏢 {$appName}\n\n"
-                 . "👥 <b>Data Akademik:</b>\n"
-                 . "• Siswa Aktif: <b>{$siswaAktif}</b> siswa\n"
-                 . "• Guru / Tutor: <b>{$totalGuru}</b> guru\n"
-                 . "• Rombel / Kelas: <b>{$totalKelas}</b> kelas\n"
-                 . "• Daftar Bulan Ini: <b>{$pendaftaranBulanIni}</b> siswa\n\n"
-                 . "⏰ {$time}";
+                 ."🏢 {$appName}\n\n"
+                 ."👥 <b>Data Akademik:</b>\n"
+                 ."• Siswa Aktif: <b>{$siswaAktif}</b> siswa\n"
+                 ."• Guru / Tutor: <b>{$totalGuru}</b> guru\n"
+                 ."• Rombel / Kelas: <b>{$totalKelas}</b> kelas\n"
+                 ."• Daftar Bulan Ini: <b>{$pendaftaranBulanIni}</b> siswa\n\n"
+                 ."⏰ {$time}";
 
             $this->telegramService->sendMessage($msg, $chatId);
         } catch (Throwable $e) {
             $this->telegramService->sendMessage(
-                "❌ <b>Gagal memuat ringkasan</b>\n" . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8'),
+                "❌ <b>Gagal memuat ringkasan</b>\n".htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8'),
                 $chatId
             );
         }
@@ -172,7 +176,7 @@ class TelegramWebhookController extends Controller
     private function sendServerStatus(int|string $chatId)
     {
         $appName = config('app.name', 'Genius Education');
-        $time = now()->translatedFormat('d M Y, H:i') . ' WIB';
+        $time = now()->translatedFormat('d M Y, H:i').' WIB';
 
         // 1. Uptime Server
         $uptimeInfo = 'Aktif';
@@ -184,12 +188,17 @@ class TelegramWebhookController extends Controller
                 $minutes = floor(($uptimeSecs % 3600) / 60);
 
                 $uptimeParts = [];
-                if ($days > 0) $uptimeParts[] = "{$days} hari";
-                if ($hours > 0) $uptimeParts[] = "{$hours} jam";
+                if ($days > 0) {
+                    $uptimeParts[] = "{$days} hari";
+                }
+                if ($hours > 0) {
+                    $uptimeParts[] = "{$hours} jam";
+                }
                 $uptimeParts[] = "{$minutes} menit";
                 $uptimeInfo = implode(' ', $uptimeParts);
             }
-        } catch (Throwable $e) {}
+        } catch (Throwable $e) {
+        }
 
         // 2. Database Check
         $dbStatus = '❌ Terputus';
@@ -217,7 +226,8 @@ class TelegramWebhookController extends Controller
                 $diskPercent = "{$icon} <b>{$percent}%</b>";
                 $diskDetail = "Sisa {$freeGb} GB dari {$totalGb} GB";
             }
-        } catch (Throwable $e) {}
+        } catch (Throwable $e) {
+        }
 
         // 4. RAM Usage
         $ramPercent = '0%';
@@ -242,7 +252,8 @@ class TelegramWebhookController extends Controller
                 $phpMem = round(memory_get_usage(true) / 1024 / 1024, 1);
                 $ramPercent = "PHP: <b>{$phpMem} MB</b>";
             }
-        } catch (Throwable $e) {}
+        } catch (Throwable $e) {
+        }
 
         // 5. Beban CPU
         $cpuStatus = '🟢 Normal';
@@ -257,37 +268,37 @@ class TelegramWebhookController extends Controller
                 $cpu15 = number_format($load[2], 2);
 
                 if ($load[0] > 4.0) {
-                    $cpuStatus = "🔴 Tinggi";
+                    $cpuStatus = '🔴 Tinggi';
                 } elseif ($load[0] > 2.0) {
-                    $cpuStatus = "🟡 Sedang";
+                    $cpuStatus = '🟡 Sedang';
                 } else {
-                    $cpuStatus = "🟢 Normal";
+                    $cpuStatus = '🟢 Normal';
                 }
             }
         }
 
         // 6. Output Message (Sangat rapi, vertikal, anti-wrapping di layar compact)
-        $phpVer = PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION;
+        $phpVer = PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION;
         $laravelVer = app()->version();
 
         $msg = "📊 <b>STATUS SERVER</b>\n"
-             . "🏢 {$appName}\n\n"
-             . "⏱ <b>Uptime:</b> 🟢 {$uptimeInfo}\n"
-             . "📦 <b>Sistem:</b> PHP {$phpVer} • Laravel {$laravelVer}\n\n"
-             . "🗄 <b>Database MySQL:</b>\n"
-             . "• Status: {$dbStatus}\n\n"
-             . "💾 <b>Penyimpanan Disk:</b>\n"
-             . "• Penggunaan: {$diskPercent}\n"
-             . "• {$diskDetail}\n\n"
-             . "🧠 <b>Memori RAM:</b>\n"
-             . "• Penggunaan: {$ramPercent}\n"
-             . "• {$ramDetail}\n\n"
-             . "⚙️ <b>Beban CPU:</b>\n"
-             . "• Status: {$cpuStatus}\n"
-             . "• 1 mnt: <b>{$cpu1}</b>\n"
-             . "• 5 mnt: <b>{$cpu5}</b>\n"
-             . "• 15 mnt: <b>{$cpu15}</b>\n\n"
-             . "⏰ {$time}";
+             ."🏢 {$appName}\n\n"
+             ."⏱ <b>Uptime:</b> 🟢 {$uptimeInfo}\n"
+             ."📦 <b>Sistem:</b> PHP {$phpVer} • Laravel {$laravelVer}\n\n"
+             ."🗄 <b>Database MySQL:</b>\n"
+             ."• Status: {$dbStatus}\n\n"
+             ."💾 <b>Penyimpanan Disk:</b>\n"
+             ."• Penggunaan: {$diskPercent}\n"
+             ."• {$diskDetail}\n\n"
+             ."🧠 <b>Memori RAM:</b>\n"
+             ."• Penggunaan: {$ramPercent}\n"
+             ."• {$ramDetail}\n\n"
+             ."⚙️ <b>Beban CPU:</b>\n"
+             ."• Status: {$cpuStatus}\n"
+             ."• 1 mnt: <b>{$cpu1}</b>\n"
+             ."• 5 mnt: <b>{$cpu5}</b>\n"
+             ."• 15 mnt: <b>{$cpu15}</b>\n\n"
+             ."⏰ {$time}";
 
         $this->telegramService->sendMessage($msg, $chatId);
     }
@@ -317,16 +328,16 @@ class TelegramWebhookController extends Controller
             $activeConnections = $threads[0]->Value ?? '1';
 
             $msg = "🗄 <b>DATABASE MYSQL</b>\n\n"
-                 . "• Database: <code>{$dbName}</code>\n"
-                 . "• Status: 🟢 Terhubung\n"
-                 . "• Ukuran: <b>{$sizeMb} MB</b>\n"
-                 . "• Total Tabel: <b>{$tablesCount}</b>\n"
-                 . "• Koneksi Aktif: <b>{$activeConnections} Thread(s)</b>";
+                 ."• Database: <code>{$dbName}</code>\n"
+                 ."• Status: 🟢 Terhubung\n"
+                 ."• Ukuran: <b>{$sizeMb} MB</b>\n"
+                 ."• Total Tabel: <b>{$tablesCount}</b>\n"
+                 ."• Koneksi Aktif: <b>{$activeConnections} Thread(s)</b>";
 
             $this->telegramService->sendMessage($msg, $chatId);
         } catch (Throwable $e) {
             $this->telegramService->sendMessage(
-                "❌ Gagal membaca database: " . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8'),
+                '❌ Gagal membaca database: '.htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8'),
                 $chatId
             );
         }
@@ -342,7 +353,7 @@ class TelegramWebhookController extends Controller
             DB::connection()->getPdo();
             $latency = round((microtime(true) - $start) * 1000, 1);
             $this->telegramService->sendMessage(
-                "🏓 <b>PONG!</b>\n\n• Server: 🟢 Aktif\n• Latensi DB: <b>{$latency} ms</b>\n• Jam: " . now()->format('H:i:s') . " WIB",
+                "🏓 <b>PONG!</b>\n\n• Server: 🟢 Aktif\n• Latensi DB: <b>{$latency} ms</b>\n• Jam: ".now()->format('H:i:s').' WIB',
                 $chatId
             );
         } catch (Throwable $e) {
@@ -365,15 +376,15 @@ class TelegramWebhookController extends Controller
 
             $this->telegramService->sendMessage(
                 "🧹 <b>CACHE DIBERSIHKAN!</b>\n\n"
-                . "✅ Cache Aplikasi\n"
-                . "✅ Cache Views\n"
-                . "✅ Cache Konfigurasi\n\n"
-                . "⏰ " . now()->format('H:i:s') . " WIB",
+                ."✅ Cache Aplikasi\n"
+                ."✅ Cache Views\n"
+                ."✅ Cache Konfigurasi\n\n"
+                .'⏰ '.now()->format('H:i:s').' WIB',
                 $chatId
             );
         } catch (Throwable $e) {
             $this->telegramService->sendMessage(
-                "❌ Gagal membersihkan cache: " . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8'),
+                '❌ Gagal membersihkan cache: '.htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8'),
                 $chatId
             );
         }
