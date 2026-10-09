@@ -1,135 +1,118 @@
 # Sistem Informasi Bimbingan Belajar & LMS Terpadu (Platform Nivora)
 
-Sistem Informasi Bimbingan Belajar adalah platform manajemen operasional dan pembelajaran digital (*Learning Management System*) yang dirancang khusus untuk memenuhi kebutuhan lembaga bimbingan belajar (bimbel). Sistem ini mengintegrasikan fungsi administratif bimbel, pengelolaan kelas, pendaftaran peserta didik, penyusunan paket belajar, hingga alur belajar-mengajar dua arah antara pengajar dan siswa secara terpadu.
+Aplikasi ini saya kembangkan untuk menjawab kebutuhan nyata operasional di tempat bimbingan belajar (bimbel). Masalah umum yang sering terjadi di lapangan adalah pembagian materi dan penugasan yang masih mengandalkan grup WhatsApp, sehingga modul gampang tertimbun chat dan guru kesulitan memantau siapa saja siswa yang benar-benar belajar sebelum kelas tatap muka dimulai. 
 
-Aplikasi ini dibangun di atas **Laravel 11** dan dioptimalkan menggunakan arsitektur kontainer berkinerja tinggi melalui **Laravel Octane (RoadRunner)** serta **Nginx Reverse Proxy**. Dengan pemanfaatan worker memori persisten, waktu respons sistem tetap sangat cepat dan stabil saat diakses serentak pada jam-jam sibuk bimbingan belajar.
-
----
-
-## 🌟 Cakupan Fitur Keseluruhan Sistem
-
-Sistem ini mencakup empat pilar fungsional utama yang saling terhubung:
-
-### 1. Ekosistem Learning Management System (LMS)
-Modul pembelajaran yang dirancang untuk memangkas ketergantungan pada grup percakapan manual:
-* **Modul LMS Guru:**
-  * **Pengelompokan Materi & Tugas:** Guru dapat menyusun bahan ajar (teori, latihan, modul) berdasarkan kelas dan mata pelajaran yang diampu.
-  * **Tenggat Waktu Fleksibel:** Pengaturan batas waktu pengerjaan tugas yang secara otomatis mencatat status keterlambatan pengiriman tanpa mematikan hak siswa untuk tetap menyetor tugas.
-  * **Panel Monitoring Keaktifan Real-Time:** Menampilkan daftar siswa yang telah membuka (*read*) maupun mengunduh (*download*) modul materi secara langsung, dilengkapi waktu akses dan persentase keterbacaan kelas.
-  * **Pemeriksaan Tugas & Input Nilai di Web:** Pengajar dapat membuka berkas pengiriman tugas siswa langsung di peramban, memberikan catatan umpan balik, dan memasukkan nilai akhir tanpa harus mengunduh berkas satu per satu.
-* **Portal Belajar Siswa:**
-  * **Katalog Materi Interaktif:** Tampilan ringkas berisi daftar modul per mata pelajaran, riwayat belajar, dan status tugas yang belum diselesaikan.
-  * **Penampil Dokumen Mandiri (In-Browser Viewer):** Modul format PDF, DOCX, dan PPTX dapat dibuka dan dipelajari langsung di peramban tanpa memicu aplikasi pengunduh eksternal (seperti IDM) yang kerap memenuhi memori penyimpanan perangkat siswa.
-  * **Pencatatan Akses Otomatis:** Sistem mendeteksi dan mencatat waktu ketika siswa membuka materi belajar, sehingga siswa tidak dibebani tombol konfirmasi manual.
-  * **Pengumpulan Tugas Mandiri:** Siswa dapat mengunggah berkas jawaban mandiri. Begitu tugas dinilai oleh guru, hak ubah berkas otomatis terkunci untuk menjaga keabsahan nilai.
-* **Manajemen Mata Pelajaran & Bank Soal:**
-  * Tersedia master mata pelajaran lengkap (Matematika, Fisika, Kimia, Biologi, Bahasa Inggris, Bahasa Indonesia, Sejarah, Ekonomi, Sosiologi, Geografi) sebagai fondasi pembelajaran dan latihan soal.
-
-### 2. Manajemen Operasional Bimbel & Administrasi (Admin / Super Admin)
-* **Manajemen Multi-Pengguna & Peran:** Pengelolaan hak akses berjenjang mulai dari Super Admin, Admin Cabang, Guru/Tentor, hingga Siswa.
-* **Manajemen Peserta Didik & Kelompok Belajar:** Pengelompokan siswa ke dalam rombongan belajar/kelas intensif sesuai paket bimbingan yang diambil.
-* **Paket Bimbingan Belajar Dinamis:** Konfigurasi program belajar (misalnya Reguler Intensif UTBK-SNBT, Kedinasan, Akmil/Akpol) lengkap dengan rincian fasilitas, nominal biaya, dan harga promo tanpa bergantung pada data *dummy* statis.
-* **Siklus Periode Akademik:** Pengelolaan tahun ajaran dan periode aktif untuk memisahkan data siswa antar-angkatan secara terstruktur.
-* **Pendaftaran Siswa Baru (PPDB Online):** Alur pendaftaran mandiri bagi calon siswa baru melalui antarmuka publik hingga tahap verifikasi berkas oleh admin.
-
-### 3. Portal Publik (Landing Page)
-* Halaman depan modern yang menyajikan direktori program bimbel, paket pilihan terlaris, penggeser galeri kegiatan (*hero multi-slide*), testimoni, serta informasi kontak lembaga yang terintegrasi langsung dengan identitas institusi.
-
-### 4. Keamanan Sistem, Otentikasi, dan Pemantauan Server
-* **Penguatan Sesi & Logout (Aman untuk Komputer Lab Bersama):**
-  * Penerapan header *anti-cache* ketat (*no-cache, no-store*) dan pembersihan data peramban (*Clear-Site-Data*).
-  * Mekanisme penahan riwayat peramban (*back-history trap*): ketika pengguna telah menekan tombol *Logout*, menekan tombol *Back* pada peramban tidak akan menampilkan data sesi sebelumnya dan secara otomatis melempar pengguna kembali ke gerbang login.
-* **Multi-Kredensial Login:** Memudahkan pengguna masuk sistem dengan identitas yang paling mudah diingat: siswa dapat login memakai NISN atau email, sementara guru dapat memakai NIP atau email.
-* **Monitoring Server via Bot Telegram:** Integrasi pelaporan otomatis unhandled error/crash sistem ke Bot Telegram administrator, serta perintah interaktif untuk memantau penggunaan CPU, *uptime* server, dan ringkasan operasional bimbel secara langsung dari aplikasi Telegram.
-* **Proteksi Lalu Lintas Web:** Dilengkapi lapisan Nginx reverse proxy dengan aturan pengamanan ketat untuk menyaring lalu lintas data sebelum menyentuh aplikasi utama.
+Sistem ini menggabungkan pengelolaan operasional bimbel dengan modul *Learning Management System* (LMS) dua arah. Dibangun menggunakan **Laravel 11** dan dijalankan di atas **Laravel Octane (RoadRunner)** dalam kontainer Docker/Podman, aplikasi ini dirancang agar tetap ringan, cepat, dan tidak mengalami perlambatan saat diakses serentak oleh puluhan siswa di jam belajar.
 
 ---
 
-## 🛠 Kebutuhan Sistem (Prasyarat)
+## 💡 Fitur Utama & Pertimbangan di Balik Pengembangannya
 
-Untuk menjalankan proyek ini, pastikan komputer Anda telah terpasang salah satu lingkungan berikut:
+Setiap fitur yang dibangun di sistem ini berangkat dari kendala riil yang kami temukan saat uji coba:
 
-* **Pilihan Rekomendasi (Paling Praktis & Bebas Konflik Versi):**
-  * **Docker** & **Docker Compose** *(atau **Podman** & Podman Compose)*.
-* **Pilihan Lokal (Tanpa Kontainer):**
-  * PHP >= 8.2 (ekstensi wajib: `pdo_mysql`, `mbstring`, `openssl`, `tokenizer`, `xml`, `ctype`, `json`, `bcmath`, `curl`)
+### 1. Ekosistem LMS untuk Guru
+* **Distribusi Materi & Penugasan:** Guru dapat mengunggah modul teori maupun tugas terstruktur yang otomatis dikelompokkan berdasarkan tingkatan kelas dan mata pelajaran yang diampu.
+* **Tabel Pemantauan Bacaan Real-Time:** Guru bisa memantau secara transparan siapa saja siswa yang sudah membuka (*read*) atau mengunduh (*download*) modul materi, lengkap dengan catatan waktu akses dan persentase keterbacaan kelas.
+* **Kenapa Pelacakan Dibuat Otomatis?** Kami sempat mempertimbangkan tombol manual *"Tandai Selesai"*, tetapi cara tersebut sering tidak efektif karena siswa cenderung langsung mengklik tombol demi status hijau tanpa membaca modulnya. Sistem ini mencatat keaktifan begitu halaman materi dibuka siswa.
+* **Pemeriksaan Tugas & Input Nilai Langsung di Web:** Guru tidak perlu lagi mengunduh berkas jawaban siswa satu per satu ke komputer lokal. Dokumen jawaban bisa langsung dilihat di peramban, lalu guru dapat langsung mengisi nilai dan catatan koreksi di layar yang sama.
+* **Tenggat Waktu Fleksibel:** Sistem otomatis menandai pengiriman yang terlambat tanpa memutus hak siswa untuk tetap menyetor tugasnya.
+
+### 2. Portal Belajar Mandiri untuk Siswa
+* **Katalog Modul yang Rapi:** Dasbor siswa menampilkan daftar materi per mata pelajaran dan indikator status tugas yang belum diselesaikan.
+* **Penampil Dokumen Mandiri (In-Browser Viewer):** 
+  * *Masalah yang diselesaikan:* Saat uji coba awal, membuka berkas modul di peramban sering memicu aplikasi downloader pihak ketiga (seperti IDM) yang langsung menyedot file ke penyimpanan lokal. Ini memberatkan siswa yang kuotanya terbatas atau memori ponselnya sudah hampir penuh.
+  * *Solusi:* Modul (PDF, DOCX, PPTX) dialirkan sebagai aliran data biner (*binary stream*) langsung ke kanvas peramban. Siswa bisa langsung membaca materi di layar tanpa harus mengunduh file berkali-kali.
+* **Pengumpulan Tugas Mandiri:** Siswa dapat melampirkan berkas jawaban mandiri. Untuk menjaga kejujuran dan kerapian administrasi, berkas tugas akan otomatis terkunci begitu guru selesai memberikan penilaian.
+
+### 3. Keamanan Sesi untuk Komputer Bersama (Lab Bimbel)
+* Di bimbel, komputer laboratorium atau laptop kelas sering dipakai bergantian oleh beberapa siswa. Kami menemukan celah di mana siswa yang selesai belajar sudah mengklik *Logout*, namun siswa berikutnya yang duduk di meja tersebut menekan tombol *Back* pada peramban dan masih bisa melihat sisa tampilan dasbor akun sebelumnya karena tersimpan di memori cache.
+* Untuk mengatasinya, sistem menerapkan pembersihan sesi menyeluruh (*Clear-Site-Data*), larangan penyimpanan cache (*no-cache, no-store*), serta perangkap riwayat peramban (*back-history trap*). Jika tombol *Back* ditekan setelah keluar, sistem langsung membatalkan akses dan mengarahkan kembali ke halaman login.
+* **Login Fleksibel:** Pengguna tidak diwajibkan mengingat email; siswa dapat masuk menggunakan NISN dan guru dapat masuk menggunakan NIP.
+
+### 4. Manajemen Operasional Bimbel & Administrasi
+* **Pengelolaan Peserta Didik & Kelas:** Pengelompokan rombongan belajar sesuai tingkatan dan paket bimbingan.
+* **Paket Bimbingan Dinamis:** Konfigurasi paket belajar (seperti Reguler UTBK-SNBT, Kedinasan, dll.) dengan rincian biaya, harga coret, dan fasilitas belajar yang terhubung langsung ke database.
+* **Siklus Periode Akademik:** Pemisahan data tahun ajaran aktif agar data siswa tidak tercampur antar-angkatan.
+* **Master Mata Pelajaran Lengkap:** Tersedia mata pelajaran pokok (Matematika, Biologi, Kimia, Fisika, Bahasa Inggris, Bahasa Indonesia, Sejarah, Ekonomi, Sosiologi, Geografi).
+
+---
+
+## 🛠 Prasyarat Menjalankan Aplikasi
+
+Anda dapat menjalankan proyek ini menggunakan salah satu dari dua cara berikut:
+
+* **Rekomendasi Utama (Paling Praktis):**
+  * **Docker** & **Docker Compose** *(atau **Podman** / Podman Desktop)*.
+* **Pilihan Lokal (Manual):**
+  * PHP >= 8.2 (ekstensi: pdo_mysql, mbstring, openssl, tokenizer, xml, ctype, json, bcmath, curl)
   * Composer >= 2.5
   * Node.js >= 18 & NPM
   * MySQL >= 8.0
 
 ---
 
-## 🚀 Panduan Menjalankan Proyek Saat Pertama Kali Clone
+## 🚀 Panduan Menjalankan Proyek (Pertama Kali Clone)
 
 ### Cara 1: Menggunakan Docker / Podman (Sangat Disarankan)
 
-Metode ini paling direkomendasikan karena seluruh kebutuhan runtime (PHP 8.2, RoadRunner Octane, MySQL 8, Redis, dan Nginx) sudah dikonfigurasi otomatis di dalam kontainer.
+Semua kebutuhan server (PHP 8.2, RoadRunner Octane, MySQL 8, Redis, dan Nginx) sudah siap di dalam kontainer, jadi Anda tidak perlu pusing menyamakan versi software di komputer lokal.
 
-1. **Clone Repositori dan Masuk ke Direktori Proyek:**
+1. **Clone repositori dan masuk ke folder proyek:**
    ```bash
    git clone https://github.com/Joanilham/sistem_infromasi_bimbel.git
    cd sistem_infromasi_bimbel
    ```
 
-2. **Siapkan Berkas Konfigurasi Lingkungan (`.env`):**
+2. **Salin berkas konfigurasi lingkungan:**
    ```bash
    cp .env.example .env
    ```
-   *(Konfigurasi bawaan pada `.env.example` sudah disesuaikan langsung dengan nama service database kontainer).*
+   *(Pengaturan database di `.env.example` sudah disesuaikan langsung dengan nama service kontainer).*
 
-3. **Nyalakan Seluruh Kontainer:**
-   * Jika menggunakan **Docker**:
+3. **Nyalakan seluruh kontainer di latar belakang:**
+   * Jika memakai **Docker**:
      ```bash
      docker compose up -d
      ```
-   * Jika menggunakan **Podman** di Linux/Windows:
+   * Jika memakai **Podman**:
      ```bash
      podman-compose up -d
      ```
-     *(Pengguna Windows juga dapat memanfaatkan file batch pembantu: `podman-start.bat`).*
+     *(Di Windows, Anda juga bisa klik dua kali file pembantu `podman-start.bat`).*
 
-4. **Jalankan Migrasi Database dan Isi Data Awal (Seeder):**
-   Tunggu sekitar 15–20 detik agar container database selesai melakukan *bootstrap*, kemudian jalankan:
-   * Pada Docker:
-     ```bash
-     docker compose exec app php artisan migrate:fresh --seed
-     ```
-   * Pada Podman:
-     ```bash
-     podman-compose exec app php artisan migrate:fresh --seed
-     ```
-     *(atau jalankan `podman-artisan.bat migrate:fresh --seed`).*
+4. **Jalankan migrasi database dan isi data awal (Seeder):**
+   Tunggu sekitar 15–20 detik sampai MySQL di kontainer selesai booting, lalu jalankan:
+   ```bash
+   docker compose exec app php artisan migrate:fresh --seed
+   ```
+   *(Bagi pengguna Podman: ganti `docker compose` dengan `podman-compose` atau gunakan `podman-artisan.bat migrate:fresh --seed`).*
 
-   > **Penting:** Perintah seeder ini akan otomatis mengisi master mata pelajaran, contoh modul materi guru, paket bimbingan, kelompok belajar, dan seluruh akun demo untuk pengujian.
+   > **Catatan Penting:** Perintah ini wajib dijalankan agar database tidak kosong. Data mata pelajaran, kelas, akun admin, serta contoh materi guru dan akun siswa akan otomatis dibuat.
 
-5. **Buka Aplikasi di Peramban:**
-   Buka browser Anda dan akses:
+5. **Akses aplikasi melalui peramban:**
+   Buka peramban dan tuju ke alamat:
    👉 **`http://localhost:8080`**
 
 ---
 
-### Cara 2: Menjalankan Secara Manual di Lingkungan Lokal (Tanpa Kontainer)
+### Cara 2: Menjalankan Manual di Komputer Lokal (Tanpa Kontainer)
 
-Jika Anda ingin menjalankan aplikasi langsung menggunakan PHP dan MySQL lokal di komputer:
+Jika Anda ingin menjalankan langsung menggunakan PHP dan MySQL yang sudah terpasang di komputer:
 
-1. **Clone Repositori dan Masuk ke Direktori:**
+1. **Clone dan siapkan dependensi:**
    ```bash
    git clone https://github.com/Joanilham/sistem_infromasi_bimbel.git
    cd sistem_infromasi_bimbel
-   ```
-
-2. **Pasang Dependensi PHP dan Node.js:**
-   ```bash
    composer install
    npm install
    ```
 
-3. **Konfigurasi Berkas Lingkungan:**
+2. **Pengaturan `.env` dan kunci aplikasi:**
    ```bash
    cp .env.example .env
    php artisan key:generate
    ```
-   Buka berkas `.env`, lalu sesuaikan parameter koneksi basis data:
+   Buka file `.env`, lalu pastikan nama database, user, dan password MySQL lokal Anda sudah sesuai:
    ```ini
    DB_HOST=127.0.0.1
    DB_PORT=3306
@@ -138,63 +121,52 @@ Jika Anda ingin menjalankan aplikasi langsung menggunakan PHP dan MySQL lokal di
    DB_PASSWORD=
    ```
 
-4. **Jalankan Migrasi dan Seeder:**
-   Pastikan database kosong dengan nama sesuai di `.env` sudah dibuat di MySQL Anda, lalu jalankan:
+3. **Migrasi database dan compile aset frontend:**
+   Pastikan database kosong sudah dibuat di MySQL lokal, lalu jalankan:
    ```bash
    php artisan migrate:fresh --seed
+   npm run build
    ```
 
-5. **Kompilasi Aset Frontend dan Jalankan Server:**
+4. **Jalankan server pengembangan:**
    ```bash
-   npm run build
    php artisan serve
    ```
-   Buka peramban di **`http://localhost:8000`**.
+   Aplikasi dapat diakses di **`http://localhost:8000`**.
 
 ---
 
-## 👥 Akun Bawaan untuk Uji Coba Sistem (Demo Kredensial)
+## 👥 Akun Demo untuk Pengujian Fitur
 
-Setelah proses `migrate:fresh --seed` selesai, Anda dapat langsung login menggunakan akun uji coba berikut untuk mencoba masing-masing alur pengguna:
+Setelah proses *seeder* selesai, gunakan akun-akun bawaan berikut untuk mencoba alur kerja dari berbagai sudut pandang pengguna:
 
-| Peran (Role) | Kredensial Login (Email / ID) | Kata Sandi | Alur & Fitur yang Dapat Diuji |
+| Peran | Kredensial Login (Email / ID) | Kata Sandi | Skenario Pengujian |
 | :--- | :--- | :--- | :--- |
-| **Super Admin** | `superadmin@admin.com` | `password` | Mengelola data master bimbel, kelas, guru, paket bimbingan, dan pengaturan sistem. |
-| **Guru (Matematika)** | `guru.matematika@bimbel.com`<br>*(atau NIP: `198503122010011002`)* | `password123` | Mengunggah modul pelajaran, melihat panel pemantau pembaca materi, memeriksa jawaban tugas siswa, dan menginput nilai. |
-| **Guru (Biologi)** | `guru.biologi@bimbel.com`<br>*(atau NIP: `199004152015032004`)* | `password123` | Uji coba mata pelajaran IPA lainnya. |
-| **Siswa (Reguler)** | `siswa1@example.com`<br>*(atau NISN: `0081234501`)* | `password123` | Melihat modul pelajaran di peramban tanpa terganggu unduhan paksa, dan mengunggah tugas mandiri. |
-| **Siswa (Alternatif)** | `siswa2@example.com`<br>*(atau NISN: `0081234502`)* | `password123` | Pengujian akses multi-siswa untuk memvalidasi persentase keaktifan membaca di dasbor guru. |
+| **Super Admin** | `superadmin@admin.com` | `password` | Mengelola data master bimbel, staf, paket bimbingan, dan pengaturan sistem. |
+| **Guru (Matematika)** | `guru.matematika@bimbel.com`<br>*(atau NIP: `198503122010011002`)* | `password123` | Mengunggah materi pelajaran, memantau siapa yang membaca modul, dan mengoreksi tugas siswa. |
+| **Guru (Biologi)** | `guru.biologi@bimbel.com`<br>*(atau NIP: `199004152015032004`)* | `password123` | Pengujian pembuatan materi pada mata pelajaran lain. |
+| **Siswa (Reguler)** | `siswa1@example.com`<br>*(atau NISN: `0081234501`)* | `password123` | Membaca modul langsung di peramban dan mengunggah tugas mandiri. |
+| **Siswa (Alternatif)** | `siswa2@example.com`<br>*(atau NISN: `0081234502`)* | `password123` | Memvalidasi persentase keterbacaan kelas di dasbor guru dengan multi-akun siswa. |
 
 ---
 
-## 📂 Struktur Direktori Utama
+## 📌 Catatan Praktis & Pengalaman Pengembang
 
-* `app/Http/Controllers/Guru/LmsController.php` — Logika penyusunan materi, batas waktu, pemantauan pembaca/pengunduh, dan input nilai guru.
-* `app/Http/Controllers/Siswa/LmsController.php` — Logika dasbor siswa, pembaca dokumen, dan pengumpulan tugas mandiri.
-* `app/Http/Controllers/Auth/AuthController.php` — Autentikasi multi-kredensial, pembersihan sesi pasca-logout, dan aturan anti-cache.
-* `app/Http/Middleware/SecurityHeaders.php` — Header keamanan peramban dan penolak riwayat cache.
-* `resources/views/guru/lms/` — Antarmuka LMS guru (pembuatan materi, matriks pengumpulan nilai, daftar pembaca).
-* `resources/views/siswa/lms/` — Antarmuka portal belajar siswa dan penampil dokumen in-browser.
-* `public/vendor/` — Pustaka pembaca dokumen lokal (PDF, DOCX, PPTX) yang tertanam mandiri.
-* `docker/` & `podman-compose.yml` — Konfigurasi orkestrasi kontainer, Nginx, dan Laravel Octane RoadRunner.
+Beberapa catatan teknis yang berguna saat Anda mencoba atau mengembangkan proyek ini:
 
----
-
-## 📌 Catatan Teknis & Praktik Pengembang
-
-1. **Perilaku Tombol Back Setelah Logout:**  
-   Jika Anda mencoba menekan tombol *Back* pada peramban setelah logout, layar akan secara otomatis memuat ulang dan mengarahkan kembali ke halaman login. Hal ini merupakan perilaku yang sengaja dirancang demi keamanan privasi akun di komputer bersama (misalnya laboratorium komputer bimbel).
-2. **Reload Worker Octane saat Memperbarui Kode:**  
-   Karena Laravel Octane memuat kode aplikasi ke dalam memori kerja (*persistent worker*), setiap perubahan pada berkas kontroler atau konfigurasi saat menggunakan kontainer perlu di-reload agar diterapkan:
+1. **Kenapa tombol Back tidak bisa kembali ke halaman sebelumnya setelah Logout?**  
+   Ini bukan eror, melainkan fitur proteksi sesi yang sengaja dipasang. Saat pengguna keluar, halaman sebelumnya langsung dinonaktifkan di memori peramban agar akun tidak bisa diakses orang lain di komputer bersama.
+2. **Reload Worker Octane saat Edit Kode:**  
+   Karena Laravel Octane memuat aplikasi ke dalam worker memori persisten (RoadRunner), perubahan pada file PHP tertentu saat memakai kontainer kadang tidak langsung terlihat di browser. Untuk memperbaruinya, jalankan:
    ```bash
    docker compose exec app php artisan octane:reload
    ```
-3. **Penyajian Dokumen Mandiri (Anti-IDM):**  
-   Modul berkas disajikan sebagai aliran data biner (*binary stream*) langsung ke kanvas penampil dokumen peramban. Cara ini mencegah ekstensi seperti *Internet Download Manager* (IDM) mengambil alih proses baca, sehingga siswa dapat langsung belajar tanpa harus menguras kuota dan memori perangkat.
+3. **Catatan Performa Dokumen Tebal:**  
+   Dari hasil uji coba kami, berkas PDF di atas 30 halaman dengan banyak ilustrasi grafik pada ponsel dengan RAM rendah bisa membutuhkan waktu render awal sekitar 2 hingga 4 detik di peramban. Dokumen tetap dapat dibuka tanpa eror, namun ke depannya disarankan menerapkan optimasi kompresi berkas di sisi server sebelum modul disimpan permanen.
 
 ---
 
 ## ⚖️ Lisensi & Hak Cipta
 
 Hak Cipta (c) 2026 Joan Ilham Dwi Putra. Seluruh hak cipta dilindungi undang-undang.  
-Source code ini didokumentasikan dan diunggah untuk keperluan evaluasi akademik serta pengembangan sistem informasi bimbingan belajar.
+Source code ini didokumentasikan dan dipublikasikan untuk keperluan evaluasi akademik dan pengembangan sistem manajemen bimbingan belajar.
