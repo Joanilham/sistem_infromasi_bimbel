@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Schema;
 
 class LmsContent extends Model
 {
@@ -110,6 +111,10 @@ class LmsContent extends Model
 
     public function getSubmissionFor($pesertaDidik): ?LmsSubmission
     {
+        if (!Schema::hasTable('lms_submissions')) {
+            return null;
+        }
+
         $id = $pesertaDidik instanceof PesertaDidik ? $pesertaDidik->id : $pesertaDidik;
         if (!$id) return null;
 
@@ -133,6 +138,10 @@ class LmsContent extends Model
 
     public function getCompletionFor($pesertaDidik): ?LmsCompletion
     {
+        if (!Schema::hasTable('lms_completions')) {
+            return null;
+        }
+
         $id = $pesertaDidik instanceof PesertaDidik ? $pesertaDidik->id : $pesertaDidik;
         if (!$id) return null;
 

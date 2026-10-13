@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 
 trait HandlesImageUpload
@@ -25,9 +26,21 @@ trait HandlesImageUpload
         }
 
         $mime = $imageInfo['mime'];
-        $tempPath = tempnam(sys_get_temp_dir(), 'img_comp');
+        $tempPath = null;
 
         try {
+            $tempDirectory = storage_path('app/private');
+            File::ensureDirectoryExists($tempDirectory);
+
+            if (!is_writable($tempDirectory)) {
+                throw new \RuntimeException('Temporary image directory is not writable.');
+            }
+
+            $tempPath = tempnam($tempDirectory, 'img_comp');
+            if ($tempPath === false) {
+                throw new \RuntimeException('Unable to create temporary image file.');
+            }
+
             switch ($mime) {
                 case 'image/jpeg':
                 case 'image/jpg':
@@ -42,7 +55,6 @@ trait HandlesImageUpload
                     $image = imagecreatefromwebp($file->getRealPath());
                     break;
                 default:
-                    if (file_exists($tempPath)) unlink($tempPath);
                     return $file->store($directory, 'public');
             }
 
@@ -57,13 +69,15 @@ trait HandlesImageUpload
             $finalPath = $directory . '/' . $filename;
             
             Storage::disk('public')->put($finalPath, file_get_contents($tempPath));
-            if (file_exists($tempPath)) unlink($tempPath);
             
             return $finalPath;
         } catch (\Throwable $e) {
-            if (file_exists($tempPath)) unlink($tempPath);
             \Illuminate\Support\Facades\Log::error('Compression Error: ' . $e->getMessage());
             return $file->store($directory, 'public');
+        } finally {
+            if (is_string($tempPath) && file_exists($tempPath)) {
+                unlink($tempPath);
+            }
         }
     }
 }

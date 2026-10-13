@@ -69,13 +69,13 @@
                     <svg class="w-4.5 h-4.5 text-emerald-200 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                     </svg>
-                    <span>{{ $peserta?->kelompokBelajar?->nama_kelompok ?? 'Belum Masuk Kelas' }}</span>
+                    <span><span class="text-white/70">Kelas:</span> {{ $peserta?->kelompokBelajar?->nama_kelompok ?? 'Belum Masuk Kelas' }}</span>
                 </div>
                 <div class="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-white/15 backdrop-blur-md border border-white/20 text-xs sm:text-sm font-bold shadow-xs text-white">
                     <svg class="w-4.5 h-4.5 text-emerald-200 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
-                    <span>{{ $peserta?->paketBimbingan?->nama_paket ?? 'Paket Belum Diatur' }}</span>
+                    <span><span class="text-white/70">Paket:</span> {{ $peserta?->paketBimbingan?->nama_paket ?? 'Paket Belum Diatur' }}</span>
                 </div>
             </div>
         </div>

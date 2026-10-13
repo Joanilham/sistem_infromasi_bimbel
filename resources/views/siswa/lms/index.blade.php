@@ -47,7 +47,7 @@
             <div class="flex items-center gap-2">
                 <p class="text-xs font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">Learning Management System</p>
                 <span class="rounded-lg bg-indigo-50 px-2.5 py-0.5 text-[11px] font-bold text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300">
-                    {{ $pesertaDidik?->kelompokBelajar?->nama_kelompok ?? 'Siswa Aktif' }}
+                    Kelompok: {{ $pesertaDidik?->kelompokBelajar?->nama_kelompok ?? 'Belum diatur' }}
                 </span>
             </div>
             <h1 class="mt-1 text-2xl font-black text-slate-900 dark:text-white">Ruang Belajar & Modul Siswa</h1>
@@ -141,7 +141,11 @@
                 <svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
             </div>
             <h3 class="mt-4 text-base font-black text-slate-800 dark:text-white">Belum Ada Materi atau Tugas</h3>
-            <p class="mt-1 text-xs text-slate-500">Guru pengajar belum membagikan modul atau penugasan untuk kelompok belajar Anda.</p>
+            @if(!$pesertaDidik?->kelompok_belajar_id)
+                <p class="mt-1 text-xs text-slate-500">Akun Anda belum terhubung ke kelompok belajar. Hubungi admin untuk memperbarui data kelompok siswa.</p>
+            @else
+                <p class="mt-1 text-xs text-slate-500">Belum ada materi atau tugas untuk kelompok {{ $pesertaDidik->kelompokBelajar?->nama_kelompok ?? 'Anda' }}. Pastikan guru memilih kelompok belajar yang sama.</p>
+            @endif
         </div>
     @else
         <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

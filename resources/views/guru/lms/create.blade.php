@@ -118,13 +118,13 @@
                         <option value="">-- Pilih Kelompok Belajar --</option>
                         @foreach($kelompokBelajars as $kelompok)
                             <option value="{{ $kelompok->id }}" @selected(old('kelompok_belajar_id') == $kelompok->id)>
-                                {{ $kelompok->nama_kelompok }}
+                                {{ $kelompok->nama_kelompok }} ({{ $kelompok->siswa_aktif_count }} siswa aktif)
                             </option>
                         @endforeach
                     </select>
                 </div>
                 @if($kelompokBelajars->isEmpty())
-                    <p class="mt-2 text-xs font-medium text-amber-600 dark:text-amber-400">Belum ada kelompok belajar yang ditugaskan untuk mata pelajaran Anda.</p>
+                    <p class="mt-2 text-xs font-medium text-amber-600 dark:text-amber-400">Belum ada kelompok belajar yang tersedia.</p>
                 @endif
             </div>
 
