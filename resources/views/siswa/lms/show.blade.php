@@ -209,6 +209,15 @@
                                 Waktu: {{ $submission->submitted_at->translatedFormat('d M Y, H:i') }} WIB
                             </p>
 
+                            @if($submission->status === 'resubmitted' && $submission->nilai !== null)
+                                <div class="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-200">
+                                    <p class="font-bold">Guru meminta perbaikan. Silakan unggah ulang jawaban Anda.</p>
+                                    @if($submission->feedback_guru)
+                                        <p class="mt-1">Catatan: {{ $submission->feedback_guru }}</p>
+                                    @endif
+                                </div>
+                            @endif
+
                             @if($submission->file_path)
                                 @php
                                     $isSubPdf = strtolower(pathinfo($submission->file_path, PATHINFO_EXTENSION)) === 'pdf';

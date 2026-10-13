@@ -58,6 +58,10 @@ class LmsSubmission extends Model
 
     public function isGraded(): bool
     {
+        if ($this->status === 'resubmitted') {
+            return false;
+        }
+
         return $this->status === 'graded' || $this->nilai !== null;
     }
 

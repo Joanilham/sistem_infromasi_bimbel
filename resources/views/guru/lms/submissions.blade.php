@@ -12,12 +12,12 @@
     currentScore: '',
     currentFeedback: '',
     currentStatus: 'graded',
-    openGradeModal(subId, studentName, score, feedback, status) {
+    openGradeModal(subId, studentName, score, feedback) {
         this.submissionId = subId;
         this.selectedStudent = studentName;
-        this.currentScore = score || '';
+        this.currentScore = score ?? '';
         this.currentFeedback = feedback || '';
-        this.currentStatus = status || 'graded';
+        this.currentStatus = 'graded';
         this.gradeModalOpen = true;
     },
     matches(name, nisn, status) {
@@ -144,7 +144,7 @@
 
                             $studentStatus = 'unsubmitted';
                             if ($submission) {
-                                if ($submission->nilai !== null) {
+                                if ($submission->isGraded()) {
                                     $studentStatus = 'graded';
                                 } elseif ($submission->is_late) {
                                     $studentStatus = 'late';
@@ -233,7 +233,7 @@
                             <td class="px-6 py-4 text-center">
                                 @if($submission)
                                     <button type="button" 
-                                            @click="openGradeModal('{{ $submission->id }}', '{{ addslashes($student->nama_lengkap) }}', '{{ $submission->nilai }}', '{{ addslashes($submission->feedback_guru ?? '') }}', '{{ $submission->status }}')"
+                                            @click="openGradeModal('{{ $submission->id }}', '{{ addslashes($student->nama_lengkap) }}', '{{ $submission->nilai }}', '{{ addslashes($submission->feedback_guru ?? '') }}')"
                                             class="inline-flex items-center gap-1 rounded-xl bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-700 transition hover:bg-indigo-100 dark:bg-indigo-950/60 dark:text-indigo-300">
                                         <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                         {{ $submission->isGraded() ? 'Edit Nilai' : 'Beri Nilai' }}

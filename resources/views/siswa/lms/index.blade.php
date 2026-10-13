@@ -192,6 +192,10 @@
                                         <span class="h-2 w-2 rounded-full bg-rose-500"></span>
                                         Belum Dikumpulkan
                                     </span>
+                                @elseif($sub->status === 'resubmitted' && $sub->nilai !== null)
+                                    <span class="inline-flex items-center gap-1 rounded-md bg-amber-50 px-2 py-0.5 text-xs font-black text-amber-700 dark:bg-amber-950/60 dark:text-amber-300">
+                                        Perlu Revisi
+                                    </span>
                                 @elseif($sub->isGraded())
                                     <span class="inline-flex items-center gap-1 rounded-md bg-indigo-50 px-2 py-0.5 text-xs font-black text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300">
                                         Nilai: {{ number_format($sub->nilai, 1) }} / 100

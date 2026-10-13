@@ -16,7 +16,7 @@ class GradeSubmissionRequest extends FormRequest
         return [
             'nilai' => ['required', 'numeric', 'min:0', 'max:100'],
             'feedback_guru' => ['nullable', 'string', 'max:5000'],
-            'status' => ['nullable', 'in:graded'],
+            'status' => ['nullable', 'in:graded,resubmitted'],
         ];
     }
 }
