@@ -66,6 +66,16 @@ class DashboardController extends Controller
             return in_array($ujian->id, $ujianSelesaiIds);
         });
 
-        return view('siswa.dashboard', compact('user', 'peserta', 'absensis', 'totalHadir', 'totalAlpha', 'ujianAktif'));
+        // Notifikasi & Aktivitas LMS Siswa
+        $notifikasiLms = collect();
+        $unreadNotifCount = 0;
+        if (\Illuminate\Support\Facades\Schema::hasTable('notifications')) {
+            $notifikasiLms = $user->notifications()->latest()->take(8)->get();
+            $unreadNotifCount = $user->unreadNotifications()->count();
+        }
+
+        return view('siswa.dashboard', compact(
+            'user', 'peserta', 'absensis', 'totalHadir', 'totalAlpha', 'ujianAktif', 'notifikasiLms', 'unreadNotifCount'
+        ));
     }
 }

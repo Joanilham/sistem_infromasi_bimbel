@@ -137,6 +137,15 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+    // Notifikasi LMS & Umum (Guru & Siswa)
+    Route::prefix('notifikasi-lms')->name('notifikasi.lms.')->group(function () {
+        Route::get('/unread-count', [\App\Http\Controllers\Notifikasi\NotifikasiLmsController::class, 'unreadCount'])->name('unread_count');
+        Route::get('/recent', [\App\Http\Controllers\Notifikasi\NotifikasiLmsController::class, 'recent'])->name('recent');
+        Route::get('/baca/{id}', [\App\Http\Controllers\Notifikasi\NotifikasiLmsController::class, 'baca'])->name('baca');
+        Route::post('/tandai-semua', [\App\Http\Controllers\Notifikasi\NotifikasiLmsController::class, 'tandaiSemua'])->name('tandai_semua');
+        Route::get('/pusat', [\App\Http\Controllers\Notifikasi\NotifikasiLmsController::class, 'index'])->name('index');
+    });
+
     // ----------------------------------------------------------
     // AREA ADMINISTRATOR & STAFF
     // ensure_role memastikan siswa/guru tidak bisa masuk ke sini

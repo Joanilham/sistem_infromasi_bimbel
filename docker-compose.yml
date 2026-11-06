@@ -25,11 +25,19 @@ services:
       - ./public/images:/var/www/html/public/images:ro,z
       - ./public/vendor:/var/www/html/public/vendor:ro,z
       - ./config:/var/www/html/config:ro,z
+      - ./tests:/var/www/html/tests:ro,z
+      - ./phpunit.xml:/var/www/html/phpunit.xml:ro,z
       - ./storage/app/public:/var/www/html/storage/app/public:z
+      - ./rr:/var/www/html/rr:z
     networks:
       - geniusedu
     mem_limit: 2g
-    memswap_limit: 2560m
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8000/up"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
     depends_on:
       mysql:
         condition: service_healthy
@@ -57,7 +65,8 @@ services:
     mem_limit: 128m
     memswap_limit: 192m
     depends_on:
-      - app
+      app:
+        condition: service_healthy
 
   # MySQL Database
   mysql:

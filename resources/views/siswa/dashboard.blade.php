@@ -81,9 +81,144 @@
         </div>
     </div>
 
-    <a href="{{ route('siswa.lms.index') }}" class="group flex items-center justify-between rounded-2xl border border-indigo-200 bg-indigo-50 p-5 shadow-sm transition hover:border-indigo-400 hover:shadow-md dark:border-indigo-900 dark:bg-indigo-950/40">
-        <div class="flex items-center gap-4"><div class="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-600 text-white"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332 0.477 4.5 1.253v13C19.832 18 18.247 18 16.5 18c-1.746 0 0 0-4.5 1.253" /></svg></div><div><h2 class="font-black text-slate-900 dark:text-white">LMS</h2><p class="text-sm text-slate-600 dark:text-slate-300">Lihat materi dan tugas dari guru</p></div></div><span class="text-indigo-600 transition group-hover:translate-x-1">&rarr;</span>
-    </a>
+    {{-- LMS & NOTIFIKASI WIDGET SISWA --}}
+    <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200/80 dark:border-zinc-800 shadow-sm p-6 sm:p-7 space-y-5"
+         x-data="{ tab: 'all' }">
+        
+        {{-- Widget Top Bar --}}
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-2xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 shadow-xs">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                    </svg>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-lg font-black text-slate-900 dark:text-white tracking-tight">Tugas & Aktivitas LMS Terkini</h2>
+                        @if(($unreadNotifCount ?? 0) > 0)
+                            <span class="px-2 py-0.5 text-[11px] font-black rounded-full bg-rose-50 text-rose-600 dark:bg-rose-950/60 dark:text-rose-400 border border-rose-200/50 dark:border-rose-900/40">
+                                {{ $unreadNotifCount }} Baru
+                            </span>
+                        @endif
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Pantau tugas yang baru dirilis guru dan hasil penilaian tugas Anda</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 shrink-0">
+                <a href="{{ route('siswa.lms.index', [], false) }}" 
+                   class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700 text-xs font-bold transition-colors">
+                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332 0.477 4.5 1.253v13C19.832 18 18.247 18 16.5 18c-1.746 0 0 0-4.5 1.253"/></svg>
+                    <span>Buka LMS</span>
+                </a>
+                <a href="{{ route('notifikasi.lms.index', [], false) }}" 
+                   class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 dark:text-indigo-300 text-xs font-bold transition-colors">
+                    <span>Semua Notifikasi</span>
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </a>
+            </div>
+        </div>
+
+        {{-- Filter Tabs --}}
+        <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs font-bold border-b border-slate-100 dark:border-zinc-800 scrollbar-none">
+            <button type="button" @click="tab = 'all'"
+                    class="px-3.5 py-2 rounded-xl transition-all cursor-pointer shrink-0"
+                    :class="tab === 'all' ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800'">
+                Semua
+            </button>
+            <button type="button" @click="tab = 'tugas_baru'"
+                    class="px-3.5 py-2 rounded-xl transition-all cursor-pointer shrink-0"
+                    :class="tab === 'tugas_baru' ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800'">
+                Tugas Baru
+            </button>
+            <button type="button" @click="tab = 'tugas_dinilai'"
+                    class="px-3.5 py-2 rounded-xl transition-all cursor-pointer shrink-0"
+                    :class="tab === 'tugas_dinilai' ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800'">
+                Hasil Nilai
+            </button>
+            <button type="button" @click="tab = 'unread'"
+                    class="px-3.5 py-2 rounded-xl transition-all cursor-pointer shrink-0 inline-flex items-center gap-1.5"
+                    :class="tab === 'unread' ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800'">
+                <span>Belum Dibaca</span>
+                @if(($unreadNotifCount ?? 0) > 0)
+                    <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+                @endif
+            </button>
+        </div>
+
+        {{-- Cards List --}}
+        @if(($notifikasiLms ?? collect())->isEmpty())
+            <div class="py-10 text-center rounded-2xl bg-slate-50 dark:bg-zinc-800/40 border border-slate-100 dark:border-zinc-800/80 p-6">
+                <div class="w-12 h-12 mx-auto rounded-2xl bg-white dark:bg-zinc-800 flex items-center justify-center text-slate-400 shadow-xs mb-3">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                </div>
+                <h3 class="text-sm font-bold text-slate-800 dark:text-white">Belum Ada Tugas atau Notifikasi</h3>
+                <p class="text-xs text-slate-400 mt-1 max-w-sm mx-auto">Saat guru merilis tugas atau menilai tugas Anda, pemberitahuan akan tampil langsung di sini.</p>
+            </div>
+        @else
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                @foreach($notifikasiLms as $notif)
+                    @php
+                        $data = $notif->data ?? [];
+                        $isRead = $notif->read_at !== null;
+                        $type = $data['type'] ?? 'info';
+                        $targetUrl = route('notifikasi.lms.baca', $notif->id, false);
+                    @endphp
+                    <div x-show="tab === 'all' || (tab === 'unread' && {{ $isRead ? 'false' : 'true' }}) || (tab === '{{ $type }}')"
+                         x-transition:enter="transition ease-out duration-150"
+                         x-transition:enter-start="opacity-0 scale-98"
+                         x-transition:enter-end="opacity-100 scale-100"
+                         class="group relative p-4 rounded-2xl border transition-all duration-200 flex flex-col justify-between {{ !$isRead ? 'bg-indigo-50/40 dark:bg-indigo-950/20 border-indigo-200/80 dark:border-indigo-800/60' : 'bg-slate-50/70 dark:bg-zinc-800/40 border-slate-200/60 dark:border-zinc-800/80 hover:border-slate-300 dark:hover:border-zinc-700' }}">
+                        
+                        <div>
+                            <div class="flex items-center justify-between gap-2 mb-2">
+                                <span class="px-2 py-0.5 text-[10px] font-black rounded-md {{ $type === 'tugas_dinilai' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300' }}">
+                                    {{ $type === 'tugas_dinilai' ? 'Tugas Dinilai' : 'Tugas Baru' }}
+                                </span>
+
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[10px] font-medium text-slate-400">{{ $notif->created_at?->diffForHumans() }}</span>
+                                    @if(!$isRead)
+                                        <span class="w-2 h-2 rounded-full bg-rose-500 shrink-0"></span>
+                                    @endif
+                                </div>
+                            </div>
+
+                            <h3 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors line-clamp-1">
+                                {{ $data['title'] ?? 'Pemberitahuan Tugas' }}
+                            </h3>
+
+                            <p class="text-xs text-slate-500 dark:text-zinc-400 mt-1 line-clamp-2 leading-relaxed">
+                                {{ $data['message'] ?? '' }}
+                            </p>
+                        </div>
+
+                        <div class="mt-3 pt-3 border-t border-slate-200/60 dark:border-zinc-800/60 flex items-center justify-between gap-2">
+                            @if(!empty($data['due_at']))
+                                <div class="inline-flex items-center gap-1 text-[10px] font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 px-2 py-0.5 rounded-md">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    <span class="truncate">Tenggat: {{ $data['due_at'] }}</span>
+                                </div>
+                            @elseif(isset($data['nilai']))
+                                <div class="inline-flex items-center gap-1 text-[10px] font-black text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md">
+                                    <span>Skor: {{ $data['nilai'] }}/100</span>
+                                </div>
+                            @else
+                                <span class="text-[10px] text-slate-400 font-medium">{{ $data['subject'] ?? 'LMS' }}</span>
+                            @endif
+
+                            <a href="{{ $targetUrl }}"
+                               class="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 group-hover:translate-x-0.5 transition-transform">
+                                <span>Buka</span>
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                            </a>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        @endif
+    </div>
 
     {{-- WARNINGS --}}
     @if(!$isAktif || session('pending_message'))

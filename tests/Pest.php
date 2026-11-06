@@ -1,5 +1,19 @@
 <?php
 
+// Pastikan environment testing selalu terisolasi ke in-memory SQLite dan array session
+putenv('APP_ENV=testing');
+$_ENV['APP_ENV'] = 'testing';
+$_SERVER['APP_ENV'] = 'testing';
+putenv('DB_CONNECTION=sqlite');
+$_ENV['DB_CONNECTION'] = 'sqlite';
+$_SERVER['DB_CONNECTION'] = 'sqlite';
+putenv('DB_DATABASE=:memory:');
+$_ENV['DB_DATABASE'] = ':memory:';
+$_SERVER['DB_DATABASE'] = ':memory:';
+putenv('SESSION_DRIVER=array');
+$_ENV['SESSION_DRIVER'] = 'array';
+$_SERVER['SESSION_DRIVER'] = 'array';
+
 // Define global mocks if imagewebp is not available to allow tests to run on any environment
 if (!function_exists('imagewebp')) {
     function imagewebp($image, $tempPath = null, $quality = 75) {

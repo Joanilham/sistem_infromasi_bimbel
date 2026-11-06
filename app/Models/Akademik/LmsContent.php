@@ -118,7 +118,8 @@ class LmsContent extends Model
         $id = $pesertaDidik instanceof PesertaDidik ? $pesertaDidik->id : $pesertaDidik;
         if (!$id) return null;
 
-        $nisn = ($pesertaDidik instanceof PesertaDidik && !empty($pesertaDidik->nisn)) ? trim($pesertaDidik->nisn) : null;
+        $hasNisn = Schema::hasColumn('lms_submissions', 'nisn');
+        $nisn = ($hasNisn && $pesertaDidik instanceof PesertaDidik && !empty($pesertaDidik->nisn)) ? trim($pesertaDidik->nisn) : null;
 
         if ($this->relationLoaded('submissions')) {
             return $this->submissions->first(function ($sub) use ($id, $nisn) {
@@ -145,7 +146,8 @@ class LmsContent extends Model
         $id = $pesertaDidik instanceof PesertaDidik ? $pesertaDidik->id : $pesertaDidik;
         if (!$id) return null;
 
-        $nisn = ($pesertaDidik instanceof PesertaDidik && !empty($pesertaDidik->nisn)) ? trim($pesertaDidik->nisn) : null;
+        $hasNisn = Schema::hasColumn('lms_completions', 'nisn');
+        $nisn = ($hasNisn && $pesertaDidik instanceof PesertaDidik && !empty($pesertaDidik->nisn)) ? trim($pesertaDidik->nisn) : null;
 
         if ($this->relationLoaded('completions')) {
             return $this->completions->first(function ($comp) use ($id, $nisn) {

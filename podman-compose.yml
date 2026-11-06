@@ -25,6 +25,8 @@ services:
       - ./public/images:/var/www/html/public/images:ro,z
       - ./public/vendor:/var/www/html/public/vendor:ro,z
       - ./config:/var/www/html/config:ro,z
+      - ./tests:/var/www/html/tests:ro,z
+      - ./phpunit.xml:/var/www/html/phpunit.xml:ro,z
       - ./storage/app/public:/var/www/html/storage/app/public:z
     networks:
       - geniusedu

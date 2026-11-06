@@ -12,8 +12,13 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
+use App\Notifications\TugasBaruNotification;
+use App\Notifications\TugasDikumpulkanNotification;
+use App\Notifications\TugasDinilaiNotification;
 
 class LmsService
 {
@@ -91,7 +96,7 @@ class LmsService
         $group = KelompokBelajar::findOrFail($data['kelompok_belajar_id']);
         $storedPath = $file?->store('lms/materials', 'public');
 
-        return LmsContent::create([
+        $content = LmsContent::create([
             'guru_id' => $guru->id,
             'kantor_id' => $this->contextId(session('kantor_id'), $group->kantor_id),
             'periode_id' => $this->contextId(session('periode_id'), $group->periode_id),
@@ -104,6 +109,12 @@ class LmsService
             'file_name' => $file?->getClientOriginalName(),
             'due_at' => $data['due_at'] ?? null,
         ]);
+
+        if ($content->type === 'tugas') {
+            $this->notifyStudentsNewAssignment($content, $group);
+        }
+
+        return $content;
     }
 
     public function updateContent(LmsContent $content, array $data, ?UploadedFile $file = null): void
@@ -282,6 +293,8 @@ class LmsService
             Storage::disk('public')->delete($oldPath);
         }
 
+        $this->notifyTeacherAssignmentSubmitted($content, $student, $submission);
+
         return ['success' => true, 'message' => 'Tugas berhasil dikumpulkan.'];
     }
 
@@ -424,6 +437,8 @@ class LmsService
             'graded_at' => now(),
             'graded_by' => $graderId,
         ])->save();
+
+        $this->notifyStudentAssignmentGraded($submission);
     }
 
     public function getReadersData(LmsContent $content): array
@@ -513,5 +528,60 @@ class LmsService
     private function contextId(mixed $value, ?int $fallback): ?int
     {
         return is_numeric($value) ? (int) $value : $fallback;
+    }
+
+    private function notifyStudentsNewAssignment(LmsContent $content, KelompokBelajar $group): void
+    {
+        try {
+            if (!Schema::hasTable('notifications')) {
+                return;
+            }
+
+            $students = $group->pesertaDidiks()
+                ->whereIn('status', ['Aktif', 'aktif'])
+                ->with('user')
+                ->get();
+
+            $users = $students->pluck('user')->filter()->unique('id');
+            if ($users->isNotEmpty()) {
+                Notification::send($users, new TugasBaruNotification($content));
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Gagal mengirim notifikasi tugas baru: ' . $e->getMessage());
+        }
+    }
+
+    private function notifyTeacherAssignmentSubmitted(LmsContent $content, PesertaDidik $student, LmsSubmission $submission): void
+    {
+        try {
+            if (!Schema::hasTable('notifications')) {
+                return;
+            }
+
+            $content->loadMissing('guru');
+            $student->loadMissing('kelompokBelajar');
+            if ($content->guru) {
+                $content->guru->notify(new TugasDikumpulkanNotification($content, $student, $submission));
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Gagal mengirim notifikasi pengumpulan tugas ke guru: ' . $e->getMessage());
+        }
+    }
+
+    private function notifyStudentAssignmentGraded(LmsSubmission $submission): void
+    {
+        try {
+            if (!Schema::hasTable('notifications')) {
+                return;
+            }
+
+            $submission->loadMissing(['content.guru', 'pesertaDidik.user']);
+            $studentUser = $submission->pesertaDidik?->user;
+            if ($studentUser) {
+                $studentUser->notify(new TugasDinilaiNotification($submission));
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Gagal mengirim notifikasi penilaian tugas ke siswa: ' . $e->getMessage());
+        }
     }
 }

@@ -9,6 +9,25 @@ define('LARAVEL_START', microtime(true));
 // Register the Composer autoloader...
 require __DIR__.'/vendor/autoload.php';
 
+// Jika artisan menjalankan perintah test, otomatis pasang environment testing terisolasi
+if (isset($_SERVER['argv']) && in_array('test', $_SERVER['argv'], true)) {
+    putenv('APP_ENV=testing');
+    $_ENV['APP_ENV'] = 'testing';
+    $_SERVER['APP_ENV'] = 'testing';
+
+    putenv('DB_CONNECTION=sqlite');
+    $_ENV['DB_CONNECTION'] = 'sqlite';
+    $_SERVER['DB_CONNECTION'] = 'sqlite';
+
+    putenv('DB_DATABASE=:memory:');
+    $_ENV['DB_DATABASE'] = ':memory:';
+    $_SERVER['DB_DATABASE'] = ':memory:';
+
+    putenv('SESSION_DRIVER=array');
+    $_ENV['SESSION_DRIVER'] = 'array';
+    $_SERVER['SESSION_DRIVER'] = 'array';
+}
+
 // Bootstrap Laravel and handle the command...
 /** @var Application $app */
 $app = require_once __DIR__.'/bootstrap/app.php';

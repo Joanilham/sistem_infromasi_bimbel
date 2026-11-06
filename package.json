@@ -4,7 +4,9 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "start": "cmd /c start.bat",
+        "stop": "cmd /c stop.bat"
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.0.0",

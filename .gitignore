@@ -1,6 +1,7 @@
 /.env
 /vendor
 /node_modules
+/rr
 /public/storage
 /storage/*.key
 /storage/*.sqlite

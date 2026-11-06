@@ -45,7 +45,7 @@ RUN npm run build \
     && rm -rf node_modules
 
 # Set permissions
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/vendor/pestphp \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Copy entrypoint script (runs Laravel optimize at container startup)

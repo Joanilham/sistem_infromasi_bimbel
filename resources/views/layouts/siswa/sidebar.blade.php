@@ -59,6 +59,14 @@
             </svg>
             <span class="text-sm">Dashboard</span>
         </a>
+
+        <a href="{{ route('notifikasi.lms.index') }}" aria-label="Notifikasi"
+            class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-150 group {{ request()->routeIs('notifikasi.lms.*') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 font-bold shadow-xs' : 'text-slate-600 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-900 hover:text-slate-900 dark:hover:text-white font-semibold' }}">
+            <svg class="w-5 h-5 mr-3 shrink-0 transition-colors {{ request()->routeIs('notifikasi.lms.*') ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 dark:text-zinc-500 group-hover:text-slate-600 dark:group-hover:text-zinc-300' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+            <span class="text-sm">Notifikasi</span>
+        </a>
         @endif
     </nav>
 

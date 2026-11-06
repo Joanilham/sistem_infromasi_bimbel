@@ -24,6 +24,9 @@
                         </div>
                     @endif
 
+                    <!-- Notifikasi Bell Siswa -->
+                    <x-notifikasi-bell />
+
                     <div class="relative shrink-0" x-data="{ open: false }" @click.outside="open = false">
                         <button type="button"
                             @click="open = !open"
