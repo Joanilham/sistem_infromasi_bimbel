@@ -60,7 +60,6 @@ Route::get('/', function () {
         $mitras = \App\Models\System\MitraLogo::orderBy('order_num')->get();
         $featuredGurus = \App\Models\User::where('level', 'Guru')->where('is_featured', true)->get();
         $initialUniversities = (new \App\Services\PddiktiService())->searchUniversities(null, 'all', 1, 12);
-
         return compact('masterData', 'pakets', 'testimonials', 'faqs', 'galleries', 'features', 'mitras', 'featuredGurus', 'initialUniversities');
     });
 

@@ -32,7 +32,7 @@
             <p class="text-3xl font-black text-slate-900 dark:text-white tracking-tight mb-1.5">{{ $totalTenagaPengajar }}</p>
             <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
                 <span class="w-1.5 h-1.5 rounded-full {{ $totalTenagaPengajar > 0 ? 'bg-emerald-500' : 'bg-slate-300' }}"></span>
-                <span>{{ $totalTenagaPengajar > 0 ? 'Semua aktif bertugas' : 'Belum ada data pengajar' }}</span>
+                <span>{{ $totalTenagaPengajar > 0 ? 'Guru aktif mengajar' : 'Belum ada guru terdaftar' }}</span>
             </p>
             <div class="absolute bottom-0 left-0 h-1 w-full bg-amber-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></div>
         </a>
@@ -50,7 +50,7 @@
             <p class="text-3xl font-black text-slate-900 dark:text-white tracking-tight mb-1.5">{{ $totalPaketAktif }}</p>
             <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                <span>Program aktif tersinkron</span>
+                <span>Pilihan program belajar aktif</span>
             </p>
             <div class="absolute bottom-0 left-0 h-1 w-full bg-emerald-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></div>
         </a>
@@ -68,7 +68,7 @@
             <p class="text-3xl font-black text-slate-900 dark:text-white tracking-tight mb-1.5">{{ $pendaftaranMenunggu ?? 0 }}</p>
             <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
                 <span class="w-1.5 h-1.5 rounded-full {{ ($pendaftaranMenunggu ?? 0) > 0 ? 'bg-amber-500' : 'bg-emerald-500' }}"></span>
-                <span>{{ ($pendaftaranMenunggu ?? 0) > 0 ? 'Menunggu verifikasi' : 'Semua terverifikasi' }}</span>
+                <span>{{ ($pendaftaranMenunggu ?? 0) > 0 ? 'Perlu diverifikasi' : 'Semua pendaftar sudah diproses' }}</span>
             </p>
             <div class="absolute bottom-0 left-0 h-1 w-full bg-sky-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></div>
         </a>

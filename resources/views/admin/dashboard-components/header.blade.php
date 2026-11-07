@@ -40,15 +40,27 @@
             <div class="flex-1 relative z-20">
                 <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 mb-4">
                     <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span class="text-xs font-semibold tracking-widest text-white/90 uppercase">Sistem Aktif</span>
+                    <span class="text-xs font-semibold tracking-wide text-white/90">Panel Pengelola Bimbel</span>
                 </div>
 
+                @php
+                    $hour = (int) now()->format('H');
+                    $sapaan = match(true) {
+                        $hour >= 4 && $hour < 11 => 'Selamat Pagi',
+                        $hour >= 11 && $hour < 15 => 'Selamat Siang',
+                        $hour >= 15 && $hour < 18 => 'Selamat Sore',
+                        default => 'Selamat Malam',
+                    };
+                @endphp
                 <h1 class="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-white leading-tight mb-2 tracking-tight">
-                    Selamat Datang,<br>
+                    {{ $sapaan }},<br>
                     <span>
-                        {{ auth()->user()->name ?? 'Administrator' }}!
+                        {{ auth()->user()->name ?? 'Admin' }}!
                     </span>
                 </h1>
+                <p class="text-white/90 text-sm sm:text-base mt-2 max-w-xl font-normal leading-relaxed">
+                    Berikut ringkasan aktivitas siswa, kelas, dan keuangan bimbel hari ini.
+                </p>
 
                 {{-- Sleek Active Context Info Capsule --}}
                 <div class="flex flex-wrap items-center gap-3 mt-6">

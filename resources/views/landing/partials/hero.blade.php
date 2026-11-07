@@ -39,15 +39,15 @@
                     <!-- Trust Indicators: Clean Integrated Numbers -->
                     <div class="pt-8 border-t border-[#E7E2D9] grid grid-cols-3 gap-4 sm:gap-6 max-w-lg mx-auto lg:mx-0 text-left" data-aos="fade-up" data-aos-delay="250">
                         <div class="border-l-2 border-[#141413] pl-3.5">
-                            <div class="font-mono text-2xl sm:text-3xl font-extrabold text-[#141413] tracking-tight">{{ (isset($masterData) && $masterData->stats_siswa) ? $masterData->stats_siswa : '1,500+' }}</div>
+                            <div class="font-mono text-2xl sm:text-3xl font-extrabold text-[#141413] tracking-tight">{{ (!empty($masterData->stats_siswa) && $masterData->stats_siswa != '0') ? $masterData->stats_siswa : '1,500+' }}</div>
                             <div class="text-xs text-[#78716C] font-medium mt-1">Siswa Terdaftar</div>
                         </div>
                         <div class="border-l-2 border-[#E14D2A] pl-3.5">
-                            <div class="font-mono text-2xl sm:text-3xl font-extrabold text-[#141413] tracking-tight">{{ (isset($masterData) && $masterData->stats_tutor) ? $masterData->stats_tutor : '98.4%' }}</div>
+                            <div class="font-mono text-2xl sm:text-3xl font-extrabold text-[#141413] tracking-tight">{{ (!empty($masterData->stats_tutor) && $masterData->stats_tutor != '0') ? $masterData->stats_tutor : '98.4%' }}</div>
                             <div class="text-xs text-[#78716C] font-medium mt-1">Tingkat Kelulusan</div>
                         </div>
                         <div class="border-l-2 border-[#A8A29E] pl-3.5">
-                            <div class="font-mono text-2xl sm:text-3xl font-extrabold text-[#141413] tracking-tight">{{ (isset($masterData) && $masterData->stats_kepuasan) ? $masterData->stats_kepuasan : '4.9/5' }}</div>
+                            <div class="font-mono text-2xl sm:text-3xl font-extrabold text-[#141413] tracking-tight">{{ (!empty($masterData->stats_kepuasan) && $masterData->stats_kepuasan != '0') ? (is_numeric($masterData->stats_kepuasan) && $masterData->stats_kepuasan > 5 ? $masterData->stats_kepuasan . '%' : $masterData->stats_kepuasan) : '4.9/5' }}</div>
                             <div class="text-xs text-[#78716C] font-medium mt-1">Rating Kepuasan</div>
                         </div>
                     </div>
@@ -143,36 +143,39 @@
                                 
                                 <!-- Slide 1 -->
                                 <div class="w-full h-full flex-shrink-0 relative">
-                                    <img src="{{ (isset($masterData) && $masterData->hero_image) ? asset('storage/' . $masterData->hero_image) : asset('images/hero-slide-1.png') }}" 
+                                    <img src="{{ isset($masterData) ? $masterData->hero_image_url : asset('images/hero-slide-1.png') }}" 
+                                         onerror="this.onerror=null; this.src='{{ asset('images/hero-slide-1.png') }}';"
                                          alt="Interaksi Belajar dan Diskusi Bersama Guru di Kelas" 
                                          class="w-full h-full object-cover object-center pointer-events-none"
                                          draggable="false"
                                          loading="eager">
-                                    @if(isset($masterData) && $masterData->hero_overlay_opacity)
+                                    @if(isset($masterData) && $masterData->hero_overlay_opacity && !empty($masterData->hero_image) && \Illuminate\Support\Facades\Storage::disk('public')->exists($masterData->hero_image))
                                         <div class="absolute inset-0 bg-black pointer-events-none" style="opacity: {{ $masterData->hero_overlay_opacity }};"></div>
                                     @endif
                                 </div>
 
                                 <!-- Slide 2 -->
                                 <div class="w-full h-full flex-shrink-0 relative">
-                                    <img src="{{ (isset($masterData) && $masterData->hero_image_2) ? asset('storage/' . $masterData->hero_image_2) : asset('images/hero-slide-2.png') }}" 
+                                    <img src="{{ isset($masterData) ? $masterData->hero_image_2_url : asset('images/hero-slide-2.png') }}" 
+                                         onerror="this.onerror=null; this.src='{{ asset('images/hero-slide-2.png') }}';"
                                          alt="Pembelajaran Berbasis Komputer dan Fasilitas Digital" 
                                          class="w-full h-full object-cover object-center pointer-events-none"
                                          draggable="false"
                                          loading="lazy">
-                                    @if(isset($masterData) && $masterData->hero_overlay_opacity)
+                                    @if(isset($masterData) && $masterData->hero_overlay_opacity && !empty($masterData->hero_image_2) && \Illuminate\Support\Facades\Storage::disk('public')->exists($masterData->hero_image_2))
                                         <div class="absolute inset-0 bg-black pointer-events-none" style="opacity: {{ $masterData->hero_overlay_opacity }};"></div>
                                     @endif
                                 </div>
 
                                 <!-- Slide 3 -->
                                 <div class="w-full h-full flex-shrink-0 relative">
-                                    <img src="{{ (isset($masterData) && $masterData->hero_image_3) ? asset('storage/' . $masterData->hero_image_3) : asset('images/hero-slide-3.png') }}" 
+                                    <img src="{{ isset($masterData) ? $masterData->hero_image_3_url : asset('images/hero-slide-3.png') }}" 
+                                         onerror="this.onerror=null; this.src='{{ asset('images/hero-slide-3.png') }}';"
                                          alt="Pendampingan Akademik Terpadu Siswa di Kelas" 
                                          class="w-full h-full object-cover object-center pointer-events-none"
                                          draggable="false"
                                          loading="lazy">
-                                    @if(isset($masterData) && $masterData->hero_overlay_opacity)
+                                    @if(isset($masterData) && $masterData->hero_overlay_opacity && !empty($masterData->hero_image_3) && \Illuminate\Support\Facades\Storage::disk('public')->exists($masterData->hero_image_3))
                                         <div class="absolute inset-0 bg-black pointer-events-none" style="opacity: {{ $masterData->hero_overlay_opacity }};"></div>
                                     @endif
                                 </div>

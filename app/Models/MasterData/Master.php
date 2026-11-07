@@ -101,6 +101,39 @@ class Master extends Model
     }
 
     /**
+     * Dapatkan URL foto slide hero 1 (dengan verifikasi fisik & fallback aman).
+     */
+    public function getHeroImageUrlAttribute(): string
+    {
+        if (!empty($this->hero_image) && \Illuminate\Support\Facades\Storage::disk('public')->exists($this->hero_image)) {
+            return \Illuminate\Support\Facades\Storage::url($this->hero_image);
+        }
+        return asset('images/hero-slide-1.png');
+    }
+
+    /**
+     * Dapatkan URL foto slide hero 2 (dengan verifikasi fisik & fallback aman).
+     */
+    public function getHeroImage2UrlAttribute(): string
+    {
+        if (!empty($this->hero_image_2) && \Illuminate\Support\Facades\Storage::disk('public')->exists($this->hero_image_2)) {
+            return \Illuminate\Support\Facades\Storage::url($this->hero_image_2);
+        }
+        return asset('images/hero-slide-2.png');
+    }
+
+    /**
+     * Dapatkan URL foto slide hero 3 (dengan verifikasi fisik & fallback aman).
+     */
+    public function getHeroImage3UrlAttribute(): string
+    {
+        if (!empty($this->hero_image_3) && \Illuminate\Support\Facades\Storage::disk('public')->exists($this->hero_image_3)) {
+            return \Illuminate\Support\Facades\Storage::url($this->hero_image_3);
+        }
+        return asset('images/hero-slide-3.png');
+    }
+
+    /**
      * Cek apakah instansi/mitra telah mengunggah logo kustom.
      */
     public function hasCustomLogo(): bool

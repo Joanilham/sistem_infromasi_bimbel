@@ -2,8 +2,8 @@
     <div class="mb-10">
         <div class="flex items-center justify-between mb-5">
             <div>
-                <h2 class="text-xl font-extrabold text-slate-800 dark:text-white tracking-tight">Log Aktivitas Sistem</h2>
-                <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">Rekam jejak tindakan pengguna secara real-time</p>
+                <h2 class="text-xl font-extrabold text-slate-800 dark:text-white tracking-tight">Riwayat Aktivitas</h2>
+                <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">Catatan perubahan data terakhir oleh staf dan pengajar</p>
             </div>
             <a href="{{ route('admin.audit-logs.index') }}" class="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-indigo-600 hover:text-white transition-all shadow-xs shrink-0">
                 Lihat Semua &rarr;

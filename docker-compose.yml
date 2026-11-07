@@ -28,6 +28,7 @@ services:
       - ./tests:/var/www/html/tests:ro,z
       - ./phpunit.xml:/var/www/html/phpunit.xml:ro,z
       - ./storage/app/public:/var/www/html/storage/app/public:z
+      - ./storage/app/private:/var/www/html/storage/app/private:z
       - ./rr:/var/www/html/rr:z
     networks:
       - geniusedu

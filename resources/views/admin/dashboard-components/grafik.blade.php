@@ -5,8 +5,8 @@
             <div>
                 <div class="flex items-center justify-between mb-6">
                     <div>
-                        <h3 class="text-base sm:text-lg font-extrabold text-slate-800 dark:text-white tracking-tight">Statistik Peserta Didik</h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Peserta masuk dan keluar periode {{ $activePeriodeYear }}</p>
+                        <h3 class="text-base sm:text-lg font-extrabold text-slate-800 dark:text-white tracking-tight">Perkembangan Siswa</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Siswa baru mendaftar dan siswa selesai bimbingan di periode {{ $activePeriodeYear }}</p>
                     </div>
                     <div class="px-3 py-1 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider border border-indigo-100/50 dark:border-indigo-900/50">
                         Siswa
@@ -35,8 +35,8 @@
             <div>
                 <div class="flex items-center justify-between mb-6">
                     <div>
-                        <h3 class="text-base sm:text-lg font-extrabold text-slate-800 dark:text-white tracking-tight">Statistik Keuangan</h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Arus kas masuk dan keluar periode {{ $activePeriodeYear }}</p>
+                        <h3 class="text-base sm:text-lg font-extrabold text-slate-800 dark:text-white tracking-tight">Arus Kas Bimbel</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Catatan uang masuk (pembayaran paket) dan biaya operasional periode {{ $activePeriodeYear }}</p>
                     </div>
                     <div class="px-3 py-1 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider border border-emerald-100/50 dark:border-emerald-900/50">
                         Keuangan

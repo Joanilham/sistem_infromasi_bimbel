@@ -212,17 +212,67 @@ class BackupController extends Controller
                 }
             }
 
-            // Jalankan impor SQL secara aman (tanpa DB::transaction karena DDL MySQL menyebabkan implicit commit)
-            \Illuminate\Support\Facades\DB::unprepared("SET FOREIGN_KEY_CHECKS=0;");
-            \Illuminate\Support\Facades\DB::unprepared($sqlContent);
-            \Illuminate\Support\Facades\DB::unprepared("SET FOREIGN_KEY_CHECKS=1;");
+            // 1. Bersihkan seluruh tabel aktif terlebih dahulu agar tidak terjadi tabrakan skema / tabel yatim
+            \Illuminate\Support\Facades\DB::statement("SET FOREIGN_KEY_CHECKS=0;");
+            $existingTables = \Illuminate\Support\Facades\DB::select("SHOW TABLES");
+            foreach ($existingTables as $tblObj) {
+                $tblName = array_values((array)$tblObj)[0];
+                \Illuminate\Support\Facades\DB::statement("DROP TABLE IF EXISTS `{$tblName}`;");
+            }
 
-            // Hapus cache agar data yang di-restore langsung terbaca
-            \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+            // 2. Jalankan impor SQL dari berkas backup
+            \Illuminate\Support\Facades\DB::unprepared($sqlContent);
+            \Illuminate\Support\Facades\DB::statement("SET FOREIGN_KEY_CHECKS=1;");
+
+            // 3. Reset koneksi PDO untuk membersihkan status multi-query buffer
+            \Illuminate\Support\Facades\DB::purge();
+            \Illuminate\Support\Facades\DB::reconnect();
+
+            // 4. Jalankan migrasi tertunda jika backup berasal dari skema versi sebelumnya
+            try {
+                \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+            } catch (\Throwable $migEx) {
+                Log::warning('Migrate warning post-restore: ' . $migEx->getMessage());
+            }
+
+            // 5. Bersihkan cache aplikasi & view
+            try {
+                \Illuminate\Support\Facades\Cache::flush();
+                \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+            } catch (\Throwable $cEx) {
+                Log::warning('Cache flush warning post-restore: ' . $cEx->getMessage());
+            }
+
+            // 6. Reload worker Octane jika berjalan di lingkungan Octane RoadRunner
+            try {
+                \Illuminate\Support\Facades\Artisan::call('octane:reload');
+            } catch (\Throwable $octEx) {
+                // Abaikan jika bukan lingkungan Octane
+            }
+
+            // 7. Selaraskan Konteks Sesi User ke Periode Aktif dan Kantor dari Data yang Baru Dipulihkan
+            $activePeriode = \App\Models\MasterData\Periode::where('is_active', true)->first()
+                          ?? \App\Models\MasterData\Periode::latest('id')->first();
+            $defaultKantor = \App\Models\MasterData\Kantor::first();
+
+            if ($activePeriode) {
+                session(['periode_id' => $activePeriode->id]);
+            }
+            $isSuperAdmin = strtolower(auth()->user()?->level ?? '') === 'super admin';
+            if ($isSuperAdmin) {
+                session(['kantor_id' => 'all']);
+            } elseif ($defaultKantor) {
+                session(['kantor_id' => auth()->user()?->kantor_id ?: $defaultKantor->id]);
+            }
+
+            // Hitung data siswa dan periode aktif untuk konfirmasi informatif
+            $studentCount = \App\Models\Akademik\PesertaDidik::count();
+            $periodeLabel = $activePeriode ? $activePeriode->tahun_periode : '-';
 
             Log::info("Restore DB sukses dilaksanakan oleh Super Admin ID " . auth()->id() . ": {$filename}");
-            \App\Models\System\AuditLog::logSystemEvent('Restore Database', 'SystemBackup', ['status' => 'sebelum_restore'], ['filename' => $filename, 'status' => 'sukses_restore']);
-            return back()->with('success', "Database berhasil di-restore dari file: {$filename}");
+            \App\Models\System\AuditLog::logSystemEvent('Restore Database', 'SystemBackup', ['status' => 'sebelum_restore'], ['filename' => $filename, 'status' => 'sukses_restore', 'periode' => $periodeLabel, 'siswa_count' => $studentCount]);
+
+            return back()->with('success', "Database berhasil di-restore dari file: {$filename}. Konteks otomatis diselaraskan ke Periode '{$periodeLabel}' ({$studentCount} data siswa siap diakses).");
 
         } catch (\Exception $e) {
             Log::error('Restore Exception (Pure PHP): ' . $e->getMessage());

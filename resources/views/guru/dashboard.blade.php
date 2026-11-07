@@ -52,16 +52,25 @@
         <div class="flex-1 min-w-0">
             <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/25 mb-4 shadow-xs">
                 <span class="w-2 h-2 rounded-full bg-emerald-300 animate-pulse"></span>
-                <span class="text-xs font-bold tracking-widest text-emerald-100 uppercase">Status Pengajar Aktif</span>
+                <span class="text-xs font-semibold text-emerald-100">Ruang Guru</span>
             </div>
 
+            @php
+                $hour = (int) now()->format('H');
+                $sapaan = match(true) {
+                    $hour >= 4 && $hour < 11 => 'Selamat Pagi',
+                    $hour >= 11 && $hour < 15 => 'Selamat Siang',
+                    $hour >= 15 && $hour < 18 => 'Selamat Sore',
+                    default => 'Selamat Malam',
+                };
+            @endphp
             <h1 class="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-white leading-tight mb-3 tracking-tight">
-                Selamat Datang,<br>
+                {{ $sapaan }},<br>
                 <span class="text-emerald-200">{{ $cleanName }}</span>
             </h1>
 
-            <p class="text-emerald-50/95 text-sm sm:text-base leading-relaxed max-w-2xl mb-6">
-                Kelola jadwal pembelajaran, bank butir soal, dan pantau hasil evaluasi ujian CBT peserta didik dalam satu portal terpadu.
+            <p class="text-emerald-50/95 text-sm sm:text-base leading-relaxed max-w-2xl mb-6 font-normal">
+                Siap mengajar hari ini? Cek jadwal kelas Anda, siapkan materi belajar, atau periksa hasil ujian siswa.
             </p>
 
             {{-- Info Capsules --}}
@@ -132,7 +141,7 @@
         <p class="text-3xl font-black text-slate-900 dark:text-white tracking-tight mb-1.5">{{ $bankSoalCount }}</p>
         <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
             <span class="w-1.5 h-1.5 rounded-full {{ $bankSoalCount > 0 ? 'bg-indigo-500' : 'bg-slate-300' }}"></span>
-            <span>{{ $bankSoalCount > 0 ? 'Koleksi soal siap diujikan' : 'Belum ada bank soal' }}</span>
+            <span>{{ $bankSoalCount > 0 ? 'Soal siap dipakai ujian' : 'Belum ada bank soal' }}</span>
         </p>
         <div class="absolute bottom-0 left-0 h-1 w-full bg-indigo-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></div>
     </a>
@@ -150,7 +159,7 @@
         <p class="text-3xl font-black text-slate-900 dark:text-white tracking-tight mb-1.5">{{ $ujianAktifCount }}</p>
         <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
             <span class="w-1.5 h-1.5 rounded-full {{ $ujianAktifCount > 0 ? 'bg-amber-500' : 'bg-slate-300' }}"></span>
-            <span>{{ $ujianAktifCount > 0 ? 'Sedang dapat diakses siswa' : 'Tidak ada ujian aktif' }}</span>
+            <span>{{ $ujianAktifCount > 0 ? 'Ujian sedang berlangsung' : 'Tidak ada ujian aktif' }}</span>
         </p>
         <div class="absolute bottom-0 left-0 h-1 w-full bg-amber-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></div>
     </a>
@@ -168,7 +177,7 @@
         <p class="text-3xl font-black text-slate-900 dark:text-white tracking-tight mb-1.5">{{ $totalSiswa }}</p>
         <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-            <span>Peserta didik terdaftar di bimbel</span>
+            <span>Siswa aktif terdaftar</span>
         </p>
         <div class="absolute bottom-0 left-0 h-1 w-full bg-emerald-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></div>
     </div>
@@ -178,7 +187,7 @@
 {{-- ─── Akses Cepat (Quick Actions) ─── --}}
 <div class="mb-4">
     <h2 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight">Akses Cepat</h2>
-    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">Pintasan navigasi untuk aktivitas pengajaran harian</p>
+    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">Menu yang sering digunakan saat mengajar</p>
 </div>
 
 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
@@ -214,7 +223,7 @@
         </div>
         <div class="flex-1 min-w-0">
             <h3 class="font-bold text-slate-900 dark:text-white text-sm group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">Tambah Bank Soal</h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">Buat butir soal baru untuk ujian CBT</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">Tambah butir soal pilihan ganda atau esai</p>
         </div>
         <div class="w-7 h-7 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors shrink-0">
             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
@@ -230,8 +239,8 @@
             </svg>
         </div>
         <div class="flex-1 min-w-0">
-            <h3 class="font-bold text-slate-900 dark:text-white text-sm group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">Rancang Ujian Baru</h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">Konfigurasi jadwal, token, dan peserta ujian</p>
+            <h3 class="font-bold text-slate-900 dark:text-white text-sm group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">Jadwalkan Ujian</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">Atur waktu pengerjaan, token, dan kelas peserta</p>
         </div>
         <div class="w-7 h-7 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-amber-50 group-hover:text-amber-600 transition-colors shrink-0">
             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>

@@ -184,8 +184,8 @@ class AutoBackupCommand extends Command
                             $values[] = 'NULL';
                         } else {
                             $escaped = str_replace(
-                                ["\\", "'", "\n", "\r", "\x1a"],
-                                ["\\\\", "\\'", "\\n", "\\r", "\\Z"],
+                                ["\\", "'", "\0", "\n", "\r", "\x1a"],
+                                ["\\\\", "\\'", "\\0", "\\n", "\\r", "\\Z"],
                                 $value
                             );
                             $values[] = "'{$escaped}'";

@@ -62,7 +62,7 @@
                         @endif
                     </p>
                     <p class="text-xs mt-0.5 {{ $bulanSisa == 0 ? 'text-red-600 dark:text-red-400' : 'text-amber-600 dark:text-amber-400' }}">
-                        Segera buat periode tahun ajaran baru agar data siswa, guru, dan laporan tetap terorganisir.
+                        Siapkan tahun ajaran baru agar pendaftaran siswa dan jadwal kelas berikutnya bisa langsung dibuka.
                     </p>
                 </div>
             </div>
